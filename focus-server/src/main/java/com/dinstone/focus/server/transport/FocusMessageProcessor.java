@@ -53,7 +53,7 @@ public final class FocusMessageProcessor implements MessageProcessor {
             response.setContent(content);
         } catch (Exception e) {
             response.setStatus(Status.ERROR);
-            response.setException(e);
+//            response.setContent(e.getMessage() == null ? null : e.getMessage().getBytes("UTF-8"));
         }
 
         context.getConnection().write(response);

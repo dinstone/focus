@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class JacksonSerializer implements Serializer {
+public abstract class JacksonSerializer<T> implements Serializer {
 
     private ObjectMapper objectMapper;
 
@@ -39,24 +39,16 @@ public class JacksonSerializer implements Serializer {
         objectMapper.enable(Feature.ALLOW_UNQUOTED_CONTROL_CHARS);
     }
 
-    @Override
-    public <T> byte[] serialize(T data) throws Exception {
-        return objectMapper.writeValueAsBytes(data);
+    protected T deserialize(byte[] bytes, Class<T> clazz) throws Exception {
+        return objectMapper.readValue(bytes, clazz);
     }
 
-    @Override
-    public <T> T deserialize(byte[] bodyBytes, Class<T> clazz) throws Exception {
-        return objectMapper.readValue(bodyBytes, clazz);
-    }
-
-    @Override
-    public <T> T deserialize(byte[] bytes, int offset, int length, Class<T> clazz) throws Exception {
+    protected T deserialize(byte[] bytes, int offset, int length, Class<T> clazz) throws Exception {
         return objectMapper.readValue(bytes, offset, length, clazz);
     }
 
     @Override
-    public String name() {
-        return "jackson";
+    public byte[] encode(Object data) throws Exception {
+        return objectMapper.writeValueAsBytes(data);
     }
-
 }

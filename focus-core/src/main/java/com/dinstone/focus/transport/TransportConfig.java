@@ -19,7 +19,6 @@ import java.util.Properties;
 
 import com.dinstone.focus.Configuration;
 import com.dinstone.focus.SchemaConfig;
-import com.dinstone.focus.serializer.SerializeType;
 
 public class TransportConfig extends SchemaConfig<TransportConfig> {
 
@@ -62,17 +61,6 @@ public class TransportConfig extends SchemaConfig<TransportConfig> {
         setInt(MAX_SIZE, maxSize);
 
         return this;
-    }
-
-    public TransportConfig setSerializeType(SerializeType type) {
-        set(SERIALIZE_TYPE, type.name());
-
-        return this;
-    }
-
-    public SerializeType getSerializeType() {
-        String name = get(SERIALIZE_TYPE, SerializeType.JACKSON.name()).toUpperCase();
-        return SerializeType.valueOf(name);
     }
 
     public int getConnectTimeout() {

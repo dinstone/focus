@@ -15,21 +15,27 @@
  */
 package com.dinstone.focus.serializer;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class SerializerRegister {
+import com.dinstone.focus.serializer.json.CallSerializer;
+import com.dinstone.focus.serializer.json.ExceptionSerializer;
+import com.dinstone.focus.serializer.json.ReplySerializer;
 
-    private static SerializerRegister INSTANCE = new SerializerRegister();
+public class SerializerManager {
 
-    private Map<String, Serializer> serializerMap = new HashMap<>();
+    private static SerializerManager INSTANCE = new SerializerManager();
 
-    public static SerializerRegister getInstance() {
+    private Map<String, Serializer> serializerMap = new ConcurrentHashMap<>();
+
+    public static SerializerManager getInstance() {
         return INSTANCE;
     }
 
-    protected SerializerRegister() {
-        regist(new JacksonSerializer());
+    protected SerializerManager() {
+        regist(new CallSerializer());
+        regist(new ReplySerializer());
+        regist(new ExceptionSerializer());
     }
 
     public void regist(Serializer serializer) {

@@ -33,10 +33,10 @@ public interface Serializer {
      */
     String name();
 
-    public <T> byte[] serialize(T data) throws Exception;
+    public byte[] encode(Object data) throws Exception;
 
-    public <T> T deserialize(byte[] bytes, Class<T> clazz) throws Exception;
+    public Object decode(byte[] bytes) throws Exception;
 
-    public <T> T deserialize(byte[] bytes, int offset, int length, Class<T> clazz) throws Exception;
+    public Object decode(byte[] bytes, int offset, int length) throws Exception;
 
 }

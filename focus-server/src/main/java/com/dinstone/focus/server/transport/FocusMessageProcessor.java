@@ -9,7 +9,7 @@ import com.dinstone.focus.invoker.ServiceInvoker;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serializer.Serializer;
-import com.dinstone.focus.serializer.SerializerRegister;
+import com.dinstone.focus.serializer.SerializerManager;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.handler.MessageContext;
@@ -36,24 +36,25 @@ public final class FocusMessageProcessor implements MessageProcessor {
 
     public void process(MessageContext context, Request request) {
         String sname = request.getHeaders().get("serializer");
-        Serializer serializer = SerializerRegister.getInstance().find(sname);
+        Serializer serializer = SerializerManager.getInstance().find(sname);
 
         Reply reply = null;
         try {
-            reply = handle(serializer.deserialize(request.getContent(), Call.class));
+            reply = handle((Call) serializer.decode(request.getContent()));
         } catch (Exception e) {
             reply = new Reply(500, e.getMessage());
         }
 
         Response response = new Response();
         try {
-            byte[] content = serializer.serialize(reply);
+            byte[] content = serializer.encode(reply);
 
             response.setStatus(Status.SUCCESS);
             response.setContent(content);
         } catch (Exception e) {
             response.setStatus(Status.ERROR);
-//            response.setContent(e.getMessage() == null ? null : e.getMessage().getBytes("UTF-8"));
+            // response.setContent(e.getMessage() == null ? null :
+            // e.getMessage().getBytes("UTF-8"));
         }
 
         context.getConnection().write(response);

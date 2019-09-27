@@ -18,6 +18,7 @@ package com.dinstone.focus.client.transport;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dinstone.focus.RpcException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serializer.Serializer;
@@ -99,19 +100,23 @@ public class ConnectionFactory {
 
             Response response = connection.sync(request);
 
-            return new Reply(response.getStatus().getValue(), response.getContent());
+            Serializer<?> rs = SerializerManager.getInstance().find(response.getHeaders().get("serializer"));
+            Object r = rs.decode(response.getContent());
+            if (r instanceof RpcException) {
+                throw (RpcException) r;
+            }
+
+            return (Reply) r;
         }
 
         @Override
         public InetSocketAddress getRemoteAddress() {
-            return null;
-//            return connection.getRemoteAddress();
+            return connection.getRemoteAddress();
         }
 
         @Override
         public InetSocketAddress getLocalAddress() {
-            // TODO Auto-generated method stub
-            return null;
+            return connection.getLocalAddress();
         }
 
         @Override

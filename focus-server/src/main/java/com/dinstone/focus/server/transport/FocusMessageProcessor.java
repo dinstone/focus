@@ -47,6 +47,7 @@ public final class FocusMessageProcessor implements MessageProcessor {
         }
 
         Response response = new Response();
+        response.setId(request.getId());
         response.setHeaders(new Headers());
         try {
             Serializer<Reply> s = SerializerManager.getInstance().find(Reply.class);

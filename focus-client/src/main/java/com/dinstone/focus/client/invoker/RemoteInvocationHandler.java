@@ -39,7 +39,7 @@ public class RemoteInvocationHandler implements InvocationHandler {
         Object[] args = invocation.getParams();
 
         Connection connection = connectionManager.getConnection(invocation.getServiceAddress());
-        return connection.invoke(new Call(service, group, timeout, method, args, invocation.getParamTypes()));
+        return connection.invoke(new Call(service, group, timeout, method, args, invocation.getParamTypes())).getData();
     }
 
 }

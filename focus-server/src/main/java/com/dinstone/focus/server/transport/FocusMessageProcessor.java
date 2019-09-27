@@ -13,6 +13,7 @@ import com.dinstone.focus.serializer.SerializerManager;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.handler.MessageContext;
+import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Message;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
@@ -36,7 +37,7 @@ public final class FocusMessageProcessor implements MessageProcessor {
 
     public void process(MessageContext context, Request request) {
         String sname = request.getHeaders().get("serializer");
-        Serializer serializer = SerializerManager.getInstance().find(sname);
+        Serializer<?> serializer = SerializerManager.getInstance().find(sname);
 
         Reply reply = null;
         try {
@@ -46,15 +47,23 @@ public final class FocusMessageProcessor implements MessageProcessor {
         }
 
         Response response = new Response();
+        response.setHeaders(new Headers());
         try {
-            byte[] content = serializer.encode(reply);
-
+            Serializer<Reply> s = SerializerManager.getInstance().find(Reply.class);
+            response.getHeaders().put("serializer", s.name());
             response.setStatus(Status.SUCCESS);
+            byte[] content = s.encode(reply);
             response.setContent(content);
         } catch (Exception e) {
+            Serializer<RpcException> se = SerializerManager.getInstance().find(RpcException.class);
+            response.getHeaders().put("serializer", se.name());
             response.setStatus(Status.ERROR);
-            // response.setContent(e.getMessage() == null ? null :
-            // e.getMessage().getBytes("UTF-8"));
+            try {
+                byte[] content = se.encode(new RpcException(500, e.getMessage()));
+                response.setContent(content);
+            } catch (Exception e1) {
+                //
+            }
         }
 
         context.getConnection().write(response);

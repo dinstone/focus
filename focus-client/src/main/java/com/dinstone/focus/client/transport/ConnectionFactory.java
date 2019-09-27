@@ -20,12 +20,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.serializer.Serializer;
+import com.dinstone.focus.serializer.SerializerManager;
 import com.dinstone.focus.transport.TransportConfig;
+import com.dinstone.loghub.Logger;
+import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
 import com.dinstone.photon.Connector;
+import com.dinstone.photon.handler.MessageContext;
 import com.dinstone.photon.message.Headers;
+import com.dinstone.photon.message.Message;
+import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
+import com.dinstone.photon.processor.MessageProcessor;
 
 /**
  * connetcion factory.
@@ -35,10 +43,24 @@ import com.dinstone.photon.message.Response;
  */
 public class ConnectionFactory {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionFactory.class);
+
     private Connector connector;
 
     public ConnectionFactory(TransportConfig transportConfig) {
         this.connector = new Connector(new ConnectOptions());
+        this.connector.setMessageProcessor(new MessageProcessor() {
+
+            @Override
+            public void process(MessageContext context, Message message) throws Exception {
+                if (message instanceof Notice) {
+                    LOG.info("notice is {}", message.getContent());
+                }
+                if (message instanceof Request) {
+                    LOG.info("response is {}", message.getContent());
+                }
+            }
+        });
     }
 
     public Connection create(InetSocketAddress sa) throws Exception {
@@ -68,9 +90,15 @@ public class ConnectionFactory {
             Headers headers = new Headers();
             headers.put("service", call.getService());
             headers.put("method", call.getMethod());
-            headers.put("timeout", "" + call.getTimeout());
             request.setHeaders(headers);
+
+            request.setTimeout(call.getTimeout());
+            Serializer<Call> s = SerializerManager.getInstance().find(Call.class);
+            headers.put("serializer", s.name());
+            request.setContent(s.encode(call));
+
             Response response = connection.sync(request);
+
             return new Reply(response.getStatus().getValue(), response.getContent());
         }
 

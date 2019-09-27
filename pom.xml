@@ -8,6 +8,7 @@
         <module>focus-core</module>
         <module>focus-client</module>
         <module>focus-server</module>
+        <module>focus-example</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.serializer;
+package com.dinstone.focus.serializer.json;
 
+import com.dinstone.focus.serializer.Serializer;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public abstract class JacksonSerializer<T> implements Serializer {
+public abstract class JacksonSerializer<T> implements Serializer<T> {
 
-    private ObjectMapper objectMapper;
+    protected ObjectMapper objectMapper;
 
     public JacksonSerializer() {
         objectMapper = new ObjectMapper();
@@ -48,7 +49,8 @@ public abstract class JacksonSerializer<T> implements Serializer {
     }
 
     @Override
-    public byte[] encode(Object data) throws Exception {
+    public byte[] encode(T data) throws Exception {
         return objectMapper.writeValueAsBytes(data);
     }
+
 }

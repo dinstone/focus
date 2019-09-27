@@ -32,10 +32,10 @@ public class RemoteInvocationHandler implements InvocationHandler {
 
     @Override
     public Object handle(Invocation invocation) throws Throwable {
-        String service = invocation.getService();
         String group = invocation.getGroup();
-        int timeout = invocation.getTimeout();
+        String service = invocation.getService();
         String method = invocation.getMethod();
+        int timeout = invocation.getTimeout();
         Object[] args = invocation.getParams();
 
         Connection connection = connectionManager.getConnection(invocation.getServiceAddress());

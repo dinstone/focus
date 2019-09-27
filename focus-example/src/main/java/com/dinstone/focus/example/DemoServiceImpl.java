@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.demo;
+package com.dinstone.focus.example;
 
-public interface DemoService {
+public class DemoServiceImpl implements DemoService {
 
-    public String hello(String name);
+    @Override
+    public String hello(String name) {
+        return "hi " + name;
+    }
 
-    public String hello(String name, int age);
+    @Override
+    public String hello(String name, int age) {
+        return "Hello " + name + ",age is " + age;
+    }
 
 }

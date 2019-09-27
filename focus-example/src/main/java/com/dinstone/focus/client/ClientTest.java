@@ -1,0 +1,23 @@
+package com.dinstone.focus.client;
+
+import java.io.IOException;
+
+import com.dinstone.focus.example.DemoService;
+
+public class ClientTest {
+
+    public static void main(String[] args) {
+        Client client = new ClientBuilder().bind("localhost", 3333).build();
+        DemoService ds = client.importing(DemoService.class);
+        System.out.println(ds.hello("dinstoneo"));
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        client.destroy();
+    }
+
+}

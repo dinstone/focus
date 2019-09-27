@@ -22,7 +22,7 @@ package com.dinstone.focus.serializer;
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */
-public interface Serializer {
+public interface Serializer<T> {
 
     /**
      * The serializer name. Each serializer must have a unique name. This is used to
@@ -33,10 +33,10 @@ public interface Serializer {
      */
     String name();
 
-    public byte[] encode(Object data) throws Exception;
+    public byte[] encode(T data) throws Exception;
 
-    public Object decode(byte[] bytes) throws Exception;
+    public T decode(byte[] bytes) throws Exception;
 
-    public Object decode(byte[] bytes, int offset, int length) throws Exception;
+    public T decode(byte[] bytes, int offset, int length) throws Exception;
 
 }

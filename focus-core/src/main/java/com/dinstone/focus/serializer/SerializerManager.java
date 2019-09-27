@@ -18,6 +18,9 @@ package com.dinstone.focus.serializer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.focus.RpcException;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serializer.json.CallSerializer;
 import com.dinstone.focus.serializer.json.ExceptionSerializer;
 import com.dinstone.focus.serializer.json.ReplySerializer;
@@ -26,23 +29,32 @@ public class SerializerManager {
 
     private static SerializerManager INSTANCE = new SerializerManager();
 
-    private Map<String, Serializer> serializerMap = new ConcurrentHashMap<>();
+    private Map<String, Serializer<?>> snameMap = new ConcurrentHashMap<>();
+
+    private Map<Class<?>, Serializer<?>> sclassMap = new ConcurrentHashMap<>();
 
     public static SerializerManager getInstance() {
         return INSTANCE;
     }
 
     protected SerializerManager() {
-        regist(new CallSerializer());
-        regist(new ReplySerializer());
-        regist(new ExceptionSerializer());
+        regist(Call.class, new CallSerializer());
+        regist(Reply.class, new ReplySerializer());
+        regist(RpcException.class, new ExceptionSerializer());
     }
 
-    public void regist(Serializer serializer) {
-        serializerMap.put(serializer.name(), serializer);
+    public <T> void regist(Class<T> clazz, Serializer<T> serializer) {
+        sclassMap.put(clazz, serializer);
+        snameMap.put(serializer.name(), serializer);
     }
 
-    public Serializer find(String name) {
-        return serializerMap.get(name);
+    @SuppressWarnings("unchecked")
+    public <T> Serializer<T> find(Class<T> clazz) {
+        return (Serializer<T>) sclassMap.get(clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Serializer<?> find(String sname) {
+        return snameMap.get(sname);
     }
 }

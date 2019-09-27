@@ -16,7 +16,10 @@
 
 package com.dinstone.focus.invoker;
 
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
+
 public interface InvocationHandler {
 
-    Object handle(Invocation invocation) throws Throwable;
+    Reply handle(Call call) throws Throwable;
 }

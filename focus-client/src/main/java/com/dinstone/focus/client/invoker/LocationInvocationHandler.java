@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.invoker.Invocation;
 import com.dinstone.focus.invoker.InvocationHandler;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.registry.ServiceDescription;
 
 public class LocationInvocationHandler implements InvocationHandler {
@@ -47,9 +48,9 @@ public class LocationInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object handle(Invocation invocation) throws Throwable {
-        invocation.setServiceAddress(getServiceAddress(invocation.getService(), invocation.getGroup()));
-        return invocationHandler.handle(invocation);
+    public Reply handle(Call call) throws Throwable {
+//        invocation.setServiceAddress(getServiceAddress(invocation.getService(), invocation.getGroup()));
+        return invocationHandler.handle(call);
     }
 
     public <T> InetSocketAddress getServiceAddress(String serviceName, String group) {

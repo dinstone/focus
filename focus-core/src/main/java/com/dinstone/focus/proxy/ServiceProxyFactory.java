@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import com.dinstone.focus.invoker.ServiceInvoker;
+import com.dinstone.focus.protocol.Call;
 
 public class ServiceProxyFactory {
 
@@ -37,13 +38,13 @@ public class ServiceProxyFactory {
         }
         if (serviceInstance != null && !serviceInterface.isInstance(serviceInstance)) {
             throw new IllegalArgumentException(
-                serviceInstance + " is not an instance of " + serviceInterface.getName());
+                    serviceInstance + " is not an instance of " + serviceInterface.getName());
         }
 
         ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
         ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
-        T proxyInstance = serviceInterface
-            .cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
+        T proxyInstance = serviceInterface.cast(
+                Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
 
         serviceProxy.setProxy(proxyInstance);
         serviceProxy.setTarget(serviceInstance);
@@ -72,8 +73,9 @@ public class ServiceProxyFactory {
                 return serviceProxy.getService();
             }
 
-            return serviceInvoker.invoke(serviceProxy.getService().getName(), serviceProxy.getGroup(), methodName,
-                serviceProxy.getTimeout(), args, method.getParameterTypes());
+            Call call = new Call(serviceProxy.getService().getName(), serviceProxy.getGroup(),
+                    serviceProxy.getTimeout(), methodName, args, method.getParameterTypes());
+            return serviceInvoker.invoke(call).getData();
         }
 
     }

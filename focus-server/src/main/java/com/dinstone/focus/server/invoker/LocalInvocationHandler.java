@@ -16,13 +16,15 @@
 
 package com.dinstone.focus.server.invoker;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.dinstone.focus.RpcException;
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.invoker.Invocation;
+import com.dinstone.focus.exception.ExcptionHelper;
 import com.dinstone.focus.invoker.InvocationHandler;
 import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.proxy.ServiceProxy;
 
 public class LocalInvocationHandler implements InvocationHandler {
@@ -34,16 +36,37 @@ public class LocalInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object handle(Invocation invocation) throws Throwable {
-        ServiceProxy<?> wrapper = implementBinding.lookup(invocation.getService(), invocation.getGroup());
+    public Reply handle(Call call) throws Throwable {
+        ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
         if (wrapper == null) {
-            throw new RpcException(404,
-                    "unkown service: " + invocation.getService() + "[" + invocation.getGroup() + "]");
+            throw new RpcException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
         }
 
-        Class<?>[] paramTypes = getParamTypes(invocation.getParams(), invocation.getParamTypes());
-        Method method = wrapper.getService().getDeclaredMethod(invocation.getMethod(), paramTypes);
-        return method.invoke(wrapper.getTarget(), invocation.getParams());
+        Reply reply = null;
+        try {
+            Class<?>[] paramTypes = getParamTypes(call.getParams(), call.getParamTypes());
+            Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
+            Object resObj = method.invoke(wrapper.getTarget(), call.getParams());
+            reply = new Reply(200, resObj);
+        } catch (RpcException e) {
+            reply = new Reply(e.getCode(), e.getMessage());
+        } catch (NoSuchMethodException e) {
+            reply = new Reply(405, "unkown method: [" + call.getGroup() + "]" + e.getMessage());
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
+                    + "(): " + e.getMessage();
+            reply = new Reply(502, message);
+        } catch (InvocationTargetException e) {
+            Throwable t = ExcptionHelper.getTargetException(e);
+            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
+                    + "(): " + t.getMessage();
+            reply = new Reply(500, message);
+        } catch (Throwable e) {
+            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
+                    + "(): " + e.getMessage();
+            reply = new Reply(509, message);
+        }
+        return reply;
     }
 
     private Class<?>[] getParamTypes(Object[] params, Class<?>[] paramTypes) {

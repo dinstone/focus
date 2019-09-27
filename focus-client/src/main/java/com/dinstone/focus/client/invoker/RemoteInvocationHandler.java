@@ -16,11 +16,13 @@
 
 package com.dinstone.focus.client.invoker;
 
+import java.net.InetSocketAddress;
+
 import com.dinstone.focus.client.transport.Connection;
 import com.dinstone.focus.client.transport.ConnectionManager;
-import com.dinstone.focus.invoker.Invocation;
 import com.dinstone.focus.invoker.InvocationHandler;
 import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
 public class RemoteInvocationHandler implements InvocationHandler {
 
@@ -31,15 +33,10 @@ public class RemoteInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object handle(Invocation invocation) throws Throwable {
-        String group = invocation.getGroup();
-        String service = invocation.getService();
-        String method = invocation.getMethod();
-        int timeout = invocation.getTimeout();
-        Object[] args = invocation.getParams();
-
-        Connection connection = connectionManager.getConnection(invocation.getServiceAddress());
-        return connection.invoke(new Call(service, group, timeout, method, args, invocation.getParamTypes())).getData();
+    public Reply handle(Call call) throws Throwable {
+        InetSocketAddress address = new InetSocketAddress("localhost", 3333);
+        Connection connection = connectionManager.getConnection(address);
+        return connection.invoke(call);
     }
 
 }

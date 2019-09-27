@@ -16,6 +16,9 @@
 
 package com.dinstone.focus.invoker;
 
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
+
 /**
  * client-side service invoker.
  *
@@ -33,9 +36,8 @@ public class ServiceInvoker {
         this.invocationHandler = invocationHandler;
     }
 
-    public Object invoke(String service, String group, String method, int timeout, Object[] params,
-            Class<?>[] paramTypes) throws Throwable {
-        return invocationHandler.handle(new Invocation(service, group, method, timeout, params, paramTypes));
+    public Reply invoke(Call call) throws Throwable {
+        return invocationHandler.handle(call);
     }
 
 }

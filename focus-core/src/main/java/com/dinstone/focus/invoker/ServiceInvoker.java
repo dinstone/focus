@@ -37,7 +37,14 @@ public class ServiceInvoker {
     }
 
     public Reply invoke(Call call) throws Throwable {
-        return invocationHandler.handle(call);
+        InvocationContext.push();
+        InvocationContext.get();
+        try {
+            return invocationHandler.handle(call);
+        } finally {
+            InvocationContext.remove();
+            InvocationContext.pop();
+        }
     }
 
 }

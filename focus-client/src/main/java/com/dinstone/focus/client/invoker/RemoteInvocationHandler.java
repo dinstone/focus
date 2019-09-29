@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 
 import com.dinstone.focus.client.transport.Connection;
 import com.dinstone.focus.client.transport.ConnectionManager;
+import com.dinstone.focus.invoker.InvocationContext;
 import com.dinstone.focus.invoker.InvocationHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -34,7 +35,7 @@ public class RemoteInvocationHandler implements InvocationHandler {
 
     @Override
     public Reply handle(Call call) throws Throwable {
-        InetSocketAddress address = new InetSocketAddress("localhost", 3333);
+        InetSocketAddress address = InvocationContext.get().getServiceAddress();
         Connection connection = connectionManager.getConnection(address);
         return connection.invoke(call);
     }

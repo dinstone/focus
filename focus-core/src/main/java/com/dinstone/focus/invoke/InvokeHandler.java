@@ -13,26 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
 
-import com.dinstone.focus.proxy.ServiceProxy;
+package com.dinstone.focus.invoke;
 
-/**
- * service implement binding
- *
- * @author dinstone
- * @version 1.0.0
- */
-public interface ImplementBinding {
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
-    /**
-     * binding service implement
-     *
-     * @param wrapper
-     */
-    public <T> void binding(ServiceProxy<T> wrapper);
+public interface InvokeHandler {
 
-    public ServiceProxy<?> lookup(String service, String group);
-
-    public void destroy();
+    public Reply invoke(Call call) throws Exception;
 }

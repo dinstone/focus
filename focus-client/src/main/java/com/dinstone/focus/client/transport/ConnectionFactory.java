@@ -23,7 +23,6 @@ import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serializer.Serializer;
 import com.dinstone.focus.serializer.SerializerManager;
-import com.dinstone.focus.transport.TransportConfig;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
@@ -48,7 +47,7 @@ public class ConnectionFactory {
 
     private Connector connector;
 
-    public ConnectionFactory(TransportConfig transportConfig) {
+    public ConnectionFactory(ConnectOptions connectOptions) {
         this.connector = new Connector(new ConnectOptions());
         this.connector.setMessageProcessor(new MessageProcessor() {
 
@@ -126,7 +125,7 @@ public class ConnectionFactory {
 
         @Override
         public void destroy() {
-//            connection.destroy();
+            connection.destroy();
         }
 
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.focus.server.invoker;
+package com.dinstone.focus.server.invoke;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,21 +22,21 @@ import java.lang.reflect.Method;
 import com.dinstone.focus.RpcException;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.exception.ExcptionHelper;
-import com.dinstone.focus.invoker.InvocationHandler;
+import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.proxy.ServiceProxy;
 
-public class LocalInvocationHandler implements InvocationHandler {
+public class LocalInvokeHandler implements InvokeHandler {
 
     private ImplementBinding implementBinding;
 
-    public LocalInvocationHandler(ImplementBinding implementBinding) {
+    public LocalInvokeHandler(ImplementBinding implementBinding) {
         this.implementBinding = implementBinding;
     }
 
     @Override
-    public Reply handle(Call call) throws Throwable {
+    public Reply invoke(Call call) throws Exception {
         ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
         if (wrapper == null) {
             throw new RpcException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");

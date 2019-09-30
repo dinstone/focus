@@ -14,12 +14,37 @@
  * limitations under the License.
  */
 
-package com.dinstone.focus.invoker;
+package com.dinstone.focus.invoke;
 
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
-public interface InvocationHandler {
+/**
+ * client-side service invoker.
+ *
+ * @author dinstone
+ * @version 1.0.0
+ */
+public class ServiceInvoker {
 
-    Reply handle(Call call) throws Throwable;
+    private InvokeHandler invokeHandler;
+
+    public ServiceInvoker(InvokeHandler invokeHandler) {
+        if (invokeHandler == null) {
+            throw new IllegalArgumentException("invocationHandler is null");
+        }
+        this.invokeHandler = invokeHandler;
+    }
+
+    public Reply invoke(Call call) throws Throwable {
+        InvokeContext.push();
+        InvokeContext.get();
+        try {
+            return invokeHandler.invoke(call);
+        } finally {
+            InvokeContext.remove();
+            InvokeContext.pop();
+        }
+    }
+
 }

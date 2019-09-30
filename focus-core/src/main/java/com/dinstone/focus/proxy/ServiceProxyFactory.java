@@ -20,7 +20,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import com.dinstone.focus.invoker.ServiceInvoker;
+import com.dinstone.focus.invoke.ServiceInvoker;
 import com.dinstone.focus.protocol.Call;
 
 public class ServiceProxyFactory {

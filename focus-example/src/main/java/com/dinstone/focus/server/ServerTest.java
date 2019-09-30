@@ -8,7 +8,7 @@ import com.dinstone.focus.example.DemoServiceImpl;
 public class ServerTest {
 
     public static void main(String[] args) {
-        Server server = new ServerBuilder().bind("localhost", 3333).build();
+        Server server = new Server(new ServerOptions().bind("localhost", 3333));
         server.exporting(DemoService.class, new DemoServiceImpl());
         server.start();
 

@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package com.dinstone.focus.client.invoker;
+package com.dinstone.focus.client.invoke;
 
 import java.net.InetSocketAddress;
 
 import com.dinstone.focus.client.transport.Connection;
 import com.dinstone.focus.client.transport.ConnectionManager;
-import com.dinstone.focus.invoker.InvocationContext;
-import com.dinstone.focus.invoker.InvocationHandler;
+import com.dinstone.focus.invoke.InvokeContext;
+import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
-public class RemoteInvocationHandler implements InvocationHandler {
+public class RemoteInvokeHandler implements InvokeHandler {
 
     private ConnectionManager connectionManager;
 
-    public RemoteInvocationHandler(ConnectionManager connectionManager) {
+    public RemoteInvokeHandler(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
 
     @Override
-    public Reply handle(Call call) throws Throwable {
-        InetSocketAddress address = InvocationContext.get().getServiceAddress();
+    public Reply invoke(Call call) throws Exception {
+        InetSocketAddress address = InvokeContext.get().getServiceAddress();
         Connection connection = connectionManager.getConnection(address);
         return connection.invoke(call);
     }

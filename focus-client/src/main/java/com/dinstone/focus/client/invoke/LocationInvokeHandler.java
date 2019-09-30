@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.focus.client.invoker;
+package com.dinstone.focus.client.invoke;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -22,23 +22,23 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.invoker.InvocationContext;
-import com.dinstone.focus.invoker.InvocationHandler;
+import com.dinstone.focus.invoke.InvokeContext;
+import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.registry.ServiceDescription;
 
-public class LocationInvocationHandler implements InvocationHandler {
+public class LocationInvokeHandler implements InvokeHandler {
 
     private final AtomicInteger index = new AtomicInteger(0);
 
-    private InvocationHandler invocationHandler;
+    private InvokeHandler invocationHandler;
 
     private ReferenceBinding referenceBinding;
 
     private List<InetSocketAddress> backupServiceAddresses = new ArrayList<>();
 
-    public LocationInvocationHandler(InvocationHandler invocationHandler, ReferenceBinding referenceBinding,
+    public LocationInvokeHandler(InvokeHandler invocationHandler, ReferenceBinding referenceBinding,
             List<InetSocketAddress> serviceAddresses) {
         this.invocationHandler = invocationHandler;
         this.referenceBinding = referenceBinding;
@@ -49,9 +49,9 @@ public class LocationInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Reply handle(Call call) throws Throwable {
-        InvocationContext.get().setServiceAddress(getServiceAddress(call.getService(), call.getGroup()));
-        return invocationHandler.handle(call);
+    public Reply invoke(Call call) throws Exception {
+        InvokeContext.get().setServiceAddress(getServiceAddress(call.getService(), call.getGroup()));
+        return invocationHandler.invoke(call);
     }
 
     public <T> InetSocketAddress getServiceAddress(String serviceName, String group) {

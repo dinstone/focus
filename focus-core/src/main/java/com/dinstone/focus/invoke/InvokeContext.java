@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.dinstone.focus.invoker;
+package com.dinstone.focus.invoke;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class InvocationContext {
+public class InvokeContext {
 
-    private static final ThreadLocal<InvocationContext> LOCAL = new ThreadLocal<InvocationContext>();
+    private static final ThreadLocal<InvokeContext> CONTEXT_LOCAL = new ThreadLocal<InvokeContext>();
 
-    private static final ThreadLocal<Deque<InvocationContext>> DEQUE_LOCAL = new ThreadLocal<Deque<InvocationContext>>();
+    private static final ThreadLocal<Deque<InvokeContext>> DEQUE_LOCAL = new ThreadLocal<Deque<InvokeContext>>();
 
     private InetSocketAddress serviceAddress;
 
@@ -36,52 +36,52 @@ public class InvocationContext {
         this.serviceAddress = serviceAddress;
     }
 
-    public static InvocationContext get() {
-        InvocationContext context = LOCAL.get();
+    public static InvokeContext get() {
+        InvokeContext context = CONTEXT_LOCAL.get();
         if (context == null) {
-            context = new InvocationContext();
-            LOCAL.set(context);
+            context = new InvokeContext();
+            CONTEXT_LOCAL.set(context);
         }
         return context;
     }
 
-    public static void set(InvocationContext context) {
-        LOCAL.set(context);
+    public static void set(InvokeContext context) {
+        CONTEXT_LOCAL.set(context);
     }
 
-    public static InvocationContext peek() {
-        return LOCAL.get();
+    public static InvokeContext peek() {
+        return CONTEXT_LOCAL.get();
     }
 
     public static void remove() {
-        LOCAL.remove();
+        CONTEXT_LOCAL.remove();
     }
 
     public static void push() {
-        InvocationContext context = LOCAL.get();
+        InvokeContext context = CONTEXT_LOCAL.get();
         if (context != null) {
-            Deque<InvocationContext> deque = DEQUE_LOCAL.get();
+            Deque<InvokeContext> deque = DEQUE_LOCAL.get();
             if (deque == null) {
-                deque = new ArrayDeque<InvocationContext>();
+                deque = new ArrayDeque<InvokeContext>();
                 DEQUE_LOCAL.set(deque);
             }
             deque.push(context);
-            LOCAL.set(null);
+            CONTEXT_LOCAL.set(null);
         }
     }
 
     public static void pop() {
-        Deque<InvocationContext> deque = DEQUE_LOCAL.get();
+        Deque<InvokeContext> deque = DEQUE_LOCAL.get();
         if (deque != null) {
-            InvocationContext context = deque.peek();
+            InvokeContext context = deque.peek();
             if (context != null) {
-                LOCAL.set(deque.pop());
+                CONTEXT_LOCAL.set(deque.pop());
             }
         }
     }
 
     public static void clear() {
-        LOCAL.remove();
+        CONTEXT_LOCAL.remove();
         DEQUE_LOCAL.remove();
     }
 }

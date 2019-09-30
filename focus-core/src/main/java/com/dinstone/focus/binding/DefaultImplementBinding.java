@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dinstone.focus.endpoint.EndpointOption;
+import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.registry.ServiceDescription;
 import com.dinstone.focus.registry.ServiceRegistry;
@@ -35,17 +35,17 @@ public class DefaultImplementBinding implements ImplementBinding {
 
     protected ServiceRegistry serviceRegistry;
 
-    protected EndpointOption endpointConfig;
+    protected EndpointOptions endpointOptions;
 
-    public DefaultImplementBinding(EndpointOption endpointConfig, ServiceRegistry serviceRegistry,
+    public DefaultImplementBinding(EndpointOptions endpointOptions, ServiceRegistry serviceRegistry,
             InetSocketAddress providerAddress) {
-        this.endpointConfig = endpointConfig;
+        this.endpointOptions = endpointOptions;
         this.serviceRegistry = serviceRegistry;
         this.providerAddress = providerAddress;
     }
 
     @Override
-    public <T> void binding(ServiceProxy<T> serviceWrapper, EndpointOption endpointConfig) {
+    public <T> void binding(ServiceProxy<T> serviceWrapper) {
         String serviceId = serviceWrapper.getService().getName() + "-" + serviceWrapper.getGroup();
         if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
@@ -53,18 +53,18 @@ public class DefaultImplementBinding implements ImplementBinding {
         serviceProxyMap.put(serviceId, serviceWrapper);
 
         if (serviceRegistry != null) {
-            publish(serviceWrapper, endpointConfig);
+            publish(serviceWrapper, endpointOptions);
         }
     }
 
-    protected void publish(ServiceProxy<?> wrapper, EndpointOption endpointConfig) {
+    protected void publish(ServiceProxy<?> wrapper, EndpointOptions endpointOptions) {
         String host = providerAddress.getAddress().getHostAddress();
         int port = providerAddress.getPort();
         String group = wrapper.getGroup();
 
         StringBuilder id = new StringBuilder();
         id.append(host).append(":").append(port).append("@");
-        id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointId()).append("@");
+        id.append(endpointOptions.getEndpointName()).append("#").append(endpointOptions.getEndpointId()).append("@");
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
@@ -82,8 +82,8 @@ public class DefaultImplementBinding implements ImplementBinding {
         description.addAttribute("methods", methodDescList);
         description.addAttribute("timeout", wrapper.getTimeout());
 
-        description.addAttribute("endpointId", endpointConfig.getEndpointId());
-        description.addAttribute("endpointName", endpointConfig.getEndpointName());
+        description.addAttribute("endpointId", endpointOptions.getEndpointId());
+        description.addAttribute("endpointName", endpointOptions.getEndpointName());
 
         try {
             serviceRegistry.register(description);

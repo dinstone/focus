@@ -21,14 +21,15 @@ import java.net.InetSocketAddress;
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.endpoint.ServiceExporter;
-import com.dinstone.focus.invoker.InvocationHandler;
-import com.dinstone.focus.invoker.ServiceInvoker;
+import com.dinstone.focus.filter.FilterChain;
+import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.ServiceInvoker;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
 import com.dinstone.focus.registry.LocalRegistryFactory;
 import com.dinstone.focus.registry.RegistryFactory;
 import com.dinstone.focus.registry.ServiceRegistry;
-import com.dinstone.focus.server.invoker.LocalInvocationHandler;
+import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.transport.AcceptorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -40,7 +41,7 @@ public class Server implements ServiceExporter {
 
     private Acceptor acceptor;
 
-    private ServerEndpointOption endpointConfig;
+    private ServerOptions serverOptions;
 
     private InetSocketAddress serviceAddress;
 
@@ -50,52 +51,50 @@ public class Server implements ServiceExporter {
 
     private ServiceProxyFactory serviceProxyFactory;
 
-    Server(ServerEndpointOption endpointOption, InetSocketAddress serviceAddress) {
-        checkAndInit(endpointOption, serviceAddress);
+    public Server(ServerOptions serverOption) {
+        checkAndInit(serverOption);
     }
 
-    private void checkAndInit(ServerEndpointOption endpointOption, InetSocketAddress serviceAddress) {
-        if (endpointOption == null) {
-            throw new IllegalArgumentException("endpointOption is null");
+    private void checkAndInit(ServerOptions serverOptions) {
+        if (serverOptions == null) {
+            throw new IllegalArgumentException("serverOption is null");
         }
-        this.endpointConfig = endpointOption;
+        this.serverOptions = serverOptions;
 
         // check bind service address
-        if (serviceAddress == null) {
-            throw new RuntimeException("server not bind service address");
+        if (serverOptions.getServiceAddress() == null) {
+            throw new RuntimeException("server not bind a service address");
         }
-        this.serviceAddress = serviceAddress;
+        this.serviceAddress = serverOptions.getServiceAddress();
 
         RegistryFactory registryFactory = new LocalRegistryFactory();
-        this.serviceRegistry = registryFactory.createServiceRegistry(endpointOption.getRegistryConfig());
+        this.serviceRegistry = registryFactory.createServiceRegistry(serverOptions.getRegistryConfig());
 
-        this.implementBinding = new DefaultImplementBinding(endpointOption, serviceRegistry, serviceAddress);
+        this.implementBinding = new DefaultImplementBinding(serverOptions, serviceRegistry, serviceAddress);
 
-        InvocationHandler invocationHandler = createInvocationHandler(implementBinding);
+        InvokeHandler invocationHandler = createInvocationHandler();
         ServiceInvoker serviceInvoker = new ServiceInvoker(invocationHandler);
         this.serviceProxyFactory = new ServiceProxyFactory(serviceInvoker);
 
-        AcceptorFactory acceptorFactory = new AcceptorFactory();
-        this.acceptor = acceptorFactory.create(endpointOption.getTransportConfig(), serviceInvoker);
+        this.acceptor = new AcceptorFactory(serverOptions).create(serviceInvoker);
     }
 
-    private InvocationHandler createInvocationHandler(ImplementBinding implementBinding2) {
-        return new LocalInvocationHandler(implementBinding);
+    private InvokeHandler createInvocationHandler() {
+        LocalInvokeHandler localInvokeHandler = new LocalInvokeHandler(implementBinding);
+        return new FilterChain(localInvokeHandler, serverOptions.getFilters());
     }
 
     public synchronized Server start() {
         acceptor.bind(serviceAddress);
 
-        LOG.info("JRPC server is started on {}", serviceAddress);
-
+        LOG.info("focus server is started on {}", serviceAddress);
         return this;
     }
 
     public synchronized Server stop() {
         destroy();
 
-        LOG.info("JRPC server is stopped on {}", serviceAddress);
-
+        LOG.info("focus server is stopped on {}", serviceAddress);
         return this;
     }
 
@@ -105,12 +104,12 @@ public class Server implements ServiceExporter {
 
     @Override
     public <T> void exporting(Class<T> serviceInterface, T serviceImplement) {
-        exporting(serviceInterface, "", endpointConfig.getDefaultTimeout(), serviceImplement);
+        exporting(serviceInterface, "", serverOptions.getDefaultTimeout(), serviceImplement);
     }
 
     @Override
     public <T> void exporting(Class<T> serviceInterface, String group, T serviceImplement) {
-        exporting(serviceInterface, group, endpointConfig.getDefaultTimeout(), serviceImplement);
+        exporting(serviceInterface, group, serverOptions.getDefaultTimeout(), serviceImplement);
     }
 
     @Override
@@ -119,12 +118,12 @@ public class Server implements ServiceExporter {
             group = "";
         }
         if (timeout <= 0) {
-            timeout = endpointConfig.getDefaultTimeout();
+            timeout = serverOptions.getDefaultTimeout();
         }
 
         try {
             ServiceProxy<T> wrapper = serviceProxyFactory.create(serviceInterface, group, timeout, serviceImplement);
-            implementBinding.binding(wrapper, endpointConfig);
+            implementBinding.binding(wrapper);
         } catch (Exception e) {
             throw new RuntimeException("can't export service", e);
         }

@@ -19,23 +19,23 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.dinstone.focus.transport.TransportConfig;
+import com.dinstone.focus.client.ClientOptions;
 
 public class ConnectionManager {
 
-    private final TransportConfig transportConfig;
+    private final ClientOptions clientOptions;
 
     private final ConnectionFactory connectionFactory;
 
     private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap;
 
-    public ConnectionManager(TransportConfig transportConfig) {
-        if (transportConfig == null) {
-            throw new IllegalArgumentException("transportConfig is null");
+    public ConnectionManager(ClientOptions clientOptions) {
+        if (clientOptions == null) {
+            throw new IllegalArgumentException("clientOptions is null");
         }
-        this.transportConfig = transportConfig;
+        this.clientOptions = clientOptions;
 
-        this.connectionFactory = new ConnectionFactory(transportConfig);
+        this.connectionFactory = new ConnectionFactory(clientOptions.getConnectOptions());
         this.connectionPoolMap = new ConcurrentHashMap<InetSocketAddress, ConnectionPool>();
     }
 
@@ -68,8 +68,7 @@ public class ConnectionManager {
 
         public ConnectionPool(InetSocketAddress socketAddress) {
             this.socketAddress = socketAddress;
-
-            this.connections = new Connection[transportConfig.getConnectPoolSize()];
+            this.connections = new Connection[clientOptions.getConnectPoolSize()];
         }
 
         public synchronized Connection getConnection() throws Exception {

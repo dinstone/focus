@@ -20,7 +20,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.focus.endpoint.EndpointOption;
+import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.registry.ServiceDescription;
 import com.dinstone.focus.registry.ServiceDiscovery;
@@ -32,18 +32,18 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
     protected ServiceDiscovery serviceDiscovery;
 
-    protected EndpointOption endpointConfig;
+    protected EndpointOptions endpointOptions;
 
-    public DefaultReferenceBinding(EndpointOption endpointConfig, ServiceDiscovery serviceDiscovery) {
-        this(endpointConfig, serviceDiscovery, null);
+    public DefaultReferenceBinding(EndpointOptions endpointOptions, ServiceDiscovery serviceDiscovery) {
+        this(endpointOptions, serviceDiscovery, null);
     }
 
-    public DefaultReferenceBinding(EndpointOption endpointConfig, ServiceDiscovery serviceDiscovery,
+    public DefaultReferenceBinding(EndpointOptions endpointOptions, ServiceDiscovery serviceDiscovery,
             InetSocketAddress consumerAddress) {
-        if (endpointConfig == null) {
+        if (endpointOptions == null) {
             throw new IllegalArgumentException("endpointConfig is null");
         }
-        this.endpointConfig = endpointConfig;
+        this.endpointOptions = endpointOptions;
         this.serviceDiscovery = serviceDiscovery;
 
         if (consumerAddress == null) {
@@ -61,14 +61,14 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     public <T> void binding(ServiceProxy<T> wrapper) {
         if (serviceDiscovery != null) {
             try {
-                serviceDiscovery.listen(createServiceDescription(wrapper, endpointConfig));
+                serviceDiscovery.listen(createServiceDescription(wrapper, endpointOptions));
             } catch (Exception e) {
                 throw new RuntimeException("service reference bind error", e);
             }
         }
     }
 
-    protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper, EndpointOption endpointConfig) {
+    protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper, EndpointOptions endpointConfig) {
         String group = wrapper.getGroup();
         String host = consumerAddress.getAddress().getHostAddress();
         int port = consumerAddress.getPort();

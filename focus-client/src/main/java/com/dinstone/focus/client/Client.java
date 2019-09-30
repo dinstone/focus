@@ -21,12 +21,13 @@ import java.util.List;
 
 import com.dinstone.focus.binding.DefaultReferenceBinding;
 import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.client.invoker.LocationInvocationHandler;
-import com.dinstone.focus.client.invoker.RemoteInvocationHandler;
+import com.dinstone.focus.client.invoke.LocationInvokeHandler;
+import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.endpoint.ServiceImporter;
-import com.dinstone.focus.invoker.InvocationHandler;
-import com.dinstone.focus.invoker.ServiceInvoker;
+import com.dinstone.focus.filter.FilterChain;
+import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.ServiceInvoker;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
 import com.dinstone.focus.registry.LocalRegistryFactory;
@@ -35,7 +36,7 @@ import com.dinstone.focus.registry.ServiceDiscovery;
 
 public class Client implements ServiceImporter {
 
-    private ClientEndpointOption endpointConfig;
+    private ClientOptions clientOptions;
 
     private ServiceDiscovery serviceDiscovery;
 
@@ -45,31 +46,32 @@ public class Client implements ServiceImporter {
 
     private ServiceProxyFactory serviceProxyFactory;
 
-    Client(ClientEndpointOption endpointOption, List<InetSocketAddress> serviceAddresses) {
-        checkAndInit(endpointOption, serviceAddresses);
+    public Client(ClientOptions clientOption) {
+        checkAndInit(clientOption);
     }
 
-    private void checkAndInit(ClientEndpointOption endpointOption, List<InetSocketAddress> serviceAddresses) {
-        if (endpointOption == null) {
-            throw new IllegalArgumentException("endpointConfig is null");
+    private void checkAndInit(ClientOptions clientOptions) {
+        if (clientOptions == null) {
+            throw new IllegalArgumentException("clientOptions is null");
         }
-        this.endpointConfig = endpointOption;
+        this.clientOptions = clientOptions;
 
         // check transport provider
-        this.connectionManager = new ConnectionManager(endpointOption.getTransportConfig());
+        this.connectionManager = new ConnectionManager(clientOptions);
 
         RegistryFactory registryFactory = new LocalRegistryFactory();
-        this.serviceDiscovery = registryFactory.createServiceDiscovery(endpointOption.getRegistryConfig());
+        this.serviceDiscovery = registryFactory.createServiceDiscovery(clientOptions.getRegistryConfig());
 
-        this.referenceBinding = new DefaultReferenceBinding(endpointOption, serviceDiscovery);
+        this.referenceBinding = new DefaultReferenceBinding(clientOptions, serviceDiscovery);
 
-        InvocationHandler invocationHandler = createInvocationHandler(serviceAddresses);
-        this.serviceProxyFactory = new ServiceProxyFactory(new ServiceInvoker(invocationHandler));
+        this.serviceProxyFactory = new ServiceProxyFactory(new ServiceInvoker(createInvokeHandler()));
     }
 
-    private InvocationHandler createInvocationHandler(List<InetSocketAddress> serviceAddresses) {
-        RemoteInvocationHandler rpcInvocationHandler = new RemoteInvocationHandler(connectionManager);
-        return new LocationInvocationHandler(rpcInvocationHandler, referenceBinding, serviceAddresses);
+    private InvokeHandler createInvokeHandler() {
+        RemoteInvokeHandler rih = new RemoteInvokeHandler(connectionManager);
+        List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
+        LocationInvokeHandler lih = new LocationInvokeHandler(rih, referenceBinding, addresses);
+        return new FilterChain(lih, clientOptions.getFilters());
     }
 
     @Override
@@ -100,7 +102,7 @@ public class Client implements ServiceImporter {
      */
     @Override
     public <T> T importing(Class<T> sic, String group) {
-        return importing(sic, group, endpointConfig.getDefaultTimeout());
+        return importing(sic, group, clientOptions.getDefaultTimeout());
     }
 
     /**
@@ -115,7 +117,7 @@ public class Client implements ServiceImporter {
             group = "";
         }
         if (timeout <= 0) {
-            timeout = endpointConfig.getDefaultTimeout();
+            timeout = clientOptions.getDefaultTimeout();
         }
 
         try {

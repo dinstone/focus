@@ -8,15 +8,15 @@ import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
 public class ServerTest {
-    private static final Logger LOG = LoggerFactory.getLogger(Server.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(ServerTest.class);
 
     public static void main(String[] args) {
+        LOG.info("server init");
         Server server = new Server(new ServerOptions().bind("localhost", 3333));
         server.exporting(DemoService.class, new DemoServiceImpl());
-
-        long t = System.currentTimeMillis();
         server.start();
-        LOG.info("server start take's {}ms", System.currentTimeMillis() - t);
+        LOG.info("server start");
         try {
             System.in.read();
         } catch (IOException e) {
@@ -24,6 +24,7 @@ public class ServerTest {
         }
 
         server.stop();
+        LOG.info("server stop");
     }
 
 }

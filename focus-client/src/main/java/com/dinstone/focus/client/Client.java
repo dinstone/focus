@@ -84,33 +84,16 @@ public class Client implements ServiceImporter {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class)
-     */
     @Override
     public <T> T importing(Class<T> sic) {
         return importing(sic, "");
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class,
-     *      java.lang.String)
-     */
     @Override
     public <T> T importing(Class<T> sic, String group) {
         return importing(sic, group, clientOptions.getDefaultTimeout());
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class,
-     *      java.lang.String, int)
-     */
     @Override
     public <T> T importing(Class<T> sic, String group, int timeout) {
         if (group == null) {

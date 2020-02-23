@@ -1,6 +1,6 @@
 package com.dinstone.focus.serializer.json;
 
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.rpc.Reply;
 
 public class ReplySerializer extends JacksonSerializer<Reply> {
 

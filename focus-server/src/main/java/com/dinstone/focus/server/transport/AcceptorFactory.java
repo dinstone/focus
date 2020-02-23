@@ -1,6 +1,6 @@
 package com.dinstone.focus.server.transport;
 
-import com.dinstone.focus.invoke.ServiceInvoker;
+import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.focus.server.processor.FocusMessageProcessor;
 import com.dinstone.photon.Acceptor;
@@ -13,7 +13,7 @@ public class AcceptorFactory {
         this.serverOption = serverOption;
     }
 
-    public Acceptor create(final ServiceInvoker invoker) {
+    public Acceptor create(final InvokeHandler invoker) {
         Acceptor acceptor = new Acceptor(serverOption.getAcceptOptions());
         acceptor.setMessageProcessor(new FocusMessageProcessor(invoker));
         return acceptor;

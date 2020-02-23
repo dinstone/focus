@@ -20,15 +20,15 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import com.dinstone.focus.invoke.ServiceInvoker;
-import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.rpc.Call;
 
 public class ServiceProxyFactory {
 
-    private ServiceInvoker serviceInvoker;
+    private InvokeHandler invokeHandler;
 
-    public ServiceProxyFactory(ServiceInvoker serviceInvoker) {
-        this.serviceInvoker = serviceInvoker;
+    public ServiceProxyFactory(InvokeHandler invokeHandler) {
+        this.invokeHandler = invokeHandler;
     }
 
     public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceInstance)
@@ -75,7 +75,7 @@ public class ServiceProxyFactory {
 
             Call call = new Call(serviceProxy.getService().getName(), serviceProxy.getGroup(),
                     serviceProxy.getTimeout(), methodName, args, method.getParameterTypes());
-            return serviceInvoker.invoke(call).getData();
+            return invokeHandler.invoke(call).getData();
         }
 
     }

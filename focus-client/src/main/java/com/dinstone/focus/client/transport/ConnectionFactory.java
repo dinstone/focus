@@ -19,8 +19,8 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.RpcException;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.serializer.Serializer;
 import com.dinstone.focus.serializer.SerializerManager;
 import com.dinstone.loghub.Logger;

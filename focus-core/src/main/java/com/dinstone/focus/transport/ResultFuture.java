@@ -24,7 +24,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.dinstone.focus.RpcException;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.rpc.Reply;
 
 /**
  * @author guojf

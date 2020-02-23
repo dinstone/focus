@@ -17,8 +17,8 @@ package com.dinstone.focus.client.transport;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 
 /**
  * connection abstract.

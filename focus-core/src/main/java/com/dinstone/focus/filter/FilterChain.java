@@ -4,12 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 
 public class FilterChain implements InvokeHandler {
 
-    private FilterInvokeHandler filterInvokeHandler;
+    private FilterHandler filterHandler;
 
     public FilterChain(InvokeHandler invokeHandler, Filter... filters) {
         this(invokeHandler, Arrays.asList(filters));
@@ -19,18 +19,18 @@ public class FilterChain implements InvokeHandler {
         if (invokeHandler == null) {
             throw new IllegalArgumentException("invokeHandler is null");
         }
-        filterInvokeHandler = new FilterInvokeHandler(null, invokeHandler);
+        filterHandler = new FilterHandler(null, invokeHandler);
 
         if (filters != null && !filters.isEmpty()) {
             for (int i = filters.size() - 1; i >= 0; i--) {
-                filterInvokeHandler = new FilterInvokeHandler(filters.get(i), filterInvokeHandler);
+                filterHandler = new FilterHandler(filters.get(i), filterHandler);
             }
         }
     }
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        return filterInvokeHandler.invoke(call);
+        return filterHandler.invoke(call);
     }
 
 }

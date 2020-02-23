@@ -14,36 +14,38 @@
  * limitations under the License.
  */
 
-package com.dinstone.focus.invoke;
+package com.dinstone.focus.server.invoke;
 
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.InvokeContext;
+import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 
 /**
- * client-side service invoker.
+ * server-side service invoker.
  *
  * @author dinstone
  * @version 1.0.0
  */
-public class ServiceInvoker {
+public class ProvideInvokeHandler implements InvokeHandler {
 
     private InvokeHandler invokeHandler;
 
-    public ServiceInvoker(InvokeHandler invokeHandler) {
+    public ProvideInvokeHandler(InvokeHandler invokeHandler) {
         if (invokeHandler == null) {
-            throw new IllegalArgumentException("invocationHandler is null");
+            throw new IllegalArgumentException("invokeHandler is null");
         }
         this.invokeHandler = invokeHandler;
     }
 
-    public Reply invoke(Call call) throws Throwable {
-        InvokeContext.push();
-        InvokeContext.get();
+    public Reply invoke(Call call) throws Exception {
+        InvokeContext.pushContext();
+        InvokeContext.getContext();
         try {
             return invokeHandler.invoke(call);
         } finally {
-            InvokeContext.remove();
-            InvokeContext.pop();
+            InvokeContext.removeContext();
+            InvokeContext.popContext();
         }
     }
 

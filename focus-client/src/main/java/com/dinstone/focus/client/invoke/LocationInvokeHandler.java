@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.registry.ServiceDescription;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 
 public class LocationInvokeHandler implements InvokeHandler {
 
@@ -50,7 +50,7 @@ public class LocationInvokeHandler implements InvokeHandler {
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        InvokeContext.get().setServiceAddress(getServiceAddress(call.getService(), call.getGroup()));
+        InvokeContext.getContext().setServiceAddress(getServiceAddress(call.getService(), call.getGroup()));
         return invocationHandler.invoke(call);
     }
 

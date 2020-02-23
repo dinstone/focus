@@ -19,6 +19,7 @@ package com.dinstone.focus.invoke;
 import java.net.InetSocketAddress;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InvokeContext {
 
@@ -28,6 +29,8 @@ public class InvokeContext {
 
     private InetSocketAddress serviceAddress;
 
+    private ConcurrentHashMap<String, Object> context;
+
     public InetSocketAddress getServiceAddress() {
         return serviceAddress;
     }
@@ -36,7 +39,58 @@ public class InvokeContext {
         this.serviceAddress = serviceAddress;
     }
 
-    public static InvokeContext get() {
+    /**
+     * put if absent
+     *
+     * @param key
+     * @param value
+     */
+    public void putIfAbsent(String key, Object value) {
+        this.context.putIfAbsent(key, value);
+    }
+
+    /**
+     * put
+     *
+     * @param key
+     * @param value
+     */
+    public void put(String key, Object value) {
+        this.context.put(key, value);
+    }
+
+    /**
+     * get
+     *
+     * @param key
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key) {
+        return (T) this.context.get(key);
+    }
+
+    /**
+     * get and use default if not found
+     * 
+     * @param key
+     * @param defaultIfNotFound
+     * @param                   <T>
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key, T defaultIfNotFound) {
+        return this.context.get(key) != null ? (T) this.context.get(key) : defaultIfNotFound;
+    }
+
+    /**
+     * clear all mappings.
+     */
+    public void clear() {
+        this.context.clear();
+    }
+
+    public static InvokeContext getContext() {
         InvokeContext context = CONTEXT_LOCAL.get();
         if (context == null) {
             context = new InvokeContext();
@@ -45,19 +99,19 @@ public class InvokeContext {
         return context;
     }
 
-    public static void set(InvokeContext context) {
+    public static void setContext(InvokeContext context) {
         CONTEXT_LOCAL.set(context);
     }
 
-    public static InvokeContext peek() {
+    public static InvokeContext peekContext() {
         return CONTEXT_LOCAL.get();
     }
 
-    public static void remove() {
+    public static void removeContext() {
         CONTEXT_LOCAL.remove();
     }
 
-    public static void push() {
+    public static void pushContext() {
         InvokeContext context = CONTEXT_LOCAL.get();
         if (context != null) {
             Deque<InvokeContext> deque = DEQUE_LOCAL.get();
@@ -70,7 +124,7 @@ public class InvokeContext {
         }
     }
 
-    public static void pop() {
+    public static void popContext() {
         Deque<InvokeContext> deque = DEQUE_LOCAL.get();
         if (deque != null) {
             InvokeContext context = deque.peek();
@@ -80,7 +134,7 @@ public class InvokeContext {
         }
     }
 
-    public static void clear() {
+    public static void clearContext() {
         CONTEXT_LOCAL.remove();
         DEQUE_LOCAL.remove();
     }

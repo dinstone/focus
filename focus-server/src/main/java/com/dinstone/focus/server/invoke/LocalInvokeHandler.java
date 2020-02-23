@@ -23,9 +23,9 @@ import com.dinstone.focus.RpcException;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.exception.ExcptionHelper;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.proxy.ServiceProxy;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 
 public class LocalInvokeHandler implements InvokeHandler {
 

@@ -16,28 +16,37 @@
 
 package com.dinstone.focus.client.invoke;
 
-import java.net.InetSocketAddress;
-
-import com.dinstone.focus.client.transport.Connection;
-import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 
-public class RemoteInvokeHandler implements InvokeHandler {
+/**
+ * client-side service invoker.
+ *
+ * @author dinstone
+ * @version 1.0.0
+ */
+public class ConsumeInvokeHandler implements InvokeHandler {
 
-    private ConnectionManager connectionManager;
+    private InvokeHandler invokeHandler;
 
-    public RemoteInvokeHandler(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
+    public ConsumeInvokeHandler(InvokeHandler invokeHandler) {
+        if (invokeHandler == null) {
+            throw new IllegalArgumentException("invokeHandler is null");
+        }
+        this.invokeHandler = invokeHandler;
     }
 
-    @Override
     public Reply invoke(Call call) throws Exception {
-        InetSocketAddress address = InvokeContext.getContext().getServiceAddress();
-        Connection connection = connectionManager.getConnection(address);
-        return connection.invoke(call);
+        InvokeContext.pushContext();
+        InvokeContext.getContext();
+        try {
+            return invokeHandler.invoke(call);
+        } finally {
+            InvokeContext.removeContext();
+            InvokeContext.popContext();
+        }
     }
 
 }

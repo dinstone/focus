@@ -1,6 +1,6 @@
 package com.dinstone.focus.serializer.json;
 
-import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.rpc.Call;
 
 public class CallSerializer extends JacksonSerializer<Call> {
 

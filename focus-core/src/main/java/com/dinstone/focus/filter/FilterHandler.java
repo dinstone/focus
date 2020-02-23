@@ -2,16 +2,16 @@ package com.dinstone.focus.filter;
 
 import com.dinstone.focus.RpcException;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 
-public class FilterInvokeHandler implements InvokeHandler {
+public class FilterHandler implements InvokeHandler {
 
     private final Filter nextFilter;
 
     private final InvokeHandler invokeHandler;
 
-    public FilterInvokeHandler(Filter nextFilter, InvokeHandler invokeHandler) {
+    public FilterHandler(Filter nextFilter, InvokeHandler invokeHandler) {
         super();
         this.nextFilter = nextFilter;
         this.invokeHandler = invokeHandler;

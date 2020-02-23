@@ -3,9 +3,9 @@ package com.dinstone.focus.server.processor;
 import java.util.concurrent.Executor;
 
 import com.dinstone.focus.RpcException;
-import com.dinstone.focus.invoke.ServiceInvoker;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.serializer.Serializer;
 import com.dinstone.focus.serializer.SerializerManager;
 import com.dinstone.focus.server.transport.AcceptorFactory;
@@ -24,9 +24,9 @@ public final class FocusMessageProcessor implements MessageProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcceptorFactory.class);
 
-    private final ServiceInvoker invoker;
+    private final InvokeHandler invoker;
 
-    public FocusMessageProcessor(ServiceInvoker invoker) {
+    public FocusMessageProcessor(InvokeHandler invoker) {
         this.invoker = invoker;
     }
 

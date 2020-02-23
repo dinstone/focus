@@ -23,13 +23,13 @@ import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.invoke.ServiceInvoker;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
 import com.dinstone.focus.registry.LocalRegistryFactory;
 import com.dinstone.focus.registry.RegistryFactory;
 import com.dinstone.focus.registry.ServiceRegistry;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
+import com.dinstone.focus.server.invoke.ProvideInvokeHandler;
 import com.dinstone.focus.server.transport.AcceptorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -72,16 +72,15 @@ public class Server implements ServiceExporter {
 
         this.implementBinding = new DefaultImplementBinding(serverOptions, serviceRegistry, serviceAddress);
 
-        InvokeHandler invocationHandler = createInvocationHandler();
-        ServiceInvoker serviceInvoker = new ServiceInvoker(invocationHandler);
-        this.serviceProxyFactory = new ServiceProxyFactory(serviceInvoker);
+        InvokeHandler invokeHandler = createInvocationHandler();
+        this.serviceProxyFactory = new ServiceProxyFactory(invokeHandler);
 
-        this.acceptor = new AcceptorFactory(serverOptions).create(serviceInvoker);
+        this.acceptor = new AcceptorFactory(serverOptions).create(invokeHandler);
     }
 
     private InvokeHandler createInvocationHandler() {
         LocalInvokeHandler localInvokeHandler = new LocalInvokeHandler(implementBinding);
-        return new FilterChain(localInvokeHandler, serverOptions.getFilters());
+        return new ProvideInvokeHandler(new FilterChain(localInvokeHandler, serverOptions.getFilters()));
     }
 
     public synchronized Server start() {

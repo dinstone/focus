@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.focus.RpcException;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.serializer.json.CallSerializer;
 import com.dinstone.focus.serializer.json.ExceptionSerializer;
 import com.dinstone.focus.serializer.json.ReplySerializer;

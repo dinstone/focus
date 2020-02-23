@@ -21,13 +21,13 @@ import java.util.List;
 
 import com.dinstone.focus.binding.DefaultReferenceBinding;
 import com.dinstone.focus.binding.ReferenceBinding;
+import com.dinstone.focus.client.invoke.ConsumeInvokeHandler;
 import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.endpoint.ServiceImporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.invoke.ServiceInvoker;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
 import com.dinstone.focus.registry.LocalRegistryFactory;
@@ -64,14 +64,14 @@ public class Client implements ServiceImporter {
 
         this.referenceBinding = new DefaultReferenceBinding(clientOptions, serviceDiscovery);
 
-        this.serviceProxyFactory = new ServiceProxyFactory(new ServiceInvoker(createInvokeHandler()));
+        this.serviceProxyFactory = new ServiceProxyFactory(createInvokeHandler());
     }
 
     private InvokeHandler createInvokeHandler() {
         RemoteInvokeHandler rih = new RemoteInvokeHandler(connectionManager);
+        FilterChain chain = new FilterChain(rih, clientOptions.getFilters());
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
-        LocationInvokeHandler lih = new LocationInvokeHandler(rih, referenceBinding, addresses);
-        return new FilterChain(lih, clientOptions.getFilters());
+        return new ConsumeInvokeHandler(new LocationInvokeHandler(chain, referenceBinding, addresses));
     }
 
     @Override

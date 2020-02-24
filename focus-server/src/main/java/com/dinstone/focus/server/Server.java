@@ -18,6 +18,7 @@ package com.dinstone.focus.server;
 
 import java.net.InetSocketAddress;
 
+import com.dinstone.focus.SchemaFactoryLoader;
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.endpoint.ServiceExporter;
@@ -25,7 +26,6 @@ import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
-import com.dinstone.focus.registry.LocalRegistryFactory;
 import com.dinstone.focus.registry.RegistryFactory;
 import com.dinstone.focus.registry.ServiceRegistry;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
@@ -67,8 +67,17 @@ public class Server implements ServiceExporter {
         }
         this.serviceAddress = serverOptions.getServiceAddress();
 
-        RegistryFactory registryFactory = new LocalRegistryFactory();
-        this.serviceRegistry = registryFactory.createServiceRegistry(serverOptions.getRegistryConfig());
+        // check registry provider
+        String registrySchema = serverOptions.getRegistryConfig().getSchema();
+        if (registrySchema != null && !registrySchema.isEmpty()) {
+            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+            if (registryFactory == null) {
+                throw new RuntimeException("can't find registry provider for schema : " + registrySchema);
+            } else {
+                this.serviceRegistry = registryFactory.createServiceRegistry(serverOptions.getRegistryConfig());
+            }
+        }
 
         this.implementBinding = new DefaultImplementBinding(serverOptions, serviceRegistry, serviceAddress);
 
@@ -76,6 +85,9 @@ public class Server implements ServiceExporter {
         this.serviceProxyFactory = new ServiceProxyFactory(invokeHandler);
 
         this.acceptor = new AcceptorFactory(serverOptions).create(invokeHandler);
+
+        acceptor.bind(serviceAddress);
+        LOG.info("focus server is created, {}", serviceAddress);
     }
 
     private InvokeHandler createInvocationHandler() {
@@ -139,6 +151,8 @@ public class Server implements ServiceExporter {
         if (acceptor != null) {
             acceptor.destroy();
         }
+
+        LOG.info("focus server is destroy, {}", serviceAddress);
     }
 
 }

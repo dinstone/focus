@@ -35,7 +35,7 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        InetSocketAddress address = InvokeContext.getContext().getServiceAddress();
+        InetSocketAddress address = InvokeContext.getContext().get("service.address");
         Connection connection = connectionManager.getConnection(address);
         return connection.invoke(call);
     }

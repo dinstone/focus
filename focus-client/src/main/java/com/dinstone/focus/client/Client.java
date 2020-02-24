@@ -19,6 +19,7 @@ package com.dinstone.focus.client;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import com.dinstone.focus.SchemaFactoryLoader;
 import com.dinstone.focus.binding.DefaultReferenceBinding;
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.invoke.ConsumeInvokeHandler;
@@ -30,7 +31,6 @@ import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
-import com.dinstone.focus.registry.LocalRegistryFactory;
 import com.dinstone.focus.registry.RegistryFactory;
 import com.dinstone.focus.registry.ServiceDiscovery;
 
@@ -59,8 +59,16 @@ public class Client implements ServiceImporter {
         // check transport provider
         this.connectionManager = new ConnectionManager(clientOptions);
 
-        RegistryFactory registryFactory = new LocalRegistryFactory();
-        this.serviceDiscovery = registryFactory.createServiceDiscovery(clientOptions.getRegistryConfig());
+        String registrySchema = clientOptions.getRegistryConfig().getSchema();
+        if (registrySchema != null && !registrySchema.isEmpty()) {
+            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+            if (registryFactory == null) {
+                throw new RuntimeException("can't find regitry provider for schema : " + registrySchema);
+            } else {
+                this.serviceDiscovery = registryFactory.createServiceDiscovery(clientOptions.getRegistryConfig());
+            }
+        }
 
         this.referenceBinding = new DefaultReferenceBinding(clientOptions, serviceDiscovery);
 

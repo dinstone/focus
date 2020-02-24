@@ -13,9 +13,9 @@ public class ServerTest {
 
     public static void main(String[] args) {
         LOG.info("server init");
-        Server server = new Server(new ServerOptions().bind("localhost", 3333));
+        Server server = new Server(new ServerOptions().listen("localhost", 3333));
         server.exporting(DemoService.class, new DemoServiceImpl());
-        server.start();
+//        server.start();
         LOG.info("server start");
         try {
             System.in.read();
@@ -23,7 +23,7 @@ public class ServerTest {
             e.printStackTrace();
         }
 
-        server.stop();
+        server.destroy();
         LOG.info("server stop");
     }
 

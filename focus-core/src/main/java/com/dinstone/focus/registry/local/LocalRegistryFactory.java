@@ -1,4 +1,9 @@
-package com.dinstone.focus.registry;
+package com.dinstone.focus.registry.local;
+
+import com.dinstone.focus.registry.RegistryConfig;
+import com.dinstone.focus.registry.RegistryFactory;
+import com.dinstone.focus.registry.ServiceDiscovery;
+import com.dinstone.focus.registry.ServiceRegistry;
 
 public class LocalRegistryFactory implements RegistryFactory {
 
@@ -9,6 +14,7 @@ public class LocalRegistryFactory implements RegistryFactory {
 
     @Override
     public ServiceRegistry createServiceRegistry(RegistryConfig registryConfig) {
+//        registryConfig.
         return null;
     }
 

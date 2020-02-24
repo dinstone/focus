@@ -16,28 +16,17 @@
 
 package com.dinstone.focus.invoke;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InvokeContext {
 
-    private static final ThreadLocal<InvokeContext> CONTEXT_LOCAL = new ThreadLocal<InvokeContext>();
-
     private static final ThreadLocal<Deque<InvokeContext>> DEQUE_LOCAL = new ThreadLocal<Deque<InvokeContext>>();
 
-    private InetSocketAddress serviceAddress;
+    private static final ThreadLocal<InvokeContext> CONTEXT_LOCAL = new ThreadLocal<InvokeContext>();
 
-    private ConcurrentHashMap<String, Object> context;
-
-    public InetSocketAddress getServiceAddress() {
-        return serviceAddress;
-    }
-
-    public void setServiceAddress(InetSocketAddress serviceAddress) {
-        this.serviceAddress = serviceAddress;
-    }
+    private final ConcurrentHashMap<String, Object> contentMap = new ConcurrentHashMap<>();
 
     /**
      * put if absent
@@ -46,7 +35,7 @@ public class InvokeContext {
      * @param value
      */
     public void putIfAbsent(String key, Object value) {
-        this.context.putIfAbsent(key, value);
+        this.contentMap.putIfAbsent(key, value);
     }
 
     /**
@@ -56,7 +45,7 @@ public class InvokeContext {
      * @param value
      */
     public void put(String key, Object value) {
-        this.context.put(key, value);
+        this.contentMap.put(key, value);
     }
 
     /**
@@ -67,7 +56,7 @@ public class InvokeContext {
      */
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
-        return (T) this.context.get(key);
+        return (T) this.contentMap.get(key);
     }
 
     /**
@@ -80,14 +69,14 @@ public class InvokeContext {
      */
     @SuppressWarnings("unchecked")
     public <T> T get(String key, T defaultIfNotFound) {
-        return this.context.get(key) != null ? (T) this.context.get(key) : defaultIfNotFound;
+        return this.contentMap.get(key) != null ? (T) this.contentMap.get(key) : defaultIfNotFound;
     }
 
     /**
      * clear all mappings.
      */
     public void clear() {
-        this.context.clear();
+        this.contentMap.clear();
     }
 
     public static InvokeContext getContext() {

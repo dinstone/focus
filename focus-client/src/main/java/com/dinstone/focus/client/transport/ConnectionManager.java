@@ -62,9 +62,9 @@ public class ConnectionManager {
 
         private final InetSocketAddress socketAddress;
 
-        private int count;
-
         private Connection[] connections;
+
+        private int count;
 
         public ConnectionPool(InetSocketAddress socketAddress) {
             this.socketAddress = socketAddress;

@@ -27,7 +27,7 @@ public class ClientOptions extends EndpointOptions {
         this.connectOptions = connectOptions;
     }
 
-    public ClientOptions bind(String addresses) {
+    public ClientOptions connect(String addresses) {
         if (addresses == null || addresses.length() == 0) {
             return this;
         }
@@ -46,7 +46,7 @@ public class ClientOptions extends EndpointOptions {
         return this;
     }
 
-    public ClientOptions bind(String host, int port) {
+    public ClientOptions connect(String host, int port) {
         serviceAddresses.add(new InetSocketAddress(host, port));
         return this;
     }

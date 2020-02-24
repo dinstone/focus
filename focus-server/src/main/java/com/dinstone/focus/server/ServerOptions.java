@@ -24,23 +24,23 @@ public class ServerOptions extends EndpointOptions {
 
     private InetSocketAddress serviceAddress;
 
-    public ServerOptions bind(InetSocketAddress socketAddress) {
+    public ServerOptions listen(InetSocketAddress socketAddress) {
         if (socketAddress != null) {
             this.serviceAddress = socketAddress;
         }
         return this;
     }
 
-    public ServerOptions bind(int port) {
+    public ServerOptions listen(int port) {
         this.serviceAddress = new InetSocketAddress(port);
         return this;
     }
 
-    public ServerOptions bind(String host, int port) {
+    public ServerOptions listen(String host, int port) {
         try {
             List<InetSocketAddress> resolveAddress = resolveAddress(host, port);
             if (!resolveAddress.isEmpty()) {
-                bind(resolveAddress.get(0));
+                listen(resolveAddress.get(0));
             }
         } catch (SocketException e) {
             throw new RuntimeException("host is invalid", e);
@@ -48,7 +48,7 @@ public class ServerOptions extends EndpointOptions {
         return this;
     }
 
-    public ServerOptions bind(String address) {
+    public ServerOptions listen(String address) {
         if (address == null || address.isEmpty()) {
             throw new RuntimeException("address is empty");
         }
@@ -58,7 +58,7 @@ public class ServerOptions extends EndpointOptions {
             throw new RuntimeException("address is invalid");
         }
 
-        return bind(socketAddress);
+        return listen(socketAddress);
     }
 
     public List<Filter> getFilters() {

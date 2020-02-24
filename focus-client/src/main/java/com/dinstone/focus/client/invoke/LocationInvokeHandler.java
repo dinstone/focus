@@ -50,16 +50,17 @@ public class LocationInvokeHandler implements InvokeHandler {
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        InvokeContext.getContext().setServiceAddress(getServiceAddress(call.getService(), call.getGroup()));
+        InetSocketAddress serviceAddress = select(call.getService(), call.getGroup());
+        InvokeContext.getContext().put("service.address", serviceAddress);
         return invocationHandler.invoke(call);
     }
 
-    public <T> InetSocketAddress getServiceAddress(String serviceName, String group) {
+    public <T> InetSocketAddress select(String serviceName, String group) {
         InetSocketAddress serviceAddress = null;
 
         int next = Math.abs(index.getAndIncrement());
         if (referenceBinding != null) {
-            serviceAddress = locateServiceAddress(serviceName, group, next);
+            serviceAddress = locate(serviceName, group, next);
         }
 
         if (serviceAddress == null && backupServiceAddresses.size() > 0) {
@@ -73,7 +74,7 @@ public class LocationInvokeHandler implements InvokeHandler {
         return serviceAddress;
     }
 
-    private InetSocketAddress locateServiceAddress(String serviceName, String group, int index) {
+    private InetSocketAddress locate(String serviceName, String group, int index) {
         List<ServiceDescription> serviceDescriptions = referenceBinding.lookup(serviceName, group);
         if (serviceDescriptions == null || serviceDescriptions.size() == 0) {
             return null;

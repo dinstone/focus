@@ -26,6 +26,8 @@ import com.dinstone.focus.client.invoke.ConsumeInvokeHandler;
 import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.transport.ConnectionManager;
+import com.dinstone.focus.codec.CodecFactory;
+import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.endpoint.ServiceImporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -59,6 +61,13 @@ public class Client implements ServiceImporter {
         // check transport provider
         this.connectionManager = new ConnectionManager(clientOptions);
 
+        // load and create rpc message codec
+        SchemaFactoryLoader<CodecFactory> cfLoader = SchemaFactoryLoader.getInstance(CodecFactory.class);
+        for (CodecFactory codecFactory : cfLoader.getSchemaFactorys()) {
+            CodecManager.regist(codecFactory.getSchema(), codecFactory.createCodec());
+        }
+
+        // load and create registry
         String registrySchema = clientOptions.getRegistryConfig().getSchema();
         if (registrySchema != null && !registrySchema.isEmpty()) {
             SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
@@ -76,7 +85,7 @@ public class Client implements ServiceImporter {
     }
 
     private InvokeHandler createInvokeHandler() {
-        RemoteInvokeHandler rih = new RemoteInvokeHandler(connectionManager);
+        RemoteInvokeHandler rih = new RemoteInvokeHandler(clientOptions, connectionManager);
         FilterChain chain = new FilterChain(rih, clientOptions.getFilters());
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
         return new ConsumeInvokeHandler(new LocationInvokeHandler(chain, referenceBinding, addresses));

@@ -11,13 +11,19 @@ import com.dinstone.photon.ConnectOptions;
 
 public class ClientOptions extends EndpointOptions {
 
+    private static final int DEFAULT_POOL_SIZE = 2;
+
+    private static final String DEFAULT_CODEC = "json";
+
     private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
 
     private ConnectOptions connectOptions = new ConnectOptions();
 
     private List<Filter> filters = new ArrayList<>();
 
-    private int connectPoolSize = 2;
+    private int connectPoolSize = DEFAULT_POOL_SIZE;
+
+    private String codec = DEFAULT_CODEC;
 
     public ConnectOptions getConnectOptions() {
         return connectOptions;
@@ -80,8 +86,18 @@ public class ClientOptions extends EndpointOptions {
         return connectPoolSize;
     }
 
-    public void setConnectPoolSize(int connectPoolSize) {
+    public ClientOptions setConnectPoolSize(int connectPoolSize) {
         this.connectPoolSize = connectPoolSize;
+        return this;
+    }
+
+    public String getCodec() {
+        return codec;
+    }
+
+    public ClientOptions setCodec(String codec) {
+        this.codec = codec;
+        return this;
     }
 
 }

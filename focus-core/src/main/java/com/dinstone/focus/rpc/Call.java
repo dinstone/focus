@@ -41,6 +41,8 @@ public class Call implements Serializable {
 
     private Class<?>[] paramTypes;
 
+    private String codec;
+
     public Call() {
         super();
     }
@@ -125,6 +127,14 @@ public class Call implements Serializable {
 
     public void setParamTypes(Class<?>[] paramTypes) {
         this.paramTypes = paramTypes;
+    }
+
+    public String getCodec() {
+        return codec;
+    }
+
+    public void setCodec(String codec) {
+        this.codec = codec;
     }
 
     @Override

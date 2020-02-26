@@ -16,6 +16,9 @@
 
 package com.dinstone.focus;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
 /**
  * RPC runtime exception.
  *
@@ -29,11 +32,14 @@ public class RpcException extends RuntimeException {
 
     private int code;
 
+    private String stack;
+
     /**
      * @param message
      */
     public RpcException(int code, String message) {
-        this(code, message, null);
+        super(message);
+        this.code = code;
     }
 
     /**
@@ -46,6 +52,16 @@ public class RpcException extends RuntimeException {
     }
 
     /**
+     * @param message
+     * @param cause
+     */
+    public RpcException(int code, String message, String stack) {
+        super(message);
+        this.code = code;
+        this.stack = stack;
+    }
+
+    /**
      * the code to get
      *
      * @return the code
@@ -55,4 +71,30 @@ public class RpcException extends RuntimeException {
         return code;
     }
 
+    public String getStack() {
+        return stack;
+    }
+
+    @Override
+    public void printStackTrace() {
+        printStackTrace(System.err);
+    }
+
+    @Override
+    public void printStackTrace(PrintStream s) {
+        if (stack != null) {
+            s.print(stack);
+        } else {
+            super.printStackTrace(s);
+        }
+    }
+
+    @Override
+    public void printStackTrace(PrintWriter s) {
+        if (stack != null) {
+            s.print(stack);
+        } else {
+            super.printStackTrace(s);
+        }
+    }
 }

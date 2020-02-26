@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus;
 
+import java.util.Collection;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -62,6 +63,10 @@ public class SchemaFactoryLoader<T> {
 
     public T getSchemaFactory(String schema) {
         return schemaFactoryMap.get(schema);
+    }
+
+    public Collection<T> getSchemaFactorys() {
+        return schemaFactoryMap.values();
     }
 
 }

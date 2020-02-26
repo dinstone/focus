@@ -50,6 +50,11 @@ public class Reply implements Serializable {
         this.data = data;
     }
 
+    public Reply(Object data) {
+        super();
+        this.data = data;
+    }
+
     /**
      * the code to get
      *

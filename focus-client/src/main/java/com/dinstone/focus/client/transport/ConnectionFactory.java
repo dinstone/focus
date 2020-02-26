@@ -18,11 +18,10 @@ package com.dinstone.focus.client.transport;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.focus.RpcException;
+import com.dinstone.focus.codec.Codec;
+import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
-import com.dinstone.focus.serializer.Serializer;
-import com.dinstone.focus.serializer.SerializerManager;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
@@ -33,6 +32,7 @@ import com.dinstone.photon.message.Message;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
+import com.dinstone.photon.message.Status;
 import com.dinstone.photon.processor.MessageProcessor;
 
 /**
@@ -87,25 +87,29 @@ public class ConnectionFactory {
         public Reply invoke(Call call) throws Exception {
             Request request = new Request();
             request.setId(IDGENER.incrementAndGet());
+
             Headers headers = new Headers();
             headers.put("service", call.getService());
             headers.put("method", call.getMethod());
+            request.setTimeout(call.getTimeout());
+
+            String cname = call.getCodec();
+            headers.put("rpc.codec", cname);
+
             request.setHeaders(headers);
 
-            request.setTimeout(call.getTimeout());
-            Serializer<Call> s = SerializerManager.getInstance().find(Call.class);
-            headers.put("serializer", s.name());
-            request.setContent(s.encode(call));
+            Codec codec = CodecManager.find(cname);
+            codec.encode(request, call);
 
+            // remote call
             Response response = connection.sync(request);
 
-            Serializer<?> rs = SerializerManager.getInstance().find(response.getHeaders().get("serializer"));
-            Object r = rs.decode(response.getContent());
-            if (r instanceof RpcException) {
-                throw (RpcException) r;
+            // handle response by success
+            if (response.getStatus() == Status.SUCCESS) {
+                return codec.decode(response);
+            } else {
+                throw CodecManager.getErrorCodec().decode(response);
             }
-
-            return (Reply) r;
         }
 
         @Override

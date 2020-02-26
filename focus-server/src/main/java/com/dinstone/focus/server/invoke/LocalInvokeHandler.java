@@ -42,31 +42,27 @@ public class LocalInvokeHandler implements InvokeHandler {
             throw new RpcException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
         }
 
-        Reply reply = null;
         try {
             Class<?>[] paramTypes = getParamTypes(call.getParams(), call.getParamTypes());
             Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
             Object resObj = method.invoke(wrapper.getTarget(), call.getParams());
-            reply = new Reply(200, resObj);
+            return new Reply(resObj);
         } catch (RpcException e) {
-            reply = new Reply(e.getCode(), e.getMessage());
+            throw e;
         } catch (NoSuchMethodException e) {
-            reply = new Reply(405, "unkown method: [" + call.getGroup() + "]" + e.getMessage());
+            String message = "unkown method: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
+            throw new RpcException(405, message, e);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
-                    + "(): " + e.getMessage();
-            reply = new Reply(502, message);
+            String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
+            throw new RpcException(502, message, e);
         } catch (InvocationTargetException e) {
-            Throwable t = ExcptionHelper.getTargetException(e);
-            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
-                    + "(): " + t.getMessage();
-            reply = new Reply(500, message);
+            Throwable te = ExcptionHelper.getTargetException(e);
+            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
+            throw new RpcException(500, message, te);
         } catch (Throwable e) {
-            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
-                    + "(): " + e.getMessage();
-            reply = new Reply(509, message);
+            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
+            throw new RpcException(509, message, e);
         }
-        return reply;
     }
 
     private Class<?>[] getParamTypes(Object[] params, Class<?>[] paramTypes) {

@@ -21,6 +21,8 @@ import java.net.InetSocketAddress;
 import com.dinstone.focus.SchemaFactoryLoader;
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
+import com.dinstone.focus.codec.CodecFactory;
+import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -66,6 +68,12 @@ public class Server implements ServiceExporter {
             throw new RuntimeException("server not bind a service address");
         }
         this.serviceAddress = serverOptions.getServiceAddress();
+
+        // load and create rpc message codec
+        SchemaFactoryLoader<CodecFactory> cfLoader = SchemaFactoryLoader.getInstance(CodecFactory.class);
+        for (CodecFactory codecFactory : cfLoader.getSchemaFactorys()) {
+            CodecManager.regist(codecFactory.getSchema(), codecFactory.createCodec());
+        }
 
         // check registry provider
         String registrySchema = serverOptions.getRegistryConfig().getSchema();

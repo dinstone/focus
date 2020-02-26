@@ -18,7 +18,7 @@ package com.dinstone.focus.client.invoke;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.focus.client.transport.Connection;
+import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -28,16 +28,24 @@ import com.dinstone.focus.rpc.Reply;
 public class RemoteInvokeHandler implements InvokeHandler {
 
     private ConnectionManager connectionManager;
+    private ClientOptions clientOptions;
 
-    public RemoteInvokeHandler(ConnectionManager connectionManager) {
+    public RemoteInvokeHandler(ClientOptions clientOptions, ConnectionManager connectionManager) {
+        this.clientOptions = clientOptions;
         this.connectionManager = connectionManager;
     }
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        InetSocketAddress address = InvokeContext.getContext().get("service.address");
-        Connection connection = connectionManager.getConnection(address);
-        return connection.invoke(call);
+        InvokeContext context = InvokeContext.getContext();
+
+        InetSocketAddress address = context.get("service.address");
+        if (address == null) {
+            throw new RuntimeException("can't find a service address");
+        }
+        call.setCodec(clientOptions.getCodec());
+
+        return connectionManager.getConnection(address).invoke(call);
     }
 
 }

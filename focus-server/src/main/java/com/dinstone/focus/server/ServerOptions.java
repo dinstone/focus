@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.transport.NetworkInterfaceUtil;
+import com.dinstone.focus.utils.NetworkUtil;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.AcceptOptions;
@@ -105,11 +105,11 @@ public class ServerOptions extends EndpointOptions {
     private List<InetSocketAddress> resolveAddress(String host, int port) throws SocketException {
         List<InetSocketAddress> addresses = new ArrayList<>();
         if (host == null || "-".equals(host)) {
-            for (InetAddress inetAddress : NetworkInterfaceUtil.getPrivateAddresses()) {
+            for (InetAddress inetAddress : NetworkUtil.getPrivateAddresses()) {
                 addresses.add(new InetSocketAddress(inetAddress, port));
             }
         } else if ("+".equals(host)) {
-            for (InetAddress inetAddress : NetworkInterfaceUtil.getPublicAddresses()) {
+            for (InetAddress inetAddress : NetworkUtil.getPublicAddresses()) {
                 addresses.add(new InetSocketAddress(inetAddress, port));
             }
         } else if ("*".equals(host)) {

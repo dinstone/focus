@@ -15,13 +15,13 @@ import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Status;
 
-public final class RpcMessageProcessor {
+public final class RpcProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcceptorFactory.class);
 
     private final InvokeHandler invoker;
 
-    public RpcMessageProcessor(InvokeHandler invoker) {
+    public RpcProcessor(InvokeHandler invoker) {
         this.invoker = invoker;
     }
 

@@ -24,7 +24,7 @@ import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.registry.ServiceDescription;
 import com.dinstone.focus.registry.ServiceDiscovery;
-import com.dinstone.focus.transport.NetworkInterfaceUtil;
+import com.dinstone.focus.utils.NetworkUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
 
@@ -48,7 +48,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
         if (consumerAddress == null) {
             try {
-                InetAddress addr = NetworkInterfaceUtil.getPrivateAddresses().get(0);
+                InetAddress addr = NetworkUtil.getPrivateAddresses().get(0);
                 consumerAddress = new InetSocketAddress(addr, 0);
             } catch (Exception e) {
                 throw new RuntimeException("can't init ReferenceBinding", e);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.transport;
+package com.dinstone.focus.utils;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
-public class NetworkInterfaceUtil {
+public class NetworkUtil {
 
     public static final List<InetAddress> getPrivateAddresses() throws SocketException {
         List<InetAddress> inetAddresses = new LinkedList<>();

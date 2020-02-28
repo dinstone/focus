@@ -4,7 +4,7 @@ import java.util.concurrent.Executor;
 
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.server.ServerOptions;
-import com.dinstone.focus.server.processor.RpcMessageProcessor;
+import com.dinstone.focus.server.processor.RpcProcessor;
 import com.dinstone.photon.Acceptor;
 import com.dinstone.photon.handler.MessageContext;
 import com.dinstone.photon.message.Message;
@@ -22,7 +22,7 @@ public class AcceptorFactory {
 
     public Acceptor create(final InvokeHandler invoker) {
         Acceptor acceptor = new Acceptor(serverOption.getAcceptOptions());
-        final RpcMessageProcessor rpcProcessor = new RpcMessageProcessor(invoker);
+        final RpcProcessor rpcProcessor = new RpcProcessor(invoker);
         acceptor.setMessageProcessor(new MessageProcessor() {
 
             @Override

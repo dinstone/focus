@@ -15,21 +15,8 @@
  */
 package com.dinstone.focus.registry;
 
-import com.dinstone.focus.Configuration;
-import com.dinstone.focus.SchemaConfig;
+public interface RegistryConfig {
 
-public class RegistryConfig extends SchemaConfig<RegistryConfig> {
-
-    public RegistryConfig() {
-        super();
-    }
-
-    public RegistryConfig(Configuration config) {
-        super(config);
-    }
-
-    public RegistryConfig(String configLocation) {
-        super(configLocation);
-    }
+    public String getSchema();
 
 }

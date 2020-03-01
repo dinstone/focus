@@ -33,6 +33,7 @@ import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
+import com.dinstone.focus.registry.RegistryConfig;
 import com.dinstone.focus.registry.RegistryFactory;
 import com.dinstone.focus.registry.ServiceDiscovery;
 
@@ -68,14 +69,14 @@ public class Client implements ServiceImporter {
         }
 
         // load and create registry
-        String registrySchema = clientOptions.getRegistryConfig().getSchema();
-        if (registrySchema != null && !registrySchema.isEmpty()) {
+        RegistryConfig registryConfig = clientOptions.getRegistryConfig();
+        if (registryConfig != null) {
             SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
-            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registryConfig.getSchema());
             if (registryFactory == null) {
-                throw new RuntimeException("can't find regitry provider for schema : " + registrySchema);
+                throw new RuntimeException("can't find regitry provider for schema : " + registryConfig.getSchema());
             } else {
-                this.serviceDiscovery = registryFactory.createServiceDiscovery(clientOptions.getRegistryConfig());
+                this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
             }
         }
 

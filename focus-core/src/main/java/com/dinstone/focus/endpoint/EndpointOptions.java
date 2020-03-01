@@ -25,7 +25,7 @@ public class EndpointOptions {
 
     private int defaultTimeout = 3000;
 
-    private RegistryConfig registryConfig = new RegistryConfig();
+    private RegistryConfig registryConfig;
 
     public EndpointOptions() {
         super();
@@ -64,7 +64,7 @@ public class EndpointOptions {
 
     public EndpointOptions setRegistryConfig(RegistryConfig registryConfig) {
         if (registryConfig != null) {
-            this.registryConfig.mergeConfiguration(registryConfig);
+            this.registryConfig = registryConfig;
         }
         return this;
     }

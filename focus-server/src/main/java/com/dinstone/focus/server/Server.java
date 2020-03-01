@@ -28,6 +28,7 @@ import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
+import com.dinstone.focus.registry.RegistryConfig;
 import com.dinstone.focus.registry.RegistryFactory;
 import com.dinstone.focus.registry.ServiceRegistry;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
@@ -75,15 +76,15 @@ public class Server implements ServiceExporter {
             CodecManager.regist(codecFactory.getSchema(), codecFactory.createCodec());
         }
 
-        // check registry provider
-        String registrySchema = serverOptions.getRegistryConfig().getSchema();
-        if (registrySchema != null && !registrySchema.isEmpty()) {
+        // load and create registry
+        RegistryConfig registryConfig = serverOptions.getRegistryConfig();
+        if (registryConfig != null) {
             SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
-            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registryConfig.getSchema());
             if (registryFactory == null) {
-                throw new RuntimeException("can't find registry provider for schema : " + registrySchema);
+                throw new RuntimeException("can't find regitry provider for schema : " + registryConfig.getSchema());
             } else {
-                this.serviceRegistry = registryFactory.createServiceRegistry(serverOptions.getRegistryConfig());
+                this.serviceRegistry = registryFactory.createServiceRegistry(registryConfig);
             }
         }
 
@@ -94,6 +95,7 @@ public class Server implements ServiceExporter {
 
         this.acceptor = new AcceptorFactory(serverOptions).create(invokeHandler);
 
+        LOG.info("focus server will start, {}", serviceAddress);
         acceptor.bind(serviceAddress);
         LOG.info("focus server is created, {}", serviceAddress);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013~2017 dinstone<dinstone@163.com>
+ * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.focus.server.invoke;
 
 import com.dinstone.focus.invoke.InvokeContext;
@@ -29,24 +28,24 @@ import com.dinstone.focus.rpc.Reply;
  */
 public class ProvideInvokeHandler implements InvokeHandler {
 
-    private InvokeHandler invokeHandler;
+	private InvokeHandler invokeHandler;
 
-    public ProvideInvokeHandler(InvokeHandler invokeHandler) {
-        if (invokeHandler == null) {
-            throw new IllegalArgumentException("invokeHandler is null");
-        }
-        this.invokeHandler = invokeHandler;
-    }
+	public ProvideInvokeHandler(InvokeHandler invokeHandler) {
+		if (invokeHandler == null) {
+			throw new IllegalArgumentException("invokeHandler is null");
+		}
+		this.invokeHandler = invokeHandler;
+	}
 
-    public Reply invoke(Call call) throws Exception {
-        InvokeContext.pushContext();
-        InvokeContext.getContext();
-        try {
-            return invokeHandler.invoke(call);
-        } finally {
-            InvokeContext.removeContext();
-            InvokeContext.popContext();
-        }
-    }
+	public Reply invoke(Call call) throws Exception {
+		InvokeContext.pushContext();
+		InvokeContext.getContext();
+		try {
+			return invokeHandler.invoke(call);
+		} finally {
+			InvokeContext.removeContext();
+			InvokeContext.popContext();
+		}
+	}
 
 }

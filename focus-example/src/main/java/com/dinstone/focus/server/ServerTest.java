@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class ServerTest {
         LOG.info("server init");
         Server server = new Server(new ServerOptions().listen("localhost", 3333));
         server.exporting(DemoService.class, new DemoServiceImpl());
-//        server.start();
+        // server.start();
         LOG.info("server start");
         try {
             System.in.read();

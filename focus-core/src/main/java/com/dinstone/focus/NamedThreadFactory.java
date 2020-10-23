@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamedThreadFactory implements ThreadFactory {
 
-	private final AtomicInteger threadNumber = new AtomicInteger(1);
+    private final AtomicInteger threadNumber = new AtomicInteger(1);
 
-	private final ThreadGroup group;
+    private final ThreadGroup group;
 
-	private final String prefix;
+    private final String prefix;
 
-	private final boolean daemon;
+    private final boolean daemon;
 
-	public NamedThreadFactory(String name) {
-		this(name, false);
-	}
+    public NamedThreadFactory(String name) {
+        this(name, false);
+    }
 
-	public NamedThreadFactory(String name, boolean daemon) {
-		final SecurityManager s = System.getSecurityManager();
-		this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-		this.prefix = name + "-";
-		this.daemon = daemon;
-	}
+    public NamedThreadFactory(String name, boolean daemon) {
+        final SecurityManager s = System.getSecurityManager();
+        this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+        this.prefix = name + "-";
+        this.daemon = daemon;
+    }
 
-	@Override
-	public Thread newThread(Runnable r) {
-		final Thread t = new Thread(group, r, prefix + threadNumber.getAndIncrement(), 0);
-		t.setDaemon(daemon);
-		if (t.getPriority() != Thread.NORM_PRIORITY) {
-			t.setPriority(Thread.NORM_PRIORITY);
-		}
-		return t;
-	}
+    @Override
+    public Thread newThread(Runnable r) {
+        final Thread t = new Thread(group, r, prefix + threadNumber.getAndIncrement(), 0);
+        t.setDaemon(daemon);
+        if (t.getPriority() != Thread.NORM_PRIORITY) {
+            t.setPriority(Thread.NORM_PRIORITY);
+        }
+        return t;
+    }
 
 }

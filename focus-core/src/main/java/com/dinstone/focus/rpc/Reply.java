@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ import java.io.Serializable;
 
 /**
  * call's result
- *
+ * 
  * @author guojinfei
+ * 
  * @version 1.0.0.2014-6-23
  */
 public class Reply implements Serializable {
@@ -57,8 +58,9 @@ public class Reply implements Serializable {
 
     /**
      * the code to get
-     *
+     * 
      * @return the code
+     * 
      * @see Reply#code
      */
     public int getCode() {
@@ -67,8 +69,9 @@ public class Reply implements Serializable {
 
     /**
      * the code to set
-     *
+     * 
      * @param code
+     * 
      * @see Reply#code
      */
     public void setCode(int code) {
@@ -77,8 +80,9 @@ public class Reply implements Serializable {
 
     /**
      * the message to get
-     *
+     * 
      * @return the message
+     * 
      * @see Reply#message
      */
     public String getMessage() {
@@ -87,8 +91,9 @@ public class Reply implements Serializable {
 
     /**
      * the message to set
-     *
+     * 
      * @param message
+     * 
      * @see Reply#message
      */
     public void setMessage(String message) {
@@ -97,8 +102,9 @@ public class Reply implements Serializable {
 
     /**
      * the data to get
-     *
+     * 
      * @return the data
+     * 
      * @see Reply#data
      */
     public Object getData() {
@@ -107,8 +113,9 @@ public class Reply implements Serializable {
 
     /**
      * the data to set
-     *
+     * 
      * @param data
+     * 
      * @see Reply#data
      */
     public void setData(Object data) {
@@ -117,7 +124,7 @@ public class Reply implements Serializable {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

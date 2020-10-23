@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,20 @@ import com.dinstone.focus.rpc.Reply;
 
 /**
  * connection abstract.
- *
+ * 
  * @author guojf
+ * 
  * @version 1.0.0.2013-4-10
  */
 public interface Connection {
 
     /**
      * synchronous call.
-     *
+     * 
      * @param call
+     * 
      * @return reply
+     * 
      * @throws Exception
      */
     public Reply invoke(Call call) throws Exception;

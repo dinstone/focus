@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import java.io.PrintWriter;
 
 /**
  * RPC runtime exception.
- *
+ * 
  * @author guojf
+ * 
  * @version 1.0.0.2013-10-28
  */
 public class RpcException extends RuntimeException {
@@ -62,8 +63,9 @@ public class RpcException extends RuntimeException {
 
     /**
      * the code to get
-     *
+     * 
      * @return the code
+     * 
      * @see RpcException#code
      */
     public int getCode() {

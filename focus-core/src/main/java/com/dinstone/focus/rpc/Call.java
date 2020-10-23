@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import java.util.Arrays;
 
 /**
  * The Call is the abstract of invoking method, RPC protocol body part.
- *
+ * 
  * @author guojinfei
+ * 
  * @version 1.0.0.2014-6-23
  */
 public class Call implements Serializable {
@@ -59,8 +60,9 @@ public class Call implements Serializable {
 
     /**
      * the method to get
-     *
+     * 
      * @return the method
+     * 
      * @see Call#method
      */
     public String getMethod() {
@@ -69,8 +71,9 @@ public class Call implements Serializable {
 
     /**
      * the method to set
-     *
+     * 
      * @param method
+     * 
      * @see Call#method
      */
     public void setMethod(String method) {
@@ -79,8 +82,9 @@ public class Call implements Serializable {
 
     /**
      * the params to get
-     *
+     * 
      * @return the params
+     * 
      * @see Call#params
      */
     public Object[] getParams() {
@@ -89,8 +93,9 @@ public class Call implements Serializable {
 
     /**
      * the params to set
-     *
+     * 
      * @param params
+     * 
      * @see Call#params
      */
     public void setParams(Object[] params) {

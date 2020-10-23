@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,58 +24,58 @@ import com.dinstone.focus.rpc.Call;
 
 public class ServiceProxyFactory {
 
-	private InvokeHandler invokeHandler;
+    private InvokeHandler invokeHandler;
 
-	public ServiceProxyFactory(InvokeHandler invokeHandler) {
-		this.invokeHandler = invokeHandler;
-	}
+    public ServiceProxyFactory(InvokeHandler invokeHandler) {
+        this.invokeHandler = invokeHandler;
+    }
 
-	public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceInstance)
-			throws Exception {
-		if (!serviceInterface.isInterface()) {
-			throw new IllegalArgumentException(serviceInterface.getName() + " is not interface");
-		}
-		if (serviceInstance != null && !serviceInterface.isInstance(serviceInstance)) {
-			throw new IllegalArgumentException(
-					serviceInstance + " is not an instance of " + serviceInterface.getName());
-		}
+    public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceInstance)
+            throws Exception {
+        if (!serviceInterface.isInterface()) {
+            throw new IllegalArgumentException(serviceInterface.getName() + " is not interface");
+        }
+        if (serviceInstance != null && !serviceInterface.isInstance(serviceInstance)) {
+            throw new IllegalArgumentException(
+                    serviceInstance + " is not an instance of " + serviceInterface.getName());
+        }
 
-		ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
-		ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
-		T proxyInstance = serviceInterface.cast(
-				Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
+        ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
+        T proxyInstance = serviceInterface.cast(
+                Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
 
-		serviceProxy.setProxy(proxyInstance);
-		serviceProxy.setTarget(serviceInstance);
-		return serviceProxy;
-	}
+        serviceProxy.setProxy(proxyInstance);
+        serviceProxy.setTarget(serviceInstance);
+        return serviceProxy;
+    }
 
-	private class ProxyInvocationHandler<T> implements InvocationHandler {
+    private class ProxyInvocationHandler<T> implements InvocationHandler {
 
-		private ServiceProxy<T> serviceProxy;
+        private ServiceProxy<T> serviceProxy;
 
-		public ProxyInvocationHandler(ServiceProxy<T> serviceProxy) {
-			this.serviceProxy = serviceProxy;
-		}
+        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy) {
+            this.serviceProxy = serviceProxy;
+        }
 
-		@Override
-		public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
-			String methodName = method.getName();
-			Object instance = serviceProxy.getProxy();
-			if (methodName.equals("hashCode")) {
-				return Integer.valueOf(System.identityHashCode(instance));
-			} else if (methodName.equals("equals")) {
-				return (instance == args[0] ? Boolean.TRUE : Boolean.FALSE);
-			} else if (methodName.equals("toString")) {
-				return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
-			} else if (methodName.equals("getClass")) {
-				return serviceProxy.getService();
-			}
+        @Override
+        public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
+            String methodName = method.getName();
+            Object instance = serviceProxy.getProxy();
+            if (methodName.equals("hashCode")) {
+                return Integer.valueOf(System.identityHashCode(instance));
+            } else if (methodName.equals("equals")) {
+                return (instance == args[0] ? Boolean.TRUE : Boolean.FALSE);
+            } else if (methodName.equals("toString")) {
+                return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
+            } else if (methodName.equals("getClass")) {
+                return serviceProxy.getService();
+            }
 
-			Call call = new Call(serviceProxy.getService().getName(), serviceProxy.getGroup(),
-					serviceProxy.getTimeout(), methodName, args, method.getParameterTypes());
-			return invokeHandler.invoke(call).getData();
-		}
+            Call call = new Call(serviceProxy.getService().getName(), serviceProxy.getGroup(),
+                    serviceProxy.getTimeout(), methodName, args, method.getParameterTypes());
+            return invokeHandler.invoke(call).getData();
+        }
 
-	}
+    }
 }

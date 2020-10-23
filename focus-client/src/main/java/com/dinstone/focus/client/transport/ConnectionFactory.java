@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,9 @@ import com.dinstone.photon.processor.MessageProcessor;
 
 /**
  * connetcion factory.
- *
+ * 
  * @author guojinfei
+ * 
  * @version 2.0.0.2015-11-3
  */
 public class ConnectionFactory {

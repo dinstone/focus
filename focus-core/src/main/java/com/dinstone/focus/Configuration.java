@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,6 +136,7 @@ public class Configuration {
 
     /**
      * @param resource
+     * 
      * @return
      */
     private static InputStream getResourceStream(String resource) {
@@ -230,10 +231,12 @@ public class Configuration {
 
     /**
      * Resolve ${...} placeholders in the given text, replacing them with corresponding system property values.
-     *
+     * 
      * @param text
-     *        the String to resolve
+     *            the String to resolve
+     * 
      * @return the resolved String
+     * 
      * @see #PLACEHOLDER_PREFIX
      * @see #PLACEHOLDER_SUFFIX
      */
@@ -286,8 +289,9 @@ public class Configuration {
 
     /**
      * Get the value of the <code>name</code> property, <code>null</code> if no such property exists.
-     *
+     * 
      * @param name
+     * 
      * @return
      */
     public String get(String name) {
@@ -296,9 +300,10 @@ public class Configuration {
 
     /**
      * Get the value of the <code>name</code> property, <code>defaultValue</code> if no such property exists.
-     *
+     * 
      * @param name
      * @param defaultValue
+     * 
      * @return
      */
     public String get(String name, String defaultValue) {
@@ -308,11 +313,12 @@ public class Configuration {
 
     /**
      * Set the <code>value</code> of the <code>name</code> property.
-     *
+     * 
      * @param name
-     *        property name.
+     *            property name.
      * @param value
-     *        property value.
+     *            property value.
+     * 
      * @return
      */
     public Configuration set(String name, String value) {
@@ -323,9 +329,10 @@ public class Configuration {
     /**
      * Get the value of the <code>name</code> property as an <code>int</code>. If no such property exists, or if the
      * specified value is not a valid <code>int</code>, then <code>defaultValue</code> is returned.
-     *
+     * 
      * @param name
      * @param defaultValue
+     * 
      * @return
      */
     public int getInt(String name, int defaultValue) {
@@ -346,11 +353,12 @@ public class Configuration {
 
     /**
      * Set the value of the <code>name</code> property to an <code>int</code>.
-     *
+     * 
      * @param name
-     *        property name.
+     *            property name.
      * @param value
-     *        <code>int</code> value of the property.
+     *            <code>int</code> value of the property.
+     * 
      * @return
      */
     public Configuration setInt(String name, int value) {
@@ -361,11 +369,12 @@ public class Configuration {
     /**
      * Get the value of the <code>name</code> property as a <code>long</code>. If no such property is specified, or if
      * the specified value is not a valid <code>long</code>, then <code>defaultValue</code> is returned.
-     *
+     * 
      * @param name
-     *        property name.
+     *            property name.
      * @param defaultValue
-     *        default value.
+     *            default value.
+     * 
      * @return property value as a <code>long</code>, or <code>defaultValue</code>.
      */
     public long getLong(String name, long defaultValue) {
@@ -386,11 +395,12 @@ public class Configuration {
 
     /**
      * Set the value of the <code>name</code> property to a <code>long</code>.
-     *
+     * 
      * @param name
-     *        property name.
+     *            property name.
      * @param value
-     *        <code>long</code> value of the property.
+     *            <code>long</code> value of the property.
+     * 
      * @return
      */
     public Configuration setLong(String name, long value) {
@@ -419,11 +429,12 @@ public class Configuration {
     /**
      * Get the value of the <code>name</code> property as a <code>float</code>. If no such property is specified, or if
      * the specified value is not a valid <code>float</code>, then <code>defaultValue</code> is returned.
-     *
+     * 
      * @param name
-     *        property name.
+     *            property name.
      * @param defaultValue
-     *        default value.
+     *            default value.
+     * 
      * @return property value as a <code>float</code>, or <code>defaultValue</code>.
      */
     public float getFloat(String name, float defaultValue) {
@@ -440,11 +451,12 @@ public class Configuration {
 
     /**
      * Set the value of the <code>name</code> property to a <code>float</code>.
-     *
+     * 
      * @param name
-     *        property name.
+     *            property name.
      * @param value
-     *        property value.
+     *            property value.
+     * 
      * @return
      */
     public Configuration setFloat(String name, float value) {
@@ -455,11 +467,12 @@ public class Configuration {
     /**
      * Get the value of the <code>name</code> property as a <code>boolean</code> . If no such property is specified, or
      * if the specified value is not a valid <code>boolean</code>, then <code>defaultValue</code> is returned.
-     *
+     * 
      * @param name
-     *        property name.
+     *            property name.
      * @param defaultValue
-     *        default value.
+     *            default value.
+     * 
      * @return property value as a <code>boolean</code>, or <code>defaultValue</code>.
      */
     public boolean getBoolean(String name, boolean defaultValue) {

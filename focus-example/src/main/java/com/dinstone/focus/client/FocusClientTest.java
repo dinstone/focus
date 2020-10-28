@@ -20,26 +20,25 @@ import java.io.IOException;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
+import com.dinstone.photon.ConnectOptions;
 
-public class ClientTest {
+public class FocusClientTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FocusClientTest.class);
 
     public static void main(String[] args) {
 
         LOG.info("init start");
-        ClientOptions option = new ClientOptions().connect("localhost", 3333);
+        ConnectOptions connectOptions = new ConnectOptions();
+        connectOptions.setProcessorSize(0);
+        ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions);
         Client client = new Client(option);
         DemoService ds = client.importing(DemoService.class);
 
         LOG.info("int end");
 
-        int c = 0;
-        while (c < 200) {
-            System.out.println(ds.hello("dinstoneo"));
-
-            c++;
-        }
+        execute(ds, "hot: ");
+        execute(ds, "exe: ");
 
         try {
             System.in.read();
@@ -48,6 +47,18 @@ public class ClientTest {
         }
 
         client.destroy();
+    }
+
+    private static void execute(DemoService ds, String tag) {
+        int c = 0;
+        long st = System.currentTimeMillis();
+        int loopCount = 200000;
+        while (c < loopCount) {
+            ds.hello("dinstoneo", c);
+            c++;
+        }
+        long et = System.currentTimeMillis() - st;
+        System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
     }
 
 }

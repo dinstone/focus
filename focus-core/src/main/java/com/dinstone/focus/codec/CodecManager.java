@@ -20,19 +20,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CodecManager {
 
-    private static final Map<String, Codec> codecMap = new ConcurrentHashMap<>();
+    private static final Map<String, RpcCodec> NAME_CODEC_MAP = new ConcurrentHashMap<>();
+
+    private static final Map<Integer, RpcCodec> CODE_CODEC_MAP = new ConcurrentHashMap<>();
 
     private static final ErrorCodec ERROR_CODEC = new ErrorCodec();
 
-    public static void regist(String cname, Codec codec) {
-        codecMap.put(cname, codec);
+    public static void regist(String name, RpcCodec codec) {
+        NAME_CODEC_MAP.put(name, codec);
+        CODE_CODEC_MAP.put((int) codec.code(), codec);
     }
 
-    public static Codec find(String cname) {
-        return codecMap.get(cname);
+    public static RpcCodec codec(String name) {
+        return NAME_CODEC_MAP.get(name);
     }
 
-    public static ErrorCodec getErrorCodec() {
+    public static RpcCodec codec(int code) {
+        return CODE_CODEC_MAP.get(code);
+    }
+
+    public static ErrorCodec error() {
         return ERROR_CODEC;
     }
 

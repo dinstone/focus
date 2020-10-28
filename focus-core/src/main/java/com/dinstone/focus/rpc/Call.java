@@ -42,7 +42,7 @@ public class Call implements Serializable {
 
     private Class<?>[] paramTypes;
 
-    private String codec;
+    private Attach attach = new Attach();
 
     public Call() {
         super();
@@ -134,12 +134,27 @@ public class Call implements Serializable {
         this.paramTypes = paramTypes;
     }
 
-    public String getCodec() {
-        return codec;
+    /**
+     * the attach to get
+     * 
+     * @return
+     */
+    public Attach attach() {
+        return attach;
     }
 
-    public void setCodec(String codec) {
-        this.codec = codec;
+    /**
+     * the attach to set
+     * 
+     * @param other
+     * 
+     * @return
+     */
+    public Call attach(Attach other) {
+        if (other != null) {
+            attach.putAll(other);
+        }
+        return this;
     }
 
     @Override

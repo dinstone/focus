@@ -35,7 +35,7 @@ public class ConnectionManager {
         }
         this.clientOptions = clientOptions;
 
-        this.connectionFactory = new ConnectionFactory(clientOptions.getConnectOptions());
+        this.connectionFactory = new ConnectionFactory(clientOptions);
         this.connectionPoolMap = new ConcurrentHashMap<InetSocketAddress, ConnectionPool>();
     }
 

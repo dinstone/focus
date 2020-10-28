@@ -15,17 +15,21 @@
  */
 package com.dinstone.focus.server.transport;
 
-import java.util.concurrent.Executor;
-
+import com.dinstone.focus.RpcException;
+import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.codec.ErrorCodec;
+import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.server.ServerOptions;
-import com.dinstone.focus.server.processor.RpcProcessor;
 import com.dinstone.photon.Acceptor;
-import com.dinstone.photon.handler.MessageContext;
-import com.dinstone.photon.message.Message;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
+import com.dinstone.photon.message.Response;
+import com.dinstone.photon.message.Status;
 import com.dinstone.photon.processor.MessageProcessor;
+
+import io.netty.channel.ChannelHandlerContext;
 
 public class AcceptorFactory {
 
@@ -37,29 +41,43 @@ public class AcceptorFactory {
 
     public Acceptor create(final InvokeHandler invoker) {
         Acceptor acceptor = new Acceptor(serverOption.getAcceptOptions());
-        final RpcProcessor rpcProcessor = new RpcProcessor(invoker);
         acceptor.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(final MessageContext context, final Message message) {
-                if (message instanceof Request) {
-                    Executor executor = context.getDefaultExecutor();
-                    executor.execute(new Runnable() {
+            public void process(ChannelHandlerContext ctx, Notice notice) {
+                // rpcProcessor.process(ctx, notice);
+            }
 
-                        @Override
-                        public void run() {
-                            rpcProcessor.process(context, (Request) message);
-                        }
-                    });
-                } else if (message instanceof Notice) {
-                    Executor executor = context.getDefaultExecutor();
-                    executor.execute(new Runnable() {
+            @Override
+            public void process(ChannelHandlerContext ctx, Request request) {
+                RpcException exception = null;
+                try {
+                    RpcCodec codec = CodecManager.codec(request.getCodec());
+                    Reply reply = invoker.invoke(codec.decode(request));
 
-                        @Override
-                        public void run() {
-                            rpcProcessor.process(context, (Notice) message);
-                        }
-                    });
+                    Response response = new Response();
+                    response.setMsgId(request.getMsgId());
+                    response.setCodec(request.getCodec());
+                    response.setStatus(Status.SUCCESS);
+                    codec.encode(response, reply);
+
+                    ctx.writeAndFlush(response);
+                } catch (RpcException e) {
+                    exception = e;
+                } catch (Throwable e) {
+                    exception = new RpcException(500, "service exception", e);
+                }
+
+                if (exception != null) {
+                    ErrorCodec codec = CodecManager.error();
+
+                    Response response = new Response();
+                    response.setMsgId(request.getMsgId());
+                    response.setCodec(request.getCodec());
+                    response.setStatus(Status.ERROR);
+                    codec.encode(response, exception);
+
+                    ctx.writeAndFlush(response);
                 }
             }
         });

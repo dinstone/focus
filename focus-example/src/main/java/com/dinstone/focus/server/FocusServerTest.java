@@ -22,9 +22,9 @@ import com.dinstone.focus.example.DemoServiceImpl;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
-public class ServerTest {
+public class FocusServerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServerTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FocusServerTest.class);
 
     public static void main(String[] args) {
         LOG.info("server init");

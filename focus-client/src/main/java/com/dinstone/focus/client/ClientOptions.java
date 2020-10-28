@@ -44,8 +44,9 @@ public class ClientOptions extends EndpointOptions {
         return connectOptions;
     }
 
-    public void setConnectOptions(ConnectOptions connectOptions) {
+    public ClientOptions setConnectOptions(ConnectOptions connectOptions) {
         this.connectOptions = connectOptions;
+        return this;
     }
 
     public ClientOptions connect(String addresses) {

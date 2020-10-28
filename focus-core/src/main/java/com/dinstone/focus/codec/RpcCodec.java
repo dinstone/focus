@@ -20,7 +20,7 @@ import com.dinstone.focus.rpc.Reply;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 
-public interface Codec {
+public interface RpcCodec {
 
     public void encode(Request request, Call call) throws CodecException;
 
@@ -30,4 +30,5 @@ public interface Codec {
 
     public Reply decode(Response response) throws CodecException;
 
+    public byte code();
 }

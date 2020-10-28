@@ -17,8 +17,9 @@ package com.dinstone.focus.codec.json;
 
 import java.io.IOException;
 
-import com.dinstone.focus.codec.Codec;
 import com.dinstone.focus.codec.CodecException;
+import com.dinstone.focus.codec.RpcCodec;
+import com.dinstone.focus.rpc.Attach;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 import com.dinstone.photon.message.Request;
@@ -29,7 +30,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class JacksonCodec implements Codec {
+public class JacksonCodec implements RpcCodec {
 
     private ObjectMapper objectMapper;
 
@@ -49,8 +50,14 @@ public class JacksonCodec implements Codec {
     }
 
     @Override
+    public byte code() {
+        return 1;
+    }
+
+    @Override
     public void encode(Request request, Call call) throws CodecException {
         try {
+            request.setHeaders(Attach.encode(call.attach()));
             request.setContent(objectMapper.writeValueAsBytes(call));
         } catch (JsonProcessingException e) {
             throw new CodecException("encode call message error", e);
@@ -58,8 +65,19 @@ public class JacksonCodec implements Codec {
     }
 
     @Override
+    public Call decode(Request request) throws CodecException {
+        try {
+            Attach attach = Attach.decode(request.getHeaders());
+            return objectMapper.readValue(request.getContent(), Call.class).attach(attach);
+        } catch (IOException e) {
+            throw new CodecException("decode call message error", e);
+        }
+    }
+
+    @Override
     public void encode(Response response, Reply reply) throws CodecException {
         try {
+            response.setHeaders(Attach.encode(reply.attach()));
             response.setContent(objectMapper.writeValueAsBytes(reply));
         } catch (JsonProcessingException e) {
             throw new CodecException("encode reply message error", e);
@@ -67,18 +85,10 @@ public class JacksonCodec implements Codec {
     }
 
     @Override
-    public Call decode(Request request) throws CodecException {
-        try {
-            return objectMapper.readValue(request.getContent(), Call.class);
-        } catch (IOException e) {
-            throw new CodecException("decode call message error", e);
-        }
-    }
-
-    @Override
     public Reply decode(Response response) throws CodecException {
         try {
-            return objectMapper.readValue(response.getContent(), Reply.class);
+            Attach attach = Attach.decode(response.getHeaders());
+            return objectMapper.readValue(response.getContent(), Reply.class).attach(attach);
         } catch (IOException e) {
             throw new CodecException("decode reply message error", e);
         }

@@ -42,7 +42,6 @@ public class RemoteInvokeHandler implements InvokeHandler {
         if (address == null) {
             throw new RuntimeException("can't find a service address");
         }
-        call.setCodec(clientOptions.getCodec());
 
         return connectionManager.getConnection(address).invoke(call);
     }

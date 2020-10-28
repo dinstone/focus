@@ -15,47 +15,64 @@
  */
 package com.dinstone.focus.codec;
 
-import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.dinstone.focus.RpcException;
-import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Response;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class ErrorCodec {
 
-    private static final String UTF_8 = "utf-8";
+    private TypeReference<Map<String, String>> type = new TypeReference<Map<String, String>>() {
+    };
+
+    private ObjectMapper objectMapper;
+
+    public ErrorCodec() {
+        objectMapper = new ObjectMapper();
+        // objectMapper.enableDefaultTyping();
+
+        // JSON configuration not to serialize null field
+        objectMapper.setSerializationInclusion(Include.NON_NULL);
+
+        // JSON configuration not to throw exception on empty bean class
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+        // JSON configuration for compatibility
+        objectMapper.enable(Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+        objectMapper.enable(Feature.ALLOW_UNQUOTED_CONTROL_CHARS);
+    }
 
     public void encode(Response response, RpcException exception) {
-        Headers headers = response.getHeaders();
-        headers.put("error.code", "" + exception.getCode());
-        headers.put("error.message", "" + exception.getMessage());
+        Map<String, String> error = new HashMap<>();
+        error.put("error.code", "" + exception.getCode());
+        error.put("error.message", exception.getMessage());
+        error.put("error.stack", exception.getStack());
 
-        if (exception.getStack() != null) {
-            try {
-                response.setContent(exception.getStack().getBytes(UTF_8));
-            } catch (UnsupportedEncodingException e) {
-                // ignore
-            }
+        try {
+            response.setContent(objectMapper.writeValueAsBytes(error));
+        } catch (JsonProcessingException e) {
+            // ignore
         }
     }
 
     public RpcException decode(Response response) {
         RpcException error = null;
         try {
-            Headers headers = response.getHeaders();
+            Map<String, String> headers = objectMapper.readValue(response.getContent(), type);
             int code = Integer.parseInt(headers.get("error.code"));
             String message = headers.get("error.message");
-            error = new RpcException(code, message);
-            if (response.getContent() != null) {
-                String stack = new String(response.getContent(), UTF_8);
-                error = new RpcException(code, message, stack);
-            } else {
-                error = new RpcException(code, message);
-            }
+            String stack = headers.get("error.stack");
+            error = new RpcException(code, message, stack);
         } catch (Exception e) {
             error = new RpcException(499, "decode exception error", e);
         }
         return error;
     }
-
 }

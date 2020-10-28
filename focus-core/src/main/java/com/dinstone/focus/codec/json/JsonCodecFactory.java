@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.codec.json;
 
-import com.dinstone.focus.codec.Codec;
+import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.codec.CodecFactory;
 
 public class JsonCodecFactory implements CodecFactory {
@@ -26,7 +26,7 @@ public class JsonCodecFactory implements CodecFactory {
     }
 
     @Override
-    public Codec createCodec() {
+    public RpcCodec createCodec() {
         return new JacksonCodec();
     }
 

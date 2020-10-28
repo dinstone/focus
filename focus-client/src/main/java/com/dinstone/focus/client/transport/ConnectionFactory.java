@@ -18,22 +18,22 @@ package com.dinstone.focus.client.transport;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.focus.codec.Codec;
+import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.codec.ErrorCodec;
+import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 import com.dinstone.photon.Connector;
-import com.dinstone.photon.handler.MessageContext;
-import com.dinstone.photon.message.Headers;
-import com.dinstone.photon.message.Message;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Status;
 import com.dinstone.photon.processor.MessageProcessor;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * connetcion factory.
@@ -46,26 +46,31 @@ public class ConnectionFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionFactory.class);
 
+    private ClientOptions clientOptions;
+
     private Connector connector;
 
-    public ConnectionFactory(ConnectOptions connectOptions) {
-        this.connector = new Connector(new ConnectOptions());
+    public ConnectionFactory(ClientOptions clientOptions) {
+        this.clientOptions = clientOptions;
+
+        this.connector = new Connector(clientOptions.getConnectOptions());
         this.connector.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(MessageContext context, Message message) throws Exception {
-                if (message instanceof Notice) {
-                    LOG.info("notice is {}", message.getContent());
-                }
-                if (message instanceof Request) {
-                    LOG.info("response is {}", message.getContent());
-                }
+            public void process(ChannelHandlerContext ctx, Notice msg) {
+                LOG.warn("unsported message notice");
+            }
+
+            @Override
+            public void process(ChannelHandlerContext ctx, Request msg) {
+                LOG.warn("unsported message Request");
             }
         });
     }
 
     public Connection create(InetSocketAddress sa) throws Exception {
-        return new ConnectionWrap(connector.connect(sa));
+        RpcCodec codec = CodecManager.codec(clientOptions.getCodec());
+        return new ConnectionWrap(connector.connect(sa), codec);
     }
 
     public void destroy() {
@@ -80,36 +85,33 @@ public class ConnectionFactory {
 
         private com.dinstone.photon.connection.Connection connection;
 
-        public ConnectionWrap(com.dinstone.photon.connection.Connection connection) {
+        private RpcCodec rpcCodec;
+
+        private ErrorCodec errorCodec;
+
+        public ConnectionWrap(com.dinstone.photon.connection.Connection connection, RpcCodec rpcCodec) {
             this.connection = connection;
+            this.rpcCodec = rpcCodec;
+            this.errorCodec = CodecManager.error();
         }
 
         @Override
         public Reply invoke(Call call) throws Exception {
             Request request = new Request();
-            request.setId(IDGENER.incrementAndGet());
-
-            Headers headers = new Headers();
-            headers.put("service", call.getService());
-            headers.put("method", call.getMethod());
+            request.setMsgId(IDGENER.incrementAndGet());
+            request.setCodec(rpcCodec.code());
             request.setTimeout(call.getTimeout());
 
-            String cname = call.getCodec();
-            headers.put("rpc.codec", cname);
-
-            request.setHeaders(headers);
-
-            Codec codec = CodecManager.find(cname);
-            codec.encode(request, call);
+            rpcCodec.encode(request, call);
 
             // remote call
             Response response = connection.sync(request);
 
             // handle response by success
             if (response.getStatus() == Status.SUCCESS) {
-                return codec.decode(response);
+                return rpcCodec.decode(response);
             } else {
-                throw CodecManager.getErrorCodec().decode(response);
+                throw errorCodec.decode(response);
             }
         }
 

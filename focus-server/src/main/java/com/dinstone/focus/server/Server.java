@@ -104,19 +104,19 @@ public class Server implements ServiceExporter {
         return new ProvideInvokeHandler(new FilterChain(localInvokeHandler, serverOptions.getFilters()));
     }
 
-    public synchronized Server start() {
-        acceptor.bind(serviceAddress);
-
-        LOG.info("focus server is started on {}", serviceAddress);
-        return this;
-    }
-
-    public synchronized Server stop() {
-        destroy();
-
-        LOG.info("focus server is stopped on {}", serviceAddress);
-        return this;
-    }
+    // public synchronized Server start() {
+    // acceptor.bind(serviceAddress);
+    //
+    // LOG.info("focus server is started on {}", serviceAddress);
+    // return this;
+    // }
+    //
+    // public synchronized Server stop() {
+    // destroy();
+    //
+    // LOG.info("focus server is stopped on {}", serviceAddress);
+    // return this;
+    // }
 
     public InetSocketAddress getServiceAddress() {
         return serviceAddress;

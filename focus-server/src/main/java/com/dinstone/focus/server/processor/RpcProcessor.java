@@ -16,23 +16,23 @@
 package com.dinstone.focus.server.processor;
 
 import com.dinstone.focus.RpcException;
-import com.dinstone.focus.codec.Codec;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.codec.ErrorCodec;
+import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.rpc.Reply;
-import com.dinstone.focus.server.transport.AcceptorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.handler.MessageContext;
-import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Status;
 
+import io.netty.channel.ChannelHandlerContext;
+
 public final class RpcProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AcceptorFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RpcProcessor.class);
 
     private final InvokeHandler invoker;
 
@@ -40,29 +40,20 @@ public final class RpcProcessor {
         this.invoker = invoker;
     }
 
-    public void process(MessageContext context, Notice notice) {
-        LOG.info("notice is {}", notice.getContent());
-    }
-
-    public void process(MessageContext context, Request request) {
-        String cname = request.getHeaders().get("rpc.codec");
-        Codec codec = CodecManager.find(cname);
+    public void process(ChannelHandlerContext ctx, Request request) {
 
         RpcException exception = null;
         try {
+            RpcCodec codec = CodecManager.codec(request.getCodec());
             Reply reply = invoker.invoke(codec.decode(request));
 
             Response response = new Response();
-            response.setId(request.getId());
+            response.setMsgId(request.getMsgId());
+            response.setCodec(request.getCodec());
             response.setStatus(Status.SUCCESS);
-
-            Headers headers = new Headers();
-            headers.put("rpc.codec", cname);
-            response.setHeaders(headers);
-
             codec.encode(response, reply);
 
-            context.getConnection().write(response);
+            ctx.writeAndFlush(response);
         } catch (RpcException e) {
             exception = e;
         } catch (Throwable e) {
@@ -70,17 +61,21 @@ public final class RpcProcessor {
         }
 
         if (exception != null) {
+            ErrorCodec codec = CodecManager.error();
+
             Response response = new Response();
-            response.setId(request.getId());
+            response.setMsgId(request.getMsgId());
+            response.setCodec(request.getCodec());
             response.setStatus(Status.ERROR);
+            codec.encode(response, exception);
 
-            Headers headers = new Headers();
-            response.setHeaders(headers);
-
-            CodecManager.getErrorCodec().encode(response, exception);
-
-            context.getConnection().write(response);
+            ctx.writeAndFlush(response);
         }
+    }
+
+    public void process(ChannelHandlerContext ctx, Notice msg) {
+        // TODO Auto-generated method stub
+
     }
 
 }

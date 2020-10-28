@@ -35,6 +35,8 @@ public class Reply implements Serializable {
 
     private Object data;
 
+    private Attach attach = new Attach();
+
     public Reply() {
         super();
     }
@@ -120,6 +122,29 @@ public class Reply implements Serializable {
      */
     public void setData(Object data) {
         this.data = data;
+    }
+
+    /**
+     * the attach to get
+     * 
+     * @return
+     */
+    public Attach attach() {
+        return attach;
+    }
+
+    /**
+     * the attach to set
+     * 
+     * @param other
+     * 
+     * @return
+     */
+    public Reply attach(Attach other) {
+        if (other != null) {
+            attach.putAll(other);
+        }
+        return this;
     }
 
     /**

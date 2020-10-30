@@ -15,63 +15,44 @@
  */
 package com.dinstone.focus.codec;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-import com.dinstone.focus.RpcException;
+import com.dinstone.focus.FocusException;
+import com.dinstone.focus.utils.ByteStreamUtil;
 import com.dinstone.photon.message.Response;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class ErrorCodec {
 
-    private TypeReference<Map<String, String>> type = new TypeReference<Map<String, String>>() {
-    };
-
-    private ObjectMapper objectMapper;
-
-    public ErrorCodec() {
-        objectMapper = new ObjectMapper();
-        // objectMapper.enableDefaultTyping();
-
-        // JSON configuration not to serialize null field
-        objectMapper.setSerializationInclusion(Include.NON_NULL);
-
-        // JSON configuration not to throw exception on empty bean class
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
-        // JSON configuration for compatibility
-        objectMapper.enable(Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-        objectMapper.enable(Feature.ALLOW_UNQUOTED_CONTROL_CHARS);
-    }
-
-    public void encode(Response response, RpcException exception) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error.code", "" + exception.getCode());
-        error.put("error.message", exception.getMessage());
-        error.put("error.stack", exception.getStack());
-
+    public void encode(Response response, FocusException exception) {
         try {
-            response.setContent(objectMapper.writeValueAsBytes(error));
-        } catch (JsonProcessingException e) {
-            // ignore
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            ByteStreamUtil.writeString(bao, "" + exception.getCode());
+            ByteStreamUtil.writeString(bao, exception.getMessage());
+            ByteStreamUtil.writeString(bao, exception.getStack());
+
+            response.setContent(bao.toByteArray());
+        } catch (IOException e) {
+            // igonre
         }
     }
 
-    public RpcException decode(Response response) {
-        RpcException error = null;
+    public FocusException decode(Response response) {
+        FocusException error = null;
         try {
-            Map<String, String> headers = objectMapper.readValue(response.getContent(), type);
-            int code = Integer.parseInt(headers.get("error.code"));
-            String message = headers.get("error.message");
-            String stack = headers.get("error.stack");
-            error = new RpcException(code, message, stack);
+            byte[] encoded = response.getContent();
+            if (encoded != null) {
+                ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
+                int code = Integer.parseInt(ByteStreamUtil.readString(bai));
+                String message = ByteStreamUtil.readString(bai);
+                String stack = ByteStreamUtil.readString(bai);
+                error = new FocusException(code, message, stack);
+            } else {
+                error = new FocusException(599, "unkown exception");
+            }
         } catch (Exception e) {
-            error = new RpcException(499, "decode exception error", e);
+            error = new FocusException(499, "decode exception error", e);
         }
         return error;
     }

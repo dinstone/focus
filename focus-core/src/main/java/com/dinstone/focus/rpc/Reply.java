@@ -29,77 +29,17 @@ public class Reply implements Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private int code;
-
-    private String message;
+    private Attach attach = new Attach();
 
     private Object data;
-
-    private Attach attach = new Attach();
 
     public Reply() {
         super();
     }
 
-    public Reply(int code, String message) {
-        super();
-        this.code = code;
-        this.message = message;
-    }
-
-    public Reply(int code, Object data) {
-        super();
-        this.code = code;
-        this.data = data;
-    }
-
     public Reply(Object data) {
         super();
         this.data = data;
-    }
-
-    /**
-     * the code to get
-     * 
-     * @return the code
-     * 
-     * @see Reply#code
-     */
-    public int getCode() {
-        return code;
-    }
-
-    /**
-     * the code to set
-     * 
-     * @param code
-     * 
-     * @see Reply#code
-     */
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    /**
-     * the message to get
-     * 
-     * @return the message
-     * 
-     * @see Reply#message
-     */
-    public String getMessage() {
-        return message;
-    }
-
-    /**
-     * the message to set
-     * 
-     * @param message
-     * 
-     * @see Reply#message
-     */
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     /**
@@ -145,16 +85,6 @@ public class Reply implements Serializable {
             attach.putAll(other);
         }
         return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "{code=" + code + ", message=" + message + ", data=" + data + "}";
     }
 
 }

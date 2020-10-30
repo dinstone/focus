@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.server.transport;
 
-import com.dinstone.focus.RpcException;
+import com.dinstone.focus.FocusException;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.codec.ErrorCodec;
 import com.dinstone.focus.codec.RpcCodec;
@@ -50,7 +50,7 @@ public class AcceptorFactory {
 
             @Override
             public void process(ChannelHandlerContext ctx, Request request) {
-                RpcException exception = null;
+                FocusException exception = null;
                 try {
                     RpcCodec codec = CodecManager.codec(request.getCodec());
                     Reply reply = invoker.invoke(codec.decode(request));
@@ -62,19 +62,18 @@ public class AcceptorFactory {
                     codec.encode(response, reply);
 
                     ctx.writeAndFlush(response);
-                } catch (RpcException e) {
+                } catch (FocusException e) {
                     exception = e;
                 } catch (Throwable e) {
-                    exception = new RpcException(500, "service exception", e);
+                    exception = new FocusException(500, "service exception", e);
                 }
 
                 if (exception != null) {
                     ErrorCodec codec = CodecManager.error();
-
                     Response response = new Response();
                     response.setMsgId(request.getMsgId());
                     response.setCodec(request.getCodec());
-                    response.setStatus(Status.ERROR);
+                    response.setStatus(Status.FAILURE);
                     codec.encode(response, exception);
 
                     ctx.writeAndFlush(response);

@@ -19,6 +19,9 @@ public class DemoServiceImpl implements DemoService {
 
     @Override
     public String hello(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new RuntimeException("name is empty");
+        }
         return "hi " + name;
     }
 

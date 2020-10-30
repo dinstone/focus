@@ -60,7 +60,9 @@ public class JacksonCodec implements RpcCodec {
             request.setHeaders(Attach.encode(call.attach()));
             request.setContent(objectMapper.writeValueAsBytes(call));
         } catch (JsonProcessingException e) {
-            throw new CodecException("encode call message error", e);
+            throw new CodecException("encode call content error", e);
+        } catch (IOException e) {
+            throw new CodecException("encode call attachs error", e);
         }
     }
 
@@ -80,7 +82,9 @@ public class JacksonCodec implements RpcCodec {
             response.setHeaders(Attach.encode(reply.attach()));
             response.setContent(objectMapper.writeValueAsBytes(reply));
         } catch (JsonProcessingException e) {
-            throw new CodecException("encode reply message error", e);
+            throw new CodecException("encode reply content error", e);
+        } catch (IOException e) {
+            throw new CodecException("encode reply attachs error", e);
         }
     }
 

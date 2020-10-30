@@ -15,10 +15,15 @@
  */
 package com.dinstone.focus.rpc;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import com.dinstone.focus.utils.ByteStreamUtil;
 
 public class Attach implements Map<String, String> {
 
@@ -87,14 +92,36 @@ public class Attach implements Map<String, String> {
         store.putAll(m);
     }
 
-    public static Attach decode(byte[] encoded) {
-        // TODO Auto-generated method stub
+    public static Attach decode(byte[] encoded) throws IOException {
+        if (encoded != null && encoded.length > 4) {
+            ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
+            int count = ByteStreamUtil.readInt(bai);
+            Attach attach = new Attach();
+            for (int i = 0; i < count; i++) {
+                String k = ByteStreamUtil.readString(bai);
+                String v = ByteStreamUtil.readString(bai);
+                attach.put(k, v);
+            }
+            return attach;
+        }
+
         return null;
     }
 
-    public static byte[] encode(Attach attach) {
-        // TODO Auto-generated method stub
-        return null;
+    public static byte[] encode(Attach attach) throws IOException {
+        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+        if (attach == null || attach.isEmpty()) {
+            // count
+            ByteStreamUtil.writeInt(bao, 0);
+        } else {
+            // count
+            ByteStreamUtil.writeInt(bao, attach.size());
+            for (Entry<String, String> element : attach.entrySet()) {
+                ByteStreamUtil.writeString(bao, element.getKey());
+                ByteStreamUtil.writeString(bao, element.getValue());
+            }
+        }
+        return bao.toByteArray();
     }
 
 }

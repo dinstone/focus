@@ -18,7 +18,7 @@ package com.dinstone.focus.server.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.dinstone.focus.RpcException;
+import com.dinstone.focus.FocusException;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.exception.ExcptionHelper;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -38,7 +38,7 @@ public class LocalInvokeHandler implements InvokeHandler {
     public Reply invoke(Call call) throws Exception {
         ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
         if (wrapper == null) {
-            throw new RpcException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
+            throw new FocusException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
         }
 
         try {
@@ -46,21 +46,21 @@ public class LocalInvokeHandler implements InvokeHandler {
             Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
             Object resObj = method.invoke(wrapper.getTarget(), call.getParams());
             return new Reply(resObj);
-        } catch (RpcException e) {
-            throw e;
         } catch (NoSuchMethodException e) {
             String message = "unkown method: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
-            throw new RpcException(405, message, e);
+            throw new FocusException(405, message, e);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
-            throw new RpcException(502, message, e);
+            throw new FocusException(502, message, e);
         } catch (InvocationTargetException e) {
             Throwable te = ExcptionHelper.getTargetException(e);
-            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
-            throw new RpcException(500, message, te);
+            String message = "service exception: [" + call.getGroup() + "]" + call.getService() + "."
+                    + call.getMethod();
+            throw new FocusException(500, message, te);
         } catch (Throwable e) {
-            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
-            throw new RpcException(509, message, e);
+            String message = "service exception: [" + call.getGroup() + "]" + call.getService() + "."
+                    + call.getMethod();
+            throw new FocusException(509, message, e);
         }
     }
 

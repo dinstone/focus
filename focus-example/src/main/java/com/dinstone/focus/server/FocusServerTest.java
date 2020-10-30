@@ -27,7 +27,6 @@ public class FocusServerTest {
     private static final Logger LOG = LoggerFactory.getLogger(FocusServerTest.class);
 
     public static void main(String[] args) {
-        LOG.info("server init");
         Server server = new Server(new ServerOptions().listen("localhost", 3333));
         server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();

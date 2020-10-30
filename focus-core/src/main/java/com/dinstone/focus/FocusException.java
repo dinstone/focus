@@ -25,7 +25,7 @@ import java.io.PrintWriter;
  * 
  * @version 1.0.0.2013-10-28
  */
-public class RpcException extends RuntimeException {
+public class FocusException extends RuntimeException {
 
     /**  */
     private static final long serialVersionUID = 1L;
@@ -37,7 +37,7 @@ public class RpcException extends RuntimeException {
     /**
      * @param message
      */
-    public RpcException(int code, String message) {
+    public FocusException(int code, String message) {
         super(message);
         this.code = code;
     }
@@ -46,7 +46,7 @@ public class RpcException extends RuntimeException {
      * @param message
      * @param cause
      */
-    public RpcException(int code, String message, Throwable cause) {
+    public FocusException(int code, String message, Throwable cause) {
         super(message, cause);
         this.code = code;
     }
@@ -55,7 +55,7 @@ public class RpcException extends RuntimeException {
      * @param message
      * @param cause
      */
-    public RpcException(int code, String message, String stack) {
+    public FocusException(int code, String message, String stack) {
         super(message);
         this.code = code;
         this.stack = stack;
@@ -66,7 +66,7 @@ public class RpcException extends RuntimeException {
      * 
      * @return the code
      * 
-     * @see RpcException#code
+     * @see FocusException#code
      */
     public int getCode() {
         return code;

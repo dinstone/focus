@@ -35,6 +35,12 @@ public class FocusClientTest {
         Client client = new Client(option);
         DemoService ds = client.importing(DemoService.class);
 
+        try {
+            ds.hello(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         LOG.info("int end");
 
         execute(ds, "hot: ");

@@ -24,10 +24,10 @@ import java.util.List;
 
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.utils.NetworkUtil;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.AcceptOptions;
+import com.dinstone.photon.util.NetworkUtil;
 
 public class ServerOptions extends EndpointOptions {
 

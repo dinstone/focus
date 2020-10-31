@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.filter;
 
-import com.dinstone.focus.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
@@ -32,7 +31,7 @@ public class FilterHandler implements InvokeHandler {
         this.invokeHandler = invokeHandler;
 
         if (nextFilter == null && invokeHandler == null) {
-            throw new FocusException(400, "nextFilter and invokeHandler is null");
+            throw new IllegalArgumentException("nextFilter and invokeHandler is null");
         }
     }
 

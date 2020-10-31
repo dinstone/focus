@@ -18,13 +18,14 @@ package com.dinstone.focus.server.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.dinstone.focus.FocusException;
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.exception.ExcptionHelper;
+import com.dinstone.focus.exception.ExceptionHelper;
+import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
+import com.dinstone.photon.exception.ExchangeException;
 
 public class LocalInvokeHandler implements InvokeHandler {
 
@@ -38,30 +39,20 @@ public class LocalInvokeHandler implements InvokeHandler {
     public Reply invoke(Call call) throws Exception {
         ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
         if (wrapper == null) {
-            throw new FocusException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
+            throw new ExchangeException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
         }
-
         try {
             Class<?>[] paramTypes = getParamTypes(call.getParams(), call.getParamTypes());
             Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
             Object resObj = method.invoke(wrapper.getTarget(), call.getParams());
             return new Reply(resObj);
-        } catch (NoSuchMethodException e) {
-            String message = "unkown method: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
-            throw new FocusException(405, message, e);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod();
-            throw new FocusException(502, message, e);
         } catch (InvocationTargetException e) {
-            Throwable te = ExcptionHelper.getTargetException(e);
+            Throwable te = ExceptionHelper.getTargetException(e);
             String message = "service exception: [" + call.getGroup() + "]" + call.getService() + "."
                     + call.getMethod();
-            throw new FocusException(500, message, te);
-        } catch (Throwable e) {
-            String message = "service exception: [" + call.getGroup() + "]" + call.getService() + "."
-                    + call.getMethod();
-            throw new FocusException(509, message, e);
+            return new Reply(new FocusException(message, te));
         }
+
     }
 
     private Class<?>[] getParamTypes(Object[] params, Class<?>[] paramTypes) {

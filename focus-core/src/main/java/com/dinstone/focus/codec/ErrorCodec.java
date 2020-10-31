@@ -18,19 +18,22 @@ package com.dinstone.focus.codec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-import com.dinstone.focus.FocusException;
-import com.dinstone.focus.utils.ByteStreamUtil;
+import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.rpc.Attach;
+import com.dinstone.focus.rpc.Reply;
 import com.dinstone.photon.message.Response;
+import com.dinstone.photon.util.ByteStreamUtil;
 
 public class ErrorCodec {
 
     public void encode(Response response, FocusException exception) {
         try {
             ByteArrayOutputStream bao = new ByteArrayOutputStream();
-            ByteStreamUtil.writeString(bao, "" + exception.getCode());
             ByteStreamUtil.writeString(bao, exception.getMessage());
-            ByteStreamUtil.writeString(bao, exception.getStack());
+            ByteStreamUtil.writeString(bao, exception.getStackTraces());
 
             response.setContent(bao.toByteArray());
         } catch (IOException e) {
@@ -38,22 +41,61 @@ public class ErrorCodec {
         }
     }
 
-    public FocusException decode(Response response) {
-        FocusException error = null;
+    // public FocusException decode(Response response) {
+    // FocusException error = null;
+    // try {
+    // byte[] encoded = response.getContent();
+    // if (encoded != null) {
+    // ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
+    // String message = ByteStreamUtil.readString(bai);
+    // String stack = ByteStreamUtil.readString(bai);
+    // error = new FocusException(message, stack);
+    // } else {
+    // error = new FocusException("service is unavailable");
+    // }
+    // } catch (Exception e) {
+    // error = new FocusException("service is unavailable", e);
+    // }
+    // return error;
+    // }
+
+    public Reply decode(Response response) {
+        Reply reply = new Reply();
         try {
-            byte[] encoded = response.getContent();
-            if (encoded != null) {
-                ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
-                int code = Integer.parseInt(ByteStreamUtil.readString(bai));
-                String message = ByteStreamUtil.readString(bai);
-                String stack = ByteStreamUtil.readString(bai);
-                error = new FocusException(code, message, stack);
-            } else {
-                error = new FocusException(599, "unkown exception");
-            }
-        } catch (Exception e) {
-            error = new FocusException(499, "decode exception error", e);
+            reply.attach(Attach.decode(response.getHeaders()));
+
+            ByteArrayInputStream bai = new ByteArrayInputStream(response.getContent());
+            String message = ByteStreamUtil.readString(bai);
+            String stackTrace = ByteStreamUtil.readString(bai);
+            reply.setData(new FocusException(message, stackTrace));
+        } catch (IOException e) {
+            reply.setData(e);
         }
-        return error;
+        return reply;
+    }
+
+    public void encode(Response response, Reply reply) {
+        try {
+            response.setHeaders(Attach.encode(reply.attach()));
+        } catch (IOException e) {
+            throw new CodecException("encode reply attachs error", e);
+        }
+
+        try {
+            Throwable exception = (Throwable) reply.getData();
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            ByteStreamUtil.writeString(bao, exception.getMessage());
+            ByteStreamUtil.writeString(bao, getStackTrace(exception));
+
+            response.setContent(bao.toByteArray());
+        } catch (IOException e) {
+            // igonre
+        }
+    }
+
+    private String getStackTrace(Throwable e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.getBuffer().toString();
     }
 }

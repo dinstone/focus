@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.dinstone.focus.utils.ByteStreamUtil;
+import com.dinstone.photon.util.ByteStreamUtil;
 
 public class Attach implements Map<String, String> {
 

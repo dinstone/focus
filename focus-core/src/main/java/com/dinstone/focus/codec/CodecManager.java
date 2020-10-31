@@ -18,6 +18,10 @@ package com.dinstone.focus.codec;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.rpc.Reply;
+import com.dinstone.photon.message.Response;
+
 public class CodecManager {
 
     private static final Map<String, RpcCodec> NAME_CODEC_MAP = new ConcurrentHashMap<>();
@@ -41,6 +45,22 @@ public class CodecManager {
 
     public static ErrorCodec error() {
         return ERROR_CODEC;
+    }
+
+    public static Reply decode(Response response) {
+        if (response.getCodec() == 0) {
+            return ERROR_CODEC.decode(response);
+        }
+        return codec(response.getCodec()).decode(response);
+    }
+
+    public static void encode(Response response, Reply reply) {
+        if (reply.getData() instanceof FocusException) {
+            response.setCodec((byte) 0);
+            ERROR_CODEC.encode(response, reply);
+        } else {
+            codec(response.getCodec()).encode(response, reply);
+        }
     }
 
 }

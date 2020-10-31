@@ -21,6 +21,7 @@ import java.lang.reflect.Proxy;
 
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.rpc.Call;
+import com.dinstone.focus.rpc.Reply;
 
 public class ServiceProxyFactory {
 
@@ -74,7 +75,11 @@ public class ServiceProxyFactory {
 
             Call call = new Call(serviceProxy.getService().getName(), serviceProxy.getGroup(),
                     serviceProxy.getTimeout(), methodName, args, method.getParameterTypes());
-            return invokeHandler.invoke(call).getData();
+            Reply reply = invokeHandler.invoke(call);
+            if (reply.getData() instanceof Throwable) {
+                throw (Throwable) reply.getData();
+            }
+            return reply.getData();
         }
 
     }

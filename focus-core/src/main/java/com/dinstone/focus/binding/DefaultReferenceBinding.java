@@ -24,7 +24,7 @@ import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.registry.ServiceDescription;
 import com.dinstone.focus.registry.ServiceDiscovery;
-import com.dinstone.focus.utils.NetworkUtil;
+import com.dinstone.photon.util.NetworkUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
 

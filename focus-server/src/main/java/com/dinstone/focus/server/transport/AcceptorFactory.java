@@ -15,14 +15,14 @@
  */
 package com.dinstone.focus.server.transport;
 
-import com.dinstone.focus.FocusException;
 import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.codec.ErrorCodec;
 import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
+import com.dinstone.photon.exception.ExchangeException;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
@@ -50,31 +50,43 @@ public class AcceptorFactory {
 
             @Override
             public void process(ChannelHandlerContext ctx, Request request) {
-                FocusException exception = null;
+                Call call = null;
+                ExchangeException exception = null;
                 try {
                     RpcCodec codec = CodecManager.codec(request.getCodec());
-                    Reply reply = invoker.invoke(codec.decode(request));
+                    // decode call from request
+                    call = codec.decode(request);
+
+                    // invoke call
+                    Reply reply = invoker.invoke(call);
 
                     Response response = new Response();
                     response.setMsgId(request.getMsgId());
-                    response.setCodec(request.getCodec());
                     response.setStatus(Status.SUCCESS);
-                    codec.encode(response, reply);
-
+                    response.setCodec(request.getCodec());
+                    // encode reply to response
+                    CodecManager.encode(response, reply);
+                    // send response
                     ctx.writeAndFlush(response);
-                } catch (FocusException e) {
-                    exception = e;
+                } catch (NoSuchMethodException e) {
+                    String message = "unkown method: [" + call.getGroup() + "]" + call.getService() + "."
+                            + call.getMethod();
+                    exception = new ExchangeException(405, message, e);
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "."
+                            + call.getMethod();
+                    exception = new ExchangeException(502, message, e);
                 } catch (Throwable e) {
-                    exception = new FocusException(500, "service exception", e);
+                    String message = "service exception: [" + call.getGroup() + "]" + call.getService() + "."
+                            + call.getMethod();
+                    exception = new ExchangeException(509, message, e);
                 }
 
                 if (exception != null) {
-                    ErrorCodec codec = CodecManager.error();
                     Response response = new Response();
                     response.setMsgId(request.getMsgId());
-                    response.setCodec(request.getCodec());
                     response.setStatus(Status.FAILURE);
-                    codec.encode(response, exception);
+                    response.setContent(ExchangeException.encode(exception));
 
                     ctx.writeAndFlush(response);
                 }

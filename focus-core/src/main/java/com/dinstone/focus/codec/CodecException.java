@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.codec;
 
-public class CodecException extends Exception {
+public class CodecException extends RuntimeException {
 
     /**
      * 

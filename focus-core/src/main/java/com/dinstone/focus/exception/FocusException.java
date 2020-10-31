@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus;
+package com.dinstone.focus.exception;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
 /**
- * RPC runtime exception.
+ * RPC exception.
  * 
  * @author guojf
  * 
@@ -30,61 +30,49 @@ public class FocusException extends RuntimeException {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private int code;
+    private String stackTraces;
 
-    private String stack;
+    public FocusException() {
+        super();
+    }
 
     /**
      * @param message
      */
-    public FocusException(int code, String message) {
+    public FocusException(String message) {
         super(message);
-        this.code = code;
     }
 
     /**
      * @param message
      * @param cause
      */
-    public FocusException(int code, String message, Throwable cause) {
+    public FocusException(String message, Throwable cause) {
         super(message, cause);
-        this.code = code;
     }
 
     /**
      * @param message
      * @param cause
      */
-    public FocusException(int code, String message, String stack) {
-        super(message);
-        this.code = code;
-        this.stack = stack;
+    public FocusException(String message, String stackTraces) {
+        super(message, null, false, false);
+        this.stackTraces = stackTraces;
     }
 
     /**
-     * the code to get
+     * filled stack traces
      * 
-     * @return the code
-     * 
-     * @see FocusException#code
+     * @return
      */
-    public int getCode() {
-        return code;
-    }
-
-    public String getStack() {
-        return stack;
-    }
-
-    @Override
-    public void printStackTrace() {
-        printStackTrace(System.err);
+    public String getStackTraces() {
+        return stackTraces;
     }
 
     @Override
     public void printStackTrace(PrintStream s) {
-        if (stack != null) {
-            s.print(stack);
+        if (stackTraces != null) {
+            s.print(stackTraces);
         } else {
             super.printStackTrace(s);
         }
@@ -92,8 +80,8 @@ public class FocusException extends RuntimeException {
 
     @Override
     public void printStackTrace(PrintWriter s) {
-        if (stack != null) {
-            s.print(stack);
+        if (stackTraces != null) {
+            s.print(stackTraces);
         } else {
             super.printStackTrace(s);
         }

@@ -20,13 +20,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.codec.ErrorCodec;
 import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.Connector;
+import com.dinstone.photon.exception.ExchangeException;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
@@ -87,12 +87,9 @@ public class ConnectionFactory {
 
         private RpcCodec rpcCodec;
 
-        private ErrorCodec errorCodec;
-
         public ConnectionWrap(com.dinstone.photon.connection.Connection connection, RpcCodec rpcCodec) {
             this.connection = connection;
             this.rpcCodec = rpcCodec;
-            this.errorCodec = CodecManager.error();
         }
 
         @Override
@@ -101,7 +98,7 @@ public class ConnectionFactory {
             request.setMsgId(IDGENER.incrementAndGet());
             request.setCodec(rpcCodec.code());
             request.setTimeout(call.getTimeout());
-
+            // encode request
             rpcCodec.encode(request, call);
 
             // remote call
@@ -109,9 +106,9 @@ public class ConnectionFactory {
 
             // handle response by success
             if (response.getStatus() == Status.SUCCESS) {
-                return rpcCodec.decode(response);
+                return CodecManager.decode(response);
             } else {
-                throw errorCodec.decode(response);
+                throw ExchangeException.decode(response.getContent());
             }
         }
 

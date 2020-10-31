@@ -18,7 +18,7 @@ package com.dinstone.focus.exception;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
-public class ExcptionHelper {
+public class ExceptionHelper {
 
     public static Throwable getTargetException(InvocationTargetException e) {
         Throwable t = e.getTargetException();
@@ -30,6 +30,11 @@ public class ExcptionHelper {
             }
         }
         return t;
+    }
+
+    public static byte[] encode(FocusException e) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

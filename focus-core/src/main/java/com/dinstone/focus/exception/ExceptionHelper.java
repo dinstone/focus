@@ -15,26 +15,39 @@
  */
 package com.dinstone.focus.exception;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
 public class ExceptionHelper {
 
-    public static Throwable getTargetException(InvocationTargetException e) {
+    public static Throwable targetException(InvocationTargetException e) {
         Throwable t = e.getTargetException();
         if (t instanceof UndeclaredThrowableException) {
             UndeclaredThrowableException ut = (UndeclaredThrowableException) t;
             t = ut.getCause();
             if (t instanceof InvocationTargetException) {
-                return getTargetException((InvocationTargetException) t);
+                return targetException((InvocationTargetException) t);
             }
         }
         return t;
     }
 
-    public static byte[] encode(FocusException e) {
-        // TODO Auto-generated method stub
-        return null;
+    public static String getStackTrace(Throwable e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.getBuffer().toString();
     }
 
+    public static String getMessage(Throwable cause) {
+        if (cause == null) {
+            return null;
+        }
+        String msg = cause.getMessage();
+        if (msg != null) {
+            return msg;
+        }
+        return getMessage(cause.getCause());
+    }
 }

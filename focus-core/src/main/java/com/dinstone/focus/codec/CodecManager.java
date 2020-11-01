@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
+import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 
 public class CodecManager {
@@ -35,23 +37,16 @@ public class CodecManager {
         CODE_CODEC_MAP.put((int) codec.code(), codec);
     }
 
-    public static RpcCodec codec(String name) {
-        return NAME_CODEC_MAP.get(name);
+    public static byte codec(String name) {
+        return NAME_CODEC_MAP.get(name).code();
     }
 
-    public static RpcCodec codec(int code) {
+    private static RpcCodec codec(int code) {
         return CODE_CODEC_MAP.get(code);
     }
 
     public static ErrorCodec error() {
         return ERROR_CODEC;
-    }
-
-    public static Reply decode(Response response) {
-        if (response.getCodec() == 0) {
-            return ERROR_CODEC.decode(response);
-        }
-        return codec(response.getCodec()).decode(response);
     }
 
     public static void encode(Response response, Reply reply) {
@@ -61,6 +56,21 @@ public class CodecManager {
         } else {
             codec(response.getCodec()).encode(response, reply);
         }
+    }
+
+    public static Reply decode(Response response) {
+        if (response.getCodec() == 0) {
+            return ERROR_CODEC.decode(response);
+        }
+        return codec(response.getCodec()).decode(response);
+    }
+
+    public static Call decode(Request request) {
+        return codec(request.getCodec()).decode(request);
+    }
+
+    public static void encode(Request request, Call call) {
+        codec(request.getCodec()).encode(request, call);
     }
 
 }

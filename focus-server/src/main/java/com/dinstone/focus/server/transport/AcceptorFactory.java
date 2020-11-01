@@ -16,13 +16,13 @@
 package com.dinstone.focus.server.transport;
 
 import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
-import com.dinstone.photon.exception.ExchangeException;
+import com.dinstone.photon.ExchangeException;
+import com.dinstone.photon.codec.ExceptionCodec;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
@@ -53,9 +53,8 @@ public class AcceptorFactory {
                 Call call = null;
                 ExchangeException exception = null;
                 try {
-                    RpcCodec codec = CodecManager.codec(request.getCodec());
                     // decode call from request
-                    call = codec.decode(request);
+                    call = CodecManager.decode(request);
 
                     // invoke call
                     Reply reply = invoker.invoke(call);
@@ -86,7 +85,7 @@ public class AcceptorFactory {
                     Response response = new Response();
                     response.setMsgId(request.getMsgId());
                     response.setStatus(Status.FAILURE);
-                    response.setContent(ExchangeException.encode(exception));
+                    response.setContent(ExceptionCodec.encode(exception));
 
                     ctx.writeAndFlush(response);
                 }

@@ -25,7 +25,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
-import com.dinstone.photon.exception.ExchangeException;
+import com.dinstone.photon.ExchangeException;
 
 public class LocalInvokeHandler implements InvokeHandler {
 
@@ -39,7 +39,7 @@ public class LocalInvokeHandler implements InvokeHandler {
     public Reply invoke(Call call) throws Exception {
         ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
         if (wrapper == null) {
-            throw new ExchangeException(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
+            throw new ExchangeException(104, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
         }
         try {
             Class<?>[] paramTypes = getParamTypes(call.getParams(), call.getParamTypes());
@@ -47,12 +47,10 @@ public class LocalInvokeHandler implements InvokeHandler {
             Object resObj = method.invoke(wrapper.getTarget(), call.getParams());
             return new Reply(resObj);
         } catch (InvocationTargetException e) {
-            Throwable te = ExceptionHelper.getTargetException(e);
-            String message = "service exception: [" + call.getGroup() + "]" + call.getService() + "."
-                    + call.getMethod();
+            Throwable te = ExceptionHelper.targetException(e);
+            String message = ExceptionHelper.getMessage(te);
             return new Reply(new FocusException(message, te));
         }
-
     }
 
     private Class<?>[] getParamTypes(Object[] params, Class<?>[] paramTypes) {

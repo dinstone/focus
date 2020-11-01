@@ -20,13 +20,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.Connector;
-import com.dinstone.photon.exception.ExchangeException;
+import com.dinstone.photon.codec.ExceptionCodec;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
@@ -69,8 +68,7 @@ public class ConnectionFactory {
     }
 
     public Connection create(InetSocketAddress sa) throws Exception {
-        RpcCodec codec = CodecManager.codec(clientOptions.getCodec());
-        return new ConnectionWrap(connector.connect(sa), codec);
+        return new ConnectionWrap(connector.connect(sa), clientOptions.getCodec());
     }
 
     public void destroy() {
@@ -85,21 +83,21 @@ public class ConnectionFactory {
 
         private com.dinstone.photon.connection.Connection connection;
 
-        private RpcCodec rpcCodec;
+        private byte codecCode;
 
-        public ConnectionWrap(com.dinstone.photon.connection.Connection connection, RpcCodec rpcCodec) {
+        public ConnectionWrap(com.dinstone.photon.connection.Connection connection, String codecCode) {
             this.connection = connection;
-            this.rpcCodec = rpcCodec;
+            this.codecCode = CodecManager.codec(codecCode);
         }
 
         @Override
         public Reply invoke(Call call) throws Exception {
             Request request = new Request();
             request.setMsgId(IDGENER.incrementAndGet());
-            request.setCodec(rpcCodec.code());
+            request.setCodec(codecCode);
             request.setTimeout(call.getTimeout());
-            // encode request
-            rpcCodec.encode(request, call);
+            // encode call to request
+            CodecManager.encode(request, call);
 
             // remote call
             Response response = connection.sync(request);
@@ -108,7 +106,7 @@ public class ConnectionFactory {
             if (response.getStatus() == Status.SUCCESS) {
                 return CodecManager.decode(response);
             } else {
-                throw ExchangeException.decode(response.getContent());
+                throw ExceptionCodec.decode(response.getContent());
             }
         }
 

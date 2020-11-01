@@ -19,7 +19,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 /**
- * RPC exception.
+ * business exception.
  * 
  * @author guojf
  * 
@@ -30,11 +30,7 @@ public class FocusException extends RuntimeException {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private String stackTraces;
-
-    public FocusException() {
-        super();
-    }
+    private String traces;
 
     /**
      * @param message
@@ -55,24 +51,15 @@ public class FocusException extends RuntimeException {
      * @param message
      * @param cause
      */
-    public FocusException(String message, String stackTraces) {
+    public FocusException(String message, String traces) {
         super(message, null, false, false);
-        this.stackTraces = stackTraces;
-    }
-
-    /**
-     * filled stack traces
-     * 
-     * @return
-     */
-    public String getStackTraces() {
-        return stackTraces;
+        this.traces = traces;
     }
 
     @Override
     public void printStackTrace(PrintStream s) {
-        if (stackTraces != null) {
-            s.print(stackTraces);
+        if (traces != null) {
+            s.print(traces);
         } else {
             super.printStackTrace(s);
         }
@@ -80,8 +67,8 @@ public class FocusException extends RuntimeException {
 
     @Override
     public void printStackTrace(PrintWriter s) {
-        if (stackTraces != null) {
-            s.print(stackTraces);
+        if (traces != null) {
+            s.print(traces);
         } else {
             super.printStackTrace(s);
         }

@@ -24,7 +24,6 @@ import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChain;
-import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
 import com.dinstone.focus.registry.RegistryConfig;
@@ -89,34 +88,14 @@ public class Server implements ServiceExporter {
 
         this.implementBinding = new DefaultImplementBinding(serverOptions, serviceRegistry, serviceAddress);
 
-        InvokeHandler invokeHandler = createInvocationHandler();
-        this.serviceProxyFactory = new ServiceProxyFactory(invokeHandler);
+        this.serviceProxyFactory = new ServiceProxyFactory();
 
-        this.acceptor = new AcceptorFactory(serverOptions).create(invokeHandler);
+        this.acceptor = new AcceptorFactory(serverOptions).create(implementBinding);
 
         LOG.info("focus server will start, {}", serviceAddress);
         acceptor.bind(serviceAddress);
         LOG.info("focus server is created, {}", serviceAddress);
     }
-
-    private InvokeHandler createInvocationHandler() {
-        LocalInvokeHandler localInvokeHandler = new LocalInvokeHandler(implementBinding);
-        return new ProvideInvokeHandler(new FilterChain(localInvokeHandler, serverOptions.getFilters()));
-    }
-
-    // public synchronized Server start() {
-    // acceptor.bind(serviceAddress);
-    //
-    // LOG.info("focus server is started on {}", serviceAddress);
-    // return this;
-    // }
-    //
-    // public synchronized Server stop() {
-    // destroy();
-    //
-    // LOG.info("focus server is stopped on {}", serviceAddress);
-    // return this;
-    // }
 
     public InetSocketAddress getServiceAddress() {
         return serviceAddress;
@@ -133,7 +112,7 @@ public class Server implements ServiceExporter {
     }
 
     @Override
-    public <T> void exporting(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
+    public <T> void exporting(Class<T> sic, String group, int timeout, T sio) {
         if (group == null) {
             group = "";
         }
@@ -142,7 +121,10 @@ public class Server implements ServiceExporter {
         }
 
         try {
-            ServiceProxy<T> wrapper = serviceProxyFactory.create(serviceInterface, group, timeout, serviceImplement);
+            LocalInvokeHandler localInvokeHandler = new LocalInvokeHandler(sic, sio);
+            FilterChain filterChain = new FilterChain(localInvokeHandler, serverOptions.getFilters());
+            ProvideInvokeHandler provideInvokeHandler = new ProvideInvokeHandler(filterChain);
+            ServiceProxy<T> wrapper = serviceProxyFactory.create(provideInvokeHandler, sic, group, timeout, sio);
             implementBinding.binding(wrapper);
         } catch (Exception e) {
             throw new RuntimeException("can't export service", e);

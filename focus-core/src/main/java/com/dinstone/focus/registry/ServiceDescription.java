@@ -32,7 +32,7 @@ public class ServiceDescription implements Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    private String code;
 
     private String name;
 
@@ -50,12 +50,12 @@ public class ServiceDescription implements Serializable {
 
     private volatile InetSocketAddress address;
 
-    public String getId() {
-        return id;
+    public String getCode() {
+        return code;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCdoe(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -136,7 +136,7 @@ public class ServiceDescription implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceDescription [id=" + id + ", name=" + name + ", group=" + group + ", host=" + host + ", port="
+        return "ServiceDescription [id=" + code + ", name=" + name + ", group=" + group + ", host=" + host + ", port="
                 + port + ", uri=" + uri + ", opTime=" + opTime + ", attributes=" + attributes + "]";
     }
 

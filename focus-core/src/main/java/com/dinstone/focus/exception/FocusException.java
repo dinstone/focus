@@ -45,6 +45,9 @@ public class FocusException extends RuntimeException {
      */
     public FocusException(String message, Throwable cause) {
         super(message, cause);
+        if (cause != null) {
+            this.setStackTrace(cause.getStackTrace());
+        }
     }
 
     /**

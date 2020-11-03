@@ -46,7 +46,7 @@ public class DefaultImplementBinding implements ImplementBinding {
 
     @Override
     public <T> void binding(ServiceProxy<T> serviceWrapper) {
-        String serviceId = serviceWrapper.getService().getName() + "-" + serviceWrapper.getGroup();
+        String serviceId = serviceWrapper.getClazz().getName() + "-" + serviceWrapper.getGroup();
         if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
         }
@@ -64,25 +64,25 @@ public class DefaultImplementBinding implements ImplementBinding {
 
         StringBuilder id = new StringBuilder();
         id.append(host).append(":").append(port).append("@");
-        id.append(endpointOptions.getEndpointName()).append("#").append(endpointOptions.getEndpointId()).append("@");
+        id.append(endpointOptions.getEndpointName()).append("#").append(endpointOptions.getEndpointCode()).append("@");
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
-        description.setId(id.toString());
+        description.setCdoe(id.toString());
         description.setHost(host);
         description.setPort(port);
-        description.setName(wrapper.getService().getName());
+        description.setName(wrapper.getClazz().getName());
         description.setGroup(group);
         description.setOpTime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
-        for (Method method : wrapper.getService().getDeclaredMethods()) {
+        for (Method method : wrapper.getClazz().getDeclaredMethods()) {
             methodDescList.add(description(method));
         }
         description.addAttribute("methods", methodDescList);
         description.addAttribute("timeout", wrapper.getTimeout());
 
-        description.addAttribute("endpointId", endpointOptions.getEndpointId());
+        description.addAttribute("endpointId", endpointOptions.getEndpointCode());
         description.addAttribute("endpointName", endpointOptions.getEndpointName());
 
         try {

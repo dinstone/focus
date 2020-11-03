@@ -25,38 +25,33 @@ import com.dinstone.focus.rpc.Reply;
 
 public class ServiceProxyFactory {
 
-    private InvokeHandler invokeHandler;
-
-    public ServiceProxyFactory(InvokeHandler invokeHandler) {
-        this.invokeHandler = invokeHandler;
-    }
-
-    public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceInstance)
+    public <T> ServiceProxy<T> create(InvokeHandler invoker, Class<T> sic, String group, int timeout, T sio)
             throws Exception {
-        if (!serviceInterface.isInterface()) {
-            throw new IllegalArgumentException(serviceInterface.getName() + " is not interface");
+        if (!sic.isInterface()) {
+            throw new IllegalArgumentException(sic.getName() + " is not interface");
         }
-        if (serviceInstance != null && !serviceInterface.isInstance(serviceInstance)) {
-            throw new IllegalArgumentException(
-                    serviceInstance + " is not an instance of " + serviceInterface.getName());
+        if (sio != null && !sic.isInstance(sio)) {
+            throw new IllegalArgumentException(sio + " is not an instance of " + sic.getName());
         }
 
-        ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
-        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
-        T proxyInstance = serviceInterface.cast(
-                Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
+        ServiceProxy<T> serviceProxy = new ServiceProxy<>(sic, group, timeout);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy, invoker);
+        T pio = sic.cast(Proxy.newProxyInstance(sic.getClassLoader(), new Class[] { sic }, handler));
 
-        serviceProxy.setProxy(proxyInstance);
-        serviceProxy.setTarget(serviceInstance);
+        serviceProxy.setProxy(pio);
+        serviceProxy.setTarget(sio);
+        serviceProxy.setInvokeHandler(invoker);
         return serviceProxy;
     }
 
-    private class ProxyInvocationHandler<T> implements InvocationHandler {
+    private static class ProxyInvocationHandler<T> implements InvocationHandler {
 
         private ServiceProxy<T> serviceProxy;
+        private InvokeHandler invokeHandler;
 
-        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy) {
+        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy, InvokeHandler invokeHandler) {
             this.serviceProxy = serviceProxy;
+            this.invokeHandler = invokeHandler;
         }
 
         @Override
@@ -70,11 +65,11 @@ public class ServiceProxyFactory {
             } else if (methodName.equals("toString")) {
                 return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
             } else if (methodName.equals("getClass")) {
-                return serviceProxy.getService();
+                return serviceProxy.getClazz();
             }
 
-            Call call = new Call(serviceProxy.getService().getName(), serviceProxy.getGroup(),
-                    serviceProxy.getTimeout(), methodName, args, method.getParameterTypes());
+            Call call = new Call(serviceProxy.getClazz().getName(), serviceProxy.getGroup(), serviceProxy.getTimeout(),
+                    methodName, args, method.getParameterTypes());
             Reply reply = invokeHandler.invoke(call);
             if (reply.getData() instanceof Throwable) {
                 throw (Throwable) reply.getData();

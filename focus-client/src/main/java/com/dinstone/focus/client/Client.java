@@ -80,15 +80,7 @@ public class Client implements ServiceImporter {
         }
 
         this.referenceBinding = new DefaultReferenceBinding(clientOptions, serviceDiscovery);
-
-        this.serviceProxyFactory = new ServiceProxyFactory(createInvokeHandler());
-    }
-
-    private InvokeHandler createInvokeHandler() {
-        RemoteInvokeHandler rih = new RemoteInvokeHandler(clientOptions, connectionManager);
-        FilterChain chain = new FilterChain(rih, clientOptions.getFilters());
-        List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
-        return new ConsumeInvokeHandler(new LocationInvokeHandler(chain, referenceBinding, addresses));
+        this.serviceProxyFactory = new ServiceProxyFactory();
     }
 
     @Override
@@ -121,12 +113,19 @@ public class Client implements ServiceImporter {
         }
 
         try {
-            ServiceProxy<T> wrapper = serviceProxyFactory.create(sic, group, timeout, null);
+            ServiceProxy<T> wrapper = serviceProxyFactory.create(createInvokeHandler(), sic, group, timeout, null);
             referenceBinding.binding(wrapper);
             return wrapper.getProxy();
         } catch (Exception e) {
             throw new RuntimeException("can't import service", e);
         }
+    }
+
+    private InvokeHandler createInvokeHandler() {
+        InvokeHandler rih = new RemoteInvokeHandler(clientOptions, connectionManager);
+        FilterChain chain = new FilterChain(rih, clientOptions.getFilters());
+        List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
+        return new ConsumeInvokeHandler(new LocationInvokeHandler(chain, referenceBinding, addresses));
     }
 
 }

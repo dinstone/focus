@@ -45,10 +45,6 @@ public class CodecManager {
         return CODE_CODEC_MAP.get(code);
     }
 
-    public static ErrorCodec error() {
-        return ERROR_CODEC;
-    }
-
     public static void encode(Response response, Reply reply) {
         if (reply.getData() instanceof FocusException) {
             response.setCodec((byte) 0);

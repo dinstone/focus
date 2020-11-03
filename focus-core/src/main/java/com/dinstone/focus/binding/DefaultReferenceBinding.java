@@ -75,17 +75,17 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
         StringBuilder id = new StringBuilder();
         id.append(host).append(":").append(port).append("@");
-        id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointId()).append("@");
+        id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointCode()).append("@");
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
-        description.setId(id.toString());
-        description.setName(wrapper.getService().getName());
+        description.setCdoe(id.toString());
+        description.setName(wrapper.getClazz().getName());
         description.setGroup(group);
         description.setHost(host);
         description.setPort(port);
 
-        description.addAttribute("endpointId", endpointConfig.getEndpointId());
+        description.addAttribute("endpointId", endpointConfig.getEndpointCode());
         description.addAttribute("endpointName", endpointConfig.getEndpointName());
 
         return description;

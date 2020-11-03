@@ -19,7 +19,7 @@ import com.dinstone.focus.registry.RegistryConfig;
 
 public class EndpointOptions {
 
-    private String endpointId;
+    private String endpointCode;
 
     private String endpointName;
 
@@ -31,12 +31,12 @@ public class EndpointOptions {
         super();
     }
 
-    public String getEndpointId() {
-        return endpointId;
+    public String getEndpointCode() {
+        return endpointCode;
     }
 
-    public EndpointOptions setEndpointId(String endpointId) {
-        this.endpointId = endpointId;
+    public EndpointOptions setEndpointCode(String endpointCode) {
+        this.endpointCode = endpointCode;
         return this;
     }
 

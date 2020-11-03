@@ -18,33 +18,28 @@ package com.dinstone.focus.server.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.exception.ExceptionHelper;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
-import com.dinstone.photon.ExchangeException;
 
 public class LocalInvokeHandler implements InvokeHandler {
 
-    private ImplementBinding implementBinding;
+    private Class<?> clazz;
+    private Object target;
 
-    public LocalInvokeHandler(ImplementBinding implementBinding) {
-        this.implementBinding = implementBinding;
+    public LocalInvokeHandler(Class<?> sic, Object sio) {
+        this.clazz = sic;
+        this.target = sio;
     }
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
-        if (wrapper == null) {
-            throw new ExchangeException(104, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
-        }
         try {
             Class<?>[] paramTypes = getParamTypes(call.getParams(), call.getParamTypes());
-            Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
-            Object resObj = method.invoke(wrapper.getTarget(), call.getParams());
+            Method method = clazz.getDeclaredMethod(call.getMethod(), paramTypes);
+            Object resObj = method.invoke(target, call.getParams());
             return new Reply(resObj);
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionHelper.targetException(e);

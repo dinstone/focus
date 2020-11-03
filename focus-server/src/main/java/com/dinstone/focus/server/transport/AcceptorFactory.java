@@ -15,8 +15,9 @@
  */
 package com.dinstone.focus.server.transport;
 
+import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.rpc.Call;
 import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.server.ServerOptions;
@@ -28,6 +29,7 @@ import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Status;
 import com.dinstone.photon.processor.MessageProcessor;
+import com.dinstone.photon.util.ExceptionUtil;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -39,25 +41,29 @@ public class AcceptorFactory {
         this.serverOption = serverOption;
     }
 
-    public Acceptor create(final InvokeHandler invoker) {
+    public Acceptor create(final ImplementBinding binding) {
         Acceptor acceptor = new Acceptor(serverOption.getAcceptOptions());
         acceptor.setMessageProcessor(new MessageProcessor() {
 
             @Override
             public void process(ChannelHandlerContext ctx, Notice notice) {
-                // rpcProcessor.process(ctx, notice);
             }
 
             @Override
             public void process(ChannelHandlerContext ctx, Request request) {
-                Call call = null;
                 ExchangeException exception = null;
                 try {
                     // decode call from request
-                    call = CodecManager.decode(request);
+                    Call call = CodecManager.decode(request);
+
+                    ServiceProxy<?> wrapper = binding.lookup(call.getService(), call.getGroup());
+                    if (wrapper == null) {
+                        throw new NoSuchMethodException(
+                                "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
+                    }
 
                     // invoke call
-                    Reply reply = invoker.invoke(call);
+                    Reply reply = wrapper.getInvokeHandler().invoke(call);
 
                     Response response = new Response();
                     response.setMsgId(request.getMsgId());
@@ -65,20 +71,17 @@ public class AcceptorFactory {
                     response.setCodec(request.getCodec());
                     // encode reply to response
                     CodecManager.encode(response, reply);
-                    // send response
+                    // send response with reply
                     ctx.writeAndFlush(response);
                 } catch (NoSuchMethodException e) {
-                    String message = "unkown method: [" + call.getGroup() + "]" + call.getService() + "."
-                            + call.getMethod();
-                    exception = new ExchangeException(405, message, e);
+                    String message = ExceptionUtil.getMessage(e);
+                    exception = new ExchangeException(104, message, e);
                 } catch (IllegalArgumentException | IllegalAccessException e) {
-                    String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "."
-                            + call.getMethod();
-                    exception = new ExchangeException(502, message, e);
+                    String message = ExceptionUtil.getMessage(e);
+                    exception = new ExchangeException(103, message, e);
                 } catch (Throwable e) {
-                    String message = "service exception: [" + call.getGroup() + "]" + call.getService() + "."
-                            + call.getMethod();
-                    exception = new ExchangeException(509, message, e);
+                    String message = ExceptionUtil.getMessage(e);
+                    exception = new ExchangeException(109, message, e);
                 }
 
                 if (exception != null) {
@@ -86,7 +89,7 @@ public class AcceptorFactory {
                     response.setMsgId(request.getMsgId());
                     response.setStatus(Status.FAILURE);
                     response.setContent(ExceptionCodec.encode(exception));
-
+                    // send response with exception
                     ctx.writeAndFlush(response);
                 }
             }

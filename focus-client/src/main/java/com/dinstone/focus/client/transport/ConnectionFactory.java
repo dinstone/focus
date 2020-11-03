@@ -57,12 +57,12 @@ public class ConnectionFactory {
 
             @Override
             public void process(ChannelHandlerContext ctx, Notice msg) {
-                LOG.warn("unsported message notice");
+                LOG.warn("unsurport message notice");
             }
 
             @Override
             public void process(ChannelHandlerContext ctx, Request msg) {
-                LOG.warn("unsported message Request");
+                LOG.warn("unsurport message Request");
             }
         });
     }

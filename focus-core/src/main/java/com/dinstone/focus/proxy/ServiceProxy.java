@@ -15,9 +15,11 @@
  */
 package com.dinstone.focus.proxy;
 
+import com.dinstone.focus.invoke.InvokeHandler;
+
 public class ServiceProxy<T> {
 
-    private Class<T> service;
+    private Class<T> clazz;
 
     private String group;
 
@@ -27,19 +29,21 @@ public class ServiceProxy<T> {
 
     private T proxy;
 
-    public ServiceProxy(Class<T> service, String group, int timeout) {
+    private InvokeHandler invokeHandler;
+
+    public ServiceProxy(Class<T> clazz, String group, int timeout) {
         super();
-        this.service = service;
+        this.clazz = clazz;
         this.group = group;
         this.timeout = timeout;
     }
 
-    public Class<T> getService() {
-        return service;
+    public Class<T> getClazz() {
+        return clazz;
     }
 
-    public void setService(Class<T> service) {
-        this.service = service;
+    public void setClazz(Class<T> clazz) {
+        this.clazz = clazz;
     }
 
     public String getGroup() {
@@ -72,6 +76,14 @@ public class ServiceProxy<T> {
 
     public void setProxy(T proxy) {
         this.proxy = proxy;
+    }
+
+    public InvokeHandler getInvokeHandler() {
+        return invokeHandler;
+    }
+
+    public void setInvokeHandler(InvokeHandler invokeHandler) {
+        this.invokeHandler = invokeHandler;
     }
 
 }

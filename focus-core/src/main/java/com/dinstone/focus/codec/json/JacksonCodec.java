@@ -19,9 +19,9 @@ import java.io.IOException;
 
 import com.dinstone.focus.codec.CodecException;
 import com.dinstone.focus.codec.RpcCodec;
-import com.dinstone.focus.rpc.Attach;
-import com.dinstone.focus.rpc.Call;
-import com.dinstone.focus.rpc.Reply;
+import com.dinstone.focus.protocol.Attach;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

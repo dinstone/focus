@@ -13,39 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.transport;
+package com.dinstone.focus.client;
 
-import java.net.InetSocketAddress;
+public interface GenericService {
 
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
-
-/**
- * connection abstract.
- * 
- * @author guojf
- * 
- * @version 1.0.0.2013-4-10
- */
-public interface Connection {
-
-    /**
-     * synchronous call.
-     * 
-     * @param call
-     * 
-     * @return reply
-     * 
-     * @throws Exception
-     */
-    public Reply invoke(Call call) throws Exception;
-
-    public InetSocketAddress getRemoteAddress();
-
-    public InetSocketAddress getLocalAddress();
-
-    public boolean isAlive();
-
-    public void destroy();
+    Object sync(String methodName, String[] argTypes, Object[] args);
 
 }

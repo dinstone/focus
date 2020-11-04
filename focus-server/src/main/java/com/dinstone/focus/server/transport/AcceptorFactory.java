@@ -17,9 +17,9 @@ package com.dinstone.focus.server.transport;
 
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.proxy.ServiceProxy;
-import com.dinstone.focus.rpc.Call;
-import com.dinstone.focus.rpc.Reply;
 import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
 import com.dinstone.photon.ExchangeException;

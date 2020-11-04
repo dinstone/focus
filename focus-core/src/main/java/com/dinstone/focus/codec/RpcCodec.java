@@ -15,8 +15,8 @@
  */
 package com.dinstone.focus.codec;
 
-import com.dinstone.focus.rpc.Call;
-import com.dinstone.focus.rpc.Reply;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 

@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.rpc.Call;
-import com.dinstone.focus.rpc.Reply;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.Connector;

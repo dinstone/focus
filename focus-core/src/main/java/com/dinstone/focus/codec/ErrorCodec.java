@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import com.dinstone.focus.exception.ExceptionHelper;
 import com.dinstone.focus.exception.FocusException;
-import com.dinstone.focus.rpc.Attach;
-import com.dinstone.focus.rpc.Reply;
+import com.dinstone.focus.protocol.Attach;
+import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.util.ByteStreamUtil;
 

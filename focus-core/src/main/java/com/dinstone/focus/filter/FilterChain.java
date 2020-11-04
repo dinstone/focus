@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.rpc.Call;
-import com.dinstone.focus.rpc.Reply;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
 public class FilterChain implements InvokeHandler {
 

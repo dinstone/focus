@@ -15,8 +15,8 @@
  */
 package com.dinstone.focus.invoke;
 
-import com.dinstone.focus.rpc.Call;
-import com.dinstone.focus.rpc.Reply;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
 public interface InvokeHandler {
 

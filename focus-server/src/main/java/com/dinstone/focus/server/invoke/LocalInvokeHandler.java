@@ -21,8 +21,8 @@ import java.lang.reflect.Method;
 import com.dinstone.focus.exception.ExceptionHelper;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.rpc.Call;
-import com.dinstone.focus.rpc.Reply;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
 public class LocalInvokeHandler implements InvokeHandler {
 

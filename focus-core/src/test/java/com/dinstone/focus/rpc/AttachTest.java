@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.dinstone.focus.protocol.Attach;
+
 public class AttachTest {
 
     @Test

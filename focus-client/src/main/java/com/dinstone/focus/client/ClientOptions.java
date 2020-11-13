@@ -24,7 +24,7 @@ import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.photon.ConnectOptions;
 
-public class ClientOptions extends EndpointOptions {
+public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     private static final int DEFAULT_POOL_SIZE = 2;
 

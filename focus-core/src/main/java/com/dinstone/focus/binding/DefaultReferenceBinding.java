@@ -17,13 +17,12 @@ package com.dinstone.focus.binding;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 
+import com.dinstone.clutch.ServiceDescription;
+import com.dinstone.clutch.ServiceDiscovery;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.proxy.ServiceProxy;
-import com.dinstone.focus.registry.ServiceDescription;
-import com.dinstone.focus.registry.ServiceDiscovery;
 import com.dinstone.photon.util.NetworkUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
@@ -79,7 +78,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
-        description.setCdoe(id.toString());
+        description.setCode(id.toString());
         description.setName(wrapper.getClazz().getName());
         description.setGroup(group);
         description.setHost(host);
@@ -95,32 +94,12 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     public List<ServiceDescription> lookup(String serviceName, String group) {
         try {
             if (serviceDiscovery != null) {
-                return findServices(serviceName, group);
+                return serviceDiscovery.discovery(serviceName, group);
             }
             return null;
         } catch (Exception e) {
             throw new RuntimeException("service " + serviceName + "[" + group + "] discovery error", e);
         }
-    }
-
-    protected List<ServiceDescription> findServices(String serviceName, String group) throws Exception {
-        List<ServiceDescription> services = new ArrayList<>();
-        List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName);
-        if (serviceDescriptions != null && serviceDescriptions.size() > 0) {
-            for (ServiceDescription serviceDescription : serviceDescriptions) {
-                String target = serviceDescription.getGroup();
-                if (target == null && group == null) {
-                    services.add(serviceDescription);
-                    continue;
-                }
-                if (target != null && target.equals(group)) {
-                    services.add(serviceDescription);
-                    continue;
-                }
-            }
-        }
-
-        return services;
     }
 
     @Override

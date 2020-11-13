@@ -36,7 +36,6 @@ public class JacksonCodec implements RpcCodec {
 
     public JacksonCodec() {
         objectMapper = new ObjectMapper();
-        objectMapper.enableDefaultTyping();
 
         // JSON configuration not to serialize null field
         objectMapper.setSerializationInclusion(Include.NON_NULL);
@@ -46,7 +45,6 @@ public class JacksonCodec implements RpcCodec {
 
         // JSON configuration for compatibility
         objectMapper.enable(Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-        objectMapper.enable(Feature.ALLOW_UNQUOTED_CONTROL_CHARS);
     }
 
     @Override

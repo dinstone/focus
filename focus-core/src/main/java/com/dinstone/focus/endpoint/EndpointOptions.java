@@ -15,15 +15,16 @@
  */
 package com.dinstone.focus.endpoint;
 
-import com.dinstone.focus.registry.RegistryConfig;
+import com.dinstone.clutch.RegistryConfig;
 
-public class EndpointOptions {
+@SuppressWarnings("unchecked")
+public class EndpointOptions<T extends EndpointOptions<T>> {
+
+    private int defaultTimeout = 3000;
 
     private String endpointCode;
 
     private String endpointName;
-
-    private int defaultTimeout = 3000;
 
     private RegistryConfig registryConfig;
 
@@ -35,38 +36,36 @@ public class EndpointOptions {
         return endpointCode;
     }
 
-    public EndpointOptions setEndpointCode(String endpointCode) {
+    public T setEndpointCode(String endpointCode) {
         this.endpointCode = endpointCode;
-        return this;
+        return (T) this;
     }
 
     public String getEndpointName() {
         return endpointName;
     }
 
-    public EndpointOptions setEndpointName(String endpointName) {
+    public T setEndpointName(String endpointName) {
         this.endpointName = endpointName;
-        return this;
+        return (T) this;
     }
 
     public int getDefaultTimeout() {
         return defaultTimeout;
     }
 
-    public EndpointOptions setDefaultTimeout(int defaultTimeout) {
+    public T setDefaultTimeout(int defaultTimeout) {
         this.defaultTimeout = defaultTimeout;
-        return this;
+        return (T) this;
     }
 
     public RegistryConfig getRegistryConfig() {
         return registryConfig;
     }
 
-    public EndpointOptions setRegistryConfig(RegistryConfig registryConfig) {
-        if (registryConfig != null) {
-            this.registryConfig = registryConfig;
-        }
-        return this;
+    public T setRegistryConfig(RegistryConfig registryConfig) {
+        this.registryConfig = registryConfig;
+        return (T) this;
     }
 
 }

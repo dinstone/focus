@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.clutch.ServiceDescription;
+import com.dinstone.clutch.ServiceRegistry;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.proxy.ServiceProxy;
-import com.dinstone.focus.registry.ServiceDescription;
-import com.dinstone.focus.registry.ServiceRegistry;
 
 public class DefaultImplementBinding implements ImplementBinding {
 
@@ -68,12 +68,12 @@ public class DefaultImplementBinding implements ImplementBinding {
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
-        description.setCdoe(id.toString());
+        description.setCode(id.toString());
         description.setHost(host);
         description.setPort(port);
         description.setName(wrapper.getClazz().getName());
         description.setGroup(group);
-        description.setOpTime(System.currentTimeMillis());
+        description.setRtime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
         for (Method method : wrapper.getClazz().getDeclaredMethods()) {

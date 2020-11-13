@@ -17,8 +17,8 @@ package com.dinstone.focus.binding;
 
 import java.util.List;
 
+import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.focus.proxy.ServiceProxy;
-import com.dinstone.focus.registry.ServiceDescription;
 
 /**
  * service reference binding

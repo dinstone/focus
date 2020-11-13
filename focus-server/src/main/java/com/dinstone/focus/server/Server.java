@@ -16,7 +16,11 @@
 package com.dinstone.focus.server;
 
 import java.net.InetSocketAddress;
+import java.util.ServiceLoader;
 
+import com.dinstone.clutch.RegistryConfig;
+import com.dinstone.clutch.RegistryFactory;
+import com.dinstone.clutch.ServiceRegistry;
 import com.dinstone.focus.SchemaFactoryLoader;
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
@@ -26,9 +30,6 @@ import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
-import com.dinstone.focus.registry.RegistryConfig;
-import com.dinstone.focus.registry.RegistryFactory;
-import com.dinstone.focus.registry.ServiceRegistry;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProvideInvokeHandler;
 import com.dinstone.focus.server.transport.AcceptorFactory;
@@ -77,12 +78,12 @@ public class Server implements ServiceExporter {
         // load and create registry
         RegistryConfig registryConfig = serverOptions.getRegistryConfig();
         if (registryConfig != null) {
-            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
-            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registryConfig.getSchema());
-            if (registryFactory == null) {
-                throw new RuntimeException("can't find regitry provider for schema : " + registryConfig.getSchema());
-            } else {
-                this.serviceRegistry = registryFactory.createServiceRegistry(registryConfig);
+            ServiceLoader<RegistryFactory> serviceLoader = ServiceLoader.load(RegistryFactory.class);
+            for (RegistryFactory registryFactory : serviceLoader) {
+                if (registryFactory.canApply(registryConfig)) {
+                    this.serviceRegistry = registryFactory.createServiceRegistry(registryConfig);
+                    break;
+                }
             }
         }
 

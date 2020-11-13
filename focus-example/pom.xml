@@ -5,19 +5,24 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.8.0</version>
 	</parent>
 	<artifactId>focus-example</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-client</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-server</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.8.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.clutch</groupId>
+			<artifactId>clutch-zookeeper</artifactId>
+			<version>1.2.0</version>
 		</dependency>
 	</dependencies>
 	<build>

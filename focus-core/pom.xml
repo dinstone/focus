@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.8.0</version>
 	</parent>
 	<artifactId>focus-core</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.10.0</version>
+			<version>2.11.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.loghub</groupId>
@@ -29,6 +29,11 @@
 			<groupId>com.dinstone</groupId>
 			<artifactId>photon</artifactId>
 			<version>0.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.clutch</groupId>
+			<artifactId>clutch-core</artifactId>
+			<version>1.2.0</version>
 		</dependency>
 	</dependencies>
 	<build>

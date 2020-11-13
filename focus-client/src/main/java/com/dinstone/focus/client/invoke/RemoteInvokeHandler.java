@@ -17,7 +17,6 @@ package com.dinstone.focus.client.invoke;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -27,10 +26,8 @@ import com.dinstone.focus.protocol.Reply;
 public class RemoteInvokeHandler implements InvokeHandler {
 
     private ConnectionManager connectionManager;
-    private ClientOptions clientOptions;
 
-    public RemoteInvokeHandler(ClientOptions clientOptions, ConnectionManager connectionManager) {
-        this.clientOptions = clientOptions;
+    public RemoteInvokeHandler(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
 

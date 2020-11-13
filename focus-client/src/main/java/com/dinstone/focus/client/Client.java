@@ -17,7 +17,11 @@ package com.dinstone.focus.client;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.ServiceLoader;
 
+import com.dinstone.clutch.RegistryConfig;
+import com.dinstone.clutch.RegistryFactory;
+import com.dinstone.clutch.ServiceDiscovery;
 import com.dinstone.focus.SchemaFactoryLoader;
 import com.dinstone.focus.binding.DefaultReferenceBinding;
 import com.dinstone.focus.binding.ReferenceBinding;
@@ -32,9 +36,6 @@ import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
-import com.dinstone.focus.registry.RegistryConfig;
-import com.dinstone.focus.registry.RegistryFactory;
-import com.dinstone.focus.registry.ServiceDiscovery;
 
 public class Client implements ServiceImporter {
 
@@ -70,12 +71,12 @@ public class Client implements ServiceImporter {
         // load and create registry
         RegistryConfig registryConfig = clientOptions.getRegistryConfig();
         if (registryConfig != null) {
-            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
-            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registryConfig.getSchema());
-            if (registryFactory == null) {
-                throw new RuntimeException("can't find regitry provider for schema : " + registryConfig.getSchema());
-            } else {
-                this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
+            ServiceLoader<RegistryFactory> serviceLoader = ServiceLoader.load(RegistryFactory.class);
+            for (RegistryFactory registryFactory : serviceLoader) {
+                if (registryFactory.canApply(registryConfig)) {
+                    this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
+                    break;
+                }
             }
         }
 
@@ -122,7 +123,7 @@ public class Client implements ServiceImporter {
     }
 
     private InvokeHandler createInvokeHandler() {
-        InvokeHandler rih = new RemoteInvokeHandler(clientOptions, connectionManager);
+        InvokeHandler rih = new RemoteInvokeHandler(connectionManager);
         FilterChain chain = new FilterChain(rih, clientOptions.getFilters());
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
         return new ConsumeInvokeHandler(new LocationInvokeHandler(chain, referenceBinding, addresses));

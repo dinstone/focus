@@ -18,9 +18,19 @@ package com.dinstone.focus.client;
 import java.io.IOException;
 
 import com.dinstone.focus.example.DemoService;
+import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
+
+import brave.Span.Kind;
+import brave.Tracing;
+import brave.rpc.RpcTracing;
+import brave.sampler.Sampler;
+import zipkin2.reporter.AsyncReporter;
+import zipkin2.reporter.Sender;
+import zipkin2.reporter.okhttp3.OkHttpSender;
 
 public class FocusClientTest {
 
@@ -31,7 +41,14 @@ public class FocusClientTest {
         LOG.info("init start");
         ConnectOptions connectOptions = new ConnectOptions();
         connectOptions.setProcessorSize(0);
-        ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions);
+
+        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+        Tracing tracing = Tracing.newBuilder().localServiceName("focus.client")
+                .spanReporter(AsyncReporter.builder(sender).build()).sampler(Sampler.create(1)).build();
+
+        Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
+        ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions)
+                .addFilters(tf);
         Client client = new Client(option);
         DemoService ds = client.importing(DemoService.class);
 

@@ -12,6 +12,7 @@
 		<module>focus-client</module>
 		<module>focus-server</module>
 		<module>focus-example</module>
+		<module>focus-tracing</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

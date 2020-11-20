@@ -50,15 +50,27 @@ public class FocusClientTest {
         ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions)
                 .addFilters(tf);
         Client client = new Client(option);
-        DemoService ds = client.importing(DemoService.class);
-
-        try {
-            ds.hello(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        final DemoService ds = client.importing(DemoService.class);
 
         LOG.info("int end");
+
+        // try {
+        // ds.hello(null);
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+
+        for (int i = 1; i < 3; i++) {
+            final int index = i;
+            Thread t = new Thread() {
+                @Override
+                public void run() {
+                    execute(ds, "client-" + index + " :");
+                }
+            };
+            t.setName("rpc-client-" + i);
+            t.start();
+        }
 
         execute(ds, "hot: ");
         execute(ds, "exe: ");

@@ -26,8 +26,11 @@ import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChain;
+import com.dinstone.focus.filter.FilterInitializer;
+import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
@@ -43,7 +46,7 @@ public class Server implements ServiceExporter {
 
     private Acceptor acceptor;
 
-    private ServerOptions serverOptions;
+    private EndpointOptions<ServerOptions> serverOptions;
 
     private InetSocketAddress serviceAddress;
 
@@ -122,14 +125,22 @@ public class Server implements ServiceExporter {
         }
 
         try {
-            LocalInvokeHandler localInvokeHandler = new LocalInvokeHandler(sic, sio);
-            FilterChain filterChain = new FilterChain(localInvokeHandler, serverOptions.getFilters());
+            FilterChain filterChain = createFilterChain(new LocalInvokeHandler(sic, sio));
             ProvideInvokeHandler provideInvokeHandler = new ProvideInvokeHandler(filterChain);
             ServiceProxy<T> wrapper = serviceProxyFactory.create(provideInvokeHandler, sic, group, timeout, sio);
             implementBinding.binding(wrapper);
         } catch (Exception e) {
             throw new RuntimeException("can't export service", e);
         }
+    }
+
+    private FilterChain createFilterChain(InvokeHandler invokeHandler) {
+        FilterChain chain = new FilterChain(invokeHandler);
+        FilterInitializer fi = serverOptions.getFilterInitializer();
+        if (fi != null) {
+            fi.init(chain);
+        }
+        return chain;
     }
 
     @Override

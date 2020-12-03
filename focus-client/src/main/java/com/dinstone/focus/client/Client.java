@@ -33,6 +33,7 @@ import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.endpoint.ServiceImporter;
 import com.dinstone.focus.filter.FilterChain;
+import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.proxy.ServiceProxyFactory;
@@ -123,10 +124,18 @@ public class Client implements ServiceImporter {
     }
 
     private InvokeHandler createInvokeHandler() {
-        InvokeHandler rih = new RemoteInvokeHandler(connectionManager);
-        FilterChain chain = new FilterChain(rih, clientOptions.getFilters());
+        FilterChain chain = createFilterChain(new RemoteInvokeHandler(connectionManager));
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
         return new ConsumeInvokeHandler(new LocationInvokeHandler(chain, referenceBinding, addresses));
+    }
+
+    private FilterChain createFilterChain(InvokeHandler invokeHandler) {
+        FilterChain chain = new FilterChain(invokeHandler);
+        FilterInitializer fi = clientOptions.getFilterInitializer();
+        if (fi != null) {
+            fi.init(chain);
+        }
+        return chain;
     }
 
 }

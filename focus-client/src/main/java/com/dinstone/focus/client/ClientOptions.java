@@ -17,11 +17,9 @@ package com.dinstone.focus.client;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.dinstone.focus.endpoint.EndpointOptions;
-import com.dinstone.focus.filter.Filter;
 import com.dinstone.photon.ConnectOptions;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
@@ -33,8 +31,6 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
     private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
 
     private ConnectOptions connectOptions = new ConnectOptions();
-
-    private List<Filter> filters = new ArrayList<>();
 
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
@@ -75,27 +71,6 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     public List<InetSocketAddress> getServiceAddresses() {
         return serviceAddresses;
-    }
-
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public ClientOptions addFilters(Filter... filters) {
-        addFilters(Arrays.asList(filters));
-        return this;
-    }
-
-    public ClientOptions addFilters(List<Filter> filters) {
-        if (filters != null) {
-            for (Filter filter : filters) {
-                if (filter != null) {
-                    this.filters.add(filter);
-                }
-            }
-        }
-
-        return this;
     }
 
     public int getConnectPoolSize() {

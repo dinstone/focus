@@ -15,11 +15,7 @@
  */
 package com.dinstone.focus.filter;
 
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+public interface FilterInitializer {
 
-public interface Filter {
-
-    Reply invoke(FilterContext next, Call call) throws Exception;
-
+    public void init(FilterChain chain);
 }

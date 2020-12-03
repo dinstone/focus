@@ -18,7 +18,7 @@ package com.dinstone.focus.tracing;
 import static brave.internal.Throwables.propagateIfFatal;
 
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.filter.FilterContext;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
@@ -53,7 +53,7 @@ public class TracingFilter implements Filter {
     }
 
     @Override
-    public Reply invoke(InvokeHandler next, Call call) throws Exception {
+    public Reply invoke(FilterContext next, Call call) throws Exception {
         Span span;
         RpcRequest request;
         if (kind.equals(Kind.CLIENT)) {

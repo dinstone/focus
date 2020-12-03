@@ -16,6 +16,7 @@
 package com.dinstone.focus.endpoint;
 
 import com.dinstone.clutch.RegistryConfig;
+import com.dinstone.focus.filter.FilterInitializer;
 
 @SuppressWarnings("unchecked")
 public class EndpointOptions<T extends EndpointOptions<T>> {
@@ -27,6 +28,8 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
     private String endpointName;
 
     private RegistryConfig registryConfig;
+
+    private FilterInitializer filterInitializer;
 
     public EndpointOptions() {
         super();
@@ -65,6 +68,15 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     public T setRegistryConfig(RegistryConfig registryConfig) {
         this.registryConfig = registryConfig;
+        return (T) this;
+    }
+
+    public FilterInitializer getFilterInitializer() {
+        return filterInitializer;
+    }
+
+    public T setFilterInitializer(FilterInitializer filterInitializer) {
+        this.filterInitializer = filterInitializer;
         return (T) this;
     }
 

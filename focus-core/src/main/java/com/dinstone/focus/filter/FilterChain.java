@@ -24,28 +24,52 @@ import com.dinstone.focus.protocol.Reply;
 
 public class FilterChain implements InvokeHandler {
 
-    private FilterHandler filterHandler;
+    private FilterContext headContext;
 
-    public FilterChain(InvokeHandler invokeHandler, Filter... filters) {
-        this(invokeHandler, Arrays.asList(filters));
-    }
+    private FilterContext tailContext;
 
-    public FilterChain(InvokeHandler invokeHandler, List<Filter> filters) {
+    public FilterChain(InvokeHandler invokeHandler) {
         if (invokeHandler == null) {
             throw new IllegalArgumentException("invokeHandler is null");
         }
-        filterHandler = new FilterHandler(null, invokeHandler);
+        this.tailContext = new FilterContext(this, new Filter() {
 
+            @Override
+            public Reply invoke(FilterContext next, Call call) throws Exception {
+                return invokeHandler.invoke(call);
+            }
+        });
+        this.headContext = new FilterContext(this, null);
+
+        this.headContext.setNextContext(tailContext);
+        this.tailContext.setPrevContext(headContext);
+    }
+
+    public FilterChain addFilter(Filter... filters) {
+        addFilter(Arrays.asList(filters));
+        return this;
+    }
+
+    public FilterChain addFilter(List<Filter> filters) {
         if (filters != null && !filters.isEmpty()) {
-            for (int i = filters.size() - 1; i >= 0; i--) {
-                filterHandler = new FilterHandler(filters.get(i), filterHandler);
+            for (Filter filter : filters) {
+                FilterContext now = new FilterContext(this, filter);
+
+                FilterContext last = tailContext.getPrevContext();
+                last.setNextContext(now);
+
+                now.setPrevContext(last);
+                now.setNextContext(tailContext);
+
+                tailContext.setPrevContext(now);
             }
         }
+        return this;
     }
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        return filterHandler.invoke(call);
+        return headContext.invoke(call);
     }
 
 }

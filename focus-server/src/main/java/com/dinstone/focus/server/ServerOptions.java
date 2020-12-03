@@ -19,11 +19,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.dinstone.focus.endpoint.EndpointOptions;
-import com.dinstone.focus.filter.Filter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.AcceptOptions;
@@ -35,23 +33,21 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
 
     private AcceptOptions acceptOptions = new AcceptOptions();
 
-    private List<Filter> filters = new ArrayList<>();
-
     private InetSocketAddress serviceAddress;
 
-    public ServerOptions listen(InetSocketAddress socketAddress) {
+    public EndpointOptions<ServerOptions> listen(InetSocketAddress socketAddress) {
         if (socketAddress != null) {
             this.serviceAddress = socketAddress;
         }
         return this;
     }
 
-    public ServerOptions listen(int port) {
+    public EndpointOptions<ServerOptions> listen(int port) {
         this.serviceAddress = new InetSocketAddress(port);
         return this;
     }
 
-    public ServerOptions listen(String host, int port) {
+    public EndpointOptions<ServerOptions> listen(String host, int port) {
         try {
             List<InetSocketAddress> resolveAddress = resolveAddress(host, port);
             if (!resolveAddress.isEmpty()) {
@@ -63,7 +59,7 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
         return this;
     }
 
-    public ServerOptions listen(String address) {
+    public EndpointOptions<ServerOptions> listen(String address) {
         if (address == null || address.isEmpty()) {
             throw new RuntimeException("address is empty");
         }
@@ -74,27 +70,6 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
         }
 
         return listen(socketAddress);
-    }
-
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public ServerOptions addFilters(Filter... filters) {
-        addFilters(Arrays.asList(filters));
-        return this;
-    }
-
-    public ServerOptions addFilters(List<Filter> filters) {
-        if (filters != null) {
-            for (Filter filter : filters) {
-                if (filter != null) {
-                    this.filters.add(filter);
-                }
-            }
-        }
-
-        return this;
     }
 
     public InetSocketAddress getServiceAddress() {
@@ -139,7 +114,7 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
         return acceptOptions;
     }
 
-    public ServerOptions setAcceptOptions(AcceptOptions acceptOptions) {
+    public EndpointOptions<ServerOptions> setAcceptOptions(AcceptOptions acceptOptions) {
         this.acceptOptions = acceptOptions;
         return this;
     }

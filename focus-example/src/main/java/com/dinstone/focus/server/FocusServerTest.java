@@ -20,6 +20,8 @@ import java.io.IOException;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.filter.FilterChain;
+import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -41,9 +43,18 @@ public class FocusServerTest {
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.server")
                 .spanReporter(AsyncReporter.builder(sender).build()).sampler(Sampler.create(1)).build();
 
-        Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
+        final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        Server server = new Server(new ServerOptions().listen("localhost", 3333).addFilters(tf));
+        FilterInitializer filterInitializer = new FilterInitializer() {
+
+            @Override
+            public void init(FilterChain chain) {
+                chain.addFilter(tf);
+            }
+        };
+
+        Server server = new Server(
+                new ServerOptions().listen("localhost", 3333).setFilterInitializer(filterInitializer));
         server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");

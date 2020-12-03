@@ -38,7 +38,7 @@ public class FilterChainTest {
         Filter first = new Filter() {
 
             @Override
-            public Reply invoke(InvokeHandler next, Call call) throws Exception {
+            public Reply invoke(FilterContext next, Call call) throws Exception {
                 System.out.println("first filter before");
                 Reply r = next.invoke(call);
                 System.out.println("first filter after");
@@ -49,7 +49,7 @@ public class FilterChainTest {
         Filter second = new Filter() {
 
             @Override
-            public Reply invoke(InvokeHandler next, Call call) throws Exception {
+            public Reply invoke(FilterContext next, Call call) throws Exception {
                 System.out.println("second filter before");
                 Reply r = next.invoke(call);
                 System.out.println("second filter after");
@@ -57,7 +57,7 @@ public class FilterChainTest {
                 return r;
             }
         };
-        FilterChain chain = new FilterChain(lih, first, second);
+        FilterChain chain = new FilterChain(lih).addFilter(first, second);
 
         Reply reply = chain.invoke(null);
         assertEquals(null, reply);

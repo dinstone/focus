@@ -19,6 +19,8 @@ import java.io.IOException;
 
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.filter.FilterChain;
+import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -47,8 +49,17 @@ public class FocusClientTest {
                 .spanReporter(AsyncReporter.builder(sender).build()).sampler(Sampler.create(1)).build();
 
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
+
+        FilterInitializer filterInitializer = new FilterInitializer() {
+
+            @Override
+            public void init(FilterChain chain) {
+                chain.addFilter(tf);
+            }
+        };
+
         ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions)
-                .addFilters(tf);
+                .setFilterInitializer(filterInitializer);
         Client client = new Client(option);
         final DemoService ds = client.importing(DemoService.class);
 

@@ -27,7 +27,7 @@ import com.dinstone.photon.codec.ExceptionCodec;
 import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
-import com.dinstone.photon.message.Status;
+import com.dinstone.photon.message.Response.Status;
 import com.dinstone.photon.processor.MessageProcessor;
 import com.dinstone.photon.util.ExceptionUtil;
 

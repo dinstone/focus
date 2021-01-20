@@ -16,6 +16,7 @@
 package com.dinstone.focus.client.transport;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.client.ClientOptions;
@@ -26,7 +27,7 @@ import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.Connector;
 import com.dinstone.photon.codec.ExceptionCodec;
-import com.dinstone.photon.message.Notice;
+import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
@@ -56,13 +57,8 @@ public class ConnectionFactory {
         this.connector.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(ChannelHandlerContext ctx, Notice msg) {
-                LOG.warn("unsurport message notice");
-            }
-
-            @Override
-            public void process(ChannelHandlerContext ctx, Request msg) {
-                LOG.warn("unsurport message Request");
+            public void process(Executor executor, ChannelHandlerContext ctx, Object msg) {
+                LOG.warn("unsupported message {}", msg);
             }
         });
     }
@@ -96,6 +92,12 @@ public class ConnectionFactory {
             request.setMsgId(IDGENER.incrementAndGet());
             request.setCodec(codecCode);
             request.setTimeout(call.getTimeout());
+
+            Headers headers = request.headers();
+            headers.put("rpc.call.group", call.getGroup());
+            headers.put("rpc.call.service", call.getService());
+            headers.put("rpc.call.method", call.getMethod());
+
             // encode call to request
             CodecManager.encode(request, call);
 

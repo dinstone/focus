@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.server.transport;
 
+import java.util.concurrent.Executor;
+
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.protocol.Call;
@@ -24,7 +26,6 @@ import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
 import com.dinstone.photon.ExchangeException;
 import com.dinstone.photon.codec.ExceptionCodec;
-import com.dinstone.photon.message.Notice;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
@@ -46,11 +47,37 @@ public class AcceptorFactory {
         acceptor.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(ChannelHandlerContext ctx, Notice notice) {
+            public void process(Executor executor, ChannelHandlerContext ctx, Object msg) {
+                if (msg instanceof Request) {
+                    if (executor != null) {
+                        executor.execute(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                invoke(binding, ctx, (Request) msg);
+                            }
+                        });
+                    } else {
+                        invoke(binding, ctx, (Request) msg);
+                    }
+                }
+
+                // long s = System.currentTimeMillis();
+                // executor.execute(new Runnable() {
+                //
+                // @Override
+                // public void run() {
+                // long e = System.currentTimeMillis();
+                // if (request.getTimeout() > 0 && e - s >= request.getTimeout()) {
+                // // timeout
+                // return;
+                // }
+                //
+                // }
+                // });
             }
 
-            @Override
-            public void process(ChannelHandlerContext ctx, Request request) {
+            private void invoke(final ImplementBinding binding, ChannelHandlerContext ctx, Request request) {
                 ExchangeException exception = null;
                 try {
                     // decode call from request

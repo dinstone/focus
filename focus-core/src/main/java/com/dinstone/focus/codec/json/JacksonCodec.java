@@ -55,19 +55,17 @@ public class JacksonCodec implements RpcCodec {
     @Override
     public void encode(Request request, Call call) throws CodecException {
         try {
-            request.setHeaders(Attach.encode(call.attach()));
+            request.headers().putAll(call.attach());
             request.setContent(objectMapper.writeValueAsBytes(call));
         } catch (JsonProcessingException e) {
             throw new CodecException("encode call content error", e);
-        } catch (IOException e) {
-            throw new CodecException("encode call attachs error", e);
         }
     }
 
     @Override
     public Call decode(Request request) throws CodecException {
         try {
-            Attach attach = Attach.decode(request.getHeaders());
+            Attach attach = new Attach(request.getHeaders());
             return objectMapper.readValue(request.getContent(), Call.class).attach(attach);
         } catch (IOException e) {
             throw new CodecException("decode call message error", e);
@@ -77,19 +75,17 @@ public class JacksonCodec implements RpcCodec {
     @Override
     public void encode(Response response, Reply reply) throws CodecException {
         try {
-            response.setHeaders(Attach.encode(reply.attach()));
+            response.headers().putAll(reply.attach());
             response.setContent(objectMapper.writeValueAsBytes(reply));
         } catch (JsonProcessingException e) {
             throw new CodecException("encode reply content error", e);
-        } catch (IOException e) {
-            throw new CodecException("encode reply attachs error", e);
         }
     }
 
     @Override
     public Reply decode(Response response) throws CodecException {
         try {
-            Attach attach = Attach.decode(response.getHeaders());
+            Attach attach = new Attach(response.getHeaders());
             return objectMapper.readValue(response.getContent(), Reply.class).attach(attach);
         } catch (IOException e) {
             throw new CodecException("decode reply message error", e);

@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * The Call is the abstract of invoking method, RPC protocol body part.
+ * The Call is the abstract of RPC request.
  * 
  * @author guojinfei
  * 

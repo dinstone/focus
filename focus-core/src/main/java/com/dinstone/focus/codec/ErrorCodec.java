@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import com.dinstone.focus.exception.ExceptionHelper;
 import com.dinstone.focus.exception.FocusException;
-import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.util.ByteStreamUtil;
 
@@ -31,7 +31,7 @@ public class ErrorCodec {
     public Reply decode(Response response) {
         Reply reply = new Reply();
         try {
-            reply.attach(Attach.decode(response.getHeaders()));
+            reply.attach().putAll(response.getHeaders());
 
             ByteArrayInputStream bai = new ByteArrayInputStream(response.getContent());
             String message = ByteStreamUtil.readString(bai);
@@ -44,11 +44,7 @@ public class ErrorCodec {
     }
 
     public void encode(Response response, Reply reply) {
-        try {
-            response.setHeaders(Attach.encode(reply.attach()));
-        } catch (IOException e) {
-            throw new CodecException("encode reply attach error", e);
-        }
+        response.setHeaders(new Headers(reply.attach()));
 
         try {
             Throwable exception = (Throwable) reply.getData();

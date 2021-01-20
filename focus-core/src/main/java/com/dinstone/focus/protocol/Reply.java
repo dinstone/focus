@@ -18,7 +18,7 @@ package com.dinstone.focus.protocol;
 import java.io.Serializable;
 
 /**
- * call's result
+ * The Reply is the abstract of RPC response.
  * 
  * @author guojinfei
  * 

@@ -35,6 +35,8 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
 
     private InetSocketAddress serviceAddress;
 
+    private ExecutorSelector executorSelector;
+
     public EndpointOptions<ServerOptions> listen(InetSocketAddress socketAddress) {
         if (socketAddress != null) {
             this.serviceAddress = socketAddress;
@@ -116,6 +118,15 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
 
     public EndpointOptions<ServerOptions> setAcceptOptions(AcceptOptions acceptOptions) {
         this.acceptOptions = acceptOptions;
+        return this;
+    }
+
+    public ExecutorSelector getExecutorSelector() {
+        return executorSelector;
+    }
+
+    public ServerOptions setExecutorSelector(ExecutorSelector executorSelector) {
+        this.executorSelector = executorSelector;
         return this;
     }
 

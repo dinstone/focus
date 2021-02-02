@@ -24,7 +24,7 @@ import com.dinstone.photon.ConnectOptions;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
-    private static final int DEFAULT_POOL_SIZE = 2;
+    private static final int DEFAULT_POOL_SIZE = 1;
 
     private static final String DEFAULT_CODEC = "json";
 

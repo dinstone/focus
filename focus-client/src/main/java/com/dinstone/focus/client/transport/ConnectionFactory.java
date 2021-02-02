@@ -16,7 +16,6 @@
 package com.dinstone.focus.client.transport;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.client.ClientOptions;
@@ -57,7 +56,7 @@ public class ConnectionFactory {
         this.connector.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(Executor executor, ChannelHandlerContext ctx, Object msg) {
+            public void process(ChannelHandlerContext ctx, Object msg) {
                 LOG.warn("unsupported message {}", msg);
             }
         });

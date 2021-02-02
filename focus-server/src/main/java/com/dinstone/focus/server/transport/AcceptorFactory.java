@@ -22,6 +22,7 @@ import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.proxy.ServiceProxy;
+import com.dinstone.focus.server.ExecutorSelector;
 import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
 import com.dinstone.photon.ExchangeException;
@@ -47,18 +48,27 @@ public class AcceptorFactory {
         acceptor.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(Executor executor, ChannelHandlerContext ctx, Object msg) {
+            public void process(ChannelHandlerContext ctx, Object msg) {
                 if (msg instanceof Request) {
-                    if (executor != null) {
-                        executor.execute(new Runnable() {
+                    Request request = (Request) msg;
+                    Executor exe = null;
+                    ExecutorSelector selector = serverOption.getExecutorSelector();
+                    if (selector != null) {
+                        String g = request.getHeaders().get("rpc.call.group");
+                        String s = request.getHeaders().get("rpc.call.service");
+                        String m = request.getHeaders().get("rpc.call.method");
+                        exe = selector.select(g, s, m);
+                    }
+                    if (exe != null) {
+                        exe.execute(new Runnable() {
 
                             @Override
                             public void run() {
-                                invoke(binding, ctx, (Request) msg);
+                                invoke(binding, ctx, request);
                             }
                         });
                     } else {
-                        invoke(binding, ctx, (Request) msg);
+                        invoke(binding, ctx, request);
                     }
                 }
 

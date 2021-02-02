@@ -31,7 +31,6 @@ public class ZkFocusClientTest {
 
         LOG.info("init start");
         ConnectOptions connectOptions = new ConnectOptions();
-        connectOptions.setProcessorSize(0);
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
                 .setRegistryConfig(new ZookeeperRegistryConfig()).setEndpointCode("com.rpc.demo.client");

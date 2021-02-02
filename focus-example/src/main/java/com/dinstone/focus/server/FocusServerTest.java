@@ -53,8 +53,10 @@ public class FocusServerTest {
             }
         };
 
-        Server server = new Server(
-                new ServerOptions().listen("localhost", 3333).setFilterInitializer(filterInitializer));
+        ServerOptions serverOptions = new ServerOptions();
+        serverOptions.listen("localhost", 3333);
+        serverOptions.setFilterInitializer(filterInitializer);
+        Server server = new Server(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");

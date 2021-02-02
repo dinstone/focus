@@ -42,7 +42,6 @@ public class FocusClientTest {
 
         LOG.info("init start");
         ConnectOptions connectOptions = new ConnectOptions();
-        connectOptions.setProcessorSize(0);
 
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.client")

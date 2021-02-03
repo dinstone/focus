@@ -116,6 +116,7 @@ public class Client implements ServiceImporter {
 
         try {
             ServiceProxy<T> wrapper = serviceProxyFactory.create(createInvokeHandler(), sic, group, timeout, null);
+            referenceBinding.lookup(wrapper.getService(), wrapper.getGroup());
             referenceBinding.binding(wrapper);
             return wrapper.getProxy();
         } catch (Exception e) {
@@ -124,9 +125,10 @@ public class Client implements ServiceImporter {
     }
 
     private InvokeHandler createInvokeHandler() {
-        FilterChain chain = createFilterChain(new RemoteInvokeHandler(connectionManager));
+        FilterChain chain = createFilterChain(new RemoteInvokeHandler());
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
-        return new ConsumeInvokeHandler(new LocationInvokeHandler(chain, referenceBinding, addresses));
+        return new ConsumeInvokeHandler(
+                new LocationInvokeHandler(chain, referenceBinding, connectionManager, addresses));
     }
 
     private FilterChain createFilterChain(InvokeHandler invokeHandler) {

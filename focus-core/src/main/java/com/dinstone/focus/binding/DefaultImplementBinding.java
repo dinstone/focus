@@ -46,7 +46,7 @@ public class DefaultImplementBinding implements ImplementBinding {
 
     @Override
     public <T> void binding(ServiceProxy<T> serviceWrapper) {
-        String serviceId = serviceWrapper.getClazz().getName() + "-" + serviceWrapper.getGroup();
+        String serviceId = serviceWrapper.getService() + "-" + serviceWrapper.getGroup();
         if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
         }
@@ -71,12 +71,12 @@ public class DefaultImplementBinding implements ImplementBinding {
         description.setCode(id.toString());
         description.setHost(host);
         description.setPort(port);
-        description.setName(wrapper.getClazz().getName());
+        description.setName(wrapper.getService());
         description.setGroup(group);
         description.setRtime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
-        for (Method method : wrapper.getClazz().getDeclaredMethods()) {
+        for (Method method : wrapper.getMethods()) {
             methodDescList.add(description(method));
         }
         description.addAttribute("methods", methodDescList);

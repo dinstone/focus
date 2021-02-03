@@ -131,5 +131,10 @@ public class ConnectionFactory {
             connection.destroy();
         }
 
+        @Override
+        public boolean isBusy() {
+            return connection.isBusy();
+        }
+
     }
 }

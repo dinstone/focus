@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.focus.binding.ReferenceBinding;
+import com.dinstone.focus.client.transport.Connection;
+import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -35,12 +37,15 @@ public class LocationInvokeHandler implements InvokeHandler {
 
     private ReferenceBinding referenceBinding;
 
+    private ConnectionManager connectionManager;
+
     private List<InetSocketAddress> backupServiceAddresses = new ArrayList<>();
 
     public LocationInvokeHandler(InvokeHandler invocationHandler, ReferenceBinding referenceBinding,
-            List<InetSocketAddress> serviceAddresses) {
+            ConnectionManager connectionManager, List<InetSocketAddress> serviceAddresses) {
         this.invocationHandler = invocationHandler;
         this.referenceBinding = referenceBinding;
+        this.connectionManager = connectionManager;
 
         if (serviceAddresses != null) {
             backupServiceAddresses.addAll(serviceAddresses);
@@ -49,9 +54,29 @@ public class LocationInvokeHandler implements InvokeHandler {
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        InetSocketAddress serviceAddress = select(call.getService(), call.getGroup());
-        InvokeContext.getContext().put("service.address", serviceAddress);
+        Connection connection = loadbalance(call);
+        if (connection == null) {
+            throw new RuntimeException("can't find a service connection");
+        }
+        InvokeContext.getContext().put("service.connection", connection);
+
         return invocationHandler.invoke(call);
+    }
+
+    private Connection loadbalance(Call call) throws Exception {
+        int count = 0;
+        while (count < 2) {
+            count++;
+
+            InetSocketAddress serviceAddress = select(call.getService(), call.getGroup());
+            Connection connection = connectionManager.getConnection(serviceAddress);
+            if (connection.isBusy()) {
+                continue;
+            } else {
+                return connection;
+            }
+        }
+        return null;
     }
 
     public <T> InetSocketAddress select(String serviceName, String group) {

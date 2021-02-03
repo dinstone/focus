@@ -46,6 +46,8 @@ public interface Connection {
 
     public boolean isAlive();
 
+    public boolean isBusy();
+
     public void destroy();
 
 }

@@ -34,24 +34,21 @@ public class ServiceProxyFactory {
             throw new IllegalArgumentException(sio + " is not an instance of " + sic.getName());
         }
 
-        ServiceProxy<T> serviceProxy = new ServiceProxy<>(sic, group, timeout);
-        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy, invoker);
+        ServiceProxy<T> serviceProxy = new ServiceProxy<>(sic, group, timeout, invoker);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
         T pio = sic.cast(Proxy.newProxyInstance(sic.getClassLoader(), new Class[] { sic }, handler));
 
         serviceProxy.setProxy(pio);
         serviceProxy.setTarget(sio);
-        serviceProxy.setInvokeHandler(invoker);
         return serviceProxy;
     }
 
     private static class ProxyInvocationHandler<T> implements InvocationHandler {
 
         private ServiceProxy<T> serviceProxy;
-        private InvokeHandler invokeHandler;
 
-        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy, InvokeHandler invokeHandler) {
+        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy) {
             this.serviceProxy = serviceProxy;
-            this.invokeHandler = invokeHandler;
         }
 
         @Override
@@ -65,12 +62,12 @@ public class ServiceProxyFactory {
             } else if (methodName.equals("toString")) {
                 return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
             } else if (methodName.equals("getClass")) {
-                return serviceProxy.getClazz();
+                return method.getDeclaringClass();
             }
 
-            Call call = new Call(serviceProxy.getClazz().getName(), serviceProxy.getGroup(), serviceProxy.getTimeout(),
+            Call call = new Call(serviceProxy.getService(), serviceProxy.getGroup(), serviceProxy.getTimeout(),
                     methodName, args, method.getParameterTypes());
-            Reply reply = invokeHandler.invoke(call);
+            Reply reply = serviceProxy.getHandler().invoke(call);
             if (reply.getData() instanceof Throwable) {
                 throw (Throwable) reply.getData();
             }

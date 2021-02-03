@@ -15,35 +15,49 @@
  */
 package com.dinstone.focus.proxy;
 
+import java.lang.reflect.Method;
+
 import com.dinstone.focus.invoke.InvokeHandler;
 
 public class ServiceProxy<T> {
 
-    private Class<T> clazz;
+    private String service;
 
     private String group;
 
     private int timeout;
 
+    private Method[] methods;
+
     private T target;
 
     private T proxy;
 
-    private InvokeHandler invokeHandler;
+    private InvokeHandler handler;
 
-    public ServiceProxy(Class<T> clazz, String group, int timeout) {
+    public ServiceProxy(Class<T> clazz, String group, int timeout, InvokeHandler invoker) {
         super();
-        this.clazz = clazz;
         this.group = group;
+        this.service = clazz.getName();
+        this.methods = clazz.getDeclaredMethods();
         this.timeout = timeout;
+        this.handler = invoker;
     }
 
-    public Class<T> getClazz() {
-        return clazz;
+    public ServiceProxy(String service, String group, int timeout, InvokeHandler invoker) {
+        super();
+        this.group = group;
+        this.service = service;
+        this.timeout = timeout;
+        this.handler = invoker;
     }
 
-    public void setClazz(Class<T> clazz) {
-        this.clazz = clazz;
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 
     public String getGroup() {
@@ -62,6 +76,14 @@ public class ServiceProxy<T> {
         this.timeout = timeout;
     }
 
+    public Method[] getMethods() {
+        return methods;
+    }
+
+    public void setMethods(Method[] methods) {
+        this.methods = methods;
+    }
+
     public T getTarget() {
         return target;
     }
@@ -78,12 +100,12 @@ public class ServiceProxy<T> {
         this.proxy = proxy;
     }
 
-    public InvokeHandler getInvokeHandler() {
-        return invokeHandler;
+    public InvokeHandler getHandler() {
+        return handler;
     }
 
-    public void setInvokeHandler(InvokeHandler invokeHandler) {
-        this.invokeHandler = invokeHandler;
+    public void setHandler(InvokeHandler handler) {
+        this.handler = handler;
     }
 
 }

@@ -79,7 +79,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
         ServiceDescription description = new ServiceDescription();
         description.setCode(id.toString());
-        description.setName(wrapper.getClazz().getName());
+        description.setName(wrapper.getService());
         description.setGroup(group);
         description.setHost(host);
         description.setPort(port);

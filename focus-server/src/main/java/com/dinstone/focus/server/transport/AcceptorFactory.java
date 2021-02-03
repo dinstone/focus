@@ -100,7 +100,7 @@ public class AcceptorFactory {
                     }
 
                     // invoke call
-                    Reply reply = wrapper.getInvokeHandler().invoke(call);
+                    Reply reply = wrapper.getHandler().invoke(call);
 
                     Response response = new Response();
                     response.setMsgId(request.getMsgId());

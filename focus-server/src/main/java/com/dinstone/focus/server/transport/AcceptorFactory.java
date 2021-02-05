@@ -19,9 +19,9 @@ import java.util.concurrent.Executor;
 
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.focus.server.ExecutorSelector;
 import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
@@ -93,7 +93,7 @@ public class AcceptorFactory {
                     // decode call from request
                     Call call = CodecManager.decode(request);
 
-                    ServiceProxy<?> wrapper = binding.lookup(call.getService(), call.getGroup());
+                    ServiceConfig wrapper = binding.lookup(call.getService(), call.getGroup());
                     if (wrapper == null) {
                         throw new NoSuchMethodException(
                                 "unkown service: " + call.getService() + "[" + call.getGroup() + "]");

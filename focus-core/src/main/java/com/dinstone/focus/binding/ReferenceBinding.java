@@ -18,7 +18,7 @@ package com.dinstone.focus.binding;
 import java.util.List;
 
 import com.dinstone.clutch.ServiceDescription;
-import com.dinstone.focus.proxy.ServiceProxy;
+import com.dinstone.focus.config.ServiceConfig;
 
 /**
  * service reference binding
@@ -34,7 +34,7 @@ public interface ReferenceBinding {
      * 
      * @param wrapper
      */
-    public <T> void binding(ServiceProxy<T> wrapper);
+    public <T> void binding(ServiceConfig wrapper);
 
     public List<ServiceDescription> lookup(String serviceName, String group);
 

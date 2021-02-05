@@ -26,13 +26,13 @@ import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.proxy.ServiceProxy;
-import com.dinstone.focus.proxy.ServiceProxyFactory;
+import com.dinstone.focus.proxy.JdkProxyFactory;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProvideInvokeHandler;
 import com.dinstone.focus.server.transport.AcceptorFactory;
@@ -53,8 +53,6 @@ public class Server implements ServiceExporter {
     private ServiceRegistry serviceRegistry;
 
     private ImplementBinding implementBinding;
-
-    private ServiceProxyFactory serviceProxyFactory;
 
     public Server(ServerOptions serverOption) {
         checkAndInit(serverOption);
@@ -92,7 +90,7 @@ public class Server implements ServiceExporter {
 
         this.implementBinding = new DefaultImplementBinding(serverOptions, serviceRegistry, serviceAddress);
 
-        this.serviceProxyFactory = new ServiceProxyFactory();
+        new JdkProxyFactory();
 
         this.acceptor = new AcceptorFactory(serverOptions).create(implementBinding);
 
@@ -125,10 +123,21 @@ public class Server implements ServiceExporter {
         }
 
         try {
-            FilterChain filterChain = createFilterChain(new LocalInvokeHandler(sic, sio));
+            ServiceConfig serviceConfig = new ServiceConfig();
+            serviceConfig.setGroup(group);
+            serviceConfig.setTimeout(timeout);
+            serviceConfig.setService(sic.getName());
+            serviceConfig.setMethods(sic.getDeclaredMethods());
+            serviceConfig.setTarget(sio);
+
+            serviceConfig.setAppCode(serverOptions.getAppCode());
+            serviceConfig.setAppName(serverOptions.getAppName());
+
+            FilterChain filterChain = createFilterChain(new LocalInvokeHandler(serviceConfig));
             ProvideInvokeHandler provideInvokeHandler = new ProvideInvokeHandler(filterChain);
-            ServiceProxy<T> wrapper = serviceProxyFactory.create(provideInvokeHandler, sic, group, timeout, sio);
-            implementBinding.binding(wrapper);
+            serviceConfig.setHandler(provideInvokeHandler);
+
+            implementBinding.binding(serviceConfig);
         } catch (Exception e) {
             throw new RuntimeException("can't export service", e);
         }

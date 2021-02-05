@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.binding;
 
-import com.dinstone.focus.proxy.ServiceProxy;
+import com.dinstone.focus.config.ServiceConfig;
 
 /**
  * service implement binding
@@ -31,9 +31,9 @@ public interface ImplementBinding {
      * 
      * @param wrapper
      */
-    public <T> void binding(ServiceProxy<T> wrapper);
+    public <T> void binding(ServiceConfig config);
 
-    public ServiceProxy<?> lookup(String service, String group);
+    public ServiceConfig lookup(String service, String group);
 
     public void destroy();
 }

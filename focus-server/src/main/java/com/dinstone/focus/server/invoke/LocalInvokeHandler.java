@@ -18,6 +18,7 @@ package com.dinstone.focus.server.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ExceptionHelper;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -26,20 +27,17 @@ import com.dinstone.focus.protocol.Reply;
 
 public class LocalInvokeHandler implements InvokeHandler {
 
-    private Class<?> clazz;
-    private Object target;
+    private ServiceConfig serviceConfig;
 
-    public LocalInvokeHandler(Class<?> sic, Object sio) {
-        this.clazz = sic;
-        this.target = sio;
+    public LocalInvokeHandler(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
     }
 
     @Override
     public Reply invoke(Call call) throws Exception {
         try {
-            Class<?>[] paramTypes = getParamTypes(call.getParams(), call.getParamTypes());
-            Method method = clazz.getDeclaredMethod(call.getMethod(), paramTypes);
-            Object resObj = method.invoke(target, call.getParams());
+            Method method = serviceConfig.findMethod(call.getMethod());
+            Object resObj = method.invoke(serviceConfig.getTarget(), call.getParams());
             return new Reply(resObj);
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionHelper.targetException(e);

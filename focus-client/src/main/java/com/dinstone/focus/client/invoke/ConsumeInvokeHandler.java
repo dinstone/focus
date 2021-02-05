@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.client.invoke;
 
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -29,19 +30,25 @@ import com.dinstone.focus.protocol.Reply;
  */
 public class ConsumeInvokeHandler implements InvokeHandler {
 
+    private ServiceConfig serviceConfig;
     private InvokeHandler invokeHandler;
 
-    public ConsumeInvokeHandler(InvokeHandler invokeHandler) {
+    public ConsumeInvokeHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
         if (invokeHandler == null) {
             throw new IllegalArgumentException("invokeHandler is null");
         }
         this.invokeHandler = invokeHandler;
+        this.serviceConfig = serviceConfig;
     }
 
     public Reply invoke(Call call) throws Exception {
         InvokeContext.pushContext();
         InvokeContext.getContext();
         try {
+            call.setGroup(serviceConfig.getGroup());
+            call.setService(serviceConfig.getService());
+            call.setTimeout(serviceConfig.getTimeout());
+
             return invokeHandler.invoke(call);
         } finally {
             InvokeContext.removeContext();

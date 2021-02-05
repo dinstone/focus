@@ -31,12 +31,13 @@ import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.ServiceImporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.proxy.ServiceProxy;
-import com.dinstone.focus.proxy.ServiceProxyFactory;
+import com.dinstone.focus.proxy.JdkProxyFactory;
+import com.dinstone.focus.proxy.ProxyFactory;
 
 public class Client implements ServiceImporter {
 
@@ -48,7 +49,7 @@ public class Client implements ServiceImporter {
 
     private ConnectionManager connectionManager;
 
-    private ServiceProxyFactory serviceProxyFactory;
+    private ProxyFactory proxyFactory;
 
     public Client(ClientOptions clientOption) {
         checkAndInit(clientOption);
@@ -82,7 +83,7 @@ public class Client implements ServiceImporter {
         }
 
         this.referenceBinding = new DefaultReferenceBinding(clientOptions, serviceDiscovery);
-        this.serviceProxyFactory = new ServiceProxyFactory();
+        this.proxyFactory = new JdkProxyFactory();
     }
 
     @Override
@@ -105,6 +106,7 @@ public class Client implements ServiceImporter {
         return importing(sic, group, clientOptions.getDefaultTimeout());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T importing(Class<T> sic, String group, int timeout) {
         if (group == null) {
@@ -115,20 +117,34 @@ public class Client implements ServiceImporter {
         }
 
         try {
-            ServiceProxy<T> wrapper = serviceProxyFactory.create(createInvokeHandler(), sic, group, timeout, null);
-            referenceBinding.lookup(wrapper.getService(), wrapper.getGroup());
-            referenceBinding.binding(wrapper);
-            return wrapper.getProxy();
+            ServiceConfig serviceConfig = new ServiceConfig();
+            serviceConfig.setGroup(group);
+            serviceConfig.setTimeout(timeout);
+            serviceConfig.setService(sic.getName());
+
+            serviceConfig.setAppCode(clientOptions.getAppCode());
+            serviceConfig.setAppName(clientOptions.getAppName());
+
+            InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
+            Object proxy = proxyFactory.create(invokeHandler, sic);
+
+            serviceConfig.setHandler(invokeHandler);
+            serviceConfig.setProxy(proxy);
+
+            referenceBinding.lookup(serviceConfig.getService(), serviceConfig.getGroup());
+            referenceBinding.binding(serviceConfig);
+
+            return (T) proxy;
         } catch (Exception e) {
             throw new RuntimeException("can't import service", e);
         }
     }
 
-    private InvokeHandler createInvokeHandler() {
+    private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
         FilterChain chain = createFilterChain(new RemoteInvokeHandler());
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
-        return new ConsumeInvokeHandler(
-                new LocationInvokeHandler(chain, referenceBinding, connectionManager, addresses));
+        InvokeHandler invokeHandler = new LocationInvokeHandler(chain, referenceBinding, connectionManager, addresses);
+        return new ConsumeInvokeHandler(serviceConfig, invokeHandler);
     }
 
     private FilterChain createFilterChain(InvokeHandler invokeHandler) {

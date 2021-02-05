@@ -24,12 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.clutch.ServiceRegistry;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
-import com.dinstone.focus.proxy.ServiceProxy;
 
 public class DefaultImplementBinding implements ImplementBinding {
 
-    protected Map<String, ServiceProxy<?>> serviceProxyMap = new ConcurrentHashMap<>();
+    protected Map<String, ServiceConfig> serviceProxyMap = new ConcurrentHashMap<>();
 
     protected InetSocketAddress providerAddress;
 
@@ -45,7 +45,7 @@ public class DefaultImplementBinding implements ImplementBinding {
     }
 
     @Override
-    public <T> void binding(ServiceProxy<T> serviceWrapper) {
+    public <T> void binding(ServiceConfig serviceWrapper) {
         String serviceId = serviceWrapper.getService() + "-" + serviceWrapper.getGroup();
         if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
@@ -53,18 +53,18 @@ public class DefaultImplementBinding implements ImplementBinding {
         serviceProxyMap.put(serviceId, serviceWrapper);
 
         if (serviceRegistry != null) {
-            publish(serviceWrapper, endpointOptions);
+            publish(serviceWrapper);
         }
     }
 
-    protected void publish(ServiceProxy<?> wrapper, EndpointOptions endpointOptions) {
+    protected void publish(ServiceConfig wrapper) {
         String host = providerAddress.getAddress().getHostAddress();
         int port = providerAddress.getPort();
         String group = wrapper.getGroup();
 
         StringBuilder id = new StringBuilder();
         id.append(host).append(":").append(port).append("@");
-        id.append(endpointOptions.getEndpointName()).append("#").append(endpointOptions.getEndpointCode()).append("@");
+        id.append(endpointOptions.getAppName()).append("#").append(endpointOptions.getAppCode()).append("@");
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
@@ -82,8 +82,8 @@ public class DefaultImplementBinding implements ImplementBinding {
         description.addAttribute("methods", methodDescList);
         description.addAttribute("timeout", wrapper.getTimeout());
 
-        description.addAttribute("endpointId", endpointOptions.getEndpointCode());
-        description.addAttribute("endpointName", endpointOptions.getEndpointName());
+        description.addAttribute("endpointId", endpointOptions.getAppCode());
+        description.addAttribute("endpointName", endpointOptions.getAppName());
 
         try {
             serviceRegistry.register(description);
@@ -137,7 +137,7 @@ public class DefaultImplementBinding implements ImplementBinding {
     }
 
     @Override
-    public ServiceProxy<?> lookup(String service, String group) {
+    public ServiceConfig lookup(String service, String group) {
         String serviceId = service + "-" + group;
         return serviceProxyMap.get(serviceId);
     }

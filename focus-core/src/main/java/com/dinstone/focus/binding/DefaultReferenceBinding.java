@@ -21,8 +21,8 @@ import java.util.List;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.clutch.ServiceDiscovery;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
-import com.dinstone.focus.proxy.ServiceProxy;
 import com.dinstone.photon.util.NetworkUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
@@ -57,24 +57,24 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public <T> void binding(ServiceProxy<T> wrapper) {
+    public <T> void binding(ServiceConfig wrapper) {
         if (serviceDiscovery != null) {
             try {
-                serviceDiscovery.listen(createServiceDescription(wrapper, endpointOptions));
+                serviceDiscovery.listen(createServiceDescription(wrapper));
             } catch (Exception e) {
                 throw new RuntimeException("service reference bind error", e);
             }
         }
     }
 
-    protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper, EndpointOptions endpointConfig) {
+    protected <T> ServiceDescription createServiceDescription(ServiceConfig wrapper) {
         String group = wrapper.getGroup();
         String host = consumerAddress.getAddress().getHostAddress();
         int port = consumerAddress.getPort();
 
         StringBuilder id = new StringBuilder();
         id.append(host).append(":").append(port).append("@");
-        id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointCode()).append("@");
+        id.append(endpointOptions.getAppName()).append("#").append(endpointOptions.getAppCode()).append("@");
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
@@ -84,8 +84,8 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         description.setHost(host);
         description.setPort(port);
 
-        description.addAttribute("endpointId", endpointConfig.getEndpointCode());
-        description.addAttribute("endpointName", endpointConfig.getEndpointName());
+        description.addAttribute("endpointId", endpointOptions.getAppCode());
+        description.addAttribute("endpointName", endpointOptions.getAppName());
 
         return description;
     }

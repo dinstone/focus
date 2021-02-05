@@ -58,6 +58,12 @@ public class Call implements Serializable {
         this.paramTypes = paramTypes;
     }
 
+    public Call(String method, Object[] params, Class<?>[] paramTypes) {
+        this.method = method;
+        this.params = params;
+        this.paramTypes = paramTypes;
+    }
+
     /**
      * the method to get
      * 

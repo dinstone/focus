@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.proxy;
+package com.dinstone.focus.config;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.dinstone.focus.invoke.InvokeHandler;
 
-public class ServiceProxy<T> {
+public class ServiceConfig {
+
+    private Map<String, Method> methodCache;
+
+    private String appCode;
+
+    private String appName;
 
     private String service;
 
@@ -29,27 +37,13 @@ public class ServiceProxy<T> {
 
     private Method[] methods;
 
-    private T target;
+    private Object target;
 
-    private T proxy;
+    private Object proxy;
 
     private InvokeHandler handler;
 
-    public ServiceProxy(Class<T> clazz, String group, int timeout, InvokeHandler invoker) {
-        super();
-        this.group = group;
-        this.service = clazz.getName();
-        this.methods = clazz.getDeclaredMethods();
-        this.timeout = timeout;
-        this.handler = invoker;
-    }
-
-    public ServiceProxy(String service, String group, int timeout, InvokeHandler invoker) {
-        super();
-        this.group = group;
-        this.service = service;
-        this.timeout = timeout;
-        this.handler = invoker;
+    public ServiceConfig() {
     }
 
     public String getService() {
@@ -81,22 +75,28 @@ public class ServiceProxy<T> {
     }
 
     public void setMethods(Method[] methods) {
+        if (methodCache == null) {
+            methodCache = new HashMap<String, Method>();
+        }
+        for (Method method : methods) {
+            methodCache.put(method.getName(), method);
+        }
         this.methods = methods;
     }
 
-    public T getTarget() {
+    public Object getTarget() {
         return target;
     }
 
-    public void setTarget(T target) {
+    public void setTarget(Object target) {
         this.target = target;
     }
 
-    public T getProxy() {
+    public Object getProxy() {
         return proxy;
     }
 
-    public void setProxy(T proxy) {
+    public void setProxy(Object proxy) {
         this.proxy = proxy;
     }
 
@@ -106,6 +106,26 @@ public class ServiceProxy<T> {
 
     public void setHandler(InvokeHandler handler) {
         this.handler = handler;
+    }
+
+    public String getAppCode() {
+        return appCode;
+    }
+
+    public void setAppCode(String appCode) {
+        this.appCode = appCode;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public Method findMethod(String methodName) {
+        return methodCache.get(methodName);
     }
 
 }

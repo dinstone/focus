@@ -116,32 +116,29 @@ public class Client implements ServiceImporter {
             timeout = clientOptions.getDefaultTimeout();
         }
 
-        try {
-            ServiceConfig serviceConfig = new ServiceConfig();
-            serviceConfig.setGroup(group);
-            serviceConfig.setTimeout(timeout);
-            serviceConfig.setService(sic.getName());
+        ServiceConfig serviceConfig = new ServiceConfig();
+        serviceConfig.setGroup(group);
+        serviceConfig.setTimeout(timeout);
+        serviceConfig.setService(sic.getName());
 
-            serviceConfig.setAppCode(clientOptions.getAppCode());
-            serviceConfig.setAppName(clientOptions.getAppName());
+        serviceConfig.setAppCode(clientOptions.getAppCode());
+        serviceConfig.setAppName(clientOptions.getAppName());
+        serviceConfig.setCodecCode(CodecManager.codec(clientOptions.getCodec()));
 
-            InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-            Object proxy = proxyFactory.create(invokeHandler, sic);
+        InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
+        Object proxy = proxyFactory.create(invokeHandler, sic);
 
-            serviceConfig.setHandler(invokeHandler);
-            serviceConfig.setProxy(proxy);
+        serviceConfig.setHandler(invokeHandler);
+        serviceConfig.setProxy(proxy);
 
-            referenceBinding.lookup(serviceConfig.getService(), serviceConfig.getGroup());
-            referenceBinding.binding(serviceConfig);
+        referenceBinding.lookup(serviceConfig.getService(), serviceConfig.getGroup());
+        referenceBinding.binding(serviceConfig);
 
-            return (T) proxy;
-        } catch (Exception e) {
-            throw new RuntimeException("can't import service", e);
-        }
+        return (T) proxy;
     }
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
-        FilterChain chain = createFilterChain(new RemoteInvokeHandler());
+        FilterChain chain = createFilterChain(new RemoteInvokeHandler(serviceConfig));
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
         InvokeHandler invokeHandler = new LocationInvokeHandler(chain, referenceBinding, connectionManager, addresses);
         return new ConsumeInvokeHandler(serviceConfig, invokeHandler);

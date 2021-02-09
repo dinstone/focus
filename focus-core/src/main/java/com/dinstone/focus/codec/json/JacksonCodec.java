@@ -36,6 +36,7 @@ public class JacksonCodec implements RpcCodec {
 
     public JacksonCodec() {
         objectMapper = new ObjectMapper();
+        objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator());
 
         // JSON configuration not to serialize null field
         objectMapper.setSerializationInclusion(Include.NON_NULL);

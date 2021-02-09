@@ -13,28 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.proxy;
+package com.dinstone.focus.example;
 
-import java.lang.reflect.Method;
+public interface UserService {
 
-import org.junit.Test;
-
-import com.dinstone.focus.filter.Filter;
-
-public class ServiceProxyFactoryTest {
-
-    @Test
-    public void test() throws Exception {
-        ProxyFactory factory = new JdkProxyFactory();
-        Object sp = factory.create(null, Hello.class);
-
-        for (Method m : Hello.class.getDeclaredMethods()) {
-            System.out.println(m.getName() + " : " + m.getDeclaringClass().getName());
-        }
-    }
-
-    public static interface Hello extends Filter {
-        String hi(String name);
-    }
+    boolean isExist(String uid);
 
 }

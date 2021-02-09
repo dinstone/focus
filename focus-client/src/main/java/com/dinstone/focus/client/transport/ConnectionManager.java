@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.dinstone.focus.client.ClientOptions;
+import com.dinstone.photon.connection.Connection;
 
 public class ConnectionManager {
 
@@ -35,7 +36,7 @@ public class ConnectionManager {
         }
         this.clientOptions = clientOptions;
 
-        this.connectionFactory = new ConnectionFactory(clientOptions);
+        this.connectionFactory = new ConnectionFactory(clientOptions.getConnectOptions());
         this.connectionPoolMap = new ConcurrentHashMap<InetSocketAddress, ConnectionPool>();
     }
 
@@ -74,7 +75,7 @@ public class ConnectionManager {
         public synchronized Connection getConnection() throws Exception {
             int index = count++ % connections.length;
             Connection connection = connections[index];
-            if (connection == null || !connection.isAlive()) {
+            if (connection == null || !connection.isActive()) {
                 if (connection != null) {
                     connection.destroy();
                 }

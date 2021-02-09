@@ -47,4 +47,13 @@ public class FocusClientRequest extends RpcClientRequest {
         call.attach().put(keyName, value);
     }
 
+    // @Override
+    // public boolean parseRemoteIpAndPort(Span span) {
+    // InetSocketAddress address = InvokeContext.getContext().get("connection.remote");
+    // if (address == null) {
+    // return false;
+    // }
+    // return span.remoteIpAndPort(Platform.get().getHostString(address), address.getPort());
+    // }
+
 }

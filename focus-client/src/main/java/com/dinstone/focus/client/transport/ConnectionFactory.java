@@ -16,20 +16,12 @@
 package com.dinstone.focus.client.transport;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.focus.client.ClientOptions;
-import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
+import com.dinstone.photon.ConnectOptions;
 import com.dinstone.photon.Connector;
-import com.dinstone.photon.codec.ExceptionCodec;
-import com.dinstone.photon.message.Headers;
-import com.dinstone.photon.message.Request;
-import com.dinstone.photon.message.Response;
-import com.dinstone.photon.message.Response.Status;
+import com.dinstone.photon.connection.Connection;
 import com.dinstone.photon.processor.MessageProcessor;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -45,14 +37,10 @@ public class ConnectionFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionFactory.class);
 
-    private ClientOptions clientOptions;
-
     private Connector connector;
 
-    public ConnectionFactory(ClientOptions clientOptions) {
-        this.clientOptions = clientOptions;
-
-        this.connector = new Connector(clientOptions.getConnectOptions());
+    public ConnectionFactory(ConnectOptions connectOptions) {
+        this.connector = new Connector(connectOptions);
         this.connector.setMessageProcessor(new MessageProcessor() {
 
             @Override
@@ -63,7 +51,7 @@ public class ConnectionFactory {
     }
 
     public Connection create(InetSocketAddress sa) throws Exception {
-        return new ConnectionWrap(connector.connect(sa), clientOptions.getCodec());
+        return connector.connect(sa);
     }
 
     public void destroy() {
@@ -72,69 +60,4 @@ public class ConnectionFactory {
         }
     }
 
-    public static class ConnectionWrap implements Connection {
-
-        private static final AtomicInteger IDGENER = new AtomicInteger();
-
-        private com.dinstone.photon.connection.Connection connection;
-
-        private byte codecCode;
-
-        public ConnectionWrap(com.dinstone.photon.connection.Connection connection, String codecCode) {
-            this.connection = connection;
-            this.codecCode = CodecManager.codec(codecCode);
-        }
-
-        @Override
-        public Reply invoke(Call call) throws Exception {
-            Request request = new Request();
-            request.setMsgId(IDGENER.incrementAndGet());
-            request.setCodec(codecCode);
-            request.setTimeout(call.getTimeout());
-
-            Headers headers = request.headers();
-            headers.put("rpc.call.group", call.getGroup());
-            headers.put("rpc.call.service", call.getService());
-            headers.put("rpc.call.method", call.getMethod());
-
-            // encode call to request
-            CodecManager.encode(request, call);
-
-            // remote call
-            Response response = connection.sync(request);
-
-            // handle response by success
-            if (response.getStatus() == Status.SUCCESS) {
-                return CodecManager.decode(response);
-            } else {
-                throw ExceptionCodec.decode(response.getContent());
-            }
-        }
-
-        @Override
-        public InetSocketAddress getRemoteAddress() {
-            return connection.getRemoteAddress();
-        }
-
-        @Override
-        public InetSocketAddress getLocalAddress() {
-            return connection.getLocalAddress();
-        }
-
-        @Override
-        public boolean isAlive() {
-            return connection.isActive();
-        }
-
-        @Override
-        public void destroy() {
-            connection.destroy();
-        }
-
-        @Override
-        public boolean isBusy() {
-            return connection.isBusy();
-        }
-
-    }
 }

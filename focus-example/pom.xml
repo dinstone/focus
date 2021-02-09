@@ -21,6 +21,12 @@
 			<groupId>com.dinstone.clutch</groupId>
 			<artifactId>clutch-zookeeper</artifactId>
 			<version>1.2.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>

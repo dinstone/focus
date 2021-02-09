@@ -15,11 +15,13 @@
  */
 package com.dinstone.focus.server.transport;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.server.ExecutorSelector;
@@ -99,6 +101,9 @@ public class AcceptorFactory {
                                 "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
                     }
 
+                    InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+                    InvokeContext.getContext().put("connection.remote", address);
+
                     // invoke call
                     Reply reply = wrapper.getHandler().invoke(call);
 
@@ -110,6 +115,7 @@ public class AcceptorFactory {
                     CodecManager.encode(response, reply);
                     // send response with reply
                     ctx.writeAndFlush(response);
+                    return;
                 } catch (NoSuchMethodException e) {
                     String message = ExceptionUtil.getMessage(e);
                     exception = new ExchangeException(104, message, e);

@@ -22,12 +22,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.client.transport.Connection;
 import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.connection.Connection;
 
 public class LocationInvokeHandler implements InvokeHandler {
 
@@ -59,6 +59,7 @@ public class LocationInvokeHandler implements InvokeHandler {
             throw new RuntimeException("can't find a service connection");
         }
         InvokeContext.getContext().put("service.connection", connection);
+        InvokeContext.getContext().put("connection.remote", connection.getRemoteAddress());
 
         return invocationHandler.invoke(call);
     }

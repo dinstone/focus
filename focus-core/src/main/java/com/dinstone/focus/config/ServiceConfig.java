@@ -21,6 +21,12 @@ import java.util.Map;
 
 import com.dinstone.focus.invoke.InvokeHandler;
 
+/**
+ * service config
+ * 
+ * @author dinstone
+ *
+ */
 public class ServiceConfig {
 
     private Map<String, Method> methodCache;
@@ -34,6 +40,8 @@ public class ServiceConfig {
     private String group;
 
     private int timeout;
+
+    private byte codecCode;
 
     private Method[] methods;
 
@@ -126,6 +134,14 @@ public class ServiceConfig {
 
     public Method findMethod(String methodName) {
         return methodCache.get(methodName);
+    }
+
+    public byte getCodecCode() {
+        return codecCode;
+    }
+
+    public void setCodecCode(byte codecCode) {
+        this.codecCode = codecCode;
     }
 
 }

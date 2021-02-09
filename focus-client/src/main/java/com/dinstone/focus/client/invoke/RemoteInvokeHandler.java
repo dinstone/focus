@@ -15,13 +15,30 @@
  */
 package com.dinstone.focus.client.invoke;
 
-import com.dinstone.focus.client.transport.Connection;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.codec.ExceptionCodec;
+import com.dinstone.photon.connection.Connection;
+import com.dinstone.photon.message.Headers;
+import com.dinstone.photon.message.Request;
+import com.dinstone.photon.message.Response;
+import com.dinstone.photon.message.Response.Status;
 
 public class RemoteInvokeHandler implements InvokeHandler {
+
+    private static final AtomicInteger IDGENER = new AtomicInteger();
+
+    private ServiceConfig serviceConfig;
+
+    public RemoteInvokeHandler(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
+    }
 
     @Override
     public Reply invoke(Call call) throws Exception {
@@ -30,7 +47,28 @@ public class RemoteInvokeHandler implements InvokeHandler {
             throw new RuntimeException("can't find a service connection");
         }
 
-        return connection.invoke(call);
+        Request request = new Request();
+        request.setMsgId(IDGENER.incrementAndGet());
+        request.setCodec(serviceConfig.getCodecCode());
+        request.setTimeout(call.getTimeout());
+
+        Headers headers = request.headers();
+        headers.put("rpc.call.group", call.getGroup());
+        headers.put("rpc.call.service", call.getService());
+        headers.put("rpc.call.method", call.getMethod());
+
+        // encode call to request
+        CodecManager.encode(request, call);
+
+        // remote call
+        Response response = connection.sync(request);
+
+        // handle response by success
+        if (response.getStatus() == Status.SUCCESS) {
+            return CodecManager.decode(response);
+        } else {
+            throw ExceptionCodec.decode(response.getContent());
+        }
     }
 
 }

@@ -15,7 +15,11 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.example.DemoService;
+import java.util.Date;
+
+import com.dinstone.focus.example.OrderRequest;
+import com.dinstone.focus.example.OrderResponse;
+import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.filter.FilterInitializer;
@@ -32,13 +36,12 @@ import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Sender;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
-public class FocusClientTest {
+public class OrderServiceClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FocusClientTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OrderServiceClient.class);
 
     public static void main(String[] args) {
 
-        LOG.info("init start");
         ConnectOptions connectOptions = new ConnectOptions();
 
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
@@ -55,47 +58,25 @@ public class FocusClientTest {
             }
         };
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions)
+        ClientOptions option = new ClientOptions().connect("localhost", 3303).setConnectOptions(connectOptions)
                 .setFilterInitializer(filterInitializer);
         Client client = new Client(option);
-        final DemoService ds = client.importing(DemoService.class);
 
-        LOG.info("int end");
+        final OrderService ds = client.importing(OrderService.class);
+        OrderRequest order = new OrderRequest();
+        order.setCt(new Date());
+        order.setPoi("1234");
+        order.setSn("MDHEWED");
+        order.setUid("dinstone");
 
-        // try {
-        // ds.hello(null);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-
-        for (int i = 1; i < 3; i++) {
-            final int index = i;
-            Thread t = new Thread() {
-                @Override
-                public void run() {
-                    execute(ds, "client-" + index + " :");
-                }
-            };
-            t.setName("rpc-client-" + i);
-            t.start();
+        try {
+            OrderResponse o = ds.createOrder(order);
+            LOG.info("order id = {}", o.getOid());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        execute(ds, "hot: ");
-        execute(ds, "exe: ");
 
         client.destroy();
-    }
-
-    private static void execute(DemoService ds, String tag) {
-        int c = 0;
-        long st = System.currentTimeMillis();
-        int loopCount = 200000;
-        while (c < loopCount) {
-            ds.hello("dinstoneo", c);
-            c++;
-        }
-        long et = System.currentTimeMillis() - st;
-        System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
     }
 
 }

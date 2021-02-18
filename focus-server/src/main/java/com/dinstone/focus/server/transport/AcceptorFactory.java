@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.server.transport;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 
 import com.dinstone.focus.binding.ImplementBinding;
@@ -33,9 +32,8 @@ import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
 import com.dinstone.photon.processor.MessageProcessor;
+import com.dinstone.photon.processor.ProcessContext;
 import com.dinstone.photon.util.ExceptionUtil;
-
-import io.netty.channel.ChannelHandlerContext;
 
 public class AcceptorFactory {
 
@@ -50,19 +48,19 @@ public class AcceptorFactory {
         acceptor.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(ChannelHandlerContext ctx, Object msg) {
+            public void process(ProcessContext ctx, Object msg) {
                 if (msg instanceof Request) {
+                    Executor executor = null;
                     Request request = (Request) msg;
-                    Executor exe = null;
                     ExecutorSelector selector = serverOption.getExecutorSelector();
                     if (selector != null) {
                         String g = request.getHeaders().get("rpc.call.group");
                         String s = request.getHeaders().get("rpc.call.service");
                         String m = request.getHeaders().get("rpc.call.method");
-                        exe = selector.select(g, s, m);
+                        executor = selector.select(g, s, m);
                     }
-                    if (exe != null) {
-                        exe.execute(new Runnable() {
+                    if (executor != null) {
+                        executor.execute(new Runnable() {
 
                             @Override
                             public void run() {
@@ -89,7 +87,11 @@ public class AcceptorFactory {
                 // });
             }
 
-            private void invoke(final ImplementBinding binding, ChannelHandlerContext ctx, Request request) {
+            private void invoke(final ImplementBinding binding, ProcessContext ctx, Request request) {
+                if (ctx.isTimeout()) {
+                    return;
+                }
+
                 ExchangeException exception = null;
                 try {
                     // decode call from request
@@ -101,8 +103,7 @@ public class AcceptorFactory {
                                 "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
                     }
 
-                    InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-                    InvokeContext.getContext().put("connection.remote", address);
+                    InvokeContext.getContext().put("connection.remote", ctx.remoteAddress());
 
                     // invoke call
                     Reply reply = wrapper.getHandler().invoke(call);
@@ -114,7 +115,7 @@ public class AcceptorFactory {
                     // encode reply to response
                     CodecManager.encode(response, reply);
                     // send response with reply
-                    ctx.writeAndFlush(response);
+                    ctx.send(response);
                     return;
                 } catch (NoSuchMethodException e) {
                     String message = ExceptionUtil.getMessage(e);
@@ -133,7 +134,7 @@ public class AcceptorFactory {
                     response.setStatus(Status.FAILURE);
                     response.setContent(ExceptionCodec.encode(exception));
                     // send response with exception
-                    ctx.writeAndFlush(response);
+                    ctx.send(response);
                 }
             }
         });

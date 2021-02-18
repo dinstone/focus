@@ -24,25 +24,25 @@ import com.dinstone.focus.protocol.Reply;
 
 public class FilterChain implements InvokeHandler {
 
-    private FilterContext headContext;
+    private FilterContext head;
 
-    private FilterContext tailContext;
+    private FilterContext tail;
 
     public FilterChain(InvokeHandler invokeHandler) {
         if (invokeHandler == null) {
             throw new IllegalArgumentException("invokeHandler is null");
         }
-        this.tailContext = new FilterContext(this, new Filter() {
+        this.tail = new FilterContext(this, new Filter() {
 
             @Override
             public Reply invoke(FilterContext next, Call call) throws Exception {
                 return invokeHandler.invoke(call);
             }
         });
-        this.headContext = new FilterContext(this, null);
+        this.head = new FilterContext(this, null);
 
-        this.headContext.setNextContext(tailContext);
-        this.tailContext.setPrevContext(headContext);
+        this.head.next = tail;
+        this.tail.prev = head;
     }
 
     public FilterChain addFilter(Filter... filters) {
@@ -52,16 +52,18 @@ public class FilterChain implements InvokeHandler {
 
     public FilterChain addFilter(List<Filter> filters) {
         if (filters != null && !filters.isEmpty()) {
+            FilterContext last = tail.prev;
             for (Filter filter : filters) {
                 FilterContext now = new FilterContext(this, filter);
 
-                FilterContext last = tailContext.getPrevContext();
-                last.setNextContext(now);
+                last.next = now;
 
-                now.setPrevContext(last);
-                now.setNextContext(tailContext);
+                now.prev = last;
+                now.next = tail;
 
-                tailContext.setPrevContext(now);
+                tail.prev = now;
+
+                last = now;
             }
         }
         return this;
@@ -69,7 +71,7 @@ public class FilterChain implements InvokeHandler {
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        return headContext.invoke(call);
+        return head.invoke(call);
     }
 
 }

@@ -32,8 +32,8 @@ import brave.Span.Kind;
 import brave.Tracing;
 import brave.rpc.RpcTracing;
 import brave.sampler.Sampler;
-import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Sender;
+import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
 public class OrderServiceClient {
@@ -42,14 +42,12 @@ public class OrderServiceClient {
 
     public static void main(String[] args) {
 
-        ConnectOptions connectOptions = new ConnectOptions();
-
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        Tracing tracing = Tracing.newBuilder().localServiceName("focus.client")
-                .spanReporter(AsyncReporter.builder(sender).build()).sampler(Sampler.create(1)).build();
+        AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
+        Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
+                .sampler(Sampler.create(1)).build();
 
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
-
         FilterInitializer filterInitializer = new FilterInitializer() {
 
             @Override
@@ -58,6 +56,7 @@ public class OrderServiceClient {
             }
         };
 
+        ConnectOptions connectOptions = new ConnectOptions();
         ClientOptions option = new ClientOptions().connect("localhost", 3303).setConnectOptions(connectOptions)
                 .setFilterInitializer(filterInitializer);
         Client client = new Client(option);

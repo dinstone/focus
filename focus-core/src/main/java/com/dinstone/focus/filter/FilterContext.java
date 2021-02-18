@@ -21,48 +21,26 @@ import com.dinstone.focus.protocol.Reply;
 public class FilterContext {
 
     private Filter filter;
-    private FilterChain filterChain;
+    private FilterChain chain;
 
-    private FilterContext prevContext;
-    private FilterContext nextContext;
+    FilterContext prev;
+    FilterContext next;
 
     public FilterContext(FilterChain chain, Filter filter) {
-        this.filterChain = chain;
+        this.chain = chain;
         this.filter = filter;
     }
 
     public Reply invoke(Call call) throws Exception {
         if (filter != null) {
-            return filter.invoke(nextContext, call);
+            return filter.invoke(next, call);
         } else {
-            return nextContext.invoke(call);
+            return next.invoke(call);
         }
     }
 
-    public FilterContext getPrevContext() {
-        return prevContext;
-    }
-
-    public FilterContext setPrevContext(FilterContext prevContext) {
-        this.prevContext = prevContext;
-        return this;
-    }
-
-    public FilterContext getNextContext() {
-        return nextContext;
-    }
-
-    public FilterContext setNextContext(FilterContext nextContext) {
-        this.nextContext = nextContext;
-        return this;
-    }
-
-    public Filter getFilter() {
-        return filter;
-    }
-
     public FilterChain getFilterChain() {
-        return filterChain;
+        return chain;
     }
 
 }

@@ -17,7 +17,6 @@ package com.dinstone.focus.client.invoke;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -106,19 +105,19 @@ public class LocationInvokeHandler implements InvokeHandler {
             return null;
         }
 
-        for (Iterator<ServiceDescription> iterator = serviceDescriptions.iterator(); iterator.hasNext();) {
-            if (group != null && group.equals(iterator.next().getGroup())) {
-                continue;
+        List<ServiceDescription> sds = new ArrayList<ServiceDescription>(serviceDescriptions.size());
+        for (ServiceDescription serviceDescription : serviceDescriptions) {
+            if (group.equals(serviceDescription.getGroup())) {
+                sds.add(serviceDescription);
             }
-            iterator.remove();
         }
 
-        if (serviceDescriptions.size() == 0) {
+        if (sds.size() == 0) {
             return null;
-        } else if (serviceDescriptions.size() == 1) {
-            return serviceDescriptions.get(0).getServiceAddress();
+        } else if (sds.size() == 1) {
+            return sds.get(0).getServiceAddress();
         }
-        return serviceDescriptions.get(index % serviceDescriptions.size()).getServiceAddress();
+        return sds.get(index % sds.size()).getServiceAddress();
     }
 
 }

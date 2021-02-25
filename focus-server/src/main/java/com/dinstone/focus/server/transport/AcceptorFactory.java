@@ -71,20 +71,6 @@ public class AcceptorFactory {
                         invoke(binding, ctx, request);
                     }
                 }
-
-                // long s = System.currentTimeMillis();
-                // executor.execute(new Runnable() {
-                //
-                // @Override
-                // public void run() {
-                // long e = System.currentTimeMillis();
-                // if (request.getTimeout() > 0 && e - s >= request.getTimeout()) {
-                // // timeout
-                // return;
-                // }
-                //
-                // }
-                // });
             }
 
             private void invoke(final ImplementBinding binding, ProcessContext ctx, Request request) {

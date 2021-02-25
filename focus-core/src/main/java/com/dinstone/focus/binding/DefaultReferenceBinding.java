@@ -17,12 +17,13 @@ package com.dinstone.focus.binding;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.clutch.ServiceDiscovery;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.photon.util.NetworkUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
@@ -31,18 +32,11 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
     protected ServiceDiscovery serviceDiscovery;
 
-    protected EndpointOptions endpointOptions;
-
-    public DefaultReferenceBinding(EndpointOptions endpointOptions, ServiceDiscovery serviceDiscovery) {
-        this(endpointOptions, serviceDiscovery, null);
+    public DefaultReferenceBinding(ServiceDiscovery serviceDiscovery) {
+        this(serviceDiscovery, null);
     }
 
-    public DefaultReferenceBinding(EndpointOptions endpointOptions, ServiceDiscovery serviceDiscovery,
-            InetSocketAddress consumerAddress) {
-        if (endpointOptions == null) {
-            throw new IllegalArgumentException("endpointConfig is null");
-        }
-        this.endpointOptions = endpointOptions;
+    public DefaultReferenceBinding(ServiceDiscovery serviceDiscovery, InetSocketAddress consumerAddress) {
         this.serviceDiscovery = serviceDiscovery;
 
         if (consumerAddress == null) {
@@ -67,38 +61,42 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         }
     }
 
-    protected <T> ServiceDescription createServiceDescription(ServiceConfig wrapper) {
-        String group = wrapper.getGroup();
+    protected <T> ServiceDescription createServiceDescription(ServiceConfig config) {
+        String group = config.getGroup();
         String host = consumerAddress.getAddress().getHostAddress();
         int port = consumerAddress.getPort();
 
-        StringBuilder id = new StringBuilder();
-        id.append(host).append(":").append(port).append("@");
-        id.append(endpointOptions.getAppName()).append("#").append(endpointOptions.getAppCode()).append("@");
-        id.append("group=").append((group == null ? "" : group));
+        StringBuilder code = new StringBuilder();
+        code.append(config.getAppCode()).append("@");
+        code.append(host).append(":").append(port).append("$");
+        code.append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
-        description.setCode(id.toString());
-        description.setName(wrapper.getService());
+        description.setCode(code.toString());
+        description.setName(config.getService());
         description.setGroup(group);
         description.setHost(host);
         description.setPort(port);
-
-        description.addAttribute("endpointId", endpointOptions.getAppCode());
-        description.addAttribute("endpointName", endpointOptions.getAppName());
+        // add attributes
+        description.addAttribute("appCode", config.getAppCode());
+        description.addAttribute("appName", config.getAppName());
 
         return description;
     }
 
     @Override
-    public List<ServiceDescription> lookup(String serviceName, String group) {
+    public List<ServiceDescription> lookup(String serviceName) {
         try {
+            List<ServiceDescription> sds = null;
             if (serviceDiscovery != null) {
-                return serviceDiscovery.discovery(serviceName, group);
+                Collection<ServiceDescription> sdc = serviceDiscovery.discovery(serviceName);
+                if (sdc != null) {
+                    sds = new ArrayList<ServiceDescription>(sdc);
+                }
             }
-            return null;
+            return sds;
         } catch (Exception e) {
-            throw new RuntimeException("service " + serviceName + "[" + group + "] discovery error", e);
+            throw new RuntimeException("service [" + serviceName + "] discovery error", e);
         }
     }
 

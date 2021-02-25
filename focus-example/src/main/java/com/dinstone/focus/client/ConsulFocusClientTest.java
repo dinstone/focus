@@ -15,13 +15,13 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.clutch.zookeeper.ZookeeperRegistryConfig;
+import com.dinstone.clutch.consul.ConsulRegistryConfig;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
 
-public class ZkFocusClientTest {
+public class ConsulFocusClientTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusClientTest.class);
 
@@ -31,14 +31,12 @@ public class ZkFocusClientTest {
         ConnectOptions connectOptions = new ConnectOptions();
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
-                .setRegistryConfig(new ZookeeperRegistryConfig()).setAppCode("com.rpc.demo.client");
+                .setRegistryConfig(new ConsulRegistryConfig()).setAppCode("com.rpc.demo.client");
 
         Client client = new Client(option);
         DemoService ds = client.importing(DemoService.class);
 
         try {
-            Thread.sleep(1000);
-
             ds.hello(null);
         } catch (Exception e) {
             e.printStackTrace();

@@ -32,7 +32,6 @@ import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.proxy.JdkProxyFactory;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProvideInvokeHandler;
 import com.dinstone.focus.server.transport.AcceptorFactory;
@@ -88,9 +87,7 @@ public class Server implements ServiceExporter {
             }
         }
 
-        this.implementBinding = new DefaultImplementBinding(serverOptions, serviceRegistry, serviceAddress);
-
-        new JdkProxyFactory();
+        this.implementBinding = new DefaultImplementBinding(serviceRegistry, serviceAddress);
 
         this.acceptor = new AcceptorFactory(serverOptions).create(implementBinding);
 

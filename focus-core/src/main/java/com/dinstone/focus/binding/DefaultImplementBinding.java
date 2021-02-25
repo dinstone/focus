@@ -18,75 +18,75 @@ package com.dinstone.focus.binding;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.clutch.ServiceRegistry;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.EndpointOptions;
 
 public class DefaultImplementBinding implements ImplementBinding {
 
     protected Map<String, ServiceConfig> serviceProxyMap = new ConcurrentHashMap<>();
 
+    protected Set<ServiceDescription> registedServices = new HashSet<>();
+
     protected InetSocketAddress providerAddress;
 
     protected ServiceRegistry serviceRegistry;
 
-    protected EndpointOptions endpointOptions;
-
-    public DefaultImplementBinding(EndpointOptions endpointOptions, ServiceRegistry serviceRegistry,
-            InetSocketAddress providerAddress) {
-        this.endpointOptions = endpointOptions;
+    public DefaultImplementBinding(ServiceRegistry serviceRegistry, InetSocketAddress providerAddress) {
         this.serviceRegistry = serviceRegistry;
         this.providerAddress = providerAddress;
     }
 
     @Override
-    public <T> void binding(ServiceConfig serviceWrapper) {
-        String serviceId = serviceWrapper.getService() + "-" + serviceWrapper.getGroup();
+    public <T> void binding(ServiceConfig serviceConfig) {
+        String serviceId = serviceConfig.getService() + "-" + serviceConfig.getGroup();
         if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
         }
-        serviceProxyMap.put(serviceId, serviceWrapper);
+        serviceProxyMap.put(serviceId, serviceConfig);
 
         if (serviceRegistry != null) {
-            publish(serviceWrapper);
+            publish(serviceConfig);
         }
     }
 
-    protected void publish(ServiceConfig wrapper) {
+    protected void publish(ServiceConfig config) {
         String host = providerAddress.getAddress().getHostAddress();
         int port = providerAddress.getPort();
-        String group = wrapper.getGroup();
+        String group = config.getGroup();
 
-        StringBuilder id = new StringBuilder();
-        id.append(host).append(":").append(port).append("@");
-        id.append(endpointOptions.getAppName()).append("#").append(endpointOptions.getAppCode()).append("@");
-        id.append("group=").append((group == null ? "" : group));
+        StringBuilder code = new StringBuilder();
+        code.append(config.getAppCode()).append("@");
+        code.append(host).append(":").append(port).append("$");
+        code.append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
-        description.setCode(id.toString());
+        description.setCode(code.toString());
         description.setHost(host);
         description.setPort(port);
-        description.setName(wrapper.getService());
+        description.setName(config.getService());
         description.setGroup(group);
         description.setRtime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
-        for (Method method : wrapper.getMethods()) {
+        for (Method method : config.getMethods()) {
             methodDescList.add(description(method));
         }
         description.addAttribute("methods", methodDescList);
-        description.addAttribute("timeout", wrapper.getTimeout());
+        description.addAttribute("timeout", config.getTimeout());
 
-        description.addAttribute("endpointId", endpointOptions.getAppCode());
-        description.addAttribute("endpointName", endpointOptions.getAppName());
+        description.addAttribute("appCode", config.getAppCode());
+        description.addAttribute("appName", config.getAppName());
 
         try {
             serviceRegistry.register(description);
+            registedServices.add(description);
         } catch (Exception e) {
             throw new RuntimeException("can't publish service", e);
         }
@@ -132,7 +132,12 @@ public class DefaultImplementBinding implements ImplementBinding {
     @Override
     public void destroy() {
         if (serviceRegistry != null) {
-            serviceRegistry.destroy();
+            for (ServiceDescription serviceDescription : registedServices) {
+                try {
+                    serviceRegistry.deregister(serviceDescription);
+                } catch (Exception e) {
+                }
+            }
         }
     }
 

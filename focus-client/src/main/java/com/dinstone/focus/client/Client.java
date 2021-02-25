@@ -82,7 +82,7 @@ public class Client implements ServiceImporter {
             }
         }
 
-        this.referenceBinding = new DefaultReferenceBinding(clientOptions, serviceDiscovery);
+        this.referenceBinding = new DefaultReferenceBinding(serviceDiscovery);
         this.proxyFactory = new JdkProxyFactory();
     }
 
@@ -131,7 +131,7 @@ public class Client implements ServiceImporter {
         serviceConfig.setHandler(invokeHandler);
         serviceConfig.setProxy(proxy);
 
-        referenceBinding.lookup(serviceConfig.getService(), serviceConfig.getGroup());
+        referenceBinding.lookup(serviceConfig.getService());
         referenceBinding.binding(serviceConfig);
 
         return (T) proxy;

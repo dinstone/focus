@@ -17,21 +17,22 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.clutch.zookeeper.ZookeeperRegistryConfig;
+import com.dinstone.clutch.RegistryConfig;
+import com.dinstone.clutch.consul.ConsulRegistryConfig;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
-public class ZkFocusServerTest {
+public class ConsulFocusServerTest {
     private static final Logger LOG = LoggerFactory.getLogger(FocusServerTest.class);
 
     public static void main(String[] args) {
+        RegistryConfig registryConfig = new ConsulRegistryConfig();
         // setting registry config
-        ZookeeperRegistryConfig registryConfig = new ZookeeperRegistryConfig().setZookeeperNodes("localhost:2181");
-        ServerOptions setEndpointCode = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
+        ServerOptions serverOptions = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
                 .setAppCode("com.rpc.demo.server");
-        Server server = new Server(setEndpointCode);
+        Server server = new Server(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");

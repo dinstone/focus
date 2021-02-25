@@ -36,7 +36,7 @@ public interface ReferenceBinding {
      */
     public <T> void binding(ServiceConfig wrapper);
 
-    public List<ServiceDescription> lookup(String serviceName, String group);
+    public List<ServiceDescription> lookup(String serviceName);
 
     public void destroy();
 

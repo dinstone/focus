@@ -46,30 +46,4 @@ public class LocalInvokeHandler implements InvokeHandler {
         }
     }
 
-    private Class<?>[] getParamTypes(Object[] params, Class<?>[] paramTypes) {
-        if (paramTypes == null && params != null) {
-            paramTypes = parseParamTypes(params);
-        }
-        return paramTypes;
-    }
-
-    protected Class<?>[] getParamTypes(Call call) {
-        Class<?>[] paramTypes = call.getParamTypes();
-        Object[] params = call.getParams();
-        if (paramTypes == null && params != null) {
-            paramTypes = parseParamTypes(params);
-        }
-        return paramTypes;
-    }
-
-    private Class<?>[] parseParamTypes(Object[] args) {
-        Class<?>[] cs = new Class[args.length];
-        for (int i = 0; i < args.length; i++) {
-            Object arg = args[i];
-            cs[i] = arg.getClass();
-        }
-
-        return cs;
-    }
-
 }

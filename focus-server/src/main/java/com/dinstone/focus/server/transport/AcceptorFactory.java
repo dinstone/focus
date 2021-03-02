@@ -73,8 +73,8 @@ public class AcceptorFactory {
                 }
             }
 
-            private void invoke(final ImplementBinding binding, ProcessContext ctx, Request request) {
-                if (ctx.isTimeout()) {
+            private void invoke(final ImplementBinding binding, ProcessContext context, Request request) {
+                if (context.isTimeout()) {
                     return;
                 }
 
@@ -83,16 +83,16 @@ public class AcceptorFactory {
                     // decode call from request
                     Call call = CodecManager.decode(request);
 
-                    ServiceConfig wrapper = binding.lookup(call.getService(), call.getGroup());
-                    if (wrapper == null) {
+                    ServiceConfig config = binding.lookup(call.getService(), call.getGroup());
+                    if (config == null) {
                         throw new NoSuchMethodException(
                                 "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
                     }
 
-                    InvokeContext.getContext().put("connection.remote", ctx.remoteAddress());
+                    InvokeContext.getContext().put("connection.remote", context.remoteAddress());
 
                     // invoke call
-                    Reply reply = wrapper.getHandler().invoke(call);
+                    Reply reply = config.getHandler().invoke(call);
 
                     Response response = new Response();
                     response.setMsgId(request.getMsgId());
@@ -101,7 +101,7 @@ public class AcceptorFactory {
                     // encode reply to response
                     CodecManager.encode(response, reply);
                     // send response with reply
-                    ctx.send(response);
+                    context.send(response);
                     return;
                 } catch (NoSuchMethodException e) {
                     String message = ExceptionUtil.getMessage(e);
@@ -120,7 +120,7 @@ public class AcceptorFactory {
                     response.setStatus(Status.FAILURE);
                     response.setContent(ExceptionCodec.encode(exception));
                     // send response with exception
-                    ctx.send(response);
+                    context.send(response);
                 }
             }
         });

@@ -18,6 +18,7 @@
 
 # Quick Start
 select API dependency:
+
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-client</artifactId>
@@ -31,6 +32,7 @@ select API dependency:
 
 
 if you need service registry and discovery, please add dependencies :
+
 	<dependency>
 		<groupId>com.dinstone.clutch</groupId>
 		<artifactId>clutch-zookeeper</artifactId>
@@ -49,7 +51,7 @@ For more details, please refer to the example project : [focus-example](https://
 ## java programming by API
 ### export service:
 ```java
-		Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+	Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.server").sampler(Sampler.create(1))
                 .addSpanHandler(spanHandler).build();
@@ -83,7 +85,7 @@ For more details, please refer to the example project : [focus-example](https://
 
 ### import service:
 ```java
-		Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+	Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
                 .sampler(Sampler.create(1)).build();

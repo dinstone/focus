@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ public class Client implements ServiceImporter {
 
         serviceConfig.setAppCode(clientOptions.getAppCode());
         serviceConfig.setAppName(clientOptions.getAppName());
-        serviceConfig.setCodecCode(CodecManager.codec(clientOptions.getCodec()));
+        serviceConfig.setCodecId(clientOptions.getCodecId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
         Object proxy = proxyFactory.create(invokeHandler, sic);

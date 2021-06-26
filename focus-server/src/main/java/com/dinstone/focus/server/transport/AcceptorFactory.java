@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.concurrent.Executor;
 
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.protocol.Call;
@@ -78,10 +79,12 @@ public class AcceptorFactory {
                     return;
                 }
 
+                ProtocolCodec codec = CodecManager.codec(request.getCodec());
+
                 ExchangeException exception = null;
                 try {
                     // decode call from request
-                    Call call = CodecManager.decode(request);
+                    Call call = codec.decode(request);
 
                     ServiceConfig config = binding.lookup(call.getService(), call.getGroup());
                     if (config == null) {
@@ -94,12 +97,12 @@ public class AcceptorFactory {
                     // invoke call
                     Reply reply = config.getHandler().invoke(call);
 
-                    Response response = new Response();
+                    // encode reply to response
+                    Response response = codec.encode(reply);
                     response.setMsgId(request.getMsgId());
                     response.setStatus(Status.SUCCESS);
-                    response.setCodec(request.getCodec());
-                    // encode reply to response
-                    CodecManager.encode(response, reply);
+                    response.setCodec(codec.codecId());
+
                     // send response with reply
                     context.send(response);
                     return;

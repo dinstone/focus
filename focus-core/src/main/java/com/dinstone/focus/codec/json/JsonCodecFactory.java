@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.dinstone.focus.codec.json;
 
-import com.dinstone.focus.codec.RpcCodec;
 import com.dinstone.focus.codec.CodecFactory;
+import com.dinstone.focus.codec.ProtocolCodec;
 
 public class JsonCodecFactory implements CodecFactory {
 
@@ -26,7 +26,7 @@ public class JsonCodecFactory implements CodecFactory {
     }
 
     @Override
-    public RpcCodec createCodec() {
+    public ProtocolCodec createCodec() {
         return new JacksonCodec();
     }
 

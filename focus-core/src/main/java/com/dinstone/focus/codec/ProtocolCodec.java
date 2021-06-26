@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,15 @@ import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 
-public interface RpcCodec {
+public interface ProtocolCodec {
 
-    public void encode(Request request, Call call) throws CodecException;
+    Request encode(Call call) throws CodecException;
 
-    public void encode(Response response, Reply reply) throws CodecException;
+    Response encode(Reply reply) throws CodecException;
 
-    public Call decode(Request request) throws CodecException;
+    Call decode(Request request) throws CodecException;
 
-    public Reply decode(Response response) throws CodecException;
+    Reply decode(Response response) throws CodecException;
 
-    public byte code();
+    byte codecId();
 }

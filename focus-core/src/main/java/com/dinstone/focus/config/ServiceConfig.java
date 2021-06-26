@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class ServiceConfig {
 
     private int timeout;
 
-    private byte codecCode;
+    private byte codecId;
 
     private Method[] methods;
 
@@ -136,12 +136,12 @@ public class ServiceConfig {
         return methodCache.get(methodName);
     }
 
-    public byte getCodecCode() {
-        return codecCode;
+    public byte getCodecId() {
+        return codecId;
     }
 
-    public void setCodecCode(byte codecCode) {
-        this.codecCode = codecCode;
+    public void setCodecId(byte codecId) {
+        this.codecId = codecId;
     }
 
 }

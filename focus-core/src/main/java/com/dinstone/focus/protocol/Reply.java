@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ public class Reply implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Attach attach = new Attach();
+
+    private boolean error;
 
     private Object data;
 
@@ -62,6 +64,13 @@ public class Reply implements Serializable {
      */
     public void setData(Object data) {
         this.data = data;
+        if (this.data instanceof Throwable) {
+            this.error = true;
+        }
+    }
+
+    public boolean isError() {
+        return error;
     }
 
     /**

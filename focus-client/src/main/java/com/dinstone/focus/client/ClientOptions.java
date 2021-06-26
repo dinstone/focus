@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ import com.dinstone.photon.ConnectOptions;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
-    private static final int DEFAULT_POOL_SIZE = 1;
+    private static final int DEFAULT_CODEC_ID = 1;
 
-    private static final String DEFAULT_CODEC = "json";
+    private static final int DEFAULT_POOL_SIZE = 1;
 
     private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
-    private String codec = DEFAULT_CODEC;
+    private byte codecId = DEFAULT_CODEC_ID;
 
     public ConnectOptions getConnectOptions() {
         return connectOptions;
@@ -82,13 +82,12 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
         return this;
     }
 
-    public String getCodec() {
-        return codec;
+    public byte getCodecId() {
+        return codecId;
     }
 
-    public ClientOptions setCodec(String codec) {
-        this.codec = codec;
-        return this;
+    public void setCodecId(byte codecId) {
+        this.codecId = codecId;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2020 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,17 @@ package com.dinstone.focus.codec.json;
 
 import java.io.IOException;
 
+import com.dinstone.focus.codec.AbstractCodec;
 import com.dinstone.focus.codec.CodecException;
-import com.dinstone.focus.codec.RpcCodec;
-import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.photon.message.Request;
-import com.dinstone.photon.message.Response;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class JacksonCodec implements RpcCodec {
+public class JacksonCodec extends AbstractCodec {
 
     private ObjectMapper objectMapper;
 
@@ -49,45 +46,41 @@ public class JacksonCodec implements RpcCodec {
     }
 
     @Override
-    public byte code() {
+    public byte codecId() {
         return 1;
     }
 
     @Override
-    public void encode(Request request, Call call) throws CodecException {
+    protected byte[] writeCall(Call call) throws CodecException {
         try {
-            request.headers().putAll(call.attach());
-            request.setContent(objectMapper.writeValueAsBytes(call));
+            return objectMapper.writeValueAsBytes(call);
         } catch (JsonProcessingException e) {
-            throw new CodecException("encode call content error", e);
+            throw new CodecException("encode call message error", e);
         }
     }
 
     @Override
-    public Call decode(Request request) throws CodecException {
+    protected Call readCall(byte[] content) {
         try {
-            Attach attach = new Attach(request.getHeaders());
-            return objectMapper.readValue(request.getContent(), Call.class).attach(attach);
+            return objectMapper.readValue(content, Call.class);
         } catch (IOException e) {
             throw new CodecException("decode call message error", e);
         }
     }
 
     @Override
-    public void encode(Response response, Reply reply) throws CodecException {
+    protected byte[] writeReply(Reply reply) {
         try {
-            response.headers().putAll(reply.attach());
-            response.setContent(objectMapper.writeValueAsBytes(reply));
+            return objectMapper.writeValueAsBytes(reply);
         } catch (JsonProcessingException e) {
-            throw new CodecException("encode reply content error", e);
+            throw new CodecException("encode reply message error", e);
         }
     }
 
     @Override
-    public Reply decode(Response response) throws CodecException {
+    protected Reply readReply(byte[] content) {
         try {
-            Attach attach = new Attach(response.getHeaders());
-            return objectMapper.readValue(response.getContent(), Reply.class).attach(attach);
+            return objectMapper.readValue(content, Reply.class);
         } catch (IOException e) {
             throw new CodecException("decode reply message error", e);
         }

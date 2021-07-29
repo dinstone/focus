@@ -24,8 +24,7 @@ public class CodecManager {
 
     private static final Map<Integer, ProtocolCodec> CODE_CODEC_MAP = new ConcurrentHashMap<>();
 
-    public static void regist(String name, ProtocolCodec codec) {
-        NAME_CODEC_MAP.put(name, codec);
+    public static void regist(ProtocolCodec codec) {
         CODE_CODEC_MAP.put((int) codec.codecId(), codec);
     }
 

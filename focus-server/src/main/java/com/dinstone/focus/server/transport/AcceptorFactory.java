@@ -29,6 +29,7 @@ import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
 import com.dinstone.photon.ExchangeException;
 import com.dinstone.photon.codec.ExceptionCodec;
+import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
@@ -55,9 +56,10 @@ public class AcceptorFactory {
                     Request request = (Request) msg;
                     ExecutorSelector selector = serverOption.getExecutorSelector();
                     if (selector != null) {
-                        String g = request.getHeaders().get("rpc.call.group");
-                        String s = request.getHeaders().get("rpc.call.service");
-                        String m = request.getHeaders().get("rpc.call.method");
+                        Headers headers = request.getHeaders();
+                        String g = headers.get("rpc.call.group");
+                        String s = headers.get("rpc.call.service");
+                        String m = headers.get("rpc.call.method");
                         executor = selector.select(g, s, m);
                     }
                     if (executor != null) {

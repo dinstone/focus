@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.proxy;
+package com.dinstone.focus.client.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -57,7 +57,7 @@ public class JdkProxyFactory implements ProxyFactory {
     }
 
     @Override
-    public Object create(InvokeHandler invokeHandler, Class<?> sic) {
+    public <T> T create(Class<T> sic, InvokeHandler invokeHandler) {
         if (!sic.isInterface()) {
             throw new IllegalArgumentException(sic.getName() + " is not interface");
         }

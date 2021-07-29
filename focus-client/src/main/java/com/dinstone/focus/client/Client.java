@@ -22,12 +22,13 @@ import java.util.ServiceLoader;
 import com.dinstone.clutch.RegistryConfig;
 import com.dinstone.clutch.RegistryFactory;
 import com.dinstone.clutch.ServiceDiscovery;
-import com.dinstone.focus.SchemaFactoryLoader;
 import com.dinstone.focus.binding.DefaultReferenceBinding;
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.invoke.ConsumeInvokeHandler;
 import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
+import com.dinstone.focus.client.proxy.JdkProxyFactory;
+import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.client.transport.ConnectionManager;
 import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
@@ -36,8 +37,6 @@ import com.dinstone.focus.endpoint.ServiceImporter;
 import com.dinstone.focus.filter.FilterChain;
 import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.proxy.JdkProxyFactory;
-import com.dinstone.focus.proxy.ProxyFactory;
 
 public class Client implements ServiceImporter {
 
@@ -65,9 +64,9 @@ public class Client implements ServiceImporter {
         this.connectionManager = new ConnectionManager(clientOptions);
 
         // load and create rpc message codec
-        SchemaFactoryLoader<CodecFactory> cfLoader = SchemaFactoryLoader.getInstance(CodecFactory.class);
-        for (CodecFactory codecFactory : cfLoader.getSchemaFactorys()) {
-            CodecManager.regist(codecFactory.getSchema(), codecFactory.createCodec());
+        ServiceLoader<CodecFactory> cfLoader = ServiceLoader.load(CodecFactory.class);
+        for (CodecFactory codecFactory : cfLoader) {
+            CodecManager.regist(codecFactory.createCodec());
         }
 
         // load and create registry
@@ -126,7 +125,7 @@ public class Client implements ServiceImporter {
         serviceConfig.setCodecId(clientOptions.getCodecId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-        Object proxy = proxyFactory.create(invokeHandler, sic);
+        Object proxy = proxyFactory.create(sic, invokeHandler);
 
         serviceConfig.setHandler(invokeHandler);
         serviceConfig.setProxy(proxy);

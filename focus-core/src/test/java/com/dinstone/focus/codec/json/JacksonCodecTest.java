@@ -15,9 +15,13 @@
  */
 package com.dinstone.focus.codec.json;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
+import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -52,6 +56,15 @@ public class JacksonCodecTest {
 
         String s = objectMapper.writeValueAsString(call);
         System.out.println(s);
+
+        Reply r = new Reply();
+        r.setData(new FocusException("test", new IOException("sdfasdf")));
+        s = objectMapper.writeValueAsString(r);
+        System.out.println(s);
+
+        r = objectMapper.readValue(s, Reply.class);
+        System.out.println("error is " + r.isError());
+
     }
 
     private ObjectMapper extracted() {

@@ -21,7 +21,6 @@ import java.util.ServiceLoader;
 import com.dinstone.clutch.RegistryConfig;
 import com.dinstone.clutch.RegistryFactory;
 import com.dinstone.clutch.ServiceRegistry;
-import com.dinstone.focus.SchemaFactoryLoader;
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecFactory;
@@ -70,9 +69,9 @@ public class Server implements ServiceExporter {
         this.serviceAddress = serverOptions.getServiceAddress();
 
         // load and create rpc message codec
-        SchemaFactoryLoader<CodecFactory> cfLoader = SchemaFactoryLoader.getInstance(CodecFactory.class);
-        for (CodecFactory codecFactory : cfLoader.getSchemaFactorys()) {
-            CodecManager.regist(codecFactory.getSchema(), codecFactory.createCodec());
+        ServiceLoader<CodecFactory> cfLoader = ServiceLoader.load(CodecFactory.class);
+        for (CodecFactory codecFactory : cfLoader) {
+            CodecManager.regist(codecFactory.createCodec());
         }
 
         // load and create registry

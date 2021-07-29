@@ -21,7 +21,7 @@ import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.focus.config.ServiceConfig;
 
 /**
- * service reference binding
+ * service reference binding and service lookup
  * 
  * @author dinstone
  * 
@@ -34,7 +34,7 @@ public interface ReferenceBinding {
      * 
      * @param wrapper
      */
-    public <T> void binding(ServiceConfig wrapper);
+    public <T> void binding(ServiceConfig config);
 
     public List<ServiceDescription> lookup(String serviceName);
 

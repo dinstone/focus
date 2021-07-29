@@ -37,8 +37,8 @@ public class LocalInvokeHandler implements InvokeHandler {
     public Reply invoke(Call call) throws Exception {
         try {
             Method method = serviceConfig.findMethod(call.getMethod());
-            Object resObj = method.invoke(serviceConfig.getTarget(), call.getParams());
-            return new Reply(resObj);
+            Object result = method.invoke(serviceConfig.getTarget(), call.getParams());
+            return new Reply(result);
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionHelper.targetException(e);
             String message = ExceptionHelper.getMessage(te);

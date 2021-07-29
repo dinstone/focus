@@ -18,7 +18,7 @@ package com.dinstone.focus.binding;
 import com.dinstone.focus.config.ServiceConfig;
 
 /**
- * service implement binding
+ * service implement binding and service lookup
  * 
  * @author dinstone
  * 

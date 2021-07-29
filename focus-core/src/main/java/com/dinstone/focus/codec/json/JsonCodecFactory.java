@@ -21,11 +21,6 @@ import com.dinstone.focus.codec.ProtocolCodec;
 public class JsonCodecFactory implements CodecFactory {
 
     @Override
-    public String getSchema() {
-        return "json";
-    }
-
-    @Override
     public ProtocolCodec createCodec() {
         return new JacksonCodec();
     }

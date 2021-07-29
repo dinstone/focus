@@ -61,7 +61,7 @@ public class FocusClientTest {
         Client client = new Client(option);
         final DemoService ds = client.importing(DemoService.class);
 
-        LOG.info("int end");
+        LOG.info("init end");
 
         // try {
         // ds.hello(null);

@@ -48,6 +48,7 @@ public class ConsumeInvokeHandler implements InvokeHandler {
             call.setGroup(serviceConfig.getGroup());
             call.setService(serviceConfig.getService());
             call.setTimeout(serviceConfig.getTimeout());
+            call.attach().put("consumer.appcode", serviceConfig.getAppCode());
 
             return invokeHandler.invoke(call);
         } finally {

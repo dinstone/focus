@@ -23,7 +23,6 @@ import com.dinstone.photon.ConnectOptions;
 import com.dinstone.photon.Connector;
 import com.dinstone.photon.connection.Connection;
 import com.dinstone.photon.processor.MessageProcessor;
-import com.dinstone.photon.processor.ProcessContext;
 
 /**
  * connetcion factory.
@@ -43,7 +42,7 @@ public class ConnectionFactory {
         this.connector.setMessageProcessor(new MessageProcessor() {
 
             @Override
-            public void process(ProcessContext ctx, Object msg) {
+            public void process(Connection connection, Object msg) {
                 LOG.warn("unsupported message {}", msg);
             }
         });

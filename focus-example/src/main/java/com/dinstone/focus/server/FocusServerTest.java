@@ -50,12 +50,12 @@ public class FocusServerTest {
 
             @Override
             public void init(FilterChain chain) {
-                chain.addFilter(tf);
+                chain.addFilter(new TracingFilter(RpcTracing.create(tracing), Kind.SERVER));
             }
         };
 
         ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3333);
+        serverOptions.listen("localhost", 3333).setAppCode("focus.example.server");
         serverOptions.setFilterInitializer(filterInitializer);
         Server server = new Server(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());

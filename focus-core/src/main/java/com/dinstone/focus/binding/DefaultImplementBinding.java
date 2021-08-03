@@ -68,6 +68,7 @@ public class DefaultImplementBinding implements ImplementBinding {
 
         ServiceDescription description = new ServiceDescription();
         description.setCode(code.toString());
+        description.setApp(config.getAppCode());
         description.setHost(host);
         description.setPort(port);
         description.setName(config.getService());
@@ -80,9 +81,6 @@ public class DefaultImplementBinding implements ImplementBinding {
         }
         description.addAttribute("methods", methodDescList);
         description.addAttribute("timeout", config.getTimeout());
-
-        description.addAttribute("appCode", config.getAppCode());
-        description.addAttribute("appName", config.getAppName());
 
         try {
             serviceRegistry.register(description);

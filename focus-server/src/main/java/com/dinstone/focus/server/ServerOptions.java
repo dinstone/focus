@@ -37,19 +37,19 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
 
     private ExecutorSelector executorSelector;
 
-    public EndpointOptions<ServerOptions> listen(InetSocketAddress socketAddress) {
+    public ServerOptions listen(InetSocketAddress socketAddress) {
         if (socketAddress != null) {
             this.serviceAddress = socketAddress;
         }
         return this;
     }
 
-    public EndpointOptions<ServerOptions> listen(int port) {
+    public ServerOptions listen(int port) {
         this.serviceAddress = new InetSocketAddress(port);
         return this;
     }
 
-    public EndpointOptions<ServerOptions> listen(String host, int port) {
+    public ServerOptions listen(String host, int port) {
         try {
             List<InetSocketAddress> resolveAddress = resolveAddress(host, port);
             if (!resolveAddress.isEmpty()) {
@@ -61,7 +61,7 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
         return this;
     }
 
-    public EndpointOptions<ServerOptions> listen(String address) {
+    public ServerOptions listen(String address) {
         if (address == null || address.isEmpty()) {
             throw new RuntimeException("address is empty");
         }
@@ -116,7 +116,7 @@ public class ServerOptions extends EndpointOptions<ServerOptions> {
         return acceptOptions;
     }
 
-    public EndpointOptions<ServerOptions> setAcceptOptions(AcceptOptions acceptOptions) {
+    public ServerOptions setAcceptOptions(AcceptOptions acceptOptions) {
         this.acceptOptions = acceptOptions;
         return this;
     }

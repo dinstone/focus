@@ -59,7 +59,6 @@ public class LocationInvokeHandler implements InvokeHandler {
             throw new RuntimeException("can't find a service connection");
         }
         InvokeContext.getContext().put("service.connection", connection);
-        InvokeContext.getContext().put("connection.remote", connection.getRemoteAddress());
 
         return invocationHandler.invoke(call);
     }
@@ -69,23 +68,31 @@ public class LocationInvokeHandler implements InvokeHandler {
         while (count < 2) {
             count++;
 
-            InetSocketAddress serviceAddress = select(call.getService(), call.getGroup());
+            InetSocketAddress serviceAddress = select(call);
             Connection connection = connectionManager.getConnection(serviceAddress);
             if (connection.isBusy()) {
                 continue;
             } else {
+                call.attach().put("consumer.address", connection.getLocalAddress().toString());
+                call.attach().put("provider.address", connection.getRemoteAddress().toString());
                 return connection;
             }
         }
         return null;
     }
 
-    public <T> InetSocketAddress select(String serviceName, String group) {
-        InetSocketAddress serviceAddress = null;
+    public <T> InetSocketAddress select(Call call) {
+        String service = call.getService();
+        String group = call.getGroup();
 
+        InetSocketAddress serviceAddress = null;
         int next = Math.abs(index.getAndIncrement());
         if (referenceBinding != null) {
-            serviceAddress = route(serviceName, group, next);
+            ServiceDescription sd = route(service, group, next);
+            if (sd != null) {
+                serviceAddress = sd.getServiceAddress();
+                call.attach().put("provider.appcode", sd.getApp());
+            }
         }
 
         if (serviceAddress == null && backupServiceAddresses.size() > 0) {
@@ -93,14 +100,13 @@ public class LocationInvokeHandler implements InvokeHandler {
         }
 
         if (serviceAddress == null) {
-            throw new RuntimeException("service " + serviceName + "[" + group + "] is not ready");
+            throw new RuntimeException("service " + service + "[" + group + "] is not ready");
         }
-
         return serviceAddress;
     }
 
-    private InetSocketAddress route(String serviceName, String group, int index) {
-        List<ServiceDescription> serviceDescriptions = referenceBinding.lookup(serviceName);
+    private ServiceDescription route(String service, String group, int index) {
+        List<ServiceDescription> serviceDescriptions = referenceBinding.lookup(service);
         if (serviceDescriptions == null || serviceDescriptions.size() == 0) {
             return null;
         }
@@ -115,9 +121,9 @@ public class LocationInvokeHandler implements InvokeHandler {
         if (sds.size() == 0) {
             return null;
         } else if (sds.size() == 1) {
-            return sds.get(0).getServiceAddress();
+            return sds.get(0);
         }
-        return sds.get(index % sds.size()).getServiceAddress();
+        return sds.get(index % sds.size());
     }
 
 }

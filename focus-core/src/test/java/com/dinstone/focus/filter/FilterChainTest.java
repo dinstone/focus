@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -57,7 +58,7 @@ public class FilterChainTest {
                 return r;
             }
         };
-        FilterChain chain = new FilterChain(lih).addFilter(first, second);
+        FilterChainHandler chain = new FilterChainHandler(new ServiceConfig(), lih).addFilter(first, second);
 
         Reply reply = chain.invoke(null);
         assertEquals(null, reply);

@@ -28,7 +28,7 @@ import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.endpoint.ServiceExporter;
-import com.dinstone.focus.filter.FilterChain;
+import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
@@ -129,9 +129,8 @@ public class Server implements ServiceExporter {
             serviceConfig.setAppCode(serverOptions.getAppCode());
             serviceConfig.setAppName(serverOptions.getAppName());
 
-            FilterChain filterChain = createFilterChain(new LocalInvokeHandler(serviceConfig));
-            ProvideInvokeHandler provideInvokeHandler = new ProvideInvokeHandler(filterChain);
-            serviceConfig.setHandler(provideInvokeHandler);
+            InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
+            serviceConfig.setHandler(invokeHandler);
 
             implementBinding.binding(serviceConfig);
         } catch (Exception e) {
@@ -139,8 +138,14 @@ public class Server implements ServiceExporter {
         }
     }
 
-    private FilterChain createFilterChain(InvokeHandler invokeHandler) {
-        FilterChain chain = new FilterChain(invokeHandler);
+    private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
+        LocalInvokeHandler localHandler = new LocalInvokeHandler(serviceConfig);
+        FilterChainHandler filterChain = createFilterChain(serviceConfig, localHandler);
+        return new ProvideInvokeHandler(filterChain);
+    }
+
+    private FilterChainHandler createFilterChain(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+        FilterChainHandler chain = new FilterChainHandler(serviceConfig, invokeHandler);
         FilterInitializer fi = serverOptions.getFilterInitializer();
         if (fi != null) {
             fi.init(chain);

@@ -29,7 +29,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
  */
 public class ServiceConfig {
 
-    private Map<String, Method> methodCache;
+    private Map<String, Method> methodCaches;
 
     private String appCode;
 
@@ -83,11 +83,11 @@ public class ServiceConfig {
     }
 
     public void setMethods(Method[] methods) {
-        if (methodCache == null) {
-            methodCache = new HashMap<String, Method>();
+        if (methodCaches == null) {
+            methodCaches = new HashMap<String, Method>();
         }
         for (Method method : methods) {
-            methodCache.put(method.getName(), method);
+            methodCaches.put(method.getName(), method);
         }
         this.methods = methods;
     }
@@ -133,7 +133,11 @@ public class ServiceConfig {
     }
 
     public Method findMethod(String methodName) {
-        return methodCache.get(methodName);
+        return methodCaches.get(methodName);
+    }
+
+    public boolean hasMethod(String methodName) {
+        return methodCaches.containsKey(methodName);
     }
 
     public byte getCodecId() {

@@ -20,8 +20,8 @@ import com.dinstone.focus.protocol.Reply;
 
 public class FilterContext {
 
-    private Filter filter;
     private FilterChain chain;
+    private Filter filter;
 
     FilterContext prev;
     FilterContext next;

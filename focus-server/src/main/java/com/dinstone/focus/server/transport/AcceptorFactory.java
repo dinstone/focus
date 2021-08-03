@@ -15,27 +15,10 @@
  */
 package com.dinstone.focus.server.transport;
 
-import java.util.concurrent.Executor;
-
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.codec.ProtocolCodec;
-import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.invoke.InvokeContext;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.server.ExecutorSelector;
 import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.photon.Acceptor;
-import com.dinstone.photon.ExchangeException;
-import com.dinstone.photon.codec.ExceptionCodec;
-import com.dinstone.photon.message.Headers;
-import com.dinstone.photon.message.Request;
-import com.dinstone.photon.message.Response;
-import com.dinstone.photon.message.Response.Status;
-import com.dinstone.photon.processor.MessageProcessor;
-import com.dinstone.photon.processor.ProcessContext;
-import com.dinstone.photon.util.ExceptionUtil;
 
 public class AcceptorFactory {
 
@@ -47,88 +30,8 @@ public class AcceptorFactory {
 
     public Acceptor create(final ImplementBinding binding) {
         Acceptor acceptor = new Acceptor(serverOption.getAcceptOptions());
-        acceptor.setMessageProcessor(new MessageProcessor() {
-
-            @Override
-            public void process(ProcessContext ctx, Object msg) {
-                if (msg instanceof Request) {
-                    Executor executor = null;
-                    Request request = (Request) msg;
-                    ExecutorSelector selector = serverOption.getExecutorSelector();
-                    if (selector != null) {
-                        Headers headers = request.getHeaders();
-                        String g = headers.get("rpc.call.group");
-                        String s = headers.get("rpc.call.service");
-                        String m = headers.get("rpc.call.method");
-                        executor = selector.select(g, s, m);
-                    }
-                    if (executor != null) {
-                        executor.execute(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                invoke(binding, ctx, request);
-                            }
-                        });
-                    } else {
-                        invoke(binding, ctx, request);
-                    }
-                }
-            }
-
-            private void invoke(final ImplementBinding binding, ProcessContext context, Request request) {
-                if (context.isTimeout()) {
-                    return;
-                }
-
-                ProtocolCodec codec = CodecManager.codec(request.getCodec());
-
-                ExchangeException exception = null;
-                try {
-                    // decode call from request
-                    Call call = codec.decode(request);
-
-                    ServiceConfig config = binding.lookup(call.getService(), call.getGroup());
-                    if (config == null) {
-                        throw new NoSuchMethodException(
-                                "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
-                    }
-
-                    InvokeContext.getContext().put("connection.remote", context.remoteAddress());
-
-                    // invoke call
-                    Reply reply = config.getHandler().invoke(call);
-
-                    // encode reply to response
-                    Response response = codec.encode(reply);
-                    response.setMsgId(request.getMsgId());
-                    response.setStatus(Status.SUCCESS);
-                    response.setCodec(codec.codecId());
-
-                    // send response with reply
-                    context.send(response);
-                    return;
-                } catch (NoSuchMethodException e) {
-                    String message = ExceptionUtil.getMessage(e);
-                    exception = new ExchangeException(104, message, e);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    String message = ExceptionUtil.getMessage(e);
-                    exception = new ExchangeException(103, message, e);
-                } catch (Throwable e) {
-                    String message = ExceptionUtil.getMessage(e);
-                    exception = new ExchangeException(109, message, e);
-                }
-
-                if (exception != null) {
-                    Response response = new Response();
-                    response.setMsgId(request.getMsgId());
-                    response.setStatus(Status.FAILURE);
-                    response.setContent(ExceptionCodec.encode(exception));
-                    // send response with exception
-                    context.send(response);
-                }
-            }
-        });
+        ExecutorSelector selector = serverOption.getExecutorSelector();
+        acceptor.setMessageProcessor(new FocusProcessor(binding, selector));
         return acceptor;
     }
 

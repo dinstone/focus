@@ -15,63 +15,16 @@
  */
 package com.dinstone.focus.filter;
 
-import java.util.Arrays;
 import java.util.List;
 
-import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.config.ServiceConfig;
 
-public class FilterChain implements InvokeHandler {
+public interface FilterChain {
 
-    private FilterContext head;
+    FilterChain addFilter(Filter... filters);
 
-    private FilterContext tail;
+    FilterChain addFilter(List<Filter> filters);
 
-    public FilterChain(InvokeHandler invokeHandler) {
-        if (invokeHandler == null) {
-            throw new IllegalArgumentException("invokeHandler is null");
-        }
-        this.tail = new FilterContext(this, new Filter() {
-
-            @Override
-            public Reply invoke(FilterContext next, Call call) throws Exception {
-                return invokeHandler.invoke(call);
-            }
-        });
-        this.head = new FilterContext(this, null);
-
-        this.head.next = tail;
-        this.tail.prev = head;
-    }
-
-    public FilterChain addFilter(Filter... filters) {
-        addFilter(Arrays.asList(filters));
-        return this;
-    }
-
-    public FilterChain addFilter(List<Filter> filters) {
-        if (filters != null && !filters.isEmpty()) {
-            FilterContext last = tail.prev;
-            for (Filter filter : filters) {
-                FilterContext now = new FilterContext(this, filter);
-
-                last.next = now;
-
-                now.prev = last;
-                now.next = tail;
-
-                tail.prev = now;
-
-                last = now;
-            }
-        }
-        return this;
-    }
-
-    @Override
-    public Reply invoke(Call call) throws Exception {
-        return head.invoke(call);
-    }
+    ServiceConfig getServiceConfig();
 
 }

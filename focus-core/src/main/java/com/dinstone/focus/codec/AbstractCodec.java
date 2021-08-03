@@ -38,6 +38,7 @@ public abstract class AbstractCodec implements ProtocolCodec {
         headers.put("rpc.call.group", call.getGroup());
         headers.put("rpc.call.service", call.getService());
         headers.put("rpc.call.method", call.getMethod());
+        headers.putAll(call.attach());
 
         // request.setMsgId(IDGENER.incrementAndGet());
         request.setTimeout(call.getTimeout());

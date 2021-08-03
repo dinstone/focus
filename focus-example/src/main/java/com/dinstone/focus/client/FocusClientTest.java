@@ -51,13 +51,13 @@ public class FocusClientTest {
 
             @Override
             public void init(FilterChain chain) {
-                chain.addFilter(tf);
+                chain.addFilter(new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT));
             }
         };
 
         ConnectOptions connectOptions = new ConnectOptions();
-        ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions)
-                .setFilterInitializer(filterInitializer);
+        ClientOptions option = new ClientOptions().setAppCode("focus.example.client").connect("localhost", 3333)
+                .setConnectOptions(connectOptions).setFilterInitializer(filterInitializer);
         Client client = new Client(option);
         final DemoService ds = client.importing(DemoService.class);
 
@@ -90,7 +90,7 @@ public class FocusClientTest {
     private static void execute(DemoService ds, String tag) {
         int c = 0;
         long st = System.currentTimeMillis();
-        int loopCount = 200000;
+        int loopCount = 20000;
         while (c < loopCount) {
             ds.hello("dinstoneo", c);
             c++;

@@ -20,8 +20,6 @@ import java.io.IOException;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.example.UserServiceImpl;
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.FilterChain;
-import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -60,17 +58,9 @@ public class UserServiceServer {
 
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3301);
-        serverOptions.setFilterInitializer(filterInitializer);
+        serverOptions.addFilter(tf);
         Server server = new Server(serverOptions);
         server.exporting(UserService.class, new UserServiceImpl());
 

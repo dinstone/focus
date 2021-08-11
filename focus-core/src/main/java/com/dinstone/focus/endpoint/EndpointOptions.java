@@ -15,8 +15,11 @@
  */
 package com.dinstone.focus.endpoint;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dinstone.clutch.RegistryConfig;
-import com.dinstone.focus.filter.FilterInitializer;
+import com.dinstone.focus.filter.Filter;
 
 @SuppressWarnings("unchecked")
 public class EndpointOptions<T extends EndpointOptions<T>> {
@@ -29,7 +32,7 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     private RegistryConfig registryConfig;
 
-    private FilterInitializer filterInitializer;
+    private List<Filter> filters = new ArrayList<Filter>();
 
     public EndpointOptions() {
         super();
@@ -71,12 +74,12 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
         return (T) this;
     }
 
-    public FilterInitializer getFilterInitializer() {
-        return filterInitializer;
+    public List<Filter> getFilters() {
+        return filters;
     }
 
-    public T setFilterInitializer(FilterInitializer filterInitializer) {
-        this.filterInitializer = filterInitializer;
+    public T addFilter(Filter filter) {
+        filters.add(filter);
         return (T) this;
     }
 

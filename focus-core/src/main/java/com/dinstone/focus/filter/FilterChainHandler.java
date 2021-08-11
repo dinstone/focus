@@ -43,6 +43,11 @@ public class FilterChainHandler implements FilterChain, InvokeHandler {
             public Reply invoke(FilterContext next, Call call) throws Exception {
                 return invokeHandler.invoke(call);
             }
+
+            @Override
+            public boolean matches(ServiceConfig serviceConfig) {
+                return true;
+            }
         });
         this.head = new FilterContext(this, null);
 
@@ -57,11 +62,16 @@ public class FilterChainHandler implements FilterChain, InvokeHandler {
     }
 
     @Override
-    public FilterChain addFilter(List<Filter> filters) {
+    public FilterChainHandler addFilter(List<Filter> filters) {
         if (filters != null && !filters.isEmpty()) {
+            FilterContext now = null;
             FilterContext last = tail.prev;
             for (Filter filter : filters) {
-                FilterContext now = new FilterContext(this, filter);
+                if (!filter.matches(serviceConfig)) {
+                    continue;
+                }
+
+                now = new FilterContext(this, filter);
 
                 last.next = now;
 

@@ -17,8 +17,6 @@ package com.dinstone.focus.client;
 
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.FilterChain;
-import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -44,20 +42,10 @@ public class FocusClientTest {
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
                 .sampler(Sampler.create(1)).build();
-
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT));
-            }
-        };
-
-        ConnectOptions connectOptions = new ConnectOptions();
         ClientOptions option = new ClientOptions().setAppCode("focus.example.client").connect("localhost", 3333)
-                .setConnectOptions(connectOptions).setFilterInitializer(filterInitializer);
+                .setConnectOptions(new ConnectOptions()).addFilter(tf);
         Client client = new Client(option);
         final DemoService ds = client.importing(DemoService.class);
 
@@ -90,7 +78,7 @@ public class FocusClientTest {
     private static void execute(DemoService ds, String tag) {
         int c = 0;
         long st = System.currentTimeMillis();
-        int loopCount = 20000;
+        int loopCount = 200;
         while (c < loopCount) {
             ds.hello("dinstoneo", c);
             c++;

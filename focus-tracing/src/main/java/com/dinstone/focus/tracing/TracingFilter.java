@@ -17,6 +17,7 @@ package com.dinstone.focus.tracing;
 
 import static brave.internal.Throwables.propagateIfFatal;
 
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterContext;
 import com.dinstone.focus.protocol.Call;
@@ -81,6 +82,11 @@ public class TracingFilter implements Filter {
             FinishSpan.finish(this, request, reply, error, span);
             scope.close();
         }
+    }
+
+    @Override
+    public boolean matches(ServiceConfig serviceConfig) {
+        return true;
     }
 
 }

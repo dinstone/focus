@@ -22,6 +22,7 @@ import java.lang.reflect.Proxy;
 import org.junit.Test;
 
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterContext;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -97,6 +98,12 @@ public class ProxyFactoryTest {
         @Override
         public String hi(String name) {
             return null;
+        }
+
+        @Override
+        public boolean matches(ServiceConfig serviceConfig) {
+            // TODO Auto-generated method stub
+            return false;
         }
     }
 

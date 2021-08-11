@@ -35,7 +35,6 @@ import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.ServiceImporter;
 import com.dinstone.focus.filter.FilterChainHandler;
-import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
 
 public class Client implements ServiceImporter {
@@ -146,11 +145,7 @@ public class Client implements ServiceImporter {
 
     private FilterChainHandler createFilterChain(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
         FilterChainHandler chain = new FilterChainHandler(serviceConfig, invokeHandler);
-        FilterInitializer fi = clientOptions.getFilterInitializer();
-        if (fi != null) {
-            fi.init(chain);
-        }
-        return chain;
+        return chain.addFilter(clientOptions.getFilters());
     }
 
 }

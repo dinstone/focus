@@ -40,8 +40,7 @@ public class Reply implements Serializable {
     }
 
     public Reply(Object data) {
-        super();
-        this.data = data;
+        setData(data);
     }
 
     /**

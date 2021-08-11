@@ -21,8 +21,6 @@ import com.dinstone.focus.example.OrderRequest;
 import com.dinstone.focus.example.OrderResponse;
 import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.FilterChain;
-import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -46,19 +44,11 @@ public class OrderServiceClient {
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
                 .sampler(Sampler.create(1)).build();
-
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
 
         ConnectOptions connectOptions = new ConnectOptions();
         ClientOptions option = new ClientOptions().connect("localhost", 3303).setConnectOptions(connectOptions)
-                .setFilterInitializer(filterInitializer);
+                .addFilter(tf);
         Client client = new Client(option);
 
         final OrderService ds = client.importing(OrderService.class);

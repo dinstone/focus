@@ -46,6 +46,12 @@ public class FilterChainTest {
 
                 return r;
             }
+
+            @Override
+            public boolean matches(ServiceConfig serviceConfig) {
+                // TODO Auto-generated method stub
+                return false;
+            }
         };
         Filter second = new Filter() {
 
@@ -56,6 +62,12 @@ public class FilterChainTest {
                 System.out.println("second filter after");
 
                 return r;
+            }
+
+            @Override
+            public boolean matches(ServiceConfig serviceConfig) {
+                // TODO Auto-generated method stub
+                return false;
             }
         };
         FilterChainHandler chain = new FilterChainHandler(new ServiceConfig(), lih).addFilter(first, second);

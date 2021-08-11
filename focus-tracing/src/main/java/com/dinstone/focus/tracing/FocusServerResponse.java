@@ -22,12 +22,10 @@ import brave.rpc.RpcServerResponse;
 
 public class FocusServerResponse extends RpcServerResponse {
 
-    private FocusServerRequest request;
     private Reply reply;
     private Throwable error;
 
     public FocusServerResponse(FocusServerRequest request, Reply result, Throwable error) {
-        this.request = request;
         this.reply = result;
         this.error = error;
     }
@@ -37,7 +35,7 @@ public class FocusServerResponse extends RpcServerResponse {
         if (error != null) {
             return getErrorCode();
         }
-        if (reply.getData() instanceof Throwable) {
+        if (reply.isError()) {
             return "999";
         }
         return "";
@@ -56,7 +54,7 @@ public class FocusServerResponse extends RpcServerResponse {
             return error;
         }
 
-        if (reply.getData() instanceof Throwable) {
+        if (reply.isError()) {
             return (Throwable) reply.getData();
         }
         return null;

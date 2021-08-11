@@ -24,8 +24,6 @@ import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.StoreService;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.FilterChain;
-import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -65,17 +63,9 @@ public class OrderServiceServer {
 
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3303);
-        serverOptions.setFilterInitializer(filterInitializer);
+        serverOptions.addFilter(tf);
         Server server = new Server(serverOptions);
         UserService userService = createUserServiceRpc(tracing);
         StoreService storeService = createStoreServiceRpc(tracing);
@@ -88,16 +78,8 @@ public class OrderServiceServer {
         ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
         ClientOptions option = new ClientOptions().connect("localhost", 3302).setConnectOptions(connectOptions)
-                .setFilterInitializer(filterInitializer);
+                .addFilter(tf);
         Client client = new Client(option);
         return client.importing(StoreService.class);
     }
@@ -106,16 +88,8 @@ public class OrderServiceServer {
         ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
         ClientOptions option = new ClientOptions().connect("localhost", 3301).setConnectOptions(connectOptions)
-                .setFilterInitializer(filterInitializer);
+                .addFilter(tf);
         Client client = new Client(option);
         return client.importing(UserService.class);
     }

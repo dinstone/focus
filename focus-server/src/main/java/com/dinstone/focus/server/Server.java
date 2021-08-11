@@ -29,7 +29,6 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.endpoint.ServiceExporter;
 import com.dinstone.focus.filter.FilterChainHandler;
-import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProvideInvokeHandler;
@@ -146,11 +145,7 @@ public class Server implements ServiceExporter {
 
     private FilterChainHandler createFilterChain(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
         FilterChainHandler chain = new FilterChainHandler(serviceConfig, invokeHandler);
-        FilterInitializer fi = serverOptions.getFilterInitializer();
-        if (fi != null) {
-            fi.init(chain);
-        }
-        return chain;
+        return chain.addFilter(serverOptions.getFilters());
     }
 
     @Override

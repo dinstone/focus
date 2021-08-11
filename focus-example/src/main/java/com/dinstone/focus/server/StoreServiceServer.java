@@ -23,8 +23,6 @@ import com.dinstone.focus.example.StoreService;
 import com.dinstone.focus.example.StoreServiceImpl;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.FilterChain;
-import com.dinstone.focus.filter.FilterInitializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -64,17 +62,9 @@ public class StoreServiceServer {
 
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3302);
-        serverOptions.setFilterInitializer(filterInitializer);
+        serverOptions.addFilter(tf);
         Server server = new Server(serverOptions);
         UserService userService = createUserServiceRpc(tracing);
         server.exporting(StoreService.class, new StoreServiceImpl(userService));
@@ -86,16 +76,8 @@ public class StoreServiceServer {
         ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
         ClientOptions option = new ClientOptions().connect("localhost", 3301).setConnectOptions(connectOptions)
-                .setFilterInitializer(filterInitializer);
+                .addFilter(tf);
         Client client = new Client(option);
         return client.importing(UserService.class);
     }

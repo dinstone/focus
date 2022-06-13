@@ -51,11 +51,11 @@ public class FocusClientTest {
 
         LOG.info("init end");
 
-        // try {
-        // ds.hello(null);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
+        try {
+            ds.hello("", 40);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         for (int i = 1; i < 3; i++) {
             final int index = i;
@@ -78,7 +78,7 @@ public class FocusClientTest {
     private static void execute(DemoService ds, String tag) {
         int c = 0;
         long st = System.currentTimeMillis();
-        int loopCount = 200;
+        int loopCount = 20000;
         while (c < loopCount) {
             ds.hello("dinstoneo", c);
             c++;

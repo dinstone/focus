@@ -46,8 +46,8 @@ public class JacksonCodec extends AbstractCodec {
     }
 
     @Override
-    public byte codecId() {
-        return 1;
+    public String codecId() {
+        return "json/jackson";
     }
 
     @Override

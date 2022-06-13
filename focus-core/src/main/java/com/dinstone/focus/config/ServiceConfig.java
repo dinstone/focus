@@ -41,7 +41,7 @@ public class ServiceConfig {
 
     private int timeout;
 
-    private byte codecId;
+    private String codecId;
 
     private Method[] methods;
 
@@ -140,11 +140,11 @@ public class ServiceConfig {
         return methodCaches.containsKey(methodName);
     }
 
-    public byte getCodecId() {
+    public String getCodecId() {
         return codecId;
     }
 
-    public void setCodecId(byte codecId) {
+    public void setCodecId(String codecId) {
         this.codecId = codecId;
     }
 

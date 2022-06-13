@@ -30,5 +30,5 @@ public interface ProtocolCodec {
 
     Reply decode(Response response) throws CodecException;
 
-    byte codecId();
+    String codecId();
 }

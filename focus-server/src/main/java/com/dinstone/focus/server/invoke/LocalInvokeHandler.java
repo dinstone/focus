@@ -19,11 +19,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.ExceptionHelper;
-import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.ExchangeException;
+import com.dinstone.photon.util.ExceptionUtil;
 
 public class LocalInvokeHandler implements InvokeHandler {
 
@@ -40,9 +40,8 @@ public class LocalInvokeHandler implements InvokeHandler {
             Object result = method.invoke(serviceConfig.getTarget(), call.getParams());
             return new Reply(result);
         } catch (InvocationTargetException e) {
-            Throwable te = ExceptionHelper.targetException(e);
-            String message = ExceptionHelper.getMessage(te);
-            return new Reply(new FocusException(message, te));
+            Throwable te = ExceptionUtil.getTargetException(e);
+            throw new ExchangeException(109, "service unhandled exception", te);
         }
     }
 

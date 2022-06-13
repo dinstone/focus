@@ -15,19 +15,13 @@
  */
 package com.dinstone.focus.codec;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import com.dinstone.focus.exception.ExceptionHelper;
-import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
-import com.dinstone.photon.util.ByteStreamUtil;
+import com.dinstone.photon.message.Response.Status;
 
 public abstract class AbstractCodec implements ProtocolCodec {
 
@@ -38,11 +32,12 @@ public abstract class AbstractCodec implements ProtocolCodec {
         headers.put("rpc.call.group", call.getGroup());
         headers.put("rpc.call.service", call.getService());
         headers.put("rpc.call.method", call.getMethod());
+        headers.put("rpc.call.timeout", "" + call.getTimeout());
+        headers.put("rpc.call.codec", codecId());
         headers.putAll(call.attach());
 
         // request.setMsgId(IDGENER.incrementAndGet());
         request.setTimeout(call.getTimeout());
-        request.setCodec(codecId());
         request.setContent(writeCall(call));
         return request;
     }
@@ -51,7 +46,7 @@ public abstract class AbstractCodec implements ProtocolCodec {
     public Call decode(Request request) throws CodecException {
         Call call = readCall(request.getContent());
 
-        Headers headers = request.getHeaders();
+        Headers headers = request.headers();
         call.setGroup(headers.get("rpc.call.group"));
         call.setService(headers.get("rpc.call.service"));
         call.setMethod(headers.get("rpc.call.method"));
@@ -64,56 +59,34 @@ public abstract class AbstractCodec implements ProtocolCodec {
     public Response encode(Reply reply) throws CodecException {
         Response response = new Response();
         response.headers().putAll(reply.attach());
-        response.setCodec(codecId());
-        if (reply.isError()) {
-            response.headers().put("rpc.reply.error", "true");
-            response.setContent(writeError(reply));
-        } else {
-            response.setContent(writeReply(reply));
-        }
+        response.headers().put("rpc.call.codec", codecId());
+
+        // if (reply.getData() instanceof ExchangeException) {
+        // response.setStatus(Status.FAILURE);
+        // ExchangeException error = (ExchangeException) reply.getData();
+        // response.setContent(ExceptionCodec.encode(error));
+        // } else {
+        // response.setStatus(Status.SUCCESS);
+        // response.setContent(writeReply(reply));
+        // }
+
+        response.setStatus(Status.SUCCESS);
+        response.setContent(writeReply(reply));
         return response;
     }
 
     @Override
     public Reply decode(Response response) throws CodecException {
-        Reply reply = null;
+        // if (response.getStatus() != Status.SUCCESS) {
+        // throw ExceptionCodec.decode(response.getContent());
+        // }
 
-        Headers headers = response.getHeaders();
-        if (headers != null && Boolean.valueOf(headers.get("rpc.reply.error"))) {
-            reply = readError(response.getContent());
-        } else {
-            reply = readReply(response.getContent());
-        }
-        if (headers != null) {
+        Reply reply = readReply(response.getContent());
+        Headers headers = response.headers();
+        if (headers != null && !headers.isEmpty()) {
             reply.attach(new Attach(headers));
         }
-
         return reply;
-    }
-
-    private byte[] writeError(Reply reply) {
-        try {
-            Throwable exception = (Throwable) reply.getData();
-            ByteArrayOutputStream bao = new ByteArrayOutputStream();
-            ByteStreamUtil.writeString(bao, exception.getMessage());
-            ByteStreamUtil.writeString(bao, ExceptionHelper.getStackTrace(exception));
-            return bao.toByteArray();
-        } catch (IOException e) {
-            throw new CodecException("encode error message failure", e);
-        }
-    }
-
-    private Reply readError(byte[] content) {
-        try {
-            Reply reply = new Reply();
-            ByteArrayInputStream bai = new ByteArrayInputStream(content);
-            String message = ByteStreamUtil.readString(bai);
-            String stackTrace = ByteStreamUtil.readString(bai);
-            reply.setData(new FocusException(message, stackTrace));
-            return reply;
-        } catch (IOException e) {
-            throw new CodecException("decode error message failure", e);
-        }
     }
 
     protected abstract byte[] writeCall(Call call) throws CodecException;

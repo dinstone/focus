@@ -35,9 +35,11 @@ public class FocusClientResponse extends RpcClientResponse {
         if (error != null) {
             return getErrorCode();
         }
-        if (reply.isError()) {
+
+        if (reply.getData() instanceof Throwable) {
             return "999";
         }
+
         return null;
     }
 
@@ -54,7 +56,7 @@ public class FocusClientResponse extends RpcClientResponse {
             return error;
         }
 
-        if (reply.isError()) {
+        if (reply.getData() instanceof Throwable) {
             return (Throwable) reply.getData();
         }
         return null;

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.dinstone.focus.server.transport;
 
 import java.util.concurrent.Executor;
@@ -18,7 +33,6 @@ import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
 import com.dinstone.photon.processor.MessageProcessor;
-import com.dinstone.photon.util.ExceptionUtil;
 
 public final class FocusProcessor implements MessageProcessor {
     private final ImplementBinding binding;
@@ -35,7 +49,7 @@ public final class FocusProcessor implements MessageProcessor {
             Executor executor = null;
             Request request = (Request) msg;
             if (selector != null) {
-                Headers headers = request.getHeaders();
+                Headers headers = request.headers();
                 String g = headers.get("rpc.call.group");
                 String s = headers.get("rpc.call.service");
                 String m = headers.get("rpc.call.method");
@@ -62,7 +76,8 @@ public final class FocusProcessor implements MessageProcessor {
 
         ExchangeException exception = null;
         try {
-            ProtocolCodec codec = CodecManager.codec(request.getCodec());
+            String codecId = request.headers().get("rpc.call.codec");
+            ProtocolCodec codec = CodecManager.codec(codecId);
             // decode call from request
             Call call = codec.decode(request);
 
@@ -81,27 +96,22 @@ public final class FocusProcessor implements MessageProcessor {
             // encode reply to response
             Response response = codec.encode(reply);
             response.setMsgId(request.getMsgId());
-            response.setStatus(Status.SUCCESS);
-            response.setCodec(codec.codecId());
-
             // send response with reply
             connection.send(response);
+            
             return;
+        } catch (ExchangeException e) {
+            exception = e;
         } catch (CodecException e) {
-            String message = ExceptionUtil.getMessage(e);
-            exception = new ExchangeException(101, message, e);
+            exception = new ExchangeException(101, "codec excption", e);
         } catch (IllegalArgumentException e) {
-            String message = ExceptionUtil.getMessage(e);
-            exception = new ExchangeException(102, message, e);
+            exception = new ExchangeException(102, "argument exception", e);
         } catch (IllegalAccessException e) {
-            String message = ExceptionUtil.getMessage(e);
-            exception = new ExchangeException(103, message, e);
+            exception = new ExchangeException(103, "access exception", e);
         } catch (NoSuchMethodException e) {
-            String message = ExceptionUtil.getMessage(e);
-            exception = new ExchangeException(104, message, e);
+            exception = new ExchangeException(104, "no method exception", e);
         } catch (Throwable e) {
-            String message = ExceptionUtil.getMessage(e);
-            exception = new ExchangeException(109, message, e);
+            exception = new ExchangeException(109, "unkow exception", e);
         }
 
         if (exception != null) {

@@ -31,8 +31,6 @@ public class Reply implements Serializable {
 
     private Attach attach = new Attach();
 
-    private boolean error;
-
     private Object data;
 
     public Reply() {
@@ -63,13 +61,6 @@ public class Reply implements Serializable {
      */
     public void setData(Object data) {
         this.data = data;
-        if (this.data instanceof Throwable) {
-            this.error = true;
-        }
-    }
-
-    public boolean isError() {
-        return error;
     }
 
     /**

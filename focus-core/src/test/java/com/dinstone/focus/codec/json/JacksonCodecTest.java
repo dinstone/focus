@@ -63,7 +63,7 @@ public class JacksonCodecTest {
         System.out.println(s);
 
         r = objectMapper.readValue(s, Reply.class);
-        System.out.println("error is " + r.isError());
+        System.out.println("error is " + r.getData());
 
     }
 

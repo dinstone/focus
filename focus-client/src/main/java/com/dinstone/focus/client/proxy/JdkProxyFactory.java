@@ -22,6 +22,7 @@ import java.lang.reflect.Proxy;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.ExchangeException;
 
 public class JdkProxyFactory implements ProxyFactory {
 
@@ -46,12 +47,21 @@ public class JdkProxyFactory implements ProxyFactory {
                 return serviceClazz.getName() + '@' + Integer.toHexString(proxy.hashCode());
             }
 
-            Call call = new Call(methodName, args, method.getParameterTypes());
-            Reply reply = invokeHandler.invoke(call);
-            if (reply.getData() instanceof Throwable) {
-                throw (Throwable) reply.getData();
+            try {
+                Call call = new Call(methodName, args, method.getParameterTypes());
+                Reply reply = invokeHandler.invoke(call);
+                return reply.getData();
+            } catch (Exception e) {
+                if (e instanceof RuntimeException) {
+                    throw e;
+                }
+                for (Class<?> c : method.getExceptionTypes()) {
+                    if (c.isInstance(e)) {
+                        throw e;
+                    }
+                }
+                throw new ExchangeException(189, "wrappered exception", e);
             }
-            return reply.getData();
         }
 
     }

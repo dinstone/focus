@@ -24,7 +24,7 @@ import com.dinstone.photon.ConnectOptions;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
-    private static final int DEFAULT_CODEC_ID = 1;
+    private static final String DEFAULT_CODEC_ID = "json/jackson";
 
     private static final int DEFAULT_POOL_SIZE = 1;
 
@@ -34,7 +34,7 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
-    private byte codecId = DEFAULT_CODEC_ID;
+    private String codecId = DEFAULT_CODEC_ID;
 
     public ConnectOptions getConnectOptions() {
         return connectOptions;
@@ -82,11 +82,11 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
         return this;
     }
 
-    public byte getCodecId() {
+    public String getCodecId() {
         return codecId;
     }
 
-    public void setCodecId(byte codecId) {
+    public void setCodecId(String codecId) {
         this.codecId = codecId;
     }
 

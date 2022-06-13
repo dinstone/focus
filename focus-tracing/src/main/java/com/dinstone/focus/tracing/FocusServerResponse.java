@@ -35,7 +35,7 @@ public class FocusServerResponse extends RpcServerResponse {
         if (error != null) {
             return getErrorCode();
         }
-        if (reply.isError()) {
+        if (reply.getData() instanceof Throwable) {
             return "999";
         }
         return "";
@@ -54,7 +54,7 @@ public class FocusServerResponse extends RpcServerResponse {
             return error;
         }
 
-        if (reply.isError()) {
+        if (reply.getData() instanceof Throwable) {
             return (Throwable) reply.getData();
         }
         return null;

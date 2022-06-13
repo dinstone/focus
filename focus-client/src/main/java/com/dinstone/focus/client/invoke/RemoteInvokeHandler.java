@@ -52,8 +52,6 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
         // remote call
         Response response = connection.sync(request);
-
-        // handle response by success
         if (response.getStatus() == Status.SUCCESS) {
             return codec.decode(response);
         } else {

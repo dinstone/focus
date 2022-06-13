@@ -22,18 +22,12 @@ public class CodecManager {
 
     private static final Map<String, ProtocolCodec> NAME_CODEC_MAP = new ConcurrentHashMap<>();
 
-    private static final Map<Integer, ProtocolCodec> CODE_CODEC_MAP = new ConcurrentHashMap<>();
-
     public static void regist(ProtocolCodec codec) {
-        CODE_CODEC_MAP.put((int) codec.codecId(), codec);
+        NAME_CODEC_MAP.put(codec.codecId(), codec);
     }
 
-    public static byte codec(String name) {
-        return NAME_CODEC_MAP.get(name).codecId();
-    }
-
-    public static ProtocolCodec codec(int code) {
-        return CODE_CODEC_MAP.get(code);
+    public static ProtocolCodec codec(String codeId) {
+        return NAME_CODEC_MAP.get(codeId);
     }
 
 }

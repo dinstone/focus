@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
-import com.dinstone.focus.client.transport.ConnectionManager;
+import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.config.ServiceConfig;
@@ -45,7 +45,7 @@ public class Client implements ServiceImporter {
 
     private ReferenceBinding referenceBinding;
 
-    private ConnectionManager connectionManager;
+    private ConnectionFactory connectionFactory;
 
     private ProxyFactory proxyFactory;
 
@@ -60,7 +60,7 @@ public class Client implements ServiceImporter {
         this.clientOptions = clientOptions;
 
         // check transport provider
-        this.connectionManager = new ConnectionManager(clientOptions);
+        this.connectionFactory = new ConnectionFactory(clientOptions);
 
         // load and create rpc message codec
         ServiceLoader<CodecFactory> cfLoader = ServiceLoader.load(CodecFactory.class);
@@ -86,7 +86,7 @@ public class Client implements ServiceImporter {
 
     @Override
     public void destroy() {
-        connectionManager.destroy();
+        connectionFactory.destroy();
         referenceBinding.destroy();
 
         if (serviceDiscovery != null) {
@@ -139,7 +139,7 @@ public class Client implements ServiceImporter {
         RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig);
         FilterChainHandler chain = createFilterChain(serviceConfig, remote);
         List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
-        InvokeHandler invokeHandler = new LocationInvokeHandler(chain, referenceBinding, connectionManager, addresses);
+        InvokeHandler invokeHandler = new LocationInvokeHandler(chain, referenceBinding, connectionFactory, addresses);
         return new ConsumeInvokeHandler(serviceConfig, invokeHandler);
     }
 

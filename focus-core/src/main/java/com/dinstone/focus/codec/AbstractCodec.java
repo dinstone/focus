@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ public abstract class AbstractCodec implements ProtocolCodec {
     public Request encode(Call call) throws CodecException {
         Request request = new Request();
         Headers headers = request.headers();
-        headers.put("rpc.call.group", call.getGroup());
-        headers.put("rpc.call.service", call.getService());
-        headers.put("rpc.call.method", call.getMethod());
-        headers.put("rpc.call.timeout", "" + call.getTimeout());
-        headers.put("rpc.call.codec", codecId());
-        headers.putAll(call.attach());
+        headers.add("rpc.call.group", call.getGroup());
+        headers.add("rpc.call.service", call.getService());
+        headers.add("rpc.call.method", call.getMethod());
+        headers.add("rpc.call.timeout", "" + call.getTimeout());
+        headers.add("rpc.call.codec", codecId());
+        // headers.add(call.attach());
 
         // request.setMsgId(IDGENER.incrementAndGet());
         request.setTimeout(call.getTimeout());
@@ -58,17 +58,8 @@ public abstract class AbstractCodec implements ProtocolCodec {
     @Override
     public Response encode(Reply reply) throws CodecException {
         Response response = new Response();
-        response.headers().putAll(reply.attach());
-        response.headers().put("rpc.call.codec", codecId());
-
-        // if (reply.getData() instanceof ExchangeException) {
-        // response.setStatus(Status.FAILURE);
-        // ExchangeException error = (ExchangeException) reply.getData();
-        // response.setContent(ExceptionCodec.encode(error));
-        // } else {
-        // response.setStatus(Status.SUCCESS);
-        // response.setContent(writeReply(reply));
-        // }
+        // response.headers().putAll(reply.attach());
+        response.headers().add("rpc.call.codec", codecId());
 
         response.setStatus(Status.SUCCESS);
         response.setContent(writeReply(reply));

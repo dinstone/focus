@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,13 @@ import com.dinstone.focus.server.ExecutorSelector;
 import com.dinstone.photon.ExchangeException;
 import com.dinstone.photon.codec.ExceptionCodec;
 import com.dinstone.photon.connection.Connection;
+import com.dinstone.photon.handler.DefaultMessageProcessor;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
-import com.dinstone.photon.processor.MessageProcessor;
 
-public final class FocusProcessor implements MessageProcessor {
+public final class FocusProcessor extends DefaultMessageProcessor {
     private final ImplementBinding binding;
     private ExecutorSelector selector;
 
@@ -44,7 +44,7 @@ public final class FocusProcessor implements MessageProcessor {
     }
 
     @Override
-    public void process(Connection connection, Object msg) {
+    public void process(Connection connection, Request msg) {
         if (msg instanceof Request) {
             Executor executor = null;
             Request request = (Request) msg;
@@ -60,16 +60,16 @@ public final class FocusProcessor implements MessageProcessor {
 
                     @Override
                     public void run() {
-                        invoke(binding, connection, request);
+                        invoke(connection, request);
                     }
                 });
             } else {
-                invoke(binding, connection, request);
+                invoke(connection, request);
             }
         }
     }
 
-    private void invoke(final ImplementBinding binding, Connection connection, Request request) {
+    private void invoke(Connection connection, Request request) {
         if (request.isTimeout()) {
             return;
         }
@@ -98,7 +98,7 @@ public final class FocusProcessor implements MessageProcessor {
             response.setMsgId(request.getMsgId());
             // send response with reply
             connection.send(response);
-            
+
             return;
         } catch (ExchangeException e) {
             exception = e;

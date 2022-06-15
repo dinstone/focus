@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.ExchangeException;
-import com.dinstone.photon.util.ExceptionUtil;
+import com.dinstone.photon.utils.ExceptionUtil;
 
 public class LocalInvokeHandler implements InvokeHandler {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,46 +16,85 @@
 package com.dinstone.focus.client.transport;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import com.dinstone.loghub.Logger;
-import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
+import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.photon.Connector;
 import com.dinstone.photon.connection.Connection;
-import com.dinstone.photon.processor.MessageProcessor;
 
-/**
- * connetcion factory.
- * 
- * @author guojinfei
- * 
- * @version 2.0.0.2015-11-3
- */
 public class ConnectionFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnectionFactory.class);
+    private final Connector connector;
 
-    private Connector connector;
+    private final ClientOptions clientOptions;
 
-    public ConnectionFactory(ConnectOptions connectOptions) {
-        this.connector = new Connector(connectOptions);
-        this.connector.setMessageProcessor(new MessageProcessor() {
+    private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap;
 
-            @Override
-            public void process(Connection connection, Object msg) {
-                LOG.warn("unsupported message {}", msg);
-            }
-        });
+    public ConnectionFactory(ClientOptions clientOptions) {
+        if (clientOptions == null) {
+            throw new IllegalArgumentException("clientOptions is null");
+        }
+        this.clientOptions = clientOptions;
+
+        this.connector = new Connector(clientOptions.getConnectOptions());
+        this.connectionPoolMap = new ConcurrentHashMap<InetSocketAddress, ConnectionPool>();
     }
 
-    public Connection create(InetSocketAddress sa) throws Exception {
-        return connector.connect(sa);
+    public Connection create(InetSocketAddress socketAddress) throws Exception {
+        ConnectionPool connectionPool = connectionPoolMap.get(socketAddress);
+        if (connectionPool == null) {
+            connectionPoolMap.putIfAbsent(socketAddress, new ConnectionPool(socketAddress));
+            connectionPool = connectionPoolMap.get(socketAddress);
+        }
+        return connectionPool.getConnection();
     }
 
     public void destroy() {
-        if (connector != null) {
-            connector.destroy();
+        for (ConnectionPool connectionPool : connectionPoolMap.values()) {
+            if (connectionPool != null) {
+                connectionPool.destroy();
+            }
         }
+        connectionPoolMap.clear();
+        connector.destroy();
+    }
+
+    class ConnectionPool {
+
+        private final InetSocketAddress socketAddress;
+
+        private Connection[] connections;
+
+        private int count;
+
+        public ConnectionPool(InetSocketAddress socketAddress) {
+            this.socketAddress = socketAddress;
+            this.connections = new Connection[clientOptions.getConnectPoolSize()];
+        }
+
+        public synchronized Connection getConnection() throws Exception {
+            int index = count++ % connections.length;
+            Connection connection = connections[index];
+            if (connection == null || !connection.isActive()) {
+                if (connection != null) {
+                    connection.destroy();
+                }
+
+                connection = connector.connect(socketAddress);
+                connections[index] = connection;
+            }
+            return connection;
+        }
+
+        public void destroy() {
+            for (Connection connection : connections) {
+                if (connection != null) {
+                    connection.destroy();
+                }
+            }
+        }
+
     }
 
 }

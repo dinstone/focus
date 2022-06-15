@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.util.List;
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.clutch.ServiceDiscovery;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.photon.util.NetworkUtil;
+import com.dinstone.photon.utils.NetworkUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
 

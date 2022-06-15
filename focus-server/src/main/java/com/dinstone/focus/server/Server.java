@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,9 +89,9 @@ public class Server implements ServiceExporter {
 
         this.acceptor = new AcceptorFactory(serverOptions).create(implementBinding);
 
-        LOG.info("focus server will start, {}", serviceAddress);
+        LOG.info("focus server startup, {}", serviceAddress);
         acceptor.bind(serviceAddress);
-        LOG.info("focus server is created, {}", serviceAddress);
+        LOG.info("focus server started, {}", serviceAddress);
     }
 
     public InetSocketAddress getServiceAddress() {

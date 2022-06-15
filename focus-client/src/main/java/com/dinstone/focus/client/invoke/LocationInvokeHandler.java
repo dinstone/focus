@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.client.transport.ConnectionManager;
+import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -37,15 +37,15 @@ public class LocationInvokeHandler implements InvokeHandler {
 
     private ReferenceBinding referenceBinding;
 
-    private ConnectionManager connectionManager;
+    private ConnectionFactory connectionFactory;
 
     private List<InetSocketAddress> backupServiceAddresses = new ArrayList<>();
 
     public LocationInvokeHandler(InvokeHandler invocationHandler, ReferenceBinding referenceBinding,
-            ConnectionManager connectionManager, List<InetSocketAddress> serviceAddresses) {
+            ConnectionFactory connectionFactory, List<InetSocketAddress> serviceAddresses) {
         this.invocationHandler = invocationHandler;
         this.referenceBinding = referenceBinding;
-        this.connectionManager = connectionManager;
+        this.connectionFactory = connectionFactory;
 
         if (serviceAddresses != null) {
             backupServiceAddresses.addAll(serviceAddresses);
@@ -69,7 +69,7 @@ public class LocationInvokeHandler implements InvokeHandler {
             count++;
 
             InetSocketAddress serviceAddress = select(call);
-            Connection connection = connectionManager.getConnection(serviceAddress);
+            Connection connection = connectionFactory.create(serviceAddress);
             if (connection.isBusy()) {
                 continue;
             } else {

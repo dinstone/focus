@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2021 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.dinstone.photon.message.Headers;
+
 public class Attach implements Map<String, String> {
 
     protected final Map<String, String> store = new HashMap<String, String>();
@@ -27,9 +29,11 @@ public class Attach implements Map<String, String> {
     public Attach() {
     }
 
-    public Attach(Map<String, String> other) {
-        if (other != null) {
-            store.putAll(other);
+    public Attach(Headers headers) {
+        if (headers != null) {
+            headers.forEach(e -> {
+                store.put(e.getKey(), e.getValue());
+            });
         }
     }
 

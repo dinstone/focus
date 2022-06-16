@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -58,7 +57,7 @@ public class JacksonCodecTest {
         System.out.println(s);
 
         Reply r = new Reply();
-        r.setData(new FocusException("test", new IOException("sdfasdf")));
+        r.setData(new IOException("sdfasdf"));
         s = objectMapper.writeValueAsString(r);
         System.out.println(s);
 

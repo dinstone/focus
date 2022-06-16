@@ -103,15 +103,15 @@ public final class FocusProcessor extends DefaultMessageProcessor {
         } catch (ExchangeException e) {
             exception = e;
         } catch (CodecException e) {
-            exception = new ExchangeException(101, "codec excption", e);
+            exception = new ExchangeException(201, "codec excption", e);
         } catch (IllegalArgumentException e) {
-            exception = new ExchangeException(102, "argument exception", e);
+            exception = new ExchangeException(202, "argument exception", e);
         } catch (IllegalAccessException e) {
-            exception = new ExchangeException(103, "access exception", e);
+            exception = new ExchangeException(203, "access exception", e);
         } catch (NoSuchMethodException e) {
-            exception = new ExchangeException(104, "no method exception", e);
+            exception = new ExchangeException(204, "no method exception", e);
         } catch (Throwable e) {
-            exception = new ExchangeException(109, "unkow exception", e);
+            exception = new ExchangeException(309, "unkow exception", e);
         }
 
         if (exception != null) {

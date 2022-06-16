@@ -35,13 +35,21 @@ public class LocalInvokeHandler implements InvokeHandler {
 
     @Override
     public Reply invoke(Call call) throws Exception {
+        Method method = serviceConfig.findMethod(call.getMethod());
         try {
-            Method method = serviceConfig.findMethod(call.getMethod());
             Object result = method.invoke(serviceConfig.getTarget(), call.getParams());
             return new Reply(result);
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionUtil.getTargetException(e);
-            throw new ExchangeException(109, "service unhandled exception", te);
+
+            Class<?>[] ets = method.getExceptionTypes();
+            for (Class<?> et : ets) {
+                if (et.isInstance(te)) {
+                    throw new ExchangeException(301, "service throw a declared exception", te);
+                }
+            }
+
+            throw new ExchangeException(302, "service throw a undeclared exception", te);
         }
     }
 

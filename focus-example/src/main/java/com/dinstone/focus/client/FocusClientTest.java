@@ -52,7 +52,7 @@ public class FocusClientTest {
         LOG.info("init end");
 
         try {
-            ds.hello("", 40);
+            ds.hello("");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,7 +80,7 @@ public class FocusClientTest {
         long st = System.currentTimeMillis();
         int loopCount = 20000;
         while (c < loopCount) {
-            ds.hello("dinstoneo", c);
+            ds.hello("dinstoneo");
             c++;
         }
         long et = System.currentTimeMillis() - st;

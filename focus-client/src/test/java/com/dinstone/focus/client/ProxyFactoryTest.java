@@ -37,19 +37,28 @@ public class ProxyFactoryTest {
 
         HelloService h = jdkProxy();
 
-        for (Method m : HelloService.class.getDeclaredMethods()) {
-            System.out.println(m.getName() + " : " + m.getDeclaringClass().getName());
-            m.setAccessible(true);
+        // for (Method m : HelloService.class.getDeclaredMethods()) {
+        // System.out.println(m.getName() + " : " + m.getDeclaringClass().getName());
+        // // m.setAccessible(true);
+        // //
+        // // long s = System.currentTimeMillis();
+        // //
+        // // for (int i = 0; i < 100000000; i++) {
+        // // m.invoke(h, "hhhhhh");
+        // // }
+        // //
+        // // long e = System.currentTimeMillis();
+        // // System.out.println((e - s) + "ms");
+        //
+        // }
 
-            long s = System.currentTimeMillis();
+        h.hi(null);
+        h.hi("hahh");
+        h.hi("");
 
-            for (int i = 0; i < 100000000; i++) {
-                m.invoke(h, "hhhhhh");
-            }
+        h.say();
 
-            long e = System.currentTimeMillis();
-            System.out.println((e - s) + "ms");
-        }
+        h.vfn();
 
         DefaultHelloService dh = new DefaultHelloService();
         long s = System.currentTimeMillis();
@@ -58,6 +67,20 @@ public class ProxyFactoryTest {
         }
         long e = System.currentTimeMillis();
         System.out.println((e - s) + "ms");
+    }
+
+    @Test
+    public void test2() throws Exception {
+        HelloService h = proxyFactory();
+
+        h.hi(null);
+        h.hi("hahh");
+        h.hi("");
+
+        h.say();
+
+        h.vfn();
+
     }
 
     private HelloService proxyFactory() {
@@ -77,7 +100,14 @@ public class ProxyFactoryTest {
                 new Class[] { HelloService.class }, new InvocationHandler() {
 
                     @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
+
+                        System.out.println(m.getName() + ", ParameterTypes = " + m.getParameterTypes().length
+                                + ", returnType = " + m.getReturnType());
+
+                        System.out.println("args.length  = " + (args == null ? -1 : args.length) + ", args = "
+                                + (args == null ? "" : "'" + args[0] + "'"));
+
                         return null;
                     }
                 });
@@ -85,6 +115,10 @@ public class ProxyFactoryTest {
 
     public static interface HelloService extends Filter {
         String hi(String name);
+
+        String say();
+
+        void vfn();
     }
 
     public static class DefaultHelloService implements HelloService {
@@ -104,6 +138,18 @@ public class ProxyFactoryTest {
         public boolean matches(ServiceConfig serviceConfig) {
             // TODO Auto-generated method stub
             return false;
+        }
+
+        @Override
+        public String say() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void vfn() {
+            // TODO Auto-generated method stub
+
         }
     }
 

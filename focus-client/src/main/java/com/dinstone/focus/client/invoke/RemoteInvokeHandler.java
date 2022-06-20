@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.codec.ProtocolCodec;
+import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -34,10 +35,13 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     private static final AtomicInteger IDGENER = new AtomicInteger();
 
-    private ProtocolCodec codec;
+    private ServiceConfig serviceConfig;
+
+    private ProtocolCodec protocolCodec;
 
     public RemoteInvokeHandler(ServiceConfig serviceConfig) {
-        codec = CodecManager.codec(serviceConfig.getCodecId());
+        this.serviceConfig = serviceConfig;
+        this.protocolCodec = CodecManager.codec(serviceConfig.getCodecId());
     }
 
     @Override
@@ -47,13 +51,17 @@ public class RemoteInvokeHandler implements InvokeHandler {
             throw new RuntimeException("can't find a service connection");
         }
 
-        Request request = codec.encode(call);
+        Request request = protocolCodec.encode(call, new Request());
         request.setMsgId(IDGENER.incrementAndGet());
 
         // remote call
         Response response = connection.sync(request);
+
+        // process response
         if (response.getStatus() == Status.SUCCESS) {
-            return codec.decode(response);
+            MethodInfo m = serviceConfig.findMethod(call.getMethod());
+            Reply r = new Reply(m.getReturnType());
+            return protocolCodec.decode(response, r);
         } else {
             throw ExceptionCodec.decode(response.getContent());
         }

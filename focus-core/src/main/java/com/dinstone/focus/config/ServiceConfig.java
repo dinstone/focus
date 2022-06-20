@@ -16,6 +16,7 @@
 package com.dinstone.focus.config;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
  */
 public class ServiceConfig {
 
-    private Map<String, Method> methodCaches;
+    private Map<String, MethodInfo> methodCaches;
 
     private String appCode;
 
@@ -78,16 +79,29 @@ public class ServiceConfig {
         this.timeout = timeout;
     }
 
-    public Method[] getMethods() {
-        return methods;
+    public Collection<MethodInfo> getMethodInfos() {
+        return methodCaches.values();
     }
 
     public void setMethods(Method[] methods) {
         if (methodCaches == null) {
-            methodCaches = new HashMap<String, Method>();
+            methodCaches = new HashMap<String, MethodInfo>();
         }
         for (Method method : methods) {
-            methodCaches.put(method.getName(), method);
+            // overload check
+            if (methodCaches.containsKey(method.getName())) {
+                throw new IllegalArgumentException("unsupported method overload : " + method);
+            }
+            // parameter check
+            Class<?> paramType = null;
+            if (method.getParameterTypes().length > 1) {
+                throw new IllegalArgumentException("call only support one parameter");
+            } else if (method.getParameterTypes().length == 1) {
+                paramType = method.getParameterTypes()[0];
+            }
+
+            MethodInfo mi = new MethodInfo(method, paramType);
+            methodCaches.put(mi.getMethodName(), mi);
         }
         this.methods = methods;
     }
@@ -132,7 +146,7 @@ public class ServiceConfig {
         this.appName = appName;
     }
 
-    public Method findMethod(String methodName) {
+    public MethodInfo findMethod(String methodName) {
         return methodCaches.get(methodName);
     }
 

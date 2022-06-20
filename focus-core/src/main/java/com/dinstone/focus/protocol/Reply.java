@@ -20,9 +20,8 @@ import java.io.Serializable;
 /**
  * The Reply is the abstract of RPC response.
  * 
- * @author guojinfei
+ * @author dinstone
  * 
- * @version 1.0.0.2014-6-23
  */
 public class Reply implements Serializable {
 
@@ -31,14 +30,21 @@ public class Reply implements Serializable {
 
     private Attach attach = new Attach();
 
+    private Class<?> dataType;
+
     private Object data;
 
     public Reply() {
         super();
     }
 
-    public Reply(Object data) {
-        setData(data);
+    public Reply(Class<?> returnType) {
+        this.dataType = returnType;
+    }
+
+    public Reply(Class<?> returnType, Object result) {
+        this.data = result;
+        this.dataType = returnType;
     }
 
     /**
@@ -61,6 +67,14 @@ public class Reply implements Serializable {
      */
     public void setData(Object data) {
         this.data = data;
+    }
+
+    public Class<?> getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(Class<?> dataType) {
+        this.dataType = dataType;
     }
 
     /**

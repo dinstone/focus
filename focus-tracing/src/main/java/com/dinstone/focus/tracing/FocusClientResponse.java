@@ -25,8 +25,8 @@ public class FocusClientResponse extends RpcClientResponse {
     private Reply reply;
     private Throwable error;
 
-    public FocusClientResponse(FocusClientRequest request, Reply result, Throwable error) {
-        this.reply = result;
+    public FocusClientResponse(FocusClientRequest request, Reply reply, Throwable error) {
+        this.reply = reply;
         this.error = error;
     }
 

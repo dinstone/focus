@@ -19,6 +19,4 @@ public interface DemoService {
 
     public String hello(String name);
 
-    public String hello(String name, int age);
-
 }

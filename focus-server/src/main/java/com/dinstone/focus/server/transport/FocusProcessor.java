@@ -21,6 +21,7 @@ import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecException;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.codec.ProtocolCodec;
+import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -76,25 +77,38 @@ public final class FocusProcessor extends DefaultMessageProcessor {
 
         ExchangeException exception = null;
         try {
-            String codecId = request.headers().get("rpc.call.codec");
-            ProtocolCodec codec = CodecManager.codec(codecId);
-            // decode call from request
-            Call call = codec.decode(request);
-
-            ServiceConfig config = binding.lookup(call.getService(), call.getGroup());
+            Headers headers = request.headers();
+            // check service
+            String group = headers.get("rpc.call.group");
+            String service = headers.get("rpc.call.service");
+            ServiceConfig config = binding.lookup(service, group);
             if (config == null) {
-                throw new NoSuchMethodException("unkown service: " + call.getService() + "[" + call.getGroup() + "]");
+                throw new NoSuchMethodException("unkown service: " + service + "[" + group + "]");
             }
-            if (!config.hasMethod(call.getMethod())) {
-                throw new NoSuchMethodException(
-                        "unkown method: " + call.getService() + "[" + call.getGroup() + "]" + call.getMethod());
+
+            // check method
+            String methodName = headers.get("rpc.call.method");
+            MethodInfo methodInfo = config.findMethod(methodName);
+            if (methodInfo == null) {
+                throw new NoSuchMethodException("unkown method: " + service + "[" + group + "]." + methodName);
             }
+
+            String codecId = headers.get("rpc.call.codec");
+            ProtocolCodec codec = CodecManager.codec(codecId);
+
+            Call call = new Call();
+            call.setGroup(group);
+            call.setService(service);
+            call.setMethod(methodName);
+            call.setParamType(methodInfo.getParamType());
+            // decode call from request
+            codec.decode(request, call);
 
             // invoke call
             Reply reply = config.getHandler().invoke(call);
 
             // encode reply to response
-            Response response = codec.encode(reply);
+            Response response = codec.encode(reply, new Response());
             response.setMsgId(request.getMsgId());
             // send response with reply
             connection.send(response);

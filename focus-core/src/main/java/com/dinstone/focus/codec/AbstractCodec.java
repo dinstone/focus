@@ -26,8 +26,8 @@ import com.dinstone.photon.message.Response.Status;
 public abstract class AbstractCodec implements ProtocolCodec {
 
     @Override
-    public Request encode(Call call) throws CodecException {
-        Request request = new Request();
+    public Request encode(Call call, Request request) throws CodecException {
+        // Request request = new Request();
         Headers headers = request.headers();
         headers.add("rpc.call.group", call.getGroup());
         headers.add("rpc.call.service", call.getService());
@@ -36,56 +36,48 @@ public abstract class AbstractCodec implements ProtocolCodec {
         headers.add("rpc.call.codec", codecId());
         // headers.add(call.attach());
 
-        // request.setMsgId(IDGENER.incrementAndGet());
         request.setTimeout(call.getTimeout());
-        request.setContent(writeCall(call));
+        request.setContent(write(call.getParameter(), call.getParamType()));
         return request;
     }
 
     @Override
-    public Call decode(Request request) throws CodecException {
-        Call call = readCall(request.getContent());
-
+    public Call decode(Request request, Call call) throws CodecException {
         Headers headers = request.headers();
         call.setGroup(headers.get("rpc.call.group"));
         call.setService(headers.get("rpc.call.service"));
         call.setMethod(headers.get("rpc.call.method"));
         call.attach(new Attach(headers));
         call.setTimeout(request.getTimeout());
+        call.setParameter(read(request.getContent(), call.getParamType()));
         return call;
     }
 
     @Override
-    public Response encode(Reply reply) throws CodecException {
-        Response response = new Response();
-        // response.headers().putAll(reply.attach());
+    public Response encode(Reply reply, Response response) throws CodecException {
+        // Response response = new Response();
+        // response.headers().setAll(reply.attach());
         response.headers().add("rpc.call.codec", codecId());
 
         response.setStatus(Status.SUCCESS);
-        response.setContent(writeReply(reply));
+        response.setContent(write(reply.getData(), reply.getDataType()));
         return response;
     }
 
     @Override
-    public Reply decode(Response response) throws CodecException {
-        // if (response.getStatus() != Status.SUCCESS) {
-        // throw ExceptionCodec.decode(response.getContent());
-        // }
-
-        Reply reply = readReply(response.getContent());
+    public Reply decode(Response response, Reply reply) throws CodecException {
+        // Reply reply = readReply(response.getContent());
         Headers headers = response.headers();
         if (headers != null && !headers.isEmpty()) {
             reply.attach(new Attach(headers));
         }
+        Object data = read(response.getContent(), reply.getDataType());
+        reply.setData(data);
         return reply;
     }
 
-    protected abstract byte[] writeCall(Call call) throws CodecException;
+    protected abstract Object read(byte[] paramBytes, Class<?> paramType);
 
-    protected abstract Call readCall(byte[] content) throws CodecException;
-
-    protected abstract byte[] writeReply(Reply reply) throws CodecException;
-
-    protected abstract Reply readReply(byte[] content) throws CodecException;
+    protected abstract byte[] write(Object parameter, Class<?> paramType);
 
 }

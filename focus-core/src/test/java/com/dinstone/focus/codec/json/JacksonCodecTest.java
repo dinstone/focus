@@ -15,7 +15,12 @@
  */
 package com.dinstone.focus.codec.json;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -48,8 +53,7 @@ public class JacksonCodecTest {
         p.setName("cpu");
         p.setGroup("x86");
 
-        Call call = new Call(JacksonCodecTest.class.getName(), "", 1000, "hello", new Object[] { p },
-                new Class[] { Product.class });
+        Call call = new Call("hello", p, Product.class);
 
         ObjectMapper objectMapper = extracted();
 
@@ -63,6 +67,50 @@ public class JacksonCodecTest {
 
         r = objectMapper.readValue(s, Reply.class);
         System.out.println("error is " + r.getData());
+
+    }
+
+    @Test
+    public void testCodec() throws JsonProcessingException {
+
+        ObjectMapper objectMapper = extracted();
+
+        Object call = "dinstone";
+        String s = objectMapper.writeValueAsString(call);
+        System.out.println(s);
+
+        Object e = objectMapper.readValue(s, call.getClass());
+        System.out.println(e);
+        assertEquals(call, e);
+
+        call = 5.98;
+        s = objectMapper.writeValueAsString(call);
+        System.out.println(s);
+
+        e = objectMapper.readValue(s, call.getClass());
+        System.out.println(e);
+        assertEquals(call, e);
+
+        // array
+        Product p = new Product();
+        p.setCode("002");
+        p.setName("cpu");
+        p.setGroup("x86");
+        List<Object> l = Arrays.asList("sring", 4, 3.14, p);
+        call = l.toArray();
+        s = objectMapper.writeValueAsString(call);
+        System.out.println(s);
+
+        e = objectMapper.readValue(s, call.getClass());
+        assertArrayEquals((Object[]) call, (Object[]) e);
+
+        // null
+        call = null;
+        s = objectMapper.writeValueAsString(call);
+        System.out.println(s);
+
+        e = objectMapper.readValue(s, String.class);
+        assertEquals((Object[]) call, (Object[]) e);
 
     }
 

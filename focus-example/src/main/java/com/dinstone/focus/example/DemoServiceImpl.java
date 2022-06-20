@@ -25,12 +25,4 @@ public class DemoServiceImpl implements DemoService {
         return "hi " + name;
     }
 
-    @Override
-    public String hello(String name, int age) {
-        if (name == null || name.isEmpty()) {
-            throw new RuntimeException("name is empty");
-        }
-        return "Hello " + name + ",age is " + age;
-    }
-
 }

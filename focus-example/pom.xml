@@ -10,12 +10,12 @@
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-client</artifactId>
-			<version>0.8.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-server</artifactId>
-			<version>0.8.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.clutch</groupId>
@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-tracing</artifactId>
-			<version>0.8.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.zipkin.reporter2</groupId>
@@ -47,6 +47,11 @@
 			<groupId>com.dinstone.clutch</groupId>
 			<artifactId>clutch-consul</artifactId>
 			<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-protobuf</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

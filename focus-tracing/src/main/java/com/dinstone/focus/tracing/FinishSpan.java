@@ -46,7 +46,7 @@ abstract class FinishSpan {
     }
 
     final Span span;
-    final Reply result;
+    final Reply reply;
 
     FinishSpan(Span span, Reply reply) {
         if (span == null)
@@ -54,7 +54,7 @@ abstract class FinishSpan {
         if (reply == null)
             throw new NullPointerException("result == null");
         this.span = span;
-        this.result = reply;
+        this.reply = reply;
     }
 
     /** One, but not both parameters can be {@code null}. */
@@ -72,7 +72,7 @@ abstract class FinishSpan {
 
         @Override
         public void accept(@Nullable Object unused, @Nullable Throwable error) {
-            clientHandler.handleReceive(new FocusClientResponse(request, result, error), span);
+            clientHandler.handleReceive(new FocusClientResponse(request, reply, error), span);
         }
     }
 
@@ -88,7 +88,7 @@ abstract class FinishSpan {
 
         @Override
         public void accept(@Nullable Object unused, @Nullable Throwable error) {
-            serverHandler.handleSend(new FocusServerResponse(request, result, error), span);
+            serverHandler.handleSend(new FocusServerResponse(request, reply, error), span);
         }
     }
 }

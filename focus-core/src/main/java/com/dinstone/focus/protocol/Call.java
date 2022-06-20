@@ -16,14 +16,12 @@
 package com.dinstone.focus.protocol;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  * The Call is the abstract of RPC request.
  * 
- * @author guojinfei
+ * @author dinstone
  * 
- * @version 1.0.0.2014-6-23
  */
 public class Call implements Serializable {
 
@@ -38,9 +36,9 @@ public class Call implements Serializable {
 
     private int timeout;
 
-    private Object[] params;
+    private Object parameter;
 
-    private Class<?>[] paramTypes;
+    private Class<?> paramType;
 
     private Attach attach = new Attach();
 
@@ -48,20 +46,10 @@ public class Call implements Serializable {
         super();
     }
 
-    public Call(String service, String group, int timeout, String method, Object[] params, Class<?>[] paramTypes) {
-        super();
-        this.group = group;
-        this.service = service;
+    public Call(String method, Object parameter, Class<?> paramType) {
         this.method = method;
-        this.timeout = timeout;
-        this.params = params;
-        this.paramTypes = paramTypes;
-    }
-
-    public Call(String method, Object[] params, Class<?>[] paramTypes) {
-        this.method = method;
-        this.params = params;
-        this.paramTypes = paramTypes;
+        this.parameter = parameter;
+        this.paramType = paramType;
     }
 
     /**
@@ -84,28 +72,6 @@ public class Call implements Serializable {
      */
     public void setMethod(String method) {
         this.method = method;
-    }
-
-    /**
-     * the params to get
-     * 
-     * @return the params
-     * 
-     * @see Call#params
-     */
-    public Object[] getParams() {
-        return params;
-    }
-
-    /**
-     * the params to set
-     * 
-     * @param params
-     * 
-     * @see Call#params
-     */
-    public void setParams(Object[] params) {
-        this.params = params;
     }
 
     public String getService() {
@@ -132,12 +98,20 @@ public class Call implements Serializable {
         this.timeout = timeout;
     }
 
-    public Class<?>[] getParamTypes() {
-        return paramTypes;
+    public Object getParameter() {
+        return parameter;
     }
 
-    public void setParamTypes(Class<?>[] paramTypes) {
-        this.paramTypes = paramTypes;
+    public void setParameter(Object parameter) {
+        this.parameter = parameter;
+    }
+
+    public Class<?> getParamType() {
+        return paramType;
+    }
+
+    public void setParamType(Class<?> paramType) {
+        this.paramType = paramType;
     }
 
     /**
@@ -161,12 +135,6 @@ public class Call implements Serializable {
             attach.putAll(other);
         }
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Call [service=" + service + ", group=" + group + ", timeout=" + timeout + ", method=" + method
-                + ", params=" + Arrays.toString(params) + "]";
     }
 
 }

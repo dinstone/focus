@@ -118,6 +118,7 @@ public class Client implements ServiceImporter {
         serviceConfig.setGroup(group);
         serviceConfig.setTimeout(timeout);
         serviceConfig.setService(sic.getName());
+        serviceConfig.setMethods(sic.getDeclaredMethods());
 
         serviceConfig.setAppCode(clientOptions.getAppCode());
         serviceConfig.setAppName(clientOptions.getAppName());

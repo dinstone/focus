@@ -18,6 +18,7 @@ package com.dinstone.focus.client.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.concurrent.TimeoutException;
 
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -47,8 +48,17 @@ public class JdkProxyFactory implements ProxyFactory {
                 return serviceClazz.getName() + '@' + Integer.toHexString(proxy.hashCode());
             }
 
+            Object parameter = null;
+            Class<?> paramType = null;
+            if (method.getParameterTypes().length > 1) {
+                throw new IllegalArgumentException("call only support one parameter");
+            } else if (method.getParameterTypes().length == 1) {
+                paramType = method.getParameterTypes()[0];
+                parameter = args[0];
+            }
+
             try {
-                Call call = new Call(methodName, args, method.getParameterTypes());
+                Call call = new Call(methodName, parameter, paramType);
                 Reply reply = invokeHandler.invoke(call);
                 return reply.getData();
             } catch (Exception e) {
@@ -60,7 +70,10 @@ public class JdkProxyFactory implements ProxyFactory {
                         throw e;
                     }
                 }
-                throw new ExchangeException(189, "wrappered exception", e);
+                if (e instanceof TimeoutException) {
+                    throw new ExchangeException(188, "invoke timeout", e);
+                }
+                throw new ExchangeException(189, "wrapped invoke exception", e);
             }
         }
 

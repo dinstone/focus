@@ -22,13 +22,13 @@ import com.dinstone.photon.message.Response;
 
 public interface ProtocolCodec {
 
-    Request encode(Call call) throws CodecException;
+    Request encode(Call call, Request request) throws CodecException;
 
-    Response encode(Reply reply) throws CodecException;
+    Response encode(Reply reply, Response response) throws CodecException;
 
-    Call decode(Request request) throws CodecException;
+    Call decode(Request request, Call call) throws CodecException;
 
-    Reply decode(Response response) throws CodecException;
+    Reply decode(Response response, Reply reply) throws CodecException;
 
     String codecId();
 }

@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.binding;
 
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.clutch.ServiceRegistry;
+import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 
 public class DefaultImplementBinding implements ImplementBinding {
@@ -76,7 +76,7 @@ public class DefaultImplementBinding implements ImplementBinding {
         description.setRtime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
-        for (Method method : config.getMethods()) {
+        for (MethodInfo method : config.getMethodInfos()) {
             methodDescList.add(description(method));
         }
         description.addAttribute("methods", methodDescList);
@@ -90,18 +90,12 @@ public class DefaultImplementBinding implements ImplementBinding {
         }
     }
 
-    private String description(Method method) {
+    private String description(MethodInfo mi) {
         StringBuilder desc = new StringBuilder();
-        desc.append(getTypeName(method.getReturnType()) + " ");
-        desc.append(getTypeName(method.getDeclaringClass()) + ".");
-        desc.append(method.getName() + "(");
-        Class<?>[] params = method.getParameterTypes();
-        for (int j = 0; j < params.length; j++) {
-            desc.append(getTypeName(params[j]));
-            if (j < (params.length - 1)) {
-                desc.append(",");
-            }
-        }
+        desc.append(getTypeName(mi.getReturnType()) + " ");
+        desc.append(getTypeName(mi.getDeclarClass()) + ".");
+        desc.append(mi.getMethodName() + "(");
+        desc.append(getTypeName(mi.getParamType()));
         desc.append(")");
         return desc.toString();
     }

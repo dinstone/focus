@@ -19,8 +19,6 @@ import java.io.IOException;
 
 import com.dinstone.focus.codec.AbstractCodec;
 import com.dinstone.focus.codec.CodecException;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -51,36 +49,24 @@ public class JacksonCodec extends AbstractCodec {
     }
 
     @Override
-    protected byte[] writeCall(Call call) throws CodecException {
+    protected byte[] write(Object parameter, Class<?> paramType) {
+        if (parameter == null) {
+            return null;
+        }
         try {
-            return objectMapper.writeValueAsBytes(call);
+            return objectMapper.writeValueAsBytes(parameter);
         } catch (JsonProcessingException e) {
             throw new CodecException("encode call message error", e);
         }
     }
 
     @Override
-    protected Call readCall(byte[] content) {
-        try {
-            return objectMapper.readValue(content, Call.class);
-        } catch (IOException e) {
-            throw new CodecException("decode call message error", e);
+    protected Object read(byte[] paramBytes, Class<?> paramType) {
+        if (paramBytes == null || paramType == null) {
+            return null;
         }
-    }
-
-    @Override
-    protected byte[] writeReply(Reply reply) {
         try {
-            return objectMapper.writeValueAsBytes(reply);
-        } catch (JsonProcessingException e) {
-            throw new CodecException("encode reply message error", e);
-        }
-    }
-
-    @Override
-    protected Reply readReply(byte[] content) {
-        try {
-            return objectMapper.readValue(content, Reply.class);
+            return objectMapper.readValue(paramBytes, paramType);
         } catch (IOException e) {
             throw new CodecException("decode reply message error", e);
         }

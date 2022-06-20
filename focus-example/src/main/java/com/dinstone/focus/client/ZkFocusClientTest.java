@@ -61,7 +61,7 @@ public class ZkFocusClientTest {
         long st = System.currentTimeMillis();
         int loopCount = 200000;
         while (c < loopCount) {
-            ds.hello("dinstoneo", c);
+            ds.hello("dinstoneo");
             c++;
         }
         long et = System.currentTimeMillis() - st;

@@ -18,6 +18,7 @@ package com.dinstone.focus.client;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.TimeoutException;
 
 import com.dinstone.clutch.RegistryConfig;
 import com.dinstone.clutch.RegistryFactory;
@@ -32,10 +33,14 @@ import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.ServiceImporter;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.ExchangeException;
 
 public class Client implements ServiceImporter {
 
@@ -118,7 +123,7 @@ public class Client implements ServiceImporter {
         serviceConfig.setGroup(group);
         serviceConfig.setTimeout(timeout);
         serviceConfig.setService(sic.getName());
-        serviceConfig.setMethods(sic.getDeclaredMethods());
+        serviceConfig.parseMethodInfos(sic.getDeclaredMethods());
 
         serviceConfig.setAppCode(clientOptions.getAppCode());
         serviceConfig.setAppName(clientOptions.getAppName());
@@ -134,6 +139,60 @@ public class Client implements ServiceImporter {
         referenceBinding.binding(serviceConfig);
 
         return (T) proxy;
+    }
+
+    public <P> GenericService genericService(String service, String group, int timeout) {
+        if (service == null) {
+            throw new IllegalArgumentException("serivce name is null");
+        }
+        if (group == null) {
+            group = "";
+        }
+        if (timeout <= 0) {
+            timeout = clientOptions.getDefaultTimeout();
+        }
+
+        ServiceConfig serviceConfig = new ServiceConfig();
+        serviceConfig.setGroup(group);
+        serviceConfig.setTimeout(timeout);
+        serviceConfig.setService(service);
+
+        serviceConfig.setAppCode(clientOptions.getAppCode());
+        serviceConfig.setAppName(clientOptions.getAppName());
+        serviceConfig.setCodecId(clientOptions.getCodecId());
+
+        InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
+        GenericService proxy = new GenericService() {
+
+            @SuppressWarnings({ "unchecked", "hiding" })
+            @Override
+            public <R, P> R invoke(Class<R> returnType, String methodName, Class<P> paramType, P parameter) {
+                try {
+                    serviceConfig.addMethodInfo(new MethodInfo(methodName, paramType, returnType));
+
+                    Call call = new Call(methodName, parameter);
+                    Reply reply = invokeHandler.invoke(call);
+                    return (R) reply.getData();
+                } catch (Exception e) {
+                    if (e instanceof RuntimeException) {
+                        throw (RuntimeException) e;
+                    }
+                    if (e instanceof TimeoutException) {
+                        throw new ExchangeException(188, "invoke timeout", e);
+                    }
+                    throw new ExchangeException(189, "wrapped invoke exception", e);
+                }
+            }
+
+        };
+
+        serviceConfig.setHandler(invokeHandler);
+        serviceConfig.setTarget(proxy);
+
+        referenceBinding.lookup(serviceConfig.getService());
+        referenceBinding.binding(serviceConfig);
+
+        return proxy;
     }
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {

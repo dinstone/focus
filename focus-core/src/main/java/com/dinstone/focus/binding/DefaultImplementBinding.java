@@ -76,7 +76,7 @@ public class DefaultImplementBinding implements ImplementBinding {
         description.setRtime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
-        for (MethodInfo method : config.getMethodInfos()) {
+        for (MethodInfo method : config.methodInfos()) {
             methodDescList.add(description(method));
         }
         description.addAttribute("methods", methodDescList);

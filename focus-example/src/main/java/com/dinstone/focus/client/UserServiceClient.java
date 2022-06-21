@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.server;
+package com.dinstone.focus.client;
 
-import java.io.IOException;
-
-import com.dinstone.focus.client.Client;
-import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.codec.protobuf.ProtobufCodec;
-import com.dinstone.focus.example.StoreService;
-import com.dinstone.focus.example.StoreServiceImpl;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.protobuf.UserCheckRequest;
+import com.dinstone.focus.protobuf.UserCheckResponse;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -37,51 +33,34 @@ import zipkin2.reporter.Sender;
 import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
-public class StoreServiceServer {
+public class UserServiceClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StoreServiceServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserServiceClient.class);
 
     public static void main(String[] args) {
 
-        Server sss = createStoreServiceServer();
-
-        LOG.info("server start");
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        sss.destroy();
-        LOG.info("server stop");
-    }
-
-    private static Server createStoreServiceServer() {
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        Tracing tracing = Tracing.newBuilder().localServiceName("store.service").addSpanHandler(spanHandler)
+        Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
                 .sampler(Sampler.create(1)).build();
-
-        final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
-
-        ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3302);
-        serverOptions.addFilter(tf);
-        Server server = new Server(serverOptions);
-        UserService userService = createUserServiceRpc(tracing);
-        server.exporting(StoreService.class, new StoreServiceImpl(userService));
-
-        return server;
-    }
-
-    private static UserService createUserServiceRpc(Tracing tracing) {
-        ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
+        ConnectOptions connectOptions = new ConnectOptions();
         ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
                 .setConnectOptions(connectOptions).addFilter(tf);
         Client client = new Client(option);
-        return client.importing(UserService.class);
+
+        final UserService ds = client.importing(UserService.class);
+
+        try {
+            UserCheckRequest ucr = UserCheckRequest.newBuilder().setUserId("dinstone").build();
+            UserCheckResponse res = ds.checkExist(ucr);
+            LOG.info("user check is {}", res.getExist());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        client.destroy();
     }
 
 }

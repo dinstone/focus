@@ -20,7 +20,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -53,7 +55,7 @@ public class JacksonCodecTest {
         p.setName("cpu");
         p.setGroup("x86");
 
-        Call call = new Call("hello", p, Product.class);
+        Call call = new Call("hello", p);
 
         ObjectMapper objectMapper = extracted();
 
@@ -114,12 +116,29 @@ public class JacksonCodecTest {
 
     }
 
+    @Test
+    public void testMap() throws JsonProcessingException {
+
+        ObjectMapper objectMapper = extracted();
+
+        Product p = new Product();
+        p.setCode("002");
+        p.setName("cpu");
+        p.setGroup("x86");
+
+        String s = objectMapper.writeValueAsString(p);
+        System.out.println("string = " + s);
+
+        Map e = objectMapper.readValue(s, HashMap.class);
+        System.out.println("map = " + e);
+        assertEquals(p.getCode(), e.get("code"));
+
+    }
+
     private ObjectMapper extracted() {
 
         ObjectMapper objectMapper = new ObjectMapper();
-
-        objectMapper = new ObjectMapper();
-        objectMapper.enableDefaultTyping();
+        objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator());
 
         // JSON configuration not to serialize null field
         objectMapper.setSerializationInclusion(Include.NON_NULL);

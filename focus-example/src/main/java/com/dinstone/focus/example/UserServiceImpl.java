@@ -15,14 +15,20 @@
  */
 package com.dinstone.focus.example;
 
+import com.dinstone.focus.protobuf.UserCheckRequest;
+import com.dinstone.focus.protobuf.UserCheckResponse;
+import com.dinstone.focus.protobuf.UserCheckResponse.Builder;
+
 public class UserServiceImpl implements UserService {
 
     @Override
-    public boolean isExist(String uid) {
-        if (uid == null || uid.isEmpty())
-            return false;
+    public UserCheckResponse checkExist(UserCheckRequest request) {
+        Builder b = UserCheckResponse.newBuilder().setExist(false);
+        if (request != null && "dinstone".equals(request.getUserId())) {
+            return b.setExist(true).build();
+        }
 
-        return true;
+        return b.build();
     }
 
 }

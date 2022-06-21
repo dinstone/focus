@@ -86,8 +86,9 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
         return codecId;
     }
 
-    public void setCodecId(String codecId) {
+    public ClientOptions setCodecId(String codecId) {
         this.codecId = codecId;
+        return this;
     }
 
 }

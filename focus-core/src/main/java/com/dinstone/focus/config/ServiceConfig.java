@@ -30,7 +30,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
  */
 public class ServiceConfig {
 
-    private Map<String, MethodInfo> methodCaches;
+    private Map<String, MethodInfo> methodCaches = new HashMap<String, MethodInfo>();
 
     private String appCode;
 
@@ -43,8 +43,6 @@ public class ServiceConfig {
     private int timeout;
 
     private String codecId;
-
-    private Method[] methods;
 
     private Object target;
 
@@ -77,33 +75,6 @@ public class ServiceConfig {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
-    }
-
-    public Collection<MethodInfo> getMethodInfos() {
-        return methodCaches.values();
-    }
-
-    public void setMethods(Method[] methods) {
-        if (methodCaches == null) {
-            methodCaches = new HashMap<String, MethodInfo>();
-        }
-        for (Method method : methods) {
-            // overload check
-            if (methodCaches.containsKey(method.getName())) {
-                throw new IllegalArgumentException("unsupported method overload : " + method);
-            }
-            // parameter check
-            Class<?> paramType = null;
-            if (method.getParameterTypes().length > 1) {
-                throw new IllegalArgumentException("call only support one parameter");
-            } else if (method.getParameterTypes().length == 1) {
-                paramType = method.getParameterTypes()[0];
-            }
-
-            MethodInfo mi = new MethodInfo(method, paramType);
-            methodCaches.put(mi.getMethodName(), mi);
-        }
-        this.methods = methods;
     }
 
     public Object getTarget() {
@@ -146,20 +117,43 @@ public class ServiceConfig {
         this.appName = appName;
     }
 
-    public MethodInfo findMethod(String methodName) {
-        return methodCaches.get(methodName);
-    }
-
-    public boolean hasMethod(String methodName) {
-        return methodCaches.containsKey(methodName);
-    }
-
     public String getCodecId() {
         return codecId;
     }
 
     public void setCodecId(String codecId) {
         this.codecId = codecId;
+    }
+
+    public void parseMethodInfos(Method[] methods) {
+        for (Method method : methods) {
+            // overload check
+            if (methodCaches.containsKey(method.getName())) {
+                throw new IllegalArgumentException("unsupported method overload : " + method);
+            }
+            // parameter check
+            Class<?> paramType = null;
+            if (method.getParameterTypes().length > 1) {
+                throw new IllegalArgumentException("call only support one parameter");
+            } else if (method.getParameterTypes().length == 1) {
+                paramType = method.getParameterTypes()[0];
+            }
+
+            MethodInfo mi = new MethodInfo(method, paramType);
+            addMethodInfo(mi);
+        }
+    }
+
+    public Collection<MethodInfo> methodInfos() {
+        return methodCaches.values();
+    }
+
+    public void addMethodInfo(MethodInfo mi) {
+        methodCaches.put(mi.getMethodName(), mi);
+    }
+
+    public MethodInfo getMethodInfo(String methodName) {
+        return methodCaches.get(methodName);
     }
 
 }

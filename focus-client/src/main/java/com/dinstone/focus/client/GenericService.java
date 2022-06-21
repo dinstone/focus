@@ -17,6 +17,22 @@ package com.dinstone.focus.client;
 
 public interface GenericService {
 
-    Object sync(String methodName, String[] argTypes, Object[] args);
+    /**
+     * generic service invoke. only support JSON codec.
+     * 
+     * @param <R>
+     * @param <P>
+     * @param returnType
+     *            method return type, only support ( Object<->HashMap, String, java basic type)
+     * @param methodName
+     *            method name
+     * @param paramType
+     *            method parameter type, only support ( Object<->HashMap, String, java basic type)
+     * @param parameter
+     *            parameter object
+     * 
+     * @return
+     */
+    <R, P> R invoke(Class<R> returnType, String methodName, Class<P> paramType, P parameter);
 
 }

@@ -17,83 +17,85 @@ package com.dinstone.focus.protocol;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import com.dinstone.photon.message.Headers;
-
-public class Attach implements Map<String, String> {
+public class Attach implements Iterable<Entry<String, String>> {
 
     protected final Map<String, String> store = new HashMap<String, String>();
 
     public Attach() {
     }
 
-    public Attach(Headers headers) {
-        if (headers != null) {
-            headers.forEach(e -> {
+    public Attach(Iterable<Entry<String, String>> as) {
+        if (as != null) {
+            as.forEach(e -> {
                 store.put(e.getKey(), e.getValue());
             });
         }
     }
 
-    @Override
     public int size() {
         return store.size();
     }
 
-    @Override
     public boolean isEmpty() {
         return store.isEmpty();
     }
 
-    @Override
     public boolean containsKey(Object key) {
         return store.containsKey(key);
     }
 
-    @Override
     public boolean containsValue(Object value) {
         return store.containsValue(value);
     }
 
-    @Override
     public String get(Object key) {
         return store.get(key);
     }
 
-    @Override
     public String put(String key, String value) {
         return store.put(key, value);
     }
 
-    @Override
     public String remove(Object key) {
         return store.remove(key);
     }
 
-    @Override
     public void clear() {
         store.clear();
     }
 
-    @Override
     public Set<String> keySet() {
         return store.keySet();
     }
 
-    @Override
     public Collection<String> values() {
         return store.values();
     }
 
-    @Override
     public Set<Entry<String, String>> entrySet() {
         return store.entrySet();
     }
 
-    @Override
-    public void putAll(Map<? extends String, ? extends String> m) {
-        store.putAll(m);
+    public Iterator<Entry<String, String>> iterator() {
+        return store.entrySet().iterator();
     }
+
+    public void putAll(Iterable<Entry<String, String>> as) {
+        if (as != null) {
+            as.forEach(e -> {
+                this.put(e.getKey(), e.getValue());
+            });
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Attach [" + store + "]";
+    }
+
 }

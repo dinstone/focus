@@ -17,6 +17,6 @@ package com.dinstone.focus.example;
 
 public interface StoreService {
 
-    boolean checkExist(String uid, String sn, String poi);
+    boolean checkExist(String uid);
 
 }

@@ -28,8 +28,8 @@ import brave.Span.Kind;
 import brave.Tracing;
 import brave.rpc.RpcTracing;
 import brave.sampler.Sampler;
-import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Sender;
+import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
 public class UserServiceServer {
@@ -52,10 +52,11 @@ public class UserServiceServer {
     }
 
     private static Server createUserServiceServer() {
-        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        Tracing tracing = Tracing.newBuilder().localServiceName("user.service")
-                .spanReporter(AsyncReporter.builder(sender).build()).sampler(Sampler.create(1)).build();
 
+        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+        AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
+        Tracing tracing = Tracing.newBuilder().localServiceName("user.service").addSpanHandler(spanHandler)
+                .sampler(Sampler.create(1)).build();
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions();

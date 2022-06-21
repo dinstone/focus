@@ -27,6 +27,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class JacksonCodec extends AbstractCodec {
 
+    private static final String CODEC_ID = "json/jackson";
+
     private ObjectMapper objectMapper;
 
     public JacksonCodec() {
@@ -45,7 +47,7 @@ public class JacksonCodec extends AbstractCodec {
 
     @Override
     public String codecId() {
-        return "json/jackson";
+        return CODEC_ID;
     }
 
     @Override

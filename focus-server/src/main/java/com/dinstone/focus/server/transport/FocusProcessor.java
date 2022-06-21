@@ -51,9 +51,9 @@ public final class FocusProcessor extends DefaultMessageProcessor {
             Request request = (Request) msg;
             if (selector != null) {
                 Headers headers = request.headers();
-                String g = headers.get("rpc.call.group");
-                String s = headers.get("rpc.call.service");
-                String m = headers.get("rpc.call.method");
+                String g = headers.get(Call.GROUP_KEY);
+                String s = headers.get(Call.SERVICE_KEY);
+                String m = headers.get(Call.METHOD_KEY);
                 executor = selector.select(g, s, m);
             }
             if (executor != null) {
@@ -79,37 +79,33 @@ public final class FocusProcessor extends DefaultMessageProcessor {
         try {
             Headers headers = request.headers();
             // check service
-            String group = headers.get("rpc.call.group");
-            String service = headers.get("rpc.call.service");
+            String group = headers.get(Call.GROUP_KEY);
+            String service = headers.get(Call.SERVICE_KEY);
             ServiceConfig config = binding.lookup(service, group);
             if (config == null) {
                 throw new NoSuchMethodException("unkown service: " + service + "[" + group + "]");
             }
 
             // check method
-            String methodName = headers.get("rpc.call.method");
-            MethodInfo methodInfo = config.findMethod(methodName);
+            String methodName = headers.get(Call.METHOD_KEY);
+            MethodInfo methodInfo = config.getMethodInfo(methodName);
             if (methodInfo == null) {
                 throw new NoSuchMethodException("unkown method: " + service + "[" + group + "]." + methodName);
             }
 
-            String codecId = headers.get("rpc.call.codec");
+            String codecId = headers.get(Call.CODEC_KEY);
             ProtocolCodec codec = CodecManager.codec(codecId);
 
-            Call call = new Call();
-            call.setGroup(group);
-            call.setService(service);
-            call.setMethod(methodName);
-            call.setParamType(methodInfo.getParamType());
             // decode call from request
-            codec.decode(request, call);
+            Call call = codec.decode(request, methodInfo.getParamType());
 
             // invoke call
             Reply reply = config.getHandler().invoke(call);
 
             // encode reply to response
-            Response response = codec.encode(reply, new Response());
+            Response response = codec.encode(reply, methodInfo.getReturnType());
             response.setMsgId(request.getMsgId());
+
             // send response with reply
             connection.send(response);
 

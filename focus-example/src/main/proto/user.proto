@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+option java_package = "com.dinstone.focus.protobuf";
+
+option java_outer_classname = "UserProto";
+
+option objc_class_prefix = "user";
+
+package user;
+
+
+// The request message containing the user's name.
+message UserCheckRequest {
+    string userId = 1;
+}
+
+// The response message containing the greetings
+message UserCheckResponse {
+    bool exist = 1;
+}

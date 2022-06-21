@@ -18,4 +18,7 @@ package com.dinstone.focus.example;
 public interface OrderService {
 
     OrderResponse createOrder(OrderRequest order);
+
+    OrderResponse findOldOrder(OrderRequest order);
+
 }

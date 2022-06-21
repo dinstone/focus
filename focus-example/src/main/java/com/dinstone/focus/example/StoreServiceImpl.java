@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.example;
 
+import com.dinstone.focus.protobuf.UserCheckRequest;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -30,15 +31,12 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public boolean checkExist(String uid, String sn, String poi) {
-        if (!userService.isExist(uid)) {
+    public boolean checkExist(String uid) {
+        UserCheckRequest build = UserCheckRequest.newBuilder().setUserId(uid).build();
+        if (!userService.checkExist(build).getExist()) {
             throw new IllegalArgumentException("user id is valid");
         }
         log.info("user is exist:{}", uid);
-
-        if (sn == null && poi == null) {
-            return false;
-        }
 
         return true;
     }

@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.example;
 
+import com.dinstone.focus.protobuf.UserCheckRequest;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -34,12 +35,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrder(OrderRequest order) {
-        if (!userService.isExist(order.getUid())) {
+        UserCheckRequest build = UserCheckRequest.newBuilder().setUserId(order.getUid()).build();
+        if (!userService.checkExist(build).getExist()) {
             throw new IllegalArgumentException("user id is valid");
         }
         log.info("user is exist:{}", order.getUid());
 
-        storeService.checkExist(order.getUid(), order.getSn(), order.getPoi());
+        storeService.checkExist(order.getUid());
+        return new OrderResponse().setOid(order.getUid() + "-" + order.getPoi() + "-" + order.getSn());
+    }
+
+    @Override
+    public OrderResponse findOldOrder(OrderRequest order) {
         return new OrderResponse().setOid(order.getUid() + "-" + order.getPoi() + "-" + order.getSn());
     }
 

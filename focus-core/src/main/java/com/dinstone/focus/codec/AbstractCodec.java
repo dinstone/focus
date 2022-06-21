@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.codec;
 
-import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Headers;
@@ -26,52 +25,52 @@ import com.dinstone.photon.message.Response.Status;
 public abstract class AbstractCodec implements ProtocolCodec {
 
     @Override
-    public Request encode(Call call, Request request) throws CodecException {
-        // Request request = new Request();
+    public Request encode(Call call, Class<?> paramType) throws CodecException {
+        Request request = new Request();
         Headers headers = request.headers();
-        headers.add("rpc.call.group", call.getGroup());
-        headers.add("rpc.call.service", call.getService());
-        headers.add("rpc.call.method", call.getMethod());
-        headers.add("rpc.call.timeout", "" + call.getTimeout());
-        headers.add("rpc.call.codec", codecId());
-        // headers.add(call.attach());
+        headers.add(Call.GROUP_KEY, call.getGroup());
+        headers.add(Call.SERVICE_KEY, call.getService());
+        headers.add(Call.METHOD_KEY, call.getMethod());
+        headers.add(Call.CODEC_KEY, codecId());
+        headers.setAll(call.attach());
 
         request.setTimeout(call.getTimeout());
-        request.setContent(write(call.getParameter(), call.getParamType()));
+        request.setContent(write(call.getParameter(), paramType));
         return request;
     }
 
     @Override
-    public Call decode(Request request, Call call) throws CodecException {
+    public Call decode(Request request, Class<?> paramType) throws CodecException {
+        Call call = new Call();
         Headers headers = request.headers();
-        call.setGroup(headers.get("rpc.call.group"));
-        call.setService(headers.get("rpc.call.service"));
-        call.setMethod(headers.get("rpc.call.method"));
-        call.attach(new Attach(headers));
+        call.setGroup(headers.get(Call.GROUP_KEY));
+        call.setService(headers.get(Call.SERVICE_KEY));
+        call.setMethod(headers.get(Call.METHOD_KEY));
         call.setTimeout(request.getTimeout());
-        call.setParameter(read(request.getContent(), call.getParamType()));
+        call.attach().putAll(headers);
+        call.setParameter(read(request.getContent(), paramType));
         return call;
     }
 
     @Override
-    public Response encode(Reply reply, Response response) throws CodecException {
-        // Response response = new Response();
-        // response.headers().setAll(reply.attach());
-        response.headers().add("rpc.call.codec", codecId());
+    public Response encode(Reply reply, Class<?> returnType) throws CodecException {
+        Response response = new Response();
+        response.headers().setAll(reply.attach());
+        response.headers().add(Reply.CODEC_KEY, codecId());
 
         response.setStatus(Status.SUCCESS);
-        response.setContent(write(reply.getData(), reply.getDataType()));
+        response.setContent(write(reply.getData(), returnType));
         return response;
     }
 
     @Override
-    public Reply decode(Response response, Reply reply) throws CodecException {
-        // Reply reply = readReply(response.getContent());
+    public Reply decode(Response response, Class<?> returnType) throws CodecException {
+        Reply reply = new Reply();
         Headers headers = response.headers();
-        if (headers != null && !headers.isEmpty()) {
-            reply.attach(new Attach(headers));
+        if (!headers.isEmpty()) {
+            reply.attach().putAll(headers);
         }
-        Object data = read(response.getContent(), reply.getDataType());
+        Object data = read(response.getContent(), returnType);
         reply.setData(data);
         return reply;
     }

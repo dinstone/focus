@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.dinstone.focus.client.Client;
 import com.dinstone.focus.client.ClientOptions;
+import com.dinstone.focus.codec.protobuf.ProtobufCodec;
 import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.StoreService;
@@ -33,8 +34,8 @@ import brave.Span.Kind;
 import brave.Tracing;
 import brave.rpc.RpcTracing;
 import brave.sampler.Sampler;
-import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Sender;
+import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
 public class OrderServiceServer {
@@ -58,8 +59,9 @@ public class OrderServiceServer {
 
     private static Server createOrderServiceServer() {
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        Tracing tracing = Tracing.newBuilder().localServiceName("order.service")
-                .spanReporter(AsyncReporter.builder(sender).build()).sampler(Sampler.create(1)).build();
+        AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
+        Tracing tracing = Tracing.newBuilder().localServiceName("order.service").addSpanHandler(spanHandler)
+                .sampler(Sampler.create(1)).build();
 
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
@@ -88,8 +90,8 @@ public class OrderServiceServer {
         ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3301).setConnectOptions(connectOptions)
-                .addFilter(tf);
+        ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
+                .setConnectOptions(connectOptions).addFilter(tf);
         Client client = new Client(option);
         return client.importing(UserService.class);
     }

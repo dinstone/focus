@@ -46,11 +46,11 @@ public class TracingFilter implements Filter {
         if (rpcTracing == null) {
             throw new NullPointerException("rpcTracing == null");
         }
+        this.kind = kind;
 
         currentTraceContext = rpcTracing.tracing().currentTraceContext();
         clientHandler = RpcClientHandler.create(rpcTracing);
         serverHandler = RpcServerHandler.create(rpcTracing);
-        this.kind = kind;
     }
 
     @Override

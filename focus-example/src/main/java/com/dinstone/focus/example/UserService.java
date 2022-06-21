@@ -15,8 +15,11 @@
  */
 package com.dinstone.focus.example;
 
+import com.dinstone.focus.protobuf.UserCheckRequest;
+import com.dinstone.focus.protobuf.UserCheckResponse;
+
 public interface UserService {
 
-    boolean isExist(String uid);
+    UserCheckResponse checkExist(UserCheckRequest request);
 
 }

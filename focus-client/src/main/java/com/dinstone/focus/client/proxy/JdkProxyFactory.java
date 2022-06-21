@@ -49,26 +49,17 @@ public class JdkProxyFactory implements ProxyFactory {
             }
 
             Object parameter = null;
-            Class<?> paramType = null;
-            if (method.getParameterTypes().length > 1) {
-                throw new IllegalArgumentException("call only support one parameter");
-            } else if (method.getParameterTypes().length == 1) {
-                paramType = method.getParameterTypes()[0];
+            if (args.length > 0) {
                 parameter = args[0];
             }
 
             try {
-                Call call = new Call(methodName, parameter, paramType);
+                Call call = new Call(methodName, parameter);
                 Reply reply = invokeHandler.invoke(call);
                 return reply.getData();
             } catch (Exception e) {
                 if (e instanceof RuntimeException) {
                     throw e;
-                }
-                for (Class<?> c : method.getExceptionTypes()) {
-                    if (c.isInstance(e)) {
-                        throw e;
-                    }
                 }
                 if (e instanceof TimeoutException) {
                     throw new ExchangeException(188, "invoke timeout", e);

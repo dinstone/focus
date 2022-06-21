@@ -19,6 +19,8 @@ import java.io.IOException;
 
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
+import com.dinstone.focus.example.OrderService;
+import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
@@ -49,6 +51,7 @@ public class FocusServerTest {
         serverOptions.addFilter(tf);
         Server server = new Server(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());
+        server.exporting(OrderService.class, new OrderServiceImpl(null, null));
         // server.start();
         LOG.info("server start");
         try {

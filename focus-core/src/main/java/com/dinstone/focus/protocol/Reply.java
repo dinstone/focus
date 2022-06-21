@@ -25,12 +25,12 @@ import java.io.Serializable;
  */
 public class Reply implements Serializable {
 
+    public static final String CODEC_KEY = "reply.codec";
+
     /**  */
     private static final long serialVersionUID = 1L;
 
     private Attach attach = new Attach();
-
-    private Class<?> dataType;
 
     private Object data;
 
@@ -38,13 +38,8 @@ public class Reply implements Serializable {
         super();
     }
 
-    public Reply(Class<?> returnType) {
-        this.dataType = returnType;
-    }
-
-    public Reply(Class<?> returnType, Object result) {
+    public Reply(Object result) {
         this.data = result;
-        this.dataType = returnType;
     }
 
     /**
@@ -69,14 +64,6 @@ public class Reply implements Serializable {
         this.data = data;
     }
 
-    public Class<?> getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(Class<?> dataType) {
-        this.dataType = dataType;
-    }
-
     /**
      * the attach to get
      * 
@@ -84,20 +71,6 @@ public class Reply implements Serializable {
      */
     public Attach attach() {
         return attach;
-    }
-
-    /**
-     * the attach to set
-     * 
-     * @param other
-     * 
-     * @return
-     */
-    public Reply attach(Attach other) {
-        if (other != null) {
-            attach.putAll(other);
-        }
-        return this;
     }
 
 }

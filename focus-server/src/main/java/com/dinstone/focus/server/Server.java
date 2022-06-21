@@ -122,7 +122,7 @@ public class Server implements ServiceExporter {
             serviceConfig.setGroup(group);
             serviceConfig.setTimeout(timeout);
             serviceConfig.setService(sic.getName());
-            serviceConfig.setMethods(sic.getDeclaredMethods());
+            serviceConfig.parseMethodInfos(sic.getDeclaredMethods());
             serviceConfig.setTarget(sio);
 
             serviceConfig.setAppCode(serverOptions.getAppCode());

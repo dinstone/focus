@@ -25,6 +25,14 @@ import java.io.Serializable;
  */
 public class Call implements Serializable {
 
+    public static final String SERVICE_KEY = "call.service";
+
+    public static final String METHOD_KEY = "call.method";
+
+    public static final String GROUP_KEY = "call.group";
+
+    public static final String CODEC_KEY = "call.codec";
+
     /**  */
     private static final long serialVersionUID = 1L;
 
@@ -38,18 +46,15 @@ public class Call implements Serializable {
 
     private Object parameter;
 
-    private Class<?> paramType;
-
     private Attach attach = new Attach();
 
     public Call() {
         super();
     }
 
-    public Call(String method, Object parameter, Class<?> paramType) {
+    public Call(String method, Object parameter) {
         this.method = method;
         this.parameter = parameter;
-        this.paramType = paramType;
     }
 
     /**
@@ -104,14 +109,6 @@ public class Call implements Serializable {
 
     public void setParameter(Object parameter) {
         this.parameter = parameter;
-    }
-
-    public Class<?> getParamType() {
-        return paramType;
-    }
-
-    public void setParamType(Class<?> paramType) {
-        this.paramType = paramType;
     }
 
     /**

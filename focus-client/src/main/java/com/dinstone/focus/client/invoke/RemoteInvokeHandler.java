@@ -51,7 +51,10 @@ public class RemoteInvokeHandler implements InvokeHandler {
             throw new RuntimeException("can't find a service connection");
         }
 
-        Request request = protocolCodec.encode(call, new Request());
+        MethodInfo mi = serviceConfig.getMethodInfo(call.getMethod());
+
+        // process request
+        Request request = protocolCodec.encode(call, mi.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());
 
         // remote call
@@ -59,9 +62,7 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
         // process response
         if (response.getStatus() == Status.SUCCESS) {
-            MethodInfo m = serviceConfig.findMethod(call.getMethod());
-            Reply r = new Reply(m.getReturnType());
-            return protocolCodec.decode(response, r);
+            return protocolCodec.decode(response, mi.getReturnType());
         } else {
             throw ExceptionCodec.decode(response.getContent());
         }

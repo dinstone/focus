@@ -89,10 +89,6 @@ public class InvokeContext {
         return context;
     }
 
-    public static void setContext(InvokeContext context) {
-        CONTEXT_LOCAL.set(context);
-    }
-
     public static InvokeContext peekContext() {
         return CONTEXT_LOCAL.get();
     }

@@ -71,14 +71,15 @@ public final class FocusProcessor extends DefaultMessageProcessor {
     }
 
     private void invoke(Connection connection, Request request) {
-        if (request.isTimeout()) {
-            return;
-        }
-
         ExchangeException exception = null;
         try {
-            Headers headers = request.headers();
+            // check request timeout
+            if (request.isTimeout()) {
+                throw new ExchangeException(308, "request timeout");
+            }
+
             // check service
+            Headers headers = request.headers();
             String group = headers.get(Call.GROUP_KEY);
             String service = headers.get(Call.SERVICE_KEY);
             ServiceConfig config = binding.lookup(service, group);

@@ -168,7 +168,9 @@ public class Client implements ServiceImporter {
             @Override
             public <R, P> R invoke(Class<R> returnType, String methodName, Class<P> paramType, P parameter) {
                 try {
-                    serviceConfig.addMethodInfo(new MethodInfo(methodName, paramType, returnType));
+                    if (serviceConfig.getMethodInfo(methodName) == null) {
+                        serviceConfig.addMethodInfo(new MethodInfo(methodName, paramType, returnType));
+                    }
 
                     Call call = new Call(methodName, parameter);
                     Reply reply = invokeHandler.invoke(call);

@@ -39,6 +39,7 @@ public class ProvideInvokeHandler implements InvokeHandler {
     }
 
     public Reply invoke(Call call) throws Exception {
+        InvokeContext.getContext();
         try {
             return invokeHandler.invoke(call);
         } finally {

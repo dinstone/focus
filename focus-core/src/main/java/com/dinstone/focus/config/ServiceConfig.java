@@ -17,8 +17,8 @@ package com.dinstone.focus.config;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.focus.invoke.InvokeHandler;
 
@@ -30,7 +30,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
  */
 public class ServiceConfig {
 
-    private Map<String, MethodInfo> methodCaches = new HashMap<String, MethodInfo>();
+    private Map<String, MethodInfo> methodCaches = new ConcurrentHashMap<String, MethodInfo>();
 
     private String appCode;
 
@@ -149,7 +149,7 @@ public class ServiceConfig {
     }
 
     public void addMethodInfo(MethodInfo mi) {
-        methodCaches.put(mi.getMethodName(), mi);
+        methodCaches.putIfAbsent(mi.getMethodName(), mi);
     }
 
     public MethodInfo getMethodInfo(String methodName) {

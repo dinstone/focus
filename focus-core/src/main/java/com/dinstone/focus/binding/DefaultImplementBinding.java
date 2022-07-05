@@ -124,12 +124,7 @@ public class DefaultImplementBinding implements ImplementBinding {
     @Override
     public void destroy() {
         if (serviceRegistry != null) {
-            for (ServiceDescription serviceDescription : registedServices) {
-                try {
-                    serviceRegistry.deregister(serviceDescription);
-                } catch (Exception e) {
-                }
-            }
+            serviceRegistry.destroy();
         }
     }
 

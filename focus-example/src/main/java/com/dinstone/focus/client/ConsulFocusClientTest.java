@@ -36,13 +36,13 @@ public class ConsulFocusClientTest {
         Client client = new Client(option);
         DemoService ds = client.importing(DemoService.class);
 
+        LOG.info("int end");
+
         try {
             ds.hello(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        LOG.info("int end");
 
         try {
             execute(ds, "hot: ");

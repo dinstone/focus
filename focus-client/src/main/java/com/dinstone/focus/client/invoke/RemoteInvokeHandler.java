@@ -17,6 +17,8 @@ package com.dinstone.focus.client.invoke;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dinstone.clutch.ServiceInstance;
+import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.config.MethodInfo;
@@ -39,17 +41,24 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     private ProtocolCodec protocolCodec;
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig) {
+    private ConnectionFactory connectionFactory;
+
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, ConnectionFactory connectionFactory) {
         this.serviceConfig = serviceConfig;
+        this.connectionFactory = connectionFactory;
         this.protocolCodec = CodecManager.codec(serviceConfig.getCodecId());
     }
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        Connection connection = InvokeContext.getContext().get("service.connection");
-        if (connection == null) {
-            throw new RuntimeException("can't find a service connection");
+        ServiceInstance instance = InvokeContext.getContext().get("service.instance");
+        if (instance == null) {
+            throw new RuntimeException("can't find a service instance to connect");
         }
+
+        Connection connection = connectionFactory.create(instance.getServiceAddress());
+        call.attach().put("consumer.address", connection.getLocalAddress().toString());
+        call.attach().put("provider.address", connection.getRemoteAddress().toString());
 
         MethodInfo mi = serviceConfig.getMethodInfo(call.getMethod());
 

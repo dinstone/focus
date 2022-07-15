@@ -13,31 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
+package com.dinstone.focus.springboot.config;
 
-import java.util.List;
-
-import com.dinstone.clutch.ServiceInstance;
-import com.dinstone.focus.config.ServiceConfig;
-
-/**
- * service reference binding and service lookup
- * 
- * @author dinstone
- * 
- * @version 1.0.0
- */
-public interface ReferenceBinding {
-
-    /**
-     * service reference bind
-     * 
-     * @param wrapper
-     */
-    public <T> void binding(ServiceConfig config);
-
-    public List<ServiceInstance> lookup(String serviceName);
-
-    public void destroy();
+public class FocusServerAutoConfiguration {
 
 }

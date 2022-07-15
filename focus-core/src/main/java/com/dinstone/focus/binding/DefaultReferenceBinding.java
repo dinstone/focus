@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.dinstone.clutch.ServiceDescription;
 import com.dinstone.clutch.ServiceDiscovery;
+import com.dinstone.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.photon.utils.NetworkUtil;
 
@@ -61,7 +61,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         }
     }
 
-    protected <T> ServiceDescription createServiceDescription(ServiceConfig config) {
+    protected <T> ServiceInstance createServiceDescription(ServiceConfig config) {
         String group = config.getGroup();
         String host = consumerAddress.getAddress().getHostAddress();
         int port = consumerAddress.getPort();
@@ -71,11 +71,11 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         code.append(host).append(":").append(port).append("$");
         code.append((group == null ? "" : group));
 
-        ServiceDescription description = new ServiceDescription();
-        description.setCode(code.toString());
-        description.setApp(config.getAppCode());
-        description.setName(config.getService());
-        description.setGroup(group);
+        ServiceInstance description = new ServiceInstance();
+        description.setInstanceCode(code.toString());
+        description.setEndpointCode(config.getAppCode());
+        description.setServiceName(config.getService());
+        description.setServiceGroup(group);
         description.setHost(host);
         description.setPort(port);
 
@@ -83,16 +83,15 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public List<ServiceDescription> lookup(String serviceName) {
+    public List<ServiceInstance> lookup(String serviceName) {
         try {
-            List<ServiceDescription> sds = null;
             if (serviceDiscovery != null) {
-                Collection<ServiceDescription> sdc = serviceDiscovery.discovery(serviceName);
-                if (sdc != null) {
-                    sds = new ArrayList<ServiceDescription>(sdc);
+                Collection<ServiceInstance> c = serviceDiscovery.discovery(serviceName);
+                if (c != null) {
+                    return new ArrayList<ServiceInstance>(c);
                 }
             }
-            return sds;
+            return null;
         } catch (Exception e) {
             throw new RuntimeException("service [" + serviceName + "] discovery error", e);
         }

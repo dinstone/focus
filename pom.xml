@@ -12,6 +12,7 @@
 		<module>focus-example</module>
 		<module>focus-tracing</module>
 		<module>focus-protobuf</module>
+		<module>focus-springboot</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

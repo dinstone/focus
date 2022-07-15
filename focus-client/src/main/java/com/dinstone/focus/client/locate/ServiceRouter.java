@@ -13,31 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
+package com.dinstone.focus.client.locate;
 
 import java.util.List;
 
 import com.dinstone.clutch.ServiceInstance;
-import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.protocol.Call;
 
-/**
- * service reference binding and service lookup
- * 
- * @author dinstone
- * 
- * @version 1.0.0
- */
-public interface ReferenceBinding {
+public interface ServiceRouter {
 
-    /**
-     * service reference bind
-     * 
-     * @param wrapper
-     */
-    public <T> void binding(ServiceConfig config);
-
-    public List<ServiceInstance> lookup(String serviceName);
-
-    public void destroy();
-
+    public List<ServiceInstance> route(Call call, ServiceInstance selected, List<ServiceInstance> instances);
 }

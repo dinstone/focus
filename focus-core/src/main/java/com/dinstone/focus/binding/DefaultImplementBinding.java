@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dinstone.clutch.ServiceDescription;
+import com.dinstone.clutch.ServiceInstance;
 import com.dinstone.clutch.ServiceRegistry;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
@@ -32,7 +32,7 @@ public class DefaultImplementBinding implements ImplementBinding {
 
     protected Map<String, ServiceConfig> serviceProxyMap = new ConcurrentHashMap<>();
 
-    protected Set<ServiceDescription> registedServices = new HashSet<>();
+    protected Set<ServiceInstance> registedServices = new HashSet<>();
 
     protected InetSocketAddress providerAddress;
 
@@ -66,13 +66,13 @@ public class DefaultImplementBinding implements ImplementBinding {
         code.append(host).append(":").append(port).append("$");
         code.append((group == null ? "" : group));
 
-        ServiceDescription description = new ServiceDescription();
-        description.setCode(code.toString());
-        description.setApp(config.getAppCode());
+        ServiceInstance description = new ServiceInstance();
+        description.setInstanceCode(code.toString());
+        description.setEndpointCode(config.getAppCode());
         description.setHost(host);
         description.setPort(port);
-        description.setName(config.getService());
-        description.setGroup(group);
+        description.setServiceName(config.getService());
+        description.setServiceGroup(group);
         description.setRtime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();

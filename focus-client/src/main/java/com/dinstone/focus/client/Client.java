@@ -15,8 +15,6 @@
  */
 package com.dinstone.focus.client;
 
-import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeoutException;
 
@@ -198,10 +196,9 @@ public class Client implements ServiceImporter {
     }
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
-        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig);
+        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, connectionFactory);
         FilterChainHandler chain = createFilterChain(serviceConfig, remote);
-        List<InetSocketAddress> addresses = clientOptions.getServiceAddresses();
-        InvokeHandler invokeHandler = new LocationInvokeHandler(chain, referenceBinding, connectionFactory, addresses);
+        InvokeHandler invokeHandler = new LocationInvokeHandler(serviceConfig, chain, referenceBinding, clientOptions);
         return new ConsumeInvokeHandler(serviceConfig, invokeHandler);
     }
 

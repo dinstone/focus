@@ -19,6 +19,8 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dinstone.focus.client.locate.DefaultLocateFactory;
+import com.dinstone.focus.client.locate.LocateFactory;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.photon.ConnectOptions;
 
@@ -35,6 +37,8 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
     private String codecId = DEFAULT_CODEC_ID;
+
+    private LocateFactory locateFactory;
 
     public ConnectOptions getConnectOptions() {
         return connectOptions;
@@ -88,6 +92,18 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     public ClientOptions setCodecId(String codecId) {
         this.codecId = codecId;
+        return this;
+    }
+
+    public LocateFactory getLocateFactory() {
+        if (locateFactory == null) {
+            locateFactory = new DefaultLocateFactory();
+        }
+        return locateFactory;
+    }
+
+    public ClientOptions setLocateFactory(LocateFactory locateFactory) {
+        this.locateFactory = locateFactory;
         return this;
     }
 

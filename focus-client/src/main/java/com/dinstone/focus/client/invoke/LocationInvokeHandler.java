@@ -15,115 +15,104 @@
  */
 package com.dinstone.focus.client.invoke;
 
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.clutch.ServiceDescription;
+import com.dinstone.clutch.ServiceInstance;
 import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.client.transport.ConnectionFactory;
+import com.dinstone.focus.client.ClientOptions;
+import com.dinstone.focus.client.locate.LoadBalancer;
+import com.dinstone.focus.client.locate.LocateFactory;
+import com.dinstone.focus.client.locate.ServiceRouter;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.photon.connection.Connection;
 
 public class LocationInvokeHandler implements InvokeHandler {
 
-    private final AtomicInteger index = new AtomicInteger(0);
+    private List<ServiceInstance> backupServiceInstances = new ArrayList<ServiceInstance>();
 
     private InvokeHandler invocationHandler;
 
     private ReferenceBinding referenceBinding;
 
-    private ConnectionFactory connectionFactory;
+    private ServiceRouter serviceRouter;
 
-    private List<InetSocketAddress> backupServiceAddresses = new ArrayList<>();
+    private LoadBalancer loadBalancer;
 
-    public LocationInvokeHandler(InvokeHandler invocationHandler, ReferenceBinding referenceBinding,
-            ConnectionFactory connectionFactory, List<InetSocketAddress> serviceAddresses) {
+    public LocationInvokeHandler(ServiceConfig serviceConfig, InvokeHandler invocationHandler,
+            ReferenceBinding referenceBinding, ClientOptions clientOptions) {
         this.invocationHandler = invocationHandler;
         this.referenceBinding = referenceBinding;
-        this.connectionFactory = connectionFactory;
+        // init backup service instances
+        if (clientOptions.getServiceAddresses() != null) {
+            for (InetSocketAddress socketAddress : clientOptions.getServiceAddresses()) {
+                String service = serviceConfig.getService();
+                String group = serviceConfig.getGroup();
+                String host = socketAddress.getHostString();
+                int port = socketAddress.getPort();
 
-        if (serviceAddresses != null) {
-            backupServiceAddresses.addAll(serviceAddresses);
+                ServiceInstance si = new ServiceInstance();
+                si.setServiceName(service);
+                si.setServiceGroup(group);
+                si.setHost(host);
+                si.setPort(port);
+
+                StringBuilder code = new StringBuilder();
+                code.append(service).append("@");
+                code.append(host).append(":");
+                code.append(port).append("$");
+                code.append((group == null ? "" : group));
+                si.setInstanceCode(code.toString());
+
+                backupServiceInstances.add(si);
+            }
         }
+
+        // init router and load balancer
+        LocateFactory locateFactory = clientOptions.getLocateFactory();
+        serviceRouter = locateFactory.createSerivceRouter(serviceConfig);
+        loadBalancer = locateFactory.createLoadBalancer(serviceConfig);
     }
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        Connection connection = loadbalance(call);
-        if (connection == null) {
-            throw new RuntimeException("can't find a service connection");
-        }
-        InvokeContext.getContext().put("service.connection", connection);
+        List<ServiceInstance> candidates = collect(call);
 
-        return invocationHandler.invoke(call);
-    }
-
-    private Connection loadbalance(Call call) throws Exception {
-        int count = 0;
-        while (count < 2) {
-            count++;
-
-            InetSocketAddress serviceAddress = select(call);
-            Connection connection = connectionFactory.create(serviceAddress);
-            if (connection.isBusy()) {
+        int retry = 2;
+        ServiceInstance selected = null;
+        for (int i = 0; i < retry; i++) {
+            List<ServiceInstance> ris = serviceRouter.route(call, selected, candidates);
+            selected = loadBalancer.select(call, selected, ris);
+            // check
+            if (selected == null) {
                 continue;
-            } else {
-                call.attach().put("consumer.address", connection.getLocalAddress().toString());
-                call.attach().put("provider.address", connection.getRemoteAddress().toString());
-                return connection;
+            }
+
+            InvokeContext.getContext().put("service.instance", selected);
+            try {
+                return invocationHandler.invoke(call);
+            } catch (ConnectException e) {
+                // ignore
+            } catch (Exception e) {
+                throw e;
             }
         }
-        return null;
+
+        throw new RuntimeException("can't find a service instance for " + call.getService());
     }
 
-    public <T> InetSocketAddress select(Call call) {
-        String service = call.getService();
-        String group = call.getGroup();
-
-        InetSocketAddress serviceAddress = null;
-        int next = Math.abs(index.getAndIncrement());
-        if (referenceBinding != null) {
-            ServiceDescription sd = route(service, group, next);
-            if (sd != null) {
-                serviceAddress = sd.getServiceAddress();
-                call.attach().put("provider.appcode", sd.getApp());
-            }
+    private List<ServiceInstance> collect(Call call) {
+        List<ServiceInstance> instances = referenceBinding.lookup(call.getService());
+        if (instances != null) {
+            return instances;
+        } else {
+            return new ArrayList<ServiceInstance>(backupServiceInstances);
         }
-
-        if (serviceAddress == null && backupServiceAddresses.size() > 0) {
-            serviceAddress = backupServiceAddresses.get(next % backupServiceAddresses.size());
-        }
-
-        if (serviceAddress == null) {
-            throw new RuntimeException("service " + service + "[" + group + "] is not ready");
-        }
-        return serviceAddress;
-    }
-
-    private ServiceDescription route(String service, String group, int index) {
-        List<ServiceDescription> serviceDescriptions = referenceBinding.lookup(service);
-        if (serviceDescriptions == null || serviceDescriptions.size() == 0) {
-            return null;
-        }
-
-        List<ServiceDescription> sds = new ArrayList<ServiceDescription>(serviceDescriptions.size());
-        for (ServiceDescription serviceDescription : serviceDescriptions) {
-            if (group.equals(serviceDescription.getGroup())) {
-                sds.add(serviceDescription);
-            }
-        }
-
-        if (sds.size() == 0) {
-            return null;
-        } else if (sds.size() == 1) {
-            return sds.get(0);
-        }
-        return sds.get(index % sds.size());
     }
 
 }

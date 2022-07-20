@@ -69,7 +69,7 @@ public class StoreServiceServer {
         serverOptions.addFilter(tf);
         Server server = new Server(serverOptions);
         UserService userService = createUserServiceRpc(tracing);
-        server.exporting(StoreService.class, new StoreServiceImpl(userService));
+        server.publish(StoreService.class, new StoreServiceImpl(userService));
 
         return server;
     }
@@ -81,7 +81,7 @@ public class StoreServiceServer {
         ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
                 .setConnectOptions(connectOptions).addFilter(tf);
         Client client = new Client(option);
-        return client.importing(UserService.class);
+        return client.reference(UserService.class);
     }
 
 }

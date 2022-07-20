@@ -50,7 +50,7 @@ public class UserServiceClient {
                 .setConnectOptions(connectOptions).addFilter(tf);
         Client client = new Client(option);
 
-        final UserService ds = client.importing(UserService.class);
+        final UserService ds = client.reference(UserService.class);
 
         try {
             UserCheckRequest ucr = UserCheckRequest.newBuilder().setUserId("dinstone").build();

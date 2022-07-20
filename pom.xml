@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dinstone.focus</groupId>
 	<artifactId>focus-parent</artifactId>
-	<version>0.8.0</version>
+	<version>0.9.0</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2019~2022</inceptionYear>
 	<modules>
@@ -12,7 +12,8 @@
 		<module>focus-example</module>
 		<module>focus-tracing</module>
 		<module>focus-protobuf</module>
-		<module>focus-springboot</module>
+		<module>focus-client-starter</module>
+		<module>focus-server-starter</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

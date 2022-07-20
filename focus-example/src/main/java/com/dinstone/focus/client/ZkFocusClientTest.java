@@ -34,7 +34,7 @@ public class ZkFocusClientTest {
                 .setRegistryConfig(new ZookeeperRegistryConfig()).setAppCode("com.rpc.demo.client");
 
         Client client = new Client(option);
-        DemoService ds = client.importing(DemoService.class);
+        DemoService ds = client.reference(DemoService.class);
 
         try {
             Thread.sleep(1000);

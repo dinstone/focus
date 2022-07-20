@@ -17,6 +17,7 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
+import com.dinstone.focus.example.AuthenService;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
 import com.dinstone.focus.example.OrderService;
@@ -47,11 +48,13 @@ public class FocusServerTest {
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3333).setAppCode("focus.example.server");
-        serverOptions.addFilter(tf);
+        serverOptions.listen("localhost", 3333).setAppCode("focus.example.server").addFilter(tf);
         Server server = new Server(serverOptions);
-        server.exporting(DemoService.class, new DemoServiceImpl());
-        server.exporting(OrderService.class, new OrderServiceImpl(null, null));
+        server.publish(DemoService.class, new DemoServiceImpl());
+        server.publish(OrderService.class, new OrderServiceImpl(null, null));
+
+        server.publish(AuthenService.class, "AuthenService", null, 0, new AuthenService());
+
         // server.start();
         LOG.info("server start");
         try {

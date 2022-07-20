@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.8.0</version>
+		<version>0.9.0</version>
 	</parent>
 	<artifactId>focus-example</artifactId>
 	<properties>
@@ -68,6 +68,16 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>${log4j2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-client-starter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-server-starter</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

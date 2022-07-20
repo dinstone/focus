@@ -71,7 +71,7 @@ public class OrderServiceServer {
         Server server = new Server(serverOptions);
         UserService userService = createUserServiceRpc(tracing);
         StoreService storeService = createStoreServiceRpc(tracing);
-        server.exporting(OrderService.class, new OrderServiceImpl(userService, storeService));
+        server.publish(OrderService.class, new OrderServiceImpl(userService, storeService));
 
         return server;
     }
@@ -83,7 +83,7 @@ public class OrderServiceServer {
         ClientOptions option = new ClientOptions().connect("localhost", 3302).setConnectOptions(connectOptions)
                 .addFilter(tf);
         Client client = new Client(option);
-        return client.importing(StoreService.class);
+        return client.reference(StoreService.class);
     }
 
     private static UserService createUserServiceRpc(Tracing tracing) {
@@ -93,7 +93,7 @@ public class OrderServiceServer {
         ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
                 .setConnectOptions(connectOptions).addFilter(tf);
         Client client = new Client(option);
-        return client.importing(UserService.class);
+        return client.reference(UserService.class);
     }
 
 }

@@ -34,7 +34,7 @@ public class ConsulFocusClientTest {
                 .setRegistryConfig(new ConsulRegistryConfig()).setAppCode("com.rpc.demo.client");
 
         Client client = new Client(option);
-        DemoService ds = client.importing(DemoService.class);
+        DemoService ds = client.reference(DemoService.class);
 
         LOG.info("int end");
 

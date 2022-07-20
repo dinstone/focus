@@ -63,7 +63,7 @@ public class UserServiceServer {
         serverOptions.listen("localhost", 3301);
         serverOptions.addFilter(tf);
         Server server = new Server(serverOptions);
-        server.exporting(UserService.class, new UserServiceImpl());
+        server.publish(UserService.class, new UserServiceImpl());
 
         return server;
     }

@@ -27,7 +27,7 @@ import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
-import com.dinstone.focus.endpoint.ServiceExporter;
+import com.dinstone.focus.endpoint.ServiceProvider;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
@@ -37,11 +37,9 @@ import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.Acceptor;
 
-public class Server implements ServiceExporter {
+public class Server implements ServiceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(Server.class);
-
-    private Acceptor acceptor;
 
     private EndpointOptions<ServerOptions> serverOptions;
 
@@ -50,6 +48,8 @@ public class Server implements ServiceExporter {
     private ServiceRegistry serviceRegistry;
 
     private ImplementBinding implementBinding;
+
+    private Acceptor acceptor;
 
     public Server(ServerOptions serverOption) {
         checkAndInit(serverOption);
@@ -99,17 +99,20 @@ public class Server implements ServiceExporter {
     }
 
     @Override
-    public <T> void exporting(Class<T> serviceInterface, T serviceImplement) {
-        exporting(serviceInterface, "", serverOptions.getDefaultTimeout(), serviceImplement);
+    public <T> void publish(Class<T> serviceInterface, T serviceImplement) {
+        publish(serviceInterface, "", serverOptions.getDefaultTimeout(), serviceImplement);
     }
 
     @Override
-    public <T> void exporting(Class<T> serviceInterface, String group, T serviceImplement) {
-        exporting(serviceInterface, group, serverOptions.getDefaultTimeout(), serviceImplement);
+    public <T> void publish(Class<T> sic, String group, int timeout, T sio) {
+        publish(sic, sic.getName(), group, serverOptions.getDefaultTimeout(), sio);
     }
 
     @Override
-    public <T> void exporting(Class<T> sic, String group, int timeout, T sio) {
+    public void publish(Class<? extends Object> clazz, String service, String group, int timeout, Object bean) {
+        if (service == null || service.isEmpty()) {
+            service = clazz.getName();
+        }
         if (group == null) {
             group = "";
         }
@@ -121,9 +124,9 @@ public class Server implements ServiceExporter {
             ServiceConfig serviceConfig = new ServiceConfig();
             serviceConfig.setGroup(group);
             serviceConfig.setTimeout(timeout);
-            serviceConfig.setService(sic.getName());
-            serviceConfig.parseMethodInfos(sic.getDeclaredMethods());
-            serviceConfig.setTarget(sio);
+            serviceConfig.setService(service);
+            serviceConfig.parseMethodInfos(clazz.getDeclaredMethods());
+            serviceConfig.setTarget(bean);
 
             serviceConfig.setAppCode(serverOptions.getAppCode());
             serviceConfig.setAppName(serverOptions.getAppName());

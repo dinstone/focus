@@ -33,14 +33,14 @@ import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.ServiceImporter;
+import com.dinstone.focus.endpoint.ServiceConsumer;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.ExchangeException;
 
-public class Client implements ServiceImporter {
+public class Client implements ServiceConsumer {
 
     private ClientOptions clientOptions;
 
@@ -98,18 +98,20 @@ public class Client implements ServiceImporter {
     }
 
     @Override
-    public <T> T importing(Class<T> sic) {
-        return importing(sic, "");
+    public <T> T reference(Class<T> sic) {
+        return reference(sic, "", clientOptions.getDefaultTimeout());
     }
 
     @Override
-    public <T> T importing(Class<T> sic, String group) {
-        return importing(sic, group, clientOptions.getDefaultTimeout());
+    public <T> T reference(Class<T> sic, String group, int timeout) {
+        return reference(sic, sic.getName(), group, timeout);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T importing(Class<T> sic, String group, int timeout) {
+    public <T> T reference(Class<T> sic, String service, String group, int timeout) {
+        if (service == null || service.isEmpty()) {
+            service = sic.getName();
+        }
         if (group == null) {
             group = "";
         }
@@ -120,7 +122,7 @@ public class Client implements ServiceImporter {
         ServiceConfig serviceConfig = new ServiceConfig();
         serviceConfig.setGroup(group);
         serviceConfig.setTimeout(timeout);
-        serviceConfig.setService(sic.getName());
+        serviceConfig.setService(service);
         serviceConfig.parseMethodInfos(sic.getDeclaredMethods());
 
         serviceConfig.setAppCode(clientOptions.getAppCode());
@@ -128,7 +130,7 @@ public class Client implements ServiceImporter {
         serviceConfig.setCodecId(clientOptions.getCodecId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-        Object proxy = proxyFactory.create(sic, invokeHandler);
+        T proxy = proxyFactory.create(sic, invokeHandler);
 
         serviceConfig.setHandler(invokeHandler);
         serviceConfig.setProxy(proxy);
@@ -136,7 +138,7 @@ public class Client implements ServiceImporter {
         referenceBinding.lookup(serviceConfig.getService());
         referenceBinding.binding(serviceConfig);
 
-        return (T) proxy;
+        return proxy;
     }
 
     public <P> GenericService genericService(String service, String group, int timeout) {

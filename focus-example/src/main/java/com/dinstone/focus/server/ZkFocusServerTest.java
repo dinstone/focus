@@ -32,7 +32,7 @@ public class ZkFocusServerTest {
         ServerOptions setEndpointCode = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
                 .setAppCode("com.rpc.demo.server");
         Server server = new Server(setEndpointCode);
-        server.exporting(DemoService.class, new DemoServiceImpl());
+        server.publish(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");
         try {

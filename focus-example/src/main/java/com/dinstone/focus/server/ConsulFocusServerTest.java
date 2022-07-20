@@ -33,7 +33,7 @@ public class ConsulFocusServerTest {
         ServerOptions serverOptions = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
                 .setAppCode("com.rpc.demo.server");
         Server server = new Server(serverOptions);
-        server.exporting(DemoService.class, new DemoServiceImpl());
+        server.publish(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");
         try {

@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.client;
 
+import com.dinstone.focus.example.AuthenCheck;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.tracing.TracingFilter;
@@ -47,12 +48,17 @@ public class FocusClientTest {
         ClientOptions option = new ClientOptions().setAppCode("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions()).addFilter(tf);
         Client client = new Client(option);
-        final DemoService ds = client.importing(DemoService.class);
-
+        final DemoService ds = client.reference(DemoService.class);
         LOG.info("init end");
-
         try {
             ds.hello("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        AuthenCheck a = client.reference(AuthenCheck.class, "AuthenService", "", 2000);
+        try {
+            System.out.println("user check is " + a.checkUser("dinstone"));
         } catch (Exception e) {
             e.printStackTrace();
         }

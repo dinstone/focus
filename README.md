@@ -10,10 +10,10 @@
 
 ## Ease of use
 * Out of the box client-side and server-side API
-* Spring integration friendly
+* Spring boot starter integration friendly
 
 ## Performance
-* Efficient custom protocol ([Photon](https://github.com/dinstone/photon) message exechange protocol and Focus RPC protocol)
+* Efficient custom protocol ([Photon](https://github.com/dinstone/photon) message exchange protocol and Focus RPC protocol)
 * High-performance NIO socket framework support - Netty4
 
 # Quick Start

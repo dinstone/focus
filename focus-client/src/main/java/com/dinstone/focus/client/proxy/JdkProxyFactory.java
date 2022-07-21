@@ -49,7 +49,7 @@ public class JdkProxyFactory implements ProxyFactory {
             }
 
             Object parameter = null;
-            if (args.length > 0) {
+            if (args != null && args.length > 0) {
                 parameter = args[0];
             }
 

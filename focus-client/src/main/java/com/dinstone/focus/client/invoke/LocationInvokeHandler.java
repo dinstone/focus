@@ -27,7 +27,6 @@ import com.dinstone.focus.client.locate.LoadBalancer;
 import com.dinstone.focus.client.locate.LocateFactory;
 import com.dinstone.focus.client.locate.ServiceRouter;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -93,7 +92,7 @@ public class LocationInvokeHandler implements InvokeHandler {
                 continue;
             }
 
-            InvokeContext.getContext().put("service.instance", selected);
+            call.context().put("service.instance", selected);
             try {
                 return invocationHandler.invoke(call);
             } catch (ConnectException e) {

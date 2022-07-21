@@ -48,6 +48,8 @@ public class Call implements Serializable {
 
     private Attach attach = new Attach();
 
+    private Context context = new Context();
+
     public Call() {
         super();
     }
@@ -132,6 +134,15 @@ public class Call implements Serializable {
             attach.putAll(other);
         }
         return this;
+    }
+
+    /**
+     * the call context
+     * 
+     * @return
+     */
+    public Context context() {
+        return context;
     }
 
 }

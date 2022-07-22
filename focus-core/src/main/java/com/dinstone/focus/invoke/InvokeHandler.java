@@ -21,4 +21,5 @@ import com.dinstone.focus.protocol.Reply;
 public interface InvokeHandler {
 
     public Reply invoke(Call call) throws Exception;
+
 }

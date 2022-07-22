@@ -15,12 +15,19 @@
  */
 package com.dinstone.focus.codec;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
+import com.dinstone.photon.utils.ByteStreamUtil;
+import com.dinstone.photon.utils.ExceptionUtil;
 
 public abstract class AbstractCodec implements ProtocolCodec {
 
@@ -57,9 +64,13 @@ public abstract class AbstractCodec implements ProtocolCodec {
         Response response = new Response();
         response.headers().setAll(reply.attach());
         response.headers().add(Reply.CODEC_KEY, codecId());
-
-        response.setStatus(Status.SUCCESS);
-        response.setContent(write(reply.getData(), returnType));
+        if (reply.getData() instanceof ExchangeException) {
+            response.setStatus(Status.FAILURE);
+            response.setContent(write((ExchangeException) reply.getData()));
+        } else {
+            response.setStatus(Status.SUCCESS);
+            response.setContent(write(reply.getData(), returnType));
+        }
         return response;
     }
 
@@ -70,9 +81,45 @@ public abstract class AbstractCodec implements ProtocolCodec {
         if (!headers.isEmpty()) {
             reply.attach().putAll(headers);
         }
-        Object data = read(response.getContent(), returnType);
-        reply.setData(data);
+
+        if (response.getStatus() == Status.SUCCESS) {
+            Object data = read(response.getContent(), returnType);
+            reply.setData(data);
+        } else {
+            reply.setData(read(response.getContent()));
+        }
         return reply;
+    }
+
+    private byte[] write(ExchangeException exception) {
+        try {
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            ByteStreamUtil.writeInt(bao, exception.getCode());
+            ByteStreamUtil.writeString(bao, exception.getMessage());
+            if (exception.getCause() != null) {
+                ByteStreamUtil.writeString(bao, ExceptionUtil.getStackTrace(exception.getCause()));
+            } else {
+                ByteStreamUtil.writeString(bao, exception.getTraces());
+            }
+            return bao.toByteArray();
+        } catch (IOException e) {
+        }
+        return null;
+    }
+
+    private ExchangeException read(byte[] encoded) {
+        try {
+            if (encoded != null) {
+                ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
+                int code = ByteStreamUtil.readInt(bai);
+                String message = ByteStreamUtil.readString(bai);
+                String straces = ByteStreamUtil.readString(bai);
+                return new ExchangeException(code, message, straces);
+            }
+            return new ExchangeException(199, "unkown exception");
+        } catch (IOException e) {
+            return new ExchangeException(199, "decode exception error", e);
+        }
     }
 
     protected abstract Object read(byte[] paramBytes, Class<?> paramType);

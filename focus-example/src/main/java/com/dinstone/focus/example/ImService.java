@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.example;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.stereotype.Service;
 
 import com.dinstone.focus.client.annotation.FocusReference;
@@ -25,8 +27,10 @@ public class ImService {
     @FocusReference(service = "AuthenService")
     AuthenCheck check;
 
-    public String sayHi(String string) {
-        return "check user result " + check.checkUser(string);
+    public String sayHi(String string) throws Exception {
+        CompletableFuture<Boolean> cf = check.check(string);
+        boolean ar = check.authen("dinstone");
+        return "check result " + cf.get() + ", authen result " + ar;
     }
 
 }

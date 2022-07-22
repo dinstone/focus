@@ -23,17 +23,15 @@ import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.server.ExecutorSelector;
-import com.dinstone.photon.ExchangeException;
-import com.dinstone.photon.codec.ExceptionCodec;
 import com.dinstone.photon.connection.Connection;
 import com.dinstone.photon.handler.DefaultMessageProcessor;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
-import com.dinstone.photon.message.Response.Status;
 
 public final class FocusProcessor extends DefaultMessageProcessor {
     private final ImplementBinding binding;
@@ -71,6 +69,10 @@ public final class FocusProcessor extends DefaultMessageProcessor {
     }
 
     private void invoke(Connection connection, Request request) {
+        Headers headers = request.headers();
+        String codecId = headers.get(Call.CODEC_KEY);
+        ProtocolCodec codec = CodecManager.codec(codecId);
+
         ExchangeException exception = null;
         try {
             // check request timeout
@@ -79,7 +81,6 @@ public final class FocusProcessor extends DefaultMessageProcessor {
             }
 
             // check service
-            Headers headers = request.headers();
             String group = headers.get(Call.GROUP_KEY);
             String service = headers.get(Call.SERVICE_KEY);
             ServiceConfig config = binding.lookup(service, group);
@@ -93,9 +94,6 @@ public final class FocusProcessor extends DefaultMessageProcessor {
             if (methodInfo == null) {
                 throw new NoSuchMethodException("unkown method: " + service + "[" + group + "]." + methodName);
             }
-
-            String codecId = headers.get(Call.CODEC_KEY);
-            ProtocolCodec codec = CodecManager.codec(codecId);
 
             // decode call from request
             Call call = codec.decode(request, methodInfo.getParamType());
@@ -126,10 +124,8 @@ public final class FocusProcessor extends DefaultMessageProcessor {
         }
 
         if (exception != null) {
-            Response response = new Response();
+            Response response = codec.encode(new Reply(exception), exception.getClass());
             response.setMsgId(request.getMsgId());
-            response.setStatus(Status.FAILURE);
-            response.setContent(ExceptionCodec.encode(exception));
             // send response with exception
             connection.send(response);
         }

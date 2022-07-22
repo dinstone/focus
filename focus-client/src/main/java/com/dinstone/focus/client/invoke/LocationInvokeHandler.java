@@ -102,7 +102,7 @@ public class LocationInvokeHandler implements InvokeHandler {
             }
         }
 
-        throw new RuntimeException("can't find a service instance for " + call.getService());
+        throw new RuntimeException("can't find a live service instance for " + call.getService());
     }
 
     private List<ServiceInstance> collect(Call call) {

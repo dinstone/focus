@@ -20,10 +20,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeoutException;
 
+import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.photon.ExchangeException;
 
 public class JdkProxyFactory implements ProxyFactory {
 
@@ -56,7 +56,13 @@ public class JdkProxyFactory implements ProxyFactory {
             try {
                 Call call = new Call(methodName, parameter);
                 Reply reply = invokeHandler.invoke(call);
-                return reply.getData();
+
+                Object data = reply.getData();
+                if (data instanceof Exception) {
+                    throw (Exception) data;
+                } else {
+                    return data;
+                }
             } catch (Exception e) {
                 if (e instanceof RuntimeException) {
                     throw e;

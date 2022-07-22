@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.protocol;
+package com.dinstone.focus.exception;
 
-import static org.junit.Assert.assertEquals;
+public class FocusException extends RuntimeException {
 
-import org.junit.Test;
+    private static final long serialVersionUID = 1L;
 
-import com.dinstone.photon.message.Headers;
+    public FocusException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 
-public class CallTest {
+    public FocusException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    @Test
-    public void testAttach() {
-        Headers hs = new Headers();
-        hs.add("seq", "one").add("seq", "two").add("seq", "three");
-        // for (int i = 0; i < 100000; i++) {
-        // hs.add("seq", "i" + i);
-        // }
-
-        String v = hs.get("seq");
-        assertEquals(v, "one");
+    public FocusException(String message) {
+        super(message);
     }
 
 }

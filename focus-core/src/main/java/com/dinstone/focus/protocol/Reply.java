@@ -17,6 +17,8 @@ package com.dinstone.focus.protocol;
 
 import java.io.Serializable;
 
+import com.dinstone.focus.exception.ExchangeException;
+
 /**
  * The Reply is the abstract of RPC response.
  * 
@@ -39,13 +41,24 @@ public class Reply implements Serializable {
     }
 
     public Reply(Object result) {
-        this.data = result;
+        setData(result);
+    }
+
+    /**
+     * the attach to get
+     * 
+     * @return
+     */
+    public Attach attach() {
+        return attach;
     }
 
     /**
      * the data to get
      * 
      * @return the data
+     * 
+     * @throws Exception
      * 
      * @see Reply#data
      */
@@ -61,16 +74,11 @@ public class Reply implements Serializable {
      * @see Reply#data
      */
     public void setData(Object data) {
-        this.data = data;
-    }
-
-    /**
-     * the attach to get
-     * 
-     * @return
-     */
-    public Attach attach() {
-        return attach;
+        if (data instanceof Throwable && !(data instanceof ExchangeException)) {
+            this.data = new ExchangeException(199, "wrapped", (Throwable) data);
+        } else {
+            this.data = data;
+        }
     }
 
 }

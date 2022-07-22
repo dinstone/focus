@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.client;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.dinstone.focus.example.AuthenCheck;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.filter.Filter;
@@ -58,7 +60,9 @@ public class FocusClientTest {
 
         AuthenCheck a = client.reference(AuthenCheck.class, "AuthenService", "", 2000);
         try {
-            System.out.println("user check is " + a.checkUser("dinstone"));
+            CompletableFuture<Boolean> check = a.check("dinstone");
+            System.out.println("check result " + check);
+            System.out.println("check future " + check.get());
         } catch (Exception e) {
             e.printStackTrace();
         }

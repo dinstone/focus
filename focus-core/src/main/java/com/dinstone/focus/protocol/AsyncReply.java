@@ -15,24 +15,34 @@
  */
 package com.dinstone.focus.protocol;
 
-import static org.junit.Assert.assertEquals;
+import java.util.concurrent.CompletableFuture;
 
-import org.junit.Test;
+public class AsyncReply extends Reply {
 
-import com.dinstone.photon.message.Headers;
+    private static final long serialVersionUID = 1L;
 
-public class CallTest {
+    private CompletableFuture<Object> future = new CompletableFuture<>();
 
-    @Test
-    public void testAttach() {
-        Headers hs = new Headers();
-        hs.add("seq", "one").add("seq", "two").add("seq", "three");
-        // for (int i = 0; i < 100000; i++) {
-        // hs.add("seq", "i" + i);
-        // }
+    public CompletableFuture<Object> completableFuture() {
+        return future;
+    }
 
-        String v = hs.get("seq");
-        assertEquals(v, "one");
+    @Override
+    public Object getData() {
+        return future;
+    }
+
+    @Override
+    public void setData(Object data) {
+        future.complete(data);
+    }
+
+    public void complete(Object data) {
+        future.complete(data);
+    }
+
+    public void exception(Throwable cause) {
+        future.completeExceptionally(cause);
     }
 
 }

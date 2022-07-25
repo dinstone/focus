@@ -31,7 +31,7 @@ public class ConsulFocusClientTest {
         ConnectOptions connectOptions = new ConnectOptions();
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
-                .setRegistryConfig(new ConsulRegistryConfig()).setAppCode("com.rpc.demo.client");
+                .setRegistryConfig(new ConsulRegistryConfig()).setEndpoint("com.rpc.demo.client");
 
         Client client = new Client(option);
         DemoService ds = client.reference(DemoService.class);

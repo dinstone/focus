@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.clutch.ServiceInstance;
 import com.dinstone.focus.client.transport.ConnectionFactory;
-import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
@@ -28,12 +27,11 @@ import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.AsyncReply;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.photon.connection.Connection;
+import com.dinstone.photon.Connection;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 
 public class RemoteInvokeHandler implements InvokeHandler {
 
@@ -48,7 +46,7 @@ public class RemoteInvokeHandler implements InvokeHandler {
     public RemoteInvokeHandler(ServiceConfig serviceConfig, ConnectionFactory connectionFactory) {
         this.serviceConfig = serviceConfig;
         this.connectionFactory = connectionFactory;
-        this.protocolCodec = CodecManager.codec(serviceConfig.getCodecId());
+        this.protocolCodec = ProtocolCodec.lookup(serviceConfig.getCodecId());
     }
 
     @Override
@@ -61,6 +59,7 @@ public class RemoteInvokeHandler implements InvokeHandler {
         Connection connection = connectionFactory.create(instance.getServiceAddress());
         call.attach().put("consumer.address", connection.getLocalAddress().toString());
         call.attach().put("provider.address", connection.getRemoteAddress().toString());
+        call.attach().put("consumer.endpoint", instance.getEndpointCode());
 
         MethodInfo mi = serviceConfig.getMethodInfo(call.getMethod());
         if (mi.isAsyncMethod()) {
@@ -82,20 +81,8 @@ public class RemoteInvokeHandler implements InvokeHandler {
         // process request
         Request request = protocolCodec.encode(call, mi.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());
-        AsyncReply ar = new AsyncReply();
-        connection.async(request).addListener(new GenericFutureListener<Future<Response>>() {
-
-            @Override
-            public void operationComplete(Future<Response> rf) throws Exception {
-                if (!rf.isSuccess()) {
-                    ar.exception(rf.cause());
-                } else {
-                    Response response = rf.get();
-                    ar.complete(protocolCodec.decode(response, mi.getReturnType()));
-                }
-            }
-        });
-        return ar;
+        Future<Response> future = connection.async(request);
+        return new AsyncReply(future, protocolCodec, mi.getReturnType());
     }
 
 }

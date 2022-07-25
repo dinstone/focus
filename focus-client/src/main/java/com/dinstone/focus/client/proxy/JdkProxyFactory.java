@@ -18,9 +18,9 @@ package com.dinstone.focus.client.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.concurrent.TimeoutException;
 
-import com.dinstone.focus.exception.ExchangeException;
+import com.dinstone.focus.client.GenericService;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -29,12 +29,12 @@ public class JdkProxyFactory implements ProxyFactory {
 
     private static class ProxyInvocationHandler implements InvocationHandler {
 
+        private ServiceConfig serviceConfig;
         private InvokeHandler invokeHandler;
-        private Class<?> serviceClazz;
 
-        public ProxyInvocationHandler(Class<?> serviceClazz, InvokeHandler invokeHandler) {
+        public ProxyInvocationHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+            this.serviceConfig = serviceConfig;
             this.invokeHandler = invokeHandler;
-            this.serviceClazz = serviceClazz;
         }
 
         @Override
@@ -45,7 +45,7 @@ public class JdkProxyFactory implements ProxyFactory {
             } else if (methodName.equals("equals")) {
                 return (proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);
             } else if (methodName.equals("toString")) {
-                return serviceClazz.getName() + '@' + Integer.toHexString(proxy.hashCode());
+                return proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode());
             }
 
             Object parameter = null;
@@ -53,36 +53,39 @@ public class JdkProxyFactory implements ProxyFactory {
                 parameter = args[0];
             }
 
-            try {
-                Call call = new Call(methodName, parameter);
-                Reply reply = invokeHandler.invoke(call);
+            Call call = new Call(methodName, parameter);
+            call.setGroup(serviceConfig.getGroup());
+            call.setService(serviceConfig.getService());
+            call.setTimeout(serviceConfig.getTimeout());
 
-                Object data = reply.getData();
-                if (data instanceof Exception) {
-                    throw (Exception) data;
-                } else {
-                    return data;
-                }
-            } catch (Exception e) {
-                if (e instanceof RuntimeException) {
-                    throw e;
-                }
-                if (e instanceof TimeoutException) {
-                    throw new ExchangeException(188, "invoke timeout", e);
-                }
-                throw new ExchangeException(189, "wrapped invoke exception", e);
+            Reply reply = invokeHandler.invoke(call);
+
+            Object data = reply.getData();
+            if (data instanceof Exception) {
+                throw (Exception) data;
+            } else {
+                return data;
             }
         }
 
     }
 
-    @Override
-    public <T> T create(Class<T> sic, InvokeHandler invokeHandler) {
+    private <T> T createProxy(Class<T> sic, ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
         if (!sic.isInterface()) {
             throw new IllegalArgumentException(sic.getName() + " is not interface");
         }
 
-        ProxyInvocationHandler handler = new ProxyInvocationHandler(sic, invokeHandler);
+        ProxyInvocationHandler handler = new ProxyInvocationHandler(serviceConfig, invokeHandler);
         return sic.cast(Proxy.newProxyInstance(sic.getClassLoader(), new Class[] { sic }, handler));
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T create(Class<T> sic, ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+        if (sic.equals(GenericService.class)) {
+            return (T) new GenericServiceProxy(serviceConfig, invokeHandler);
+        }
+        return createProxy(sic, serviceConfig, invokeHandler);
+    }
+
 }

@@ -27,7 +27,7 @@ public class GenericClientTest {
     private static final Logger LOG = LoggerFactory.getLogger(GenericClientTest.class);
 
     public static void main(String[] args) {
-        ClientOptions option = new ClientOptions().setAppCode("focus.example.client").connect("localhost", 3333)
+        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions());
         Client client = new Client(option);
 
@@ -45,13 +45,13 @@ public class GenericClientTest {
 
     }
 
-    private static void demoService(Client client) {
+    private static void demoService(Client client) throws Exception {
         GenericService gs = client.genericService("com.dinstone.focus.example.DemoService", "", 30000);
-        String r = gs.invoke(String.class, "hello", String.class, "dinstone");
+        String r = gs.sync(String.class, "hello", String.class, "dinstone");
         System.out.println("result =  " + r);
     }
 
-    private static void orderService(Client client) {
+    private static void orderService(Client client) throws Exception {
         GenericService gs = client.genericService("com.dinstone.focus.example.OrderService", "", 30000);
         Map<String, String> p = new HashMap<String, String>();
         p.put("sn", "S001");
@@ -59,7 +59,7 @@ public class GenericClientTest {
         p.put("poi", "20910910");
         p.put("ct", "2022-06-17");
 
-        Map r = gs.invoke(HashMap.class, "findOldOrder", Map.class, p);
+        Map r = gs.sync(HashMap.class, "findOldOrder", Map.class, p);
         System.out.println("result =  " + r);
     }
 }

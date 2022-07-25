@@ -24,10 +24,11 @@ import com.dinstone.clutch.ServiceRegistry;
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecFactory;
-import com.dinstone.focus.codec.CodecManager;
+import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.endpoint.ServiceProvider;
+import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
@@ -70,7 +71,7 @@ public class Server implements ServiceProvider {
         // load and create rpc message codec
         ServiceLoader<CodecFactory> cfLoader = ServiceLoader.load(CodecFactory.class);
         for (CodecFactory codecFactory : cfLoader) {
-            CodecManager.regist(codecFactory.createCodec());
+            ProtocolCodec.regist(codecFactory.createCodec());
         }
 
         // load and create registry
@@ -90,8 +91,14 @@ public class Server implements ServiceProvider {
         this.acceptor = new AcceptorFactory(serverOptions).create(implementBinding);
 
         LOG.info("focus server startup, {}", serviceAddress);
-        acceptor.bind(serviceAddress);
-        LOG.info("focus server started, {}", serviceAddress);
+        try {
+            acceptor.bind(serviceAddress);
+
+            LOG.info("focus server started, {}", serviceAddress);
+        } catch (Exception e) {
+            LOG.warn("focus server failure, {}", serviceAddress, e);
+            throw new FocusException("start focus server error", e);
+        }
     }
 
     public InetSocketAddress getServiceAddress() {
@@ -128,8 +135,7 @@ public class Server implements ServiceProvider {
             serviceConfig.parseMethodInfos(clazz.getDeclaredMethods());
             serviceConfig.setTarget(bean);
 
-            serviceConfig.setAppCode(serverOptions.getAppCode());
-            serviceConfig.setAppName(serverOptions.getAppName());
+            serviceConfig.setEndpoint(serverOptions.getEndpoint());
 
             InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
             serviceConfig.setHandler(invokeHandler);

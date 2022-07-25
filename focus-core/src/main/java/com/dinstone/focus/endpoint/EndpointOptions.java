@@ -26,9 +26,7 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     private int defaultTimeout = 3000;
 
-    private String appCode;
-
-    private String appName;
+    private String endpoint;
 
     private RegistryConfig registryConfig;
 
@@ -38,21 +36,12 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
         super();
     }
 
-    public String getAppCode() {
-        return appCode;
+    public String getEndpoint() {
+        return endpoint;
     }
 
-    public T setAppCode(String appCode) {
-        this.appCode = appCode;
-        return (T) this;
-    }
-
-    public String getAppName() {
-        return appName;
-    }
-
-    public T setAppName(String appName) {
-        this.appName = appName;
+    public T setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
         return (T) this;
     }
 

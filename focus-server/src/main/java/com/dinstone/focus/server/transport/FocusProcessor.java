@@ -19,15 +19,14 @@ import java.util.concurrent.Executor;
 
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecException;
-import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.ExchangeException;
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.server.ExecutorSelector;
-import com.dinstone.photon.connection.Connection;
+import com.dinstone.photon.Connection;
 import com.dinstone.photon.handler.DefaultMessageProcessor;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
@@ -35,7 +34,7 @@ import com.dinstone.photon.message.Response;
 
 public final class FocusProcessor extends DefaultMessageProcessor {
     private final ImplementBinding binding;
-    private ExecutorSelector selector;
+    private final ExecutorSelector selector;
 
     public FocusProcessor(ImplementBinding binding, ExecutorSelector selector) {
         this.binding = binding;
@@ -70,14 +69,14 @@ public final class FocusProcessor extends DefaultMessageProcessor {
 
     private void invoke(Connection connection, Request request) {
         Headers headers = request.headers();
-        String codecId = headers.get(Call.CODEC_KEY);
-        ProtocolCodec codec = CodecManager.codec(codecId);
+        String codecId = headers.get(ProtocolCodec.CODEC_KEY);
+        ProtocolCodec codec = ProtocolCodec.lookup(codecId);
 
-        ExchangeException exception = null;
+        InvokeException exception = null;
         try {
             // check request timeout
             if (request.isTimeout()) {
-                throw new ExchangeException(308, "request timeout");
+                throw new InvokeException(308, "request timeout");
             }
 
             // check service
@@ -109,18 +108,18 @@ public final class FocusProcessor extends DefaultMessageProcessor {
             connection.send(response);
 
             return;
-        } catch (ExchangeException e) {
+        } catch (InvokeException e) {
             exception = e;
         } catch (CodecException e) {
-            exception = new ExchangeException(201, "codec excption", e);
+            exception = new InvokeException(201, "codec excption", e);
         } catch (IllegalArgumentException e) {
-            exception = new ExchangeException(202, "argument exception", e);
+            exception = new InvokeException(202, "argument exception", e);
         } catch (IllegalAccessException e) {
-            exception = new ExchangeException(203, "access exception", e);
+            exception = new InvokeException(203, "access exception", e);
         } catch (NoSuchMethodException e) {
-            exception = new ExchangeException(204, "no method exception", e);
+            exception = new InvokeException(204, "no method exception", e);
         } catch (Throwable e) {
-            exception = new ExchangeException(309, "unkow exception", e);
+            exception = new InvokeException(309, "unkow exception", e);
         }
 
         if (exception != null) {

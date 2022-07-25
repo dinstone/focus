@@ -19,7 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.dinstone.focus.exception.ExchangeException;
+import com.dinstone.focus.exception.ExceptionUtil;
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Headers;
@@ -27,7 +28,6 @@ import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
 import com.dinstone.photon.utils.ByteStreamUtil;
-import com.dinstone.photon.utils.ExceptionUtil;
 
 public abstract class AbstractCodec implements ProtocolCodec {
 
@@ -38,11 +38,11 @@ public abstract class AbstractCodec implements ProtocolCodec {
         headers.add(Call.GROUP_KEY, call.getGroup());
         headers.add(Call.SERVICE_KEY, call.getService());
         headers.add(Call.METHOD_KEY, call.getMethod());
-        headers.add(Call.CODEC_KEY, codecId());
+        headers.add(ProtocolCodec.CODEC_KEY, codecId());
         headers.setAll(call.attach());
 
         request.setTimeout(call.getTimeout());
-        request.setContent(write(call.getParameter(), paramType));
+        request.setContent(encodeContent(call.getParameter(), paramType));
         return request;
     }
 
@@ -55,7 +55,7 @@ public abstract class AbstractCodec implements ProtocolCodec {
         call.setMethod(headers.get(Call.METHOD_KEY));
         call.setTimeout(request.getTimeout());
         call.attach().putAll(headers);
-        call.setParameter(read(request.getContent(), paramType));
+        call.setParameter(decodeContent(request.getContent(), paramType));
         return call;
     }
 
@@ -63,13 +63,13 @@ public abstract class AbstractCodec implements ProtocolCodec {
     public Response encode(Reply reply, Class<?> returnType) throws CodecException {
         Response response = new Response();
         response.headers().setAll(reply.attach());
-        response.headers().add(Reply.CODEC_KEY, codecId());
-        if (reply.getData() instanceof ExchangeException) {
+        response.headers().add(ProtocolCodec.CODEC_KEY, codecId());
+        if (reply.getData() instanceof InvokeException) {
             response.setStatus(Status.FAILURE);
-            response.setContent(write((ExchangeException) reply.getData()));
+            response.setContent(encodeException((InvokeException) reply.getData()));
         } else {
             response.setStatus(Status.SUCCESS);
-            response.setContent(write(reply.getData(), returnType));
+            response.setContent(encodeContent(reply.getData(), returnType));
         }
         return response;
     }
@@ -83,23 +83,23 @@ public abstract class AbstractCodec implements ProtocolCodec {
         }
 
         if (response.getStatus() == Status.SUCCESS) {
-            Object data = read(response.getContent(), returnType);
+            Object data = decodeContent(response.getContent(), returnType);
             reply.setData(data);
         } else {
-            reply.setData(read(response.getContent()));
+            reply.setData(decodeException(response.getContent()));
         }
         return reply;
     }
 
-    private byte[] write(ExchangeException exception) {
+    private byte[] encodeException(InvokeException exception) {
         try {
             ByteArrayOutputStream bao = new ByteArrayOutputStream();
             ByteStreamUtil.writeInt(bao, exception.getCode());
             ByteStreamUtil.writeString(bao, exception.getMessage());
-            if (exception.getCause() != null) {
+            if (exception.getDetail() != null) {
+                ByteStreamUtil.writeString(bao, exception.getDetail());
+            } else if (exception.getCause() != null) {
                 ByteStreamUtil.writeString(bao, ExceptionUtil.getStackTrace(exception.getCause()));
-            } else {
-                ByteStreamUtil.writeString(bao, exception.getTraces());
             }
             return bao.toByteArray();
         } catch (IOException e) {
@@ -107,23 +107,23 @@ public abstract class AbstractCodec implements ProtocolCodec {
         return null;
     }
 
-    private ExchangeException read(byte[] encoded) {
+    private InvokeException decodeException(byte[] encoded) {
         try {
             if (encoded != null) {
                 ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
                 int code = ByteStreamUtil.readInt(bai);
                 String message = ByteStreamUtil.readString(bai);
-                String straces = ByteStreamUtil.readString(bai);
-                return new ExchangeException(code, message, straces);
+                String details = ByteStreamUtil.readString(bai);
+                return new InvokeException(code, message, details);
             }
-            return new ExchangeException(199, "unkown exception");
+            return new InvokeException(99, "unkown exception");
         } catch (IOException e) {
-            return new ExchangeException(199, "decode exception error", e);
+            return new InvokeException(199, "decode exception error", e);
         }
     }
 
-    protected abstract Object read(byte[] paramBytes, Class<?> paramType);
+    protected abstract Object decodeContent(byte[] contentBytes, Class<?> contentType);
 
-    protected abstract byte[] write(Object parameter, Class<?> paramType);
+    protected abstract byte[] encodeContent(Object content, Class<?> contentType);
 
 }

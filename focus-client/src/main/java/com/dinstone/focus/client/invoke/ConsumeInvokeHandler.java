@@ -45,10 +45,7 @@ public class ConsumeInvokeHandler implements InvokeHandler {
         InvokeContext.pushContext();
         InvokeContext.getContext();
         try {
-            call.setGroup(serviceConfig.getGroup());
-            call.setService(serviceConfig.getService());
-            call.setTimeout(serviceConfig.getTimeout());
-            call.attach().put("consumer.appcode", serviceConfig.getAppCode());
+            call.attach().put("consumer.endpoint", serviceConfig.getEndpoint());
 
             return invokeHandler.invoke(call);
         } finally {

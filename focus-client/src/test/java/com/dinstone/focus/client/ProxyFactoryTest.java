@@ -84,7 +84,7 @@ public class ProxyFactoryTest {
     }
 
     private HelloService proxyFactory() {
-        return new JdkProxyFactory().create(HelloService.class, new InvokeHandler() {
+        return new JdkProxyFactory().create(HelloService.class, new ServiceConfig(), new InvokeHandler() {
 
             private Reply reply = new Reply();
 

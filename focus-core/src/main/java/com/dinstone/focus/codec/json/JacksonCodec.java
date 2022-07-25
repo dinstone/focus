@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class JacksonCodec extends AbstractCodec {
 
-    private static final String CODEC_ID = "json/jackson";
+    private static final String CODEC_ID = "jackson";
 
     private ObjectMapper objectMapper;
 
@@ -51,7 +51,7 @@ public class JacksonCodec extends AbstractCodec {
     }
 
     @Override
-    protected byte[] write(Object parameter, Class<?> paramType) {
+    protected byte[] encodeContent(Object parameter, Class<?> paramType) {
         if (parameter == null) {
             return null;
         }
@@ -63,7 +63,7 @@ public class JacksonCodec extends AbstractCodec {
     }
 
     @Override
-    protected Object read(byte[] paramBytes, Class<?> paramType) {
+    protected Object decodeContent(byte[] paramBytes, Class<?> paramType) {
         if (paramBytes == null || paramType == null) {
             return null;
         }

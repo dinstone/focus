@@ -18,28 +18,26 @@ package com.dinstone.focus.exception;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import com.dinstone.photon.utils.ExceptionUtil;
-
 /**
- * framework exception
+ * invoke exception
  * 
  * @author dinstone
  *
  */
-public class ExchangeException extends FocusException {
+public class InvokeException extends FocusException {
     /**  */
     private static final long serialVersionUID = 1L;
 
     private int code;
 
-    private String traces;
+    private String detail;
 
-    public ExchangeException(int code, String message) {
+    public InvokeException(int code, String message) {
         super(message);
         this.code = code;
     }
 
-    public ExchangeException(int code, String message, Throwable cause) {
+    public InvokeException(int code, String message, Throwable cause) {
         super(message, cause, false, false);
         this.code = code;
         if (cause != null) {
@@ -47,10 +45,10 @@ public class ExchangeException extends FocusException {
         }
     }
 
-    public ExchangeException(int code, String message, String traces) {
+    public InvokeException(int code, String message, String detail) {
         super(message, null, false, false);
-        this.traces = traces;
         this.code = code;
+        this.detail = detail;
     }
 
     /**
@@ -73,15 +71,15 @@ public class ExchangeException extends FocusException {
         return ExceptionUtil.getMessage(getCause());
     }
 
-    public String getTraces() {
-        return traces;
+    public String getDetail() {
+        return detail;
     }
 
     @Override
     public void printStackTrace(PrintStream s) {
-        if (traces != null) {
+        if (detail != null) {
             s.println(this);
-            s.print(traces);
+            s.print(detail);
         } else {
             super.printStackTrace(s);
         }
@@ -89,9 +87,9 @@ public class ExchangeException extends FocusException {
 
     @Override
     public void printStackTrace(PrintWriter s) {
-        if (traces != null) {
+        if (detail != null) {
             s.println(this);
-            s.print(traces);
+            s.print(detail);
         } else {
             super.printStackTrace(s);
         }
@@ -99,7 +97,7 @@ public class ExchangeException extends FocusException {
 
     @Override
     public String toString() {
-        return getClass().getName() + ": (" + code + ")" + getMessage();
+        return getClass().getName() + ": (" + code + ") " + getMessage();
     }
 
 }

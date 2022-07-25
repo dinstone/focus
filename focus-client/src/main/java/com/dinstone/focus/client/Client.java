@@ -16,7 +16,6 @@
 package com.dinstone.focus.client;
 
 import java.util.ServiceLoader;
-import java.util.concurrent.TimeoutException;
 
 import com.dinstone.clutch.RegistryConfig;
 import com.dinstone.clutch.RegistryFactory;
@@ -30,15 +29,11 @@ import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.codec.CodecFactory;
-import com.dinstone.focus.codec.CodecManager;
-import com.dinstone.focus.config.MethodInfo;
+import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.ServiceConsumer;
-import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 
 public class Client implements ServiceConsumer {
 
@@ -68,7 +63,7 @@ public class Client implements ServiceConsumer {
         // load and create rpc message codec
         ServiceLoader<CodecFactory> cfLoader = ServiceLoader.load(CodecFactory.class);
         for (CodecFactory codecFactory : cfLoader) {
-            CodecManager.regist(codecFactory.createCodec());
+            ProtocolCodec.regist(codecFactory.createCodec());
         }
 
         // load and create registry
@@ -125,12 +120,11 @@ public class Client implements ServiceConsumer {
         serviceConfig.setService(service);
         serviceConfig.parseMethodInfos(sic.getDeclaredMethods());
 
-        serviceConfig.setAppCode(clientOptions.getAppCode());
-        serviceConfig.setAppName(clientOptions.getAppName());
+        serviceConfig.setEndpoint(clientOptions.getEndpoint());
         serviceConfig.setCodecId(clientOptions.getCodecId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-        T proxy = proxyFactory.create(sic, invokeHandler);
+        T proxy = proxyFactory.create(sic, serviceConfig, invokeHandler);
 
         serviceConfig.setHandler(invokeHandler);
         serviceConfig.setProxy(proxy);
@@ -157,43 +151,11 @@ public class Client implements ServiceConsumer {
         serviceConfig.setTimeout(timeout);
         serviceConfig.setService(service);
 
-        serviceConfig.setAppCode(clientOptions.getAppCode());
-        serviceConfig.setAppName(clientOptions.getAppName());
+        serviceConfig.setEndpoint(clientOptions.getEndpoint());
         serviceConfig.setCodecId(clientOptions.getCodecId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-        GenericService proxy = new GenericService() {
-
-            @SuppressWarnings({ "unchecked", "hiding" })
-            @Override
-            public <R, P> R invoke(Class<R> returnType, String methodName, Class<P> paramType, P parameter) {
-                try {
-                    if (serviceConfig.getMethodInfo(methodName) == null) {
-                        serviceConfig.addMethodInfo(new MethodInfo(methodName, paramType, returnType));
-                    }
-
-                    Call call = new Call(methodName, parameter);
-                    Reply reply = invokeHandler.invoke(call);
-
-                    Object data = reply.getData();
-                    if (data instanceof Exception) {
-                        throw (Exception) data;
-                    } else {
-                        return (R) data;
-                    }
-                } catch (Exception e) {
-                    if (e instanceof RuntimeException) {
-                        throw (RuntimeException) e;
-                    }
-                    if (e instanceof TimeoutException) {
-                        throw new ExchangeException(188, "invoke timeout", e);
-                    }
-                    throw new ExchangeException(189, "wrapped invoke exception", e);
-                }
-            }
-
-        };
-
+        GenericService proxy = proxyFactory.create(GenericService.class, serviceConfig, invokeHandler);
         serviceConfig.setHandler(invokeHandler);
         serviceConfig.setTarget(proxy);
 

@@ -17,7 +17,7 @@ package com.dinstone.focus.protocol;
 
 import java.io.Serializable;
 
-import com.dinstone.focus.exception.ExchangeException;
+import com.dinstone.focus.exception.InvokeException;
 
 /**
  * The Reply is the abstract of RPC response.
@@ -26,8 +26,6 @@ import com.dinstone.focus.exception.ExchangeException;
  * 
  */
 public class Reply implements Serializable {
-
-    public static final String CODEC_KEY = "reply.codec";
 
     /**  */
     private static final long serialVersionUID = 1L;
@@ -74,8 +72,8 @@ public class Reply implements Serializable {
      * @see Reply#data
      */
     public void setData(Object data) {
-        if (data instanceof Throwable && !(data instanceof ExchangeException)) {
-            this.data = new ExchangeException(199, "wrapped", (Throwable) data);
+        if (data instanceof Throwable && !(data instanceof InvokeException)) {
+            this.data = new InvokeException(199, "wrapped", (Throwable) data);
         } else {
             this.data = data;
         }

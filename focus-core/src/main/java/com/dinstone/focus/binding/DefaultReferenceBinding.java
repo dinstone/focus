@@ -51,17 +51,17 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public <T> void binding(ServiceConfig wrapper) {
+    public <T> void binding(ServiceConfig serviceConfig) {
         if (serviceDiscovery != null) {
             try {
-                serviceDiscovery.listen(createServiceDescription(wrapper));
+                serviceDiscovery.listen(createServiceInstance(serviceConfig));
             } catch (Exception e) {
                 throw new RuntimeException("service reference bind error", e);
             }
         }
     }
 
-    protected <T> ServiceInstance createServiceDescription(ServiceConfig config) {
+    protected <T> ServiceInstance createServiceInstance(ServiceConfig config) {
         String group = config.getGroup();
         String host = consumerAddress.getAddress().getHostAddress();
         int port = consumerAddress.getPort();
@@ -71,15 +71,15 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         code.append(host).append(":").append(port).append("$");
         code.append((group == null ? "" : group));
 
-        ServiceInstance description = new ServiceInstance();
-        description.setInstanceCode(code.toString());
-        description.setEndpointCode(config.getEndpoint());
-        description.setServiceName(config.getService());
-        description.setServiceGroup(group);
-        description.setHost(host);
-        description.setPort(port);
+        ServiceInstance serviceInstance = new ServiceInstance();
+        serviceInstance.setInstanceCode(code.toString());
+        serviceInstance.setEndpointCode(config.getEndpoint());
+        serviceInstance.setServiceName(config.getService());
+        serviceInstance.setServiceGroup(group);
+        serviceInstance.setHost(host);
+        serviceInstance.setPort(port);
 
-        return description;
+        return serviceInstance;
     }
 
     @Override

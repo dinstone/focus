@@ -111,15 +111,15 @@ public final class FocusProcessor extends DefaultMessageProcessor {
         } catch (InvokeException e) {
             exception = e;
         } catch (CodecException e) {
-            exception = new InvokeException(201, "codec excption", e);
+            exception = new InvokeException(201, e);
         } catch (IllegalArgumentException e) {
-            exception = new InvokeException(202, "argument exception", e);
+            exception = new InvokeException(202, e);
         } catch (IllegalAccessException e) {
-            exception = new InvokeException(203, "access exception", e);
+            exception = new InvokeException(203, e);
         } catch (NoSuchMethodException e) {
-            exception = new InvokeException(204, "no method exception", e);
+            exception = new InvokeException(204, e);
         } catch (Throwable e) {
-            exception = new InvokeException(309, "unkow exception", e);
+            exception = new InvokeException(309, e);
         }
 
         if (exception != null) {

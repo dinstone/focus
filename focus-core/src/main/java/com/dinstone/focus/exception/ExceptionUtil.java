@@ -71,4 +71,14 @@ public class ExceptionUtil {
         return sw.getBuffer().toString();
     }
 
+    public static String getStackTrace(StackTraceElement[] stes) {
+        StringWriter sw = new StringWriter();
+        if (stes != null && stes.length > 0) {
+            PrintWriter s = new PrintWriter(sw);
+            for (StackTraceElement traceElement : stes)
+                s.println("\tat " + traceElement);
+        }
+        return sw.getBuffer().toString();
+    }
+
 }

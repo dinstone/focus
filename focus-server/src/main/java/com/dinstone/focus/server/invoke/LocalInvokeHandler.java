@@ -42,9 +42,9 @@ public class LocalInvokeHandler implements InvokeHandler {
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionUtil.getTargetException(e);
             if (te instanceof RuntimeException) {
-                throw new InvokeException(302, "method throw a runtime exception", te);
+                throw new InvokeException(302, te);
             } else {
-                throw new InvokeException(301, "method throw a declared exception", te);
+                throw new InvokeException(301, te);
             }
         }
     }

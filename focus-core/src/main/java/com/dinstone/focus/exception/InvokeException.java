@@ -37,11 +37,11 @@ public class InvokeException extends FocusException {
         this.code = code;
     }
 
-    public InvokeException(int code, String message, Throwable cause) {
-        super(message, cause, false, false);
+    public InvokeException(int code, Throwable cause) {
+        super(null, cause, false, false);
         this.code = code;
         if (cause != null) {
-            setStackTrace(cause.getStackTrace());
+            this.detail = ExceptionUtil.getStackTrace(cause);
         }
     }
 
@@ -79,7 +79,7 @@ public class InvokeException extends FocusException {
     public void printStackTrace(PrintStream s) {
         if (detail != null) {
             s.println(this);
-            s.print(detail);
+            s.print("Caused by: " + detail);
         } else {
             super.printStackTrace(s);
         }

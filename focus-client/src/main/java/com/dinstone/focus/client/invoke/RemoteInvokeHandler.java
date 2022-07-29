@@ -16,6 +16,7 @@
 package com.dinstone.focus.client.invoke;
 
 import java.net.ConnectException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.clutch.ServiceInstance;
@@ -32,6 +33,7 @@ import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 public class RemoteInvokeHandler implements InvokeHandler {
 
@@ -81,8 +83,20 @@ public class RemoteInvokeHandler implements InvokeHandler {
         // process request
         Request request = protocolCodec.encode(call, mi.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());
-        Future<Response> future = connection.async(request);
-        return new AsyncReply(future, protocolCodec, mi.getReturnType());
+        CompletableFuture<Reply> future = new CompletableFuture<>();
+        connection.async(request).addListener(new GenericFutureListener<Future<Response>>() {
+
+            @Override
+            public void operationComplete(Future<Response> responseFuture) throws Exception {
+                if (responseFuture.isSuccess()) {
+                    Reply reply = protocolCodec.decode(responseFuture.get(), mi.getReturnType());
+                    future.complete(reply);
+                } else {
+                    future.completeExceptionally(responseFuture.cause());
+                }
+            }
+        });
+        return new AsyncReply(future);
     }
 
 }

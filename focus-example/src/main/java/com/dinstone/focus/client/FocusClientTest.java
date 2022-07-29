@@ -68,12 +68,17 @@ public class FocusClientTest {
             e.printStackTrace();
         }
 
-        conparal(ds);
+        // conparal(ds);
 
-        execute(ds, "hot: ");
-        execute(ds, "exe: ");
+        // execute(ds, "hot: ");
+        // execute(ds, "exe: ");
 
         client.destroy();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
     }
 
     private static void conparal(final DemoService ds) {

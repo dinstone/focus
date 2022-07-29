@@ -118,7 +118,7 @@ public abstract class AbstractCodec implements ProtocolCodec {
             }
             return new InvokeException(99, "unkown exception");
         } catch (IOException e) {
-            return new InvokeException(199, "decode exception error", e);
+            return new InvokeException(199, e);
         }
     }
 

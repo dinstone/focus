@@ -15,82 +15,34 @@
  */
 package com.dinstone.focus.protocol;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.codec.ProtocolCodec;
-import com.dinstone.photon.message.Response;
+import com.dinstone.focus.exception.InvokeException;
 
 public class AsyncReply extends Reply {
 
     private static final long serialVersionUID = 1L;
 
-    private ReplyFuture future = null;
+    private CompletableFuture<Reply> replyFuture;
 
-    public AsyncReply(Future<Response> responseFuture, ProtocolCodec protocolCodec, Class<?> returnType) {
-        future = new ReplyFuture(responseFuture, protocolCodec, returnType);
+    public AsyncReply(CompletableFuture<Reply> replyFuture) {
+        this.replyFuture = replyFuture;
     }
 
     @Override
     public Object getData() {
-        return future;
+        return replyFuture.thenApply(r -> {
+            if (r.getData() instanceof InvokeException) {
+                throw (InvokeException) r.getData();
+            }
+            return r.getData();
+        });
     }
 
-    public class ReplyFuture implements Future<Object> {
-
-        private Future<Response> responseFuture;
-        private ProtocolCodec protocolCodec;
-        private Class<?> returnType;
-        private Reply reply;
-
-        public ReplyFuture(Future<Response> responseFuture, ProtocolCodec protocolCodec, Class<?> returnType) {
-            this.responseFuture = responseFuture;
-            this.protocolCodec = protocolCodec;
-            this.returnType = returnType;
-        }
-
-        @Override
-        public Object get() throws InterruptedException, ExecutionException {
-            try {
-                return get(Long.MAX_VALUE, TimeUnit.MICROSECONDS);
-            } catch (TimeoutException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
-        @Override
-        public Object get(long timeout, TimeUnit unit)
-                throws InterruptedException, ExecutionException, TimeoutException {
-            if (reply == null) {
-                Response response = responseFuture.get();
-                reply = protocolCodec.decode(response, returnType);
-            }
-
-            if (reply.getData() instanceof RuntimeException) {
-                throw (RuntimeException) reply.getData();
-            } else if (reply.getData() instanceof Throwable) {
-                throw new ExecutionException((Throwable) reply.getData());
-            }
-            return reply.getData();
-        }
-
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            return responseFuture.cancel(mayInterruptIfRunning);
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return responseFuture.isCancelled();
-        }
-
-        @Override
-        public boolean isDone() {
-            return responseFuture.isDone();
-        }
-
+    public void addListener(ReplyListener listener) {
+        this.replyFuture.whenComplete((r, e) -> {
+            listener.complete(r, e);
+        });
     }
 
 }

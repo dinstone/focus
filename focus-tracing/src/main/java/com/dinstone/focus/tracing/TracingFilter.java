@@ -20,8 +20,10 @@ import static brave.internal.Throwables.propagateIfFatal;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterContext;
+import com.dinstone.focus.protocol.AsyncReply;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.protocol.ReplyListener;
 
 import brave.Span;
 import brave.Span.Kind;
@@ -71,16 +73,39 @@ public class TracingFilter implements Filter {
         Scope scope = currentTraceContext.newScope(span.context());
         Reply reply = null;
         Throwable error = null;
+        boolean sync = true;
         try {
             reply = next.invoke(call);
+            if (reply instanceof AsyncReply) {
+                sync = false;
+                AsyncReply ar = (AsyncReply) reply;
+                ar.addListener(new ReplyListener() {
+
+                    @Override
+                    public void complete(Reply reply, Throwable error) {
+                        finishSpan(request, reply, error, span);
+                    }
+
+                });
+            }
             return reply;
         } catch (Throwable e) {
             propagateIfFatal(e);
             error = e;
             throw e;
         } finally {
-            FinishSpan.finish(this, request, reply, error, span);
+            if (sync) {
+                finishSpan(request, reply, error, span);
+            }
             scope.close();
+        }
+    }
+
+    private void finishSpan(RpcRequest request, Reply result, Throwable error, Span span) {
+        if (request instanceof RpcClientRequest) {
+            clientHandler.handleReceive(new FocusClientResponse((FocusClientRequest) request, result, error), span);
+        } else {
+            serverHandler.handleSend(new FocusServerResponse((FocusServerRequest) request, result, error), span);
         }
     }
 

@@ -73,7 +73,7 @@ public class Reply implements Serializable {
      */
     public void setData(Object data) {
         if (data instanceof Throwable && !(data instanceof InvokeException)) {
-            this.data = new InvokeException(199, "wrapped", (Throwable) data);
+            this.data = new InvokeException(199, (Throwable) data);
         } else {
             this.data = data;
         }

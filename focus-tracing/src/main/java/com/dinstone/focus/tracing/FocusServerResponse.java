@@ -15,8 +15,8 @@
  */
 package com.dinstone.focus.tracing;
 
-import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.ExchangeException;
 
 import brave.rpc.RpcServerResponse;
 

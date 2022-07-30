@@ -34,11 +34,11 @@ import com.dinstone.focus.codec.CodecManager;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.ServiceConsumer;
-import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.ExchangeException;
 
 public class Client implements ServiceConsumer {
 
@@ -174,13 +174,7 @@ public class Client implements ServiceConsumer {
 
                     Call call = new Call(methodName, parameter);
                     Reply reply = invokeHandler.invoke(call);
-
-                    Object data = reply.getData();
-                    if (data instanceof Exception) {
-                        throw (Exception) data;
-                    } else {
-                        return (R) data;
-                    }
+                    return (R) reply.getData();
                 } catch (Exception e) {
                     if (e instanceof RuntimeException) {
                         throw (RuntimeException) e;

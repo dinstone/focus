@@ -16,9 +16,6 @@
 package com.dinstone.focus.config;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.concurrent.CompletableFuture;
 
 public class MethodInfo {
 
@@ -30,23 +27,11 @@ public class MethodInfo {
 
     private Class<?> returnType;
 
-    private boolean asyncMethod;
-
     public MethodInfo(Method method, Class<?> paramType) {
         this.method = method;
         this.paramType = paramType;
         this.methodName = method.getName();
-
-        Type type = method.getGenericReturnType();
-        if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            if (parameterizedType.getRawType().equals(CompletableFuture.class)) {
-                returnType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                asyncMethod = true;
-            }
-        } else {
-            returnType = method.getReturnType();
-        }
+        this.returnType = method.getReturnType();
     }
 
     public MethodInfo(String methodName, Class<?> paramType, Class<?> returnType) {
@@ -77,14 +62,6 @@ public class MethodInfo {
 
     public Class<?>[] getExceptionTypes() {
         return method.getExceptionTypes();
-    }
-
-    public boolean isAsyncMethod() {
-        return asyncMethod;
-    }
-
-    public void setAsyncMethod(boolean asyncMethod) {
-        this.asyncMethod = asyncMethod;
     }
 
 }

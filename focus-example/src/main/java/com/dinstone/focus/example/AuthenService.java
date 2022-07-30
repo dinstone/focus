@@ -23,14 +23,7 @@ import com.dinstone.focus.server.annotation.FocusService;
 @FocusService(service = "AuthenService")
 public class AuthenService {
 
-    public boolean check(String name) {
-        return false;
-    }
-
-    public boolean authen(String name) {
-        if ("dinstone".equals(name)) {
-            return true;
-        }
+    public boolean checkUser(String name) {
         return false;
     }
 

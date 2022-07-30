@@ -19,10 +19,10 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.ExchangeException;
 import com.dinstone.photon.utils.ExceptionUtil;
 
 public class LocalInvokeHandler implements InvokeHandler {

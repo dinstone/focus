@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -32,11 +31,7 @@ import com.dinstone.focus.server.starter.EnableFocusServer;
 public class SpringStarterServer {
 
     public static void main(String[] args) throws Exception {
-        ConfigurableApplicationContext c = SpringApplication.run(SpringStarterServer.class, args);
-
-        System.in.read();
-
-        c.close();
+        SpringApplication.run(SpringStarterServer.class, args);
     }
 
     @Bean(destroyMethod = "destroy")

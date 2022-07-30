@@ -17,8 +17,10 @@ package com.dinstone.focus.binding;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.clutch.ServiceInstance;
@@ -28,7 +30,9 @@ import com.dinstone.focus.config.ServiceConfig;
 
 public class DefaultImplementBinding implements ImplementBinding {
 
-    protected Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
+    protected Map<String, ServiceConfig> serviceProxyMap = new ConcurrentHashMap<>();
+
+    protected Set<ServiceInstance> registedServices = new HashSet<>();
 
     protected InetSocketAddress providerAddress;
 
@@ -42,10 +46,10 @@ public class DefaultImplementBinding implements ImplementBinding {
     @Override
     public <T> void binding(ServiceConfig serviceConfig) {
         String serviceId = serviceConfig.getService() + "-" + serviceConfig.getGroup();
-        if (serviceConfigMap.get(serviceId) != null) {
+        if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
         }
-        serviceConfigMap.put(serviceId, serviceConfig);
+        serviceProxyMap.put(serviceId, serviceConfig);
 
         if (serviceRegistry != null) {
             publish(serviceConfig);
@@ -80,6 +84,7 @@ public class DefaultImplementBinding implements ImplementBinding {
 
         try {
             serviceRegistry.register(instance);
+            registedServices.add(instance);
         } catch (Exception e) {
             throw new RuntimeException("can't publish service", e);
         }
@@ -126,7 +131,7 @@ public class DefaultImplementBinding implements ImplementBinding {
     @Override
     public ServiceConfig lookup(String service, String group) {
         String serviceId = service + "-" + group;
-        return serviceConfigMap.get(serviceId);
+        return serviceProxyMap.get(serviceId);
     }
 
 }

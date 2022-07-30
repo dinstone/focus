@@ -27,7 +27,6 @@ import com.dinstone.focus.client.locate.LoadBalancer;
 import com.dinstone.focus.client.locate.LocateFactory;
 import com.dinstone.focus.client.locate.ServiceRouter;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -103,7 +102,7 @@ public class LocationInvokeHandler implements InvokeHandler {
             }
         }
 
-        throw new FocusException("can't find a live service instance for " + call.getService());
+        throw new RuntimeException("can't find a live service instance for " + call.getService());
     }
 
     private List<ServiceInstance> collect(Call call) {

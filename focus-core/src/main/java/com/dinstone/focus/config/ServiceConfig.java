@@ -32,7 +32,9 @@ public class ServiceConfig {
 
     private Map<String, MethodInfo> methodCaches = new ConcurrentHashMap<String, MethodInfo>();
 
-    private String endpoint;
+    private String appCode;
+
+    private String appName;
 
     private String service;
 
@@ -99,12 +101,20 @@ public class ServiceConfig {
         this.handler = handler;
     }
 
-    public String getEndpoint() {
-        return endpoint;
+    public String getAppCode() {
+        return appCode;
     }
 
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
+    public void setAppCode(String appCode) {
+        this.appCode = appCode;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public String getCodecId() {
@@ -129,7 +139,8 @@ public class ServiceConfig {
                 paramType = method.getParameterTypes()[0];
             }
 
-            addMethodInfo(new MethodInfo(method, paramType));
+            MethodInfo mi = new MethodInfo(method, paramType);
+            addMethodInfo(mi);
         }
     }
 

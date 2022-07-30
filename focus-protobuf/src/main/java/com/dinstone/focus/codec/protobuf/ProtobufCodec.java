@@ -23,7 +23,7 @@ import com.google.protobuf.MessageLite;
 
 public class ProtobufCodec extends AbstractCodec {
 
-    public static final String CODEC_ID = "protobuf";
+    public static final String CODEC_ID = "boen/protobuf";
 
     @Override
     public String codecId() {
@@ -31,7 +31,7 @@ public class ProtobufCodec extends AbstractCodec {
     }
 
     @Override
-    protected Object decodeContent(byte[] paramBytes, Class<?> paramType) {
+    protected Object read(byte[] paramBytes, Class<?> paramType) {
         if (paramBytes == null) {
             return null;
         }
@@ -44,7 +44,7 @@ public class ProtobufCodec extends AbstractCodec {
     }
 
     @Override
-    protected byte[] encodeContent(Object parameter, Class<?> paramType) {
+    protected byte[] write(Object parameter, Class<?> paramType) {
         if (parameter instanceof MessageLite) {
             return ((MessageLite) parameter).toByteArray();
         }

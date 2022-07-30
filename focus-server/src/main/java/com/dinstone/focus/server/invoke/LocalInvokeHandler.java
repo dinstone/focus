@@ -19,11 +19,11 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.ExceptionUtil;
-import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.photon.utils.ExceptionUtil;
 
 public class LocalInvokeHandler implements InvokeHandler {
 
@@ -42,9 +42,9 @@ public class LocalInvokeHandler implements InvokeHandler {
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionUtil.getTargetException(e);
             if (te instanceof RuntimeException) {
-                throw new InvokeException(302, "method throw a runtime exception", te);
+                throw new ExchangeException(302, "method throw a runtime exception", te);
             } else {
-                throw new InvokeException(301, "method throw a declared exception", te);
+                throw new ExchangeException(301, "method throw a declared exception", te);
             }
         }
     }

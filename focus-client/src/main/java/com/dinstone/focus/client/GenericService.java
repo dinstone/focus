@@ -15,12 +15,10 @@
  */
 package com.dinstone.focus.client;
 
-import java.util.concurrent.Future;
-
 public interface GenericService {
 
     /**
-     * generic service sync invoke. only support JSON codec.
+     * generic service invoke. only support JSON codec.
      * 
      * @param <R>
      * @param <P>
@@ -33,30 +31,8 @@ public interface GenericService {
      * @param parameter
      *            parameter object
      * 
-     * @return return object
-     * 
-     * @throws Exception
+     * @return
      */
-    <R, P> R sync(Class<R> returnType, String methodName, Class<P> paramType, P parameter) throws Exception;
-
-    /**
-     * generic service async invoke. only support JSON codec.
-     * 
-     * @param <R>
-     * @param <P>
-     * @param returnType
-     *            method return type, only support ( Object<->HashMap, String, java basic type)
-     * @param methodName
-     *            method name
-     * @param paramType
-     *            method parameter type, only support ( Object<->HashMap, String, java basic type)
-     * @param parameter
-     *            parameter object
-     * 
-     * @return return future
-     * 
-     * @throws Exception
-     */
-    <R, P> Future<R> async(Class<R> returnType, String methodName, Class<P> paramType, P parameter) throws Exception;
+    <R, P> R invoke(Class<R> returnType, String methodName, Class<P> paramType, P parameter);
 
 }

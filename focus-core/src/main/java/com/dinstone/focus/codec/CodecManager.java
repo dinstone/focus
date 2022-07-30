@@ -15,20 +15,19 @@
  */
 package com.dinstone.focus.codec;
 
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
-import com.dinstone.photon.message.Request;
-import com.dinstone.photon.message.Response;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public interface ProtocolCodec {
+public class CodecManager {
 
-    Request encode(Call call, Class<?> paramType) throws CodecException;
+    private static final Map<String, ProtocolCodec> NAME_CODEC_MAP = new ConcurrentHashMap<>();
 
-    Response encode(Reply reply, Class<?> returnType) throws CodecException;
+    public static void regist(ProtocolCodec codec) {
+        NAME_CODEC_MAP.put(codec.codecId(), codec);
+    }
 
-    Call decode(Request request, Class<?> paramType) throws CodecException;
+    public static ProtocolCodec codec(String codeId) {
+        return NAME_CODEC_MAP.get(codeId);
+    }
 
-    Reply decode(Response response, Class<?> returnType) throws CodecException;
-
-    String codecId();
 }

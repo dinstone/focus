@@ -62,29 +62,29 @@ public class DefaultImplementBinding implements ImplementBinding {
         String group = config.getGroup();
 
         StringBuilder code = new StringBuilder();
-        code.append(config.getEndpoint()).append("@");
+        code.append(config.getAppCode()).append("@");
         code.append(host).append(":").append(port).append("$");
         code.append((group == null ? "" : group));
 
-        ServiceInstance instance = new ServiceInstance();
-        instance.setInstanceCode(code.toString());
-        instance.setEndpointCode(config.getEndpoint());
-        instance.setHost(host);
-        instance.setPort(port);
-        instance.setServiceName(config.getService());
-        instance.setServiceGroup(group);
-        instance.setRtime(System.currentTimeMillis());
+        ServiceInstance description = new ServiceInstance();
+        description.setInstanceCode(code.toString());
+        description.setEndpointCode(config.getAppCode());
+        description.setHost(host);
+        description.setPort(port);
+        description.setServiceName(config.getService());
+        description.setServiceGroup(group);
+        description.setRtime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
         for (MethodInfo method : config.methodInfos()) {
             methodDescList.add(description(method));
         }
-        instance.addAttribute("methods", methodDescList);
-        instance.addAttribute("timeout", config.getTimeout());
+        description.addAttribute("methods", methodDescList);
+        description.addAttribute("timeout", config.getTimeout());
 
         try {
-            serviceRegistry.register(instance);
-            registedServices.add(instance);
+            serviceRegistry.register(description);
+            registedServices.add(description);
         } catch (Exception e) {
             throw new RuntimeException("can't publish service", e);
         }

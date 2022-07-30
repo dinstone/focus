@@ -67,13 +67,13 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         int port = consumerAddress.getPort();
 
         StringBuilder code = new StringBuilder();
-        code.append(config.getEndpoint()).append("@");
+        code.append(config.getAppCode()).append("@");
         code.append(host).append(":").append(port).append("$");
         code.append((group == null ? "" : group));
 
         ServiceInstance description = new ServiceInstance();
         description.setInstanceCode(code.toString());
-        description.setEndpointCode(config.getEndpoint());
+        description.setEndpointCode(config.getAppCode());
         description.setServiceName(config.getService());
         description.setServiceGroup(group);
         description.setHost(host);

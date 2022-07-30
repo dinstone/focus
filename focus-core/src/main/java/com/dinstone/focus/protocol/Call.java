@@ -25,13 +25,16 @@ import java.io.Serializable;
  */
 public class Call implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     public static final String SERVICE_KEY = "call.service";
 
     public static final String METHOD_KEY = "call.method";
 
     public static final String GROUP_KEY = "call.group";
+
+    public static final String CODEC_KEY = "call.codec";
+
+    /**  */
+    private static final long serialVersionUID = 1L;
 
     private String group;
 

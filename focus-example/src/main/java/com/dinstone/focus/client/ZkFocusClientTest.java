@@ -31,7 +31,7 @@ public class ZkFocusClientTest {
         ConnectOptions connectOptions = new ConnectOptions();
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
-                .setRegistryConfig(new ZookeeperRegistryConfig()).setEndpoint("com.rpc.demo.client");
+                .setRegistryConfig(new ZookeeperRegistryConfig()).setAppCode("com.rpc.demo.client");
 
         Client client = new Client(option);
         DemoService ds = client.reference(DemoService.class);

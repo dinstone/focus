@@ -15,11 +15,10 @@
  */
 package com.dinstone.focus.client.proxy;
 
-import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
 
 public interface ProxyFactory {
 
-    <T> T create(Class<T> sic, ServiceConfig serviceConfig, InvokeHandler invokeHandler);
+    <T> T create(Class<T> sic, InvokeHandler invokeHandler);
 
 }

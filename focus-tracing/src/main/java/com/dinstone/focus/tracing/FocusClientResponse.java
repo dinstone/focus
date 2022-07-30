@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.tracing;
 
-import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.exception.ExchangeException;
 import com.dinstone.focus.protocol.Reply;
 
 import brave.rpc.RpcClientResponse;
@@ -44,8 +44,8 @@ public class FocusClientResponse extends RpcClientResponse {
     }
 
     private String getErrorCode() {
-        if (error instanceof InvokeException) {
-            return "" + ((InvokeException) error).getCode();
+        if (error instanceof ExchangeException) {
+            return "" + ((ExchangeException) error).getCode();
         }
         return "999";
     }

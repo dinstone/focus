@@ -24,9 +24,6 @@ import com.dinstone.focus.server.annotation.FocusService;
 public class AuthenService {
 
     public boolean check(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("name is empty");
-        }
         return false;
     }
 

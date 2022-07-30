@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.dinstone.focus.client.ClientOptions;
-import com.dinstone.photon.Connection;
 import com.dinstone.photon.Connector;
+import com.dinstone.photon.connection.Connection;
 
 public class ConnectionFactory {
 

@@ -48,7 +48,7 @@ public class FocusServerTest {
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3333).setEndpoint("focus.example.server").addFilter(tf);
+        serverOptions.listen("localhost", 3333).setAppCode("focus.example.server").addFilter(tf);
         Server server = new Server(serverOptions);
         server.publish(DemoService.class, new DemoServiceImpl());
         server.publish(OrderService.class, new OrderServiceImpl(null, null));

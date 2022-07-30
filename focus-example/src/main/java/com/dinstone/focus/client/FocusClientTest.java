@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.client;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.example.AuthenCheck;
 import com.dinstone.focus.example.DemoService;
@@ -47,7 +47,7 @@ public class FocusClientTest {
                 .sampler(Sampler.create(1)).build();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
+        ClientOptions option = new ClientOptions().setAppCode("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions()).addFilter(tf);
         Client client = new Client(option);
         final DemoService ds = client.reference(DemoService.class);
@@ -60,23 +60,13 @@ public class FocusClientTest {
 
         AuthenCheck a = client.reference(AuthenCheck.class, "AuthenService", "", 2000);
         try {
-            Future<Boolean> check1 = a.check(null);
-            Future<Boolean> check2 = a.check("dinstone");
-            System.out.println("check 2 is " + check2.get());
-            System.out.println("check 1 is " + check1.get());
+            CompletableFuture<Boolean> check = a.check("dinstone");
+            System.out.println("check result " + check);
+            System.out.println("check future " + check.get());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        conparal(ds);
-
-        execute(ds, "hot: ");
-        execute(ds, "exe: ");
-
-        client.destroy();
-    }
-
-    private static void conparal(final DemoService ds) {
         for (int i = 1; i < 3; i++) {
             final int index = i;
             Thread t = new Thread() {
@@ -88,6 +78,11 @@ public class FocusClientTest {
             t.setName("rpc-client-" + i);
             t.start();
         }
+
+        execute(ds, "hot: ");
+        execute(ds, "exe: ");
+
+        client.destroy();
     }
 
     private static void execute(DemoService ds, String tag) {

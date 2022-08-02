@@ -38,7 +38,7 @@ public class UserServiceServer {
 
     public static void main(String[] args) {
 
-        Server uss = createUserServiceServer();
+        FocusServer uss = createUserServiceServer();
 
         LOG.info("server start");
         try {
@@ -51,7 +51,7 @@ public class UserServiceServer {
         LOG.info("server stop");
     }
 
-    private static Server createUserServiceServer() {
+    private static FocusServer createUserServiceServer() {
 
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
@@ -62,7 +62,7 @@ public class UserServiceServer {
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3301);
         serverOptions.addFilter(tf);
-        Server server = new Server(serverOptions);
+        FocusServer server = new FocusServer(serverOptions);
         server.publish(UserService.class, new UserServiceImpl());
 
         return server;

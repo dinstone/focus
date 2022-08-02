@@ -17,7 +17,7 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.focus.client.Client;
+import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.codec.protobuf.ProtobufCodec;
 import com.dinstone.focus.example.StoreService;
@@ -43,7 +43,7 @@ public class StoreServiceServer {
 
     public static void main(String[] args) {
 
-        Server sss = createStoreServiceServer();
+        FocusServer sss = createStoreServiceServer();
 
         LOG.info("server start");
         try {
@@ -56,7 +56,7 @@ public class StoreServiceServer {
         LOG.info("server stop");
     }
 
-    private static Server createStoreServiceServer() {
+    private static FocusServer createStoreServiceServer() {
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("store.service").addSpanHandler(spanHandler)
@@ -67,7 +67,7 @@ public class StoreServiceServer {
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3302);
         serverOptions.addFilter(tf);
-        Server server = new Server(serverOptions);
+        FocusServer server = new FocusServer(serverOptions);
         UserService userService = createUserServiceRpc(tracing);
         server.publish(StoreService.class, new StoreServiceImpl(userService));
 
@@ -80,7 +80,7 @@ public class StoreServiceServer {
 
         ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
                 .setConnectOptions(connectOptions).addFilter(tf);
-        Client client = new Client(option);
+        FocusClient client = new FocusClient(option);
         return client.reference(UserService.class);
     }
 

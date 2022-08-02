@@ -35,7 +35,7 @@ import com.dinstone.focus.endpoint.ServiceConsumer;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
 
-public class Client implements ServiceConsumer {
+public class FocusClient implements ServiceConsumer {
 
     private ClientOptions clientOptions;
 
@@ -47,7 +47,7 @@ public class Client implements ServiceConsumer {
 
     private ProxyFactory proxyFactory;
 
-    public Client(ClientOptions clientOption) {
+    public FocusClient(ClientOptions clientOption) {
         checkAndInit(clientOption);
     }
 

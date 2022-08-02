@@ -49,7 +49,7 @@ public class OrderServiceClient {
         ConnectOptions connectOptions = new ConnectOptions();
         ClientOptions option = new ClientOptions().connect("localhost", 3303).setConnectOptions(connectOptions)
                 .addFilter(tf);
-        Client client = new Client(option);
+        FocusClient client = new FocusClient(option);
 
         final OrderService ds = client.reference(OrderService.class);
         OrderRequest order = new OrderRequest();

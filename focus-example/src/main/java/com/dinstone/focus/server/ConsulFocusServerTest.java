@@ -32,7 +32,7 @@ public class ConsulFocusServerTest {
         // setting registry config
         ServerOptions serverOptions = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
                 .setEndpoint("com.rpc.demo.server");
-        Server server = new Server(serverOptions);
+        FocusServer server = new FocusServer(serverOptions);
         server.publish(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");

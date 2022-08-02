@@ -17,7 +17,7 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.focus.client.Client;
+import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.codec.protobuf.ProtobufCodec;
 import com.dinstone.focus.example.OrderService;
@@ -44,7 +44,7 @@ public class OrderServiceServer {
 
     public static void main(String[] args) {
 
-        Server sss = createOrderServiceServer();
+        FocusServer sss = createOrderServiceServer();
 
         LOG.info("server start");
         try {
@@ -57,7 +57,7 @@ public class OrderServiceServer {
         LOG.info("server stop");
     }
 
-    private static Server createOrderServiceServer() {
+    private static FocusServer createOrderServiceServer() {
         Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("order.service").addSpanHandler(spanHandler)
@@ -68,7 +68,7 @@ public class OrderServiceServer {
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3303);
         serverOptions.addFilter(tf);
-        Server server = new Server(serverOptions);
+        FocusServer server = new FocusServer(serverOptions);
         UserService userService = createUserServiceRpc(tracing);
         StoreService storeService = createStoreServiceRpc(tracing);
         server.publish(OrderService.class, new OrderServiceImpl(userService, storeService));
@@ -82,7 +82,7 @@ public class OrderServiceServer {
 
         ClientOptions option = new ClientOptions().connect("localhost", 3302).setConnectOptions(connectOptions)
                 .addFilter(tf);
-        Client client = new Client(option);
+        FocusClient client = new FocusClient(option);
         return client.reference(StoreService.class);
     }
 
@@ -92,7 +92,7 @@ public class OrderServiceServer {
 
         ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
                 .setConnectOptions(connectOptions).addFilter(tf);
-        Client client = new Client(option);
+        FocusClient client = new FocusClient(option);
         return client.reference(UserService.class);
     }
 

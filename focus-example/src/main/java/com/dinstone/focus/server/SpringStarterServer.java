@@ -41,7 +41,7 @@ public class SpringStarterServer {
 
     @Bean(destroyMethod = "destroy")
     @ConditionalOnMissingBean
-    Server defaultServer() {
-        return new Server(new ServerOptions().listen(2222));
+    FocusServer defaultServer() {
+        return new FocusServer(new ServerOptions().listen(2222));
     }
 }

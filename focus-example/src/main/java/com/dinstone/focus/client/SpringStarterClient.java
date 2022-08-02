@@ -44,8 +44,8 @@ public class SpringStarterClient {
 
     @Bean(destroyMethod = "destroy")
     @ConditionalOnMissingBean
-    Client defaultClient() {
-        return new Client(new ClientOptions().connect("127.0.0.1", 2222));
+    FocusClient defaultClient() {
+        return new FocusClient(new ClientOptions().connect("127.0.0.1", 2222));
     }
 
 }

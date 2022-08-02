@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
-import com.dinstone.focus.client.Client;
+import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.annotation.FocusReference;
 
 public class FocusReferenceAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware {
@@ -36,7 +36,7 @@ public class FocusReferenceAnnotationProcessor implements BeanPostProcessor, App
             if (autowired != null) {
                 String cid = autowired.client();
                 cid = cid.length() > 0 ? cid : "defaultClient";
-                Client client = applicationContext.getBean(cid, Client.class);
+                FocusClient client = applicationContext.getBean(cid, FocusClient.class);
 
                 ReflectionUtils.makeAccessible(field);
                 ReflectionUtils.setField(field, bean,

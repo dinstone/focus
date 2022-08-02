@@ -17,6 +17,7 @@ package com.dinstone.focus.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -29,7 +30,7 @@ public class GenericClientTest {
     public static void main(String[] args) {
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions());
-        Client client = new Client(option);
+        FocusClient client = new FocusClient(option);
 
         LOG.info("init end");
 
@@ -45,13 +46,16 @@ public class GenericClientTest {
 
     }
 
-    private static void demoService(Client client) throws Exception {
+    private static void demoService(FocusClient client) throws Exception {
         GenericService gs = client.genericService("com.dinstone.focus.example.DemoService", "", 30000);
         String r = gs.sync(String.class, "hello", String.class, "dinstone");
         System.out.println("result =  " + r);
+
+        Future<String> future = gs.async(String.class, "hello", String.class, "dinstone");
+        System.out.println("result =  " + future.get());
     }
 
-    private static void orderService(Client client) throws Exception {
+    private static void orderService(FocusClient client) throws Exception {
         GenericService gs = client.genericService("com.dinstone.focus.example.OrderService", "", 30000);
         Map<String, String> p = new HashMap<String, String>();
         p.put("sn", "S001");
@@ -59,7 +63,7 @@ public class GenericClientTest {
         p.put("poi", "20910910");
         p.put("ct", "2022-06-17");
 
-        Map r = gs.sync(HashMap.class, "findOldOrder", Map.class, p);
+        Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", Map.class, p);
         System.out.println("result =  " + r);
     }
 }

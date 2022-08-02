@@ -49,7 +49,7 @@ public class FocusServerTest {
 
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3333).setEndpoint("focus.example.server").addFilter(tf);
-        Server server = new Server(serverOptions);
+        FocusServer server = new FocusServer(serverOptions);
         server.publish(DemoService.class, new DemoServiceImpl());
         server.publish(OrderService.class, new OrderServiceImpl(null, null));
 

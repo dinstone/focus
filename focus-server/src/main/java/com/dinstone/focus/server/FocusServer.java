@@ -38,9 +38,9 @@ import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.Acceptor;
 
-public class Server implements ServiceProvider {
+public class FocusServer implements ServiceProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Server.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FocusServer.class);
 
     private EndpointOptions<ServerOptions> serverOptions;
 
@@ -52,7 +52,7 @@ public class Server implements ServiceProvider {
 
     private Acceptor acceptor;
 
-    public Server(ServerOptions serverOption) {
+    public FocusServer(ServerOptions serverOption) {
         checkAndInit(serverOption);
     }
 

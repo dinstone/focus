@@ -1,5 +1,5 @@
 # What
-**Focus** is a lightweight RPC framework. It enables quick and easy development of RPC applications. It greatly simplifies RPC programming.
+**Focus** is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.
 
 # Features
 ## Design Idea
@@ -45,32 +45,35 @@ if you need service registry and discovery, please add dependencies :
 		</exclusions>
 	</dependency>
 	
+	or
+	
+	<dependency>
+		<groupId>com.dinstone.clutch</groupId>
+		<artifactId>clutch-consul</artifactId>
+		<version>1.2.0</version>
+	</dependency>
+	
 # Example
 For more details, please refer to the example project : [focus-example](https://github.com/dinstone/focus/tree/master/focus-example)
 
 ## java programming by API
 ### export service:
 ```java
-	Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.server").sampler(Sampler.create(1))
                 .addSpanHandler(spanHandler).build();
 
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
         ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3333);
-        serverOptions.setFilterInitializer(filterInitializer);
-        Server server = new Server(serverOptions);
-        server.exporting(DemoService.class, new DemoServiceImpl());
+        serverOptions.listen("localhost", 3333).setEndpoint("focus.example.server").addFilter(tf);
+        FocusServer server = new FocusServer(serverOptions);
+        server.publish(DemoService.class, new DemoServiceImpl());
+        server.publish(OrderService.class, new OrderServiceImpl(null, null));
+
+        server.publish(AuthenService.class, "AuthenService", null, 0, new AuthenService());
+
         // server.start();
         LOG.info("server start");
         try {
@@ -85,33 +88,38 @@ For more details, please refer to the example project : [focus-example](https://
 
 ### import service:
 ```java
-	Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
         Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
                 .sampler(Sampler.create(1)).build();
-
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        FilterInitializer filterInitializer = new FilterInitializer() {
-
-            @Override
-            public void init(FilterChain chain) {
-                chain.addFilter(tf);
-            }
-        };
-
-        ConnectOptions connectOptions = new ConnectOptions();
-        ClientOptions option = new ClientOptions().connect("localhost", 3333).setConnectOptions(connectOptions)
-                .setFilterInitializer(filterInitializer);
-        Client client = new Client(option);
-        final DemoService ds = client.importing(DemoService.class);
-
-        LOG.info("int end");
-
+        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
+                .setConnectOptions(new ConnectOptions()).addFilter(tf);
+        FocusClient client = new FocusClient(option);
+        final DemoService ds = client.reference(DemoService.class);
+        
+        // common invoke
         try {
         	ds.hello(null);
         } catch (Exception e) {
         	e.printStackTrace();
         }
+        
+        // generic service sync invoke
+        GenericService gs = client.genericService("com.dinstone.focus.example.OrderService", "", 30000);
+        Map<String, String> p = new HashMap<String, String>();
+        p.put("sn", "S001");
+        p.put("uid", "U981");
+        p.put("poi", "20910910");
+        p.put("ct", "2022-06-17");
+
+        Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", Map.class, p);
+        System.out.println("result =  " + r);
+        
+        // generic service async invoke
+        Future<String> future = gs.async(String.class, "hello", String.class, "dinstone");
+        System.out.println("result =  " + future.get());
+        
         client.destroy();
 ```

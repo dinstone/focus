@@ -48,7 +48,7 @@ public class UserServiceClient {
         ConnectOptions connectOptions = new ConnectOptions();
         ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
                 .setConnectOptions(connectOptions).addFilter(tf);
-        Client client = new Client(option);
+        FocusClient client = new FocusClient(option);
 
         final UserService ds = client.reference(UserService.class);
 

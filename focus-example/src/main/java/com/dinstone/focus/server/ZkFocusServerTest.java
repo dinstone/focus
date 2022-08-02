@@ -31,7 +31,7 @@ public class ZkFocusServerTest {
         ZookeeperRegistryConfig registryConfig = new ZookeeperRegistryConfig().setZookeeperNodes("localhost:2181");
         ServerOptions setEndpointCode = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
                 .setEndpoint("com.rpc.demo.server");
-        Server server = new Server(setEndpointCode);
+        FocusServer server = new FocusServer(setEndpointCode);
         server.publish(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");

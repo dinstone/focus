@@ -20,7 +20,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.dinstone.focus.server.Server;
+import com.dinstone.focus.server.FocusServer;
 import com.dinstone.focus.server.annotation.FocusService;
 
 public class FocusServiceAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware {
@@ -34,7 +34,7 @@ public class FocusServiceAnnotationProcessor implements BeanPostProcessor, Appli
             String endpoint = fsa.server().length() > 0 ? fsa.server() : "defaultServer";
             String service = fsa.service();
             String group = fsa.group();
-            Server server = applicationContext.getBean(endpoint, Server.class);
+            FocusServer server = applicationContext.getBean(endpoint, FocusServer.class);
             Class<? extends Object> clazz = bean.getClass();
             Class<? extends Object>[] ifs = bean.getClass().getInterfaces();
             if (ifs != null && ifs.length > 0) {

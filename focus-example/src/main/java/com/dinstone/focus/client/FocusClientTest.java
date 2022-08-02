@@ -49,7 +49,7 @@ public class FocusClientTest {
 
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions()).addFilter(tf);
-        Client client = new Client(option);
+        FocusClient client = new FocusClient(option);
         final DemoService ds = client.reference(DemoService.class);
         LOG.info("init end");
         try {
@@ -68,10 +68,10 @@ public class FocusClientTest {
             e.printStackTrace();
         }
 
-        // conparal(ds);
+        conparal(ds);
 
-        // execute(ds, "hot: ");
-        // execute(ds, "exe: ");
+        execute(ds, "hot: ");
+        execute(ds, "exe: ");
 
         client.destroy();
 

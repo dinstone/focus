@@ -15,11 +15,14 @@
  */
 package com.dinstone.focus.example;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 public interface AuthenCheck {
 
     public Future<Boolean> check(String name);
+
+    public CompletableFuture<String> token(String name);
 
     public boolean authen(String name);
 }

@@ -37,4 +37,8 @@ public class AuthenService {
         return false;
     }
 
+    public String token(String name) {
+        return "token-" + name;
+    }
+
 }

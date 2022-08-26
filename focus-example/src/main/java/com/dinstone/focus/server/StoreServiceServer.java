@@ -17,13 +17,13 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ClientOptions;
-import com.dinstone.focus.codec.protobuf.ProtobufCodec;
+import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.example.StoreService;
 import com.dinstone.focus.example.StoreServiceImpl;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -78,8 +78,8 @@ public class StoreServiceServer {
         ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
-                .setConnectOptions(connectOptions).addFilter(tf);
+        ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_KEY)
+                .connect("localhost", 3301).setConnectOptions(connectOptions).addFilter(tf);
         FocusClient client = new FocusClient(option);
         return client.reference(UserService.class);
     }

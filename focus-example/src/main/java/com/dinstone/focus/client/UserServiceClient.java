@@ -15,11 +15,11 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.codec.protobuf.ProtobufCodec;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.protobuf.UserCheckRequest;
 import com.dinstone.focus.protobuf.UserCheckResponse;
+import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -46,8 +46,8 @@ public class UserServiceClient {
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
         ConnectOptions connectOptions = new ConnectOptions();
-        ClientOptions option = new ClientOptions().setCodecId(ProtobufCodec.CODEC_ID).connect("localhost", 3301)
-                .setConnectOptions(connectOptions).addFilter(tf);
+        ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_KEY)
+                .connect("localhost", 3301).setConnectOptions(connectOptions).addFilter(tf);
         FocusClient client = new FocusClient(option);
 
         final UserService ds = client.reference(UserService.class);

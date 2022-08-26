@@ -40,11 +40,13 @@ public class ServiceConfig {
 
     private int timeout;
 
-    private String codecId;
-
     private Object target;
 
     private Object proxy;
+
+    private String serializerId;
+
+    private String compressorId;
 
     private InvokeHandler handler;
 
@@ -107,12 +109,20 @@ public class ServiceConfig {
         this.endpoint = endpoint;
     }
 
-    public String getCodecId() {
-        return codecId;
+    public String getSerializerId() {
+        return serializerId;
     }
 
-    public void setCodecId(String codecId) {
-        this.codecId = codecId;
+    public void setSerializerId(String serializerId) {
+        this.serializerId = serializerId;
+    }
+
+    public String getCompressorId() {
+        return compressorId;
+    }
+
+    public void setCompressorId(String compressorId) {
+        this.compressorId = compressorId;
     }
 
     public void parseMethodInfos(Method[] methods) {

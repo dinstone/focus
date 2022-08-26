@@ -19,12 +19,13 @@ import java.util.concurrent.Executor;
 
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecException;
-import com.dinstone.focus.codec.ProtocolCodec;
+import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.server.ExecutorSelector;
 import com.dinstone.photon.Connection;
 import com.dinstone.photon.handler.DefaultMessageProcessor;
@@ -33,11 +34,14 @@ import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 
 public final class FocusProcessor extends DefaultMessageProcessor {
-    private final ImplementBinding binding;
+    private final ImplementBinding implementBinding;
+    private final PhotonProtocolCodec protocolCodec;
     private final ExecutorSelector selector;
 
-    public FocusProcessor(ImplementBinding binding, ExecutorSelector selector) {
-        this.binding = binding;
+    public FocusProcessor(ImplementBinding implementBinding, PhotonProtocolCodec protocolCodec,
+            ExecutorSelector selector) {
+        this.implementBinding = implementBinding;
+        this.protocolCodec = protocolCodec;
         this.selector = selector;
     }
 
@@ -68,10 +72,6 @@ public final class FocusProcessor extends DefaultMessageProcessor {
     }
 
     private void invoke(Connection connection, Request request) {
-        Headers headers = request.headers();
-        String codecId = headers.get(ProtocolCodec.CODEC_KEY);
-        ProtocolCodec codec = ProtocolCodec.lookup(codecId);
-
         InvokeException exception = null;
         try {
             // check request timeout
@@ -79,10 +79,11 @@ public final class FocusProcessor extends DefaultMessageProcessor {
                 throw new InvokeException(308, "request timeout");
             }
 
+            Headers headers = request.headers();
             // check service
             String group = headers.get(Call.GROUP_KEY);
             String service = headers.get(Call.SERVICE_KEY);
-            ServiceConfig config = binding.lookup(service, group);
+            ServiceConfig config = implementBinding.lookup(service, group);
             if (config == null) {
                 throw new NoSuchMethodException("unkown service: " + service + "[" + group + "]");
             }
@@ -95,13 +96,14 @@ public final class FocusProcessor extends DefaultMessageProcessor {
             }
 
             // decode call from request
-            Call call = codec.decode(request, methodInfo.getParamType());
+            Call call = protocolCodec.decode(request, methodInfo.getParamType());
 
             // invoke call
             Reply reply = config.getHandler().invoke(call);
+            reply.attach().put(Serializer.SERIALIZER_KEY, call.attach().get(Serializer.SERIALIZER_KEY));
 
             // encode reply to response
-            Response response = codec.encode(reply, methodInfo.getReturnType());
+            Response response = protocolCodec.encode(reply, methodInfo.getReturnType());
             response.setMsgId(request.getMsgId());
 
             // send response with reply
@@ -123,7 +125,7 @@ public final class FocusProcessor extends DefaultMessageProcessor {
         }
 
         if (exception != null) {
-            Response response = codec.encode(new Reply(exception), exception.getClass());
+            Response response = protocolCodec.encode(new Reply(exception), exception.getClass());
             response.setMsgId(request.getMsgId());
             // send response with exception
             connection.send(response);

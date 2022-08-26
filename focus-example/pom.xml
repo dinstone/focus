@@ -49,7 +49,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
-			<artifactId>focus-protobuf</artifactId>
+			<artifactId>focus-serialize-protobuf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -96,6 +96,11 @@
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-server-starter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-serialize-json</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

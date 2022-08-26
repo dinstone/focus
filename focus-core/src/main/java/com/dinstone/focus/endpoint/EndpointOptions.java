@@ -24,9 +24,11 @@ import com.dinstone.focus.filter.Filter;
 @SuppressWarnings("unchecked")
 public class EndpointOptions<T extends EndpointOptions<T>> {
 
+    private String endpoint;
+
     private int defaultTimeout = 3000;
 
-    private String endpoint;
+    private int compressThreshold = 10240;
 
     private RegistryConfig registryConfig;
 
@@ -70,6 +72,14 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
     public T addFilter(Filter filter) {
         filters.add(filter);
         return (T) this;
+    }
+
+    public int getCompressThreshold() {
+        return compressThreshold;
+    }
+
+    public void setCompressThreshold(int compressThreshold) {
+        this.compressThreshold = compressThreshold;
     }
 
 }

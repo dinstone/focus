@@ -22,12 +22,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.dinstone.clutch.ServiceInstance;
 import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.codec.ProtocolCodec;
+import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.AsyncReply;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.photon.Connection;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
@@ -45,10 +47,11 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     private ConnectionFactory connectionFactory;
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, ConnectionFactory connectionFactory) {
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, ProtocolCodec protocolCodec,
+            ConnectionFactory connectionFactory) {
         this.serviceConfig = serviceConfig;
+        this.protocolCodec = protocolCodec;
         this.connectionFactory = connectionFactory;
-        this.protocolCodec = ProtocolCodec.lookup(serviceConfig.getCodecId());
     }
 
     @Override
@@ -58,45 +61,48 @@ public class RemoteInvokeHandler implements InvokeHandler {
             throw new ConnectException("can't find a service instance to connect");
         }
 
-        Connection connection = connectionFactory.create(instance.getServiceAddress());
-        call.attach().put("consumer.address", connection.getLocalAddress().toString());
-        call.attach().put("provider.address", connection.getRemoteAddress().toString());
-        call.attach().put("consumer.endpoint", instance.getEndpointCode());
+        call.attach().put("provider.endpoint", instance.getEndpointCode());
+        call.attach().put(Serializer.SERIALIZER_KEY, serviceConfig.getSerializerId());
+        call.attach().put(Compressor.COMPRESSOR_KEY, serviceConfig.getCompressorId());
 
         MethodInfo mi = serviceConfig.getMethodInfo(call.getMethod());
         if (mi.isAsyncMethod()) {
-            return async(call, connection, mi);
+            return async(call, instance, mi);
         } else {
-            return sync(call, connection, mi);
+            return sync(call, instance, mi);
         }
     }
 
-    private Reply sync(Call call, Connection connection, MethodInfo mi) throws Exception {
+    private Reply sync(Call call, ServiceInstance instance, MethodInfo mi) throws Exception {
         // process request
         Request request = protocolCodec.encode(call, mi.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());
+
+        Connection connection = connectionFactory.create(instance.getServiceAddress());
         Response response = connection.sync(request);
         return protocolCodec.decode(response, mi.getReturnType());
     }
 
-    private Reply async(Call call, Connection connection, MethodInfo mi) throws Exception {
+    private Reply async(Call call, ServiceInstance instance, MethodInfo mi) throws Exception {
         // process request
         Request request = protocolCodec.encode(call, mi.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());
-        CompletableFuture<Reply> future = new CompletableFuture<>();
+
+        CompletableFuture<Reply> replyFuture = new CompletableFuture<>();
+        Connection connection = connectionFactory.create(instance.getServiceAddress());
         connection.async(request).addListener(new GenericFutureListener<Future<Response>>() {
 
             @Override
             public void operationComplete(Future<Response> responseFuture) throws Exception {
                 if (responseFuture.isSuccess()) {
                     Reply reply = protocolCodec.decode(responseFuture.get(), mi.getReturnType());
-                    future.complete(reply);
+                    replyFuture.complete(reply);
                 } else {
-                    future.completeExceptionally(responseFuture.cause());
+                    replyFuture.completeExceptionally(responseFuture.cause());
                 }
             }
         });
-        return new AsyncReply(future);
+        return new AsyncReply(replyFuture);
     }
 
 }

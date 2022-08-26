@@ -28,8 +28,8 @@ import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.client.transport.ConnectionFactory;
-import com.dinstone.focus.codec.CodecFactory;
 import com.dinstone.focus.codec.ProtocolCodec;
+import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.ServiceConsumer;
 import com.dinstone.focus.filter.FilterChainHandler;
@@ -44,6 +44,8 @@ public class FocusClient implements ServiceConsumer {
     private ReferenceBinding referenceBinding;
 
     private ConnectionFactory connectionFactory;
+
+    private ProtocolCodec protocolCodec;
 
     private ProxyFactory proxyFactory;
 
@@ -60,11 +62,8 @@ public class FocusClient implements ServiceConsumer {
         // check transport provider
         this.connectionFactory = new ConnectionFactory(clientOptions);
 
-        // load and create rpc message codec
-        ServiceLoader<CodecFactory> cfLoader = ServiceLoader.load(CodecFactory.class);
-        for (CodecFactory codecFactory : cfLoader) {
-            ProtocolCodec.regist(codecFactory.createCodec());
-        }
+        // init ProtocolCodec
+        this.protocolCodec = new PhotonProtocolCodec(clientOptions);
 
         // load and create registry
         RegistryConfig registryConfig = clientOptions.getRegistryConfig();
@@ -121,7 +120,8 @@ public class FocusClient implements ServiceConsumer {
         serviceConfig.parseMethodInfos(sic.getDeclaredMethods());
 
         serviceConfig.setEndpoint(clientOptions.getEndpoint());
-        serviceConfig.setCodecId(clientOptions.getCodecId());
+        serviceConfig.setSerializerId(clientOptions.getSerializerId());
+        serviceConfig.setCompressorId(clientOptions.getCompressorId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
         T proxy = proxyFactory.create(sic, serviceConfig, invokeHandler);
@@ -135,7 +135,7 @@ public class FocusClient implements ServiceConsumer {
         return proxy;
     }
 
-    public <P> GenericService genericService(String service, String group, int timeout) {
+    public GenericService genericService(String service, String group, int timeout) {
         if (service == null) {
             throw new IllegalArgumentException("serivce name is null");
         }
@@ -152,7 +152,8 @@ public class FocusClient implements ServiceConsumer {
         serviceConfig.setService(service);
 
         serviceConfig.setEndpoint(clientOptions.getEndpoint());
-        serviceConfig.setCodecId(clientOptions.getCodecId());
+        serviceConfig.setSerializerId(clientOptions.getSerializerId());
+        serviceConfig.setCompressorId(clientOptions.getCompressorId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
         GenericService proxy = proxyFactory.create(GenericService.class, serviceConfig, invokeHandler);
@@ -166,7 +167,7 @@ public class FocusClient implements ServiceConsumer {
     }
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
-        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, connectionFactory);
+        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, protocolCodec, connectionFactory);
         FilterChainHandler chain = createFilterChain(serviceConfig, remote);
         InvokeHandler invokeHandler = new LocationInvokeHandler(serviceConfig, chain, referenceBinding, clientOptions);
         return new ConsumeInvokeHandler(serviceConfig, invokeHandler);

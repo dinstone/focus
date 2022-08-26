@@ -26,7 +26,7 @@ import com.dinstone.photon.ConnectOptions;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
-    private static final String DEFAULT_CODEC_ID = "jackson";
+    private static final String DEFAULT_SERIALIZER_ID = "json";
 
     private static final int DEFAULT_POOL_SIZE = 1;
 
@@ -34,9 +34,11 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     private ConnectOptions connectOptions = new ConnectOptions();
 
+    private String serializerId = DEFAULT_SERIALIZER_ID;
+
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
-    private String codecId = DEFAULT_CODEC_ID;
+    private String compressorId;
 
     private LocateFactory locateFactory;
 
@@ -86,12 +88,21 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
         return this;
     }
 
-    public String getCodecId() {
-        return codecId;
+    public String getSerializerId() {
+        return serializerId;
     }
 
-    public ClientOptions setCodecId(String codecId) {
-        this.codecId = codecId;
+    public ClientOptions setSerializerId(String serializerId) {
+        this.serializerId = serializerId;
+        return this;
+    }
+
+    public String getCompressorId() {
+        return compressorId;
+    }
+
+    public ClientOptions setCompressorId(String compressorId) {
+        this.compressorId = compressorId;
         return this;
     }
 

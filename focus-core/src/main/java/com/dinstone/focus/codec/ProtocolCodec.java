@@ -15,9 +15,6 @@
  */
 package com.dinstone.focus.codec;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.photon.message.Request;
@@ -27,23 +24,10 @@ public interface ProtocolCodec {
 
     Request encode(Call call, Class<?> paramType) throws CodecException;
 
-    Response encode(Reply reply, Class<?> returnType) throws CodecException;
-
     Call decode(Request request, Class<?> paramType) throws CodecException;
 
+    Response encode(Reply reply, Class<?> returnType) throws CodecException;
+
     Reply decode(Response response, Class<?> returnType) throws CodecException;
-
-    String codecId();
-
-    public static final Map<String, ProtocolCodec> CODEC_MAP = new ConcurrentHashMap<>();
-    public static final String CODEC_KEY = "protocol.codec";
-
-    public static ProtocolCodec lookup(String codecId) {
-        return CODEC_MAP.get(codecId);
-    }
-
-    public static void regist(ProtocolCodec codec) {
-        CODEC_MAP.put(codec.codecId(), codec);
-    }
 
 }

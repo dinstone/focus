@@ -18,7 +18,7 @@ package com.dinstone.focus.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.clutch.RegistryConfig;
+import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.filter.Filter;
 
 @SuppressWarnings("unchecked")
@@ -30,7 +30,7 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     private int compressThreshold = 10240;
 
-    private RegistryConfig registryConfig;
+    private ClutchOptions registryConfig;
 
     private List<Filter> filters = new ArrayList<Filter>();
 
@@ -56,11 +56,11 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
         return (T) this;
     }
 
-    public RegistryConfig getRegistryConfig() {
+    public ClutchOptions getRegistryConfig() {
         return registryConfig;
     }
 
-    public T setRegistryConfig(RegistryConfig registryConfig) {
+    public T setRegistryConfig(ClutchOptions registryConfig) {
         this.registryConfig = registryConfig;
         return (T) this;
     }

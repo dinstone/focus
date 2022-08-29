@@ -17,9 +17,6 @@ package com.dinstone.focus.client;
 
 import java.util.ServiceLoader;
 
-import com.dinstone.clutch.RegistryConfig;
-import com.dinstone.clutch.RegistryFactory;
-import com.dinstone.clutch.ServiceDiscovery;
 import com.dinstone.focus.binding.DefaultReferenceBinding;
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.invoke.ConsumeInvokeHandler;
@@ -28,6 +25,9 @@ import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.client.transport.ConnectionFactory;
+import com.dinstone.focus.clutch.ClutchOptions;
+import com.dinstone.focus.clutch.ClutchFactory;
+import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
@@ -66,11 +66,11 @@ public class FocusClient implements ServiceConsumer {
         this.protocolCodec = new PhotonProtocolCodec(clientOptions);
 
         // load and create registry
-        RegistryConfig registryConfig = clientOptions.getRegistryConfig();
+        ClutchOptions registryConfig = clientOptions.getRegistryConfig();
         if (registryConfig != null) {
-            ServiceLoader<RegistryFactory> serviceLoader = ServiceLoader.load(RegistryFactory.class);
-            for (RegistryFactory registryFactory : serviceLoader) {
-                if (registryFactory.canApply(registryConfig)) {
+            ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
+            for (ClutchFactory registryFactory : serviceLoader) {
+                if (registryFactory.appliable(registryConfig)) {
                     this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
                     break;
                 }

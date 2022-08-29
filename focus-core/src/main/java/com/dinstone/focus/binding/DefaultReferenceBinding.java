@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.dinstone.clutch.ServiceDiscovery;
-import com.dinstone.clutch.ServiceInstance;
+import com.dinstone.focus.clutch.ServiceDiscovery;
+import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.photon.utils.NetworkUtil;
 

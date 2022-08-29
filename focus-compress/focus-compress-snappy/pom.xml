@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.dinstone.focus</groupId>
+		<groupId>com.dinstone.focus.compress</groupId>
 		<artifactId>focus-compress</artifactId>
-		<version>0.9.0</version>
+		<version>0.9.5</version>
 	</parent>
 	<artifactId>focus-compress-snappy</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>com.dinstone.focus</groupId>
+			<groupId>com.dinstone.focus.compress</groupId>
 			<artifactId>focus-compress-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>

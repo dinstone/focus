@@ -18,11 +18,11 @@ package com.dinstone.focus.server;
 import java.net.InetSocketAddress;
 import java.util.ServiceLoader;
 
-import com.dinstone.clutch.RegistryConfig;
-import com.dinstone.clutch.RegistryFactory;
-import com.dinstone.clutch.ServiceRegistry;
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
+import com.dinstone.focus.clutch.ClutchOptions;
+import com.dinstone.focus.clutch.ClutchFactory;
+import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
@@ -73,11 +73,11 @@ public class FocusServer implements ServiceProvider {
         this.protocolCodec = new PhotonProtocolCodec(serverOptions);
 
         // load and create registry
-        RegistryConfig registryConfig = serverOptions.getRegistryConfig();
+        ClutchOptions registryConfig = serverOptions.getRegistryConfig();
         if (registryConfig != null) {
-            ServiceLoader<RegistryFactory> serviceLoader = ServiceLoader.load(RegistryFactory.class);
-            for (RegistryFactory registryFactory : serviceLoader) {
-                if (registryFactory.canApply(registryConfig)) {
+            ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
+            for (ClutchFactory registryFactory : serviceLoader) {
+                if (registryFactory.appliable(registryConfig)) {
                     this.serviceRegistry = registryFactory.createServiceRegistry(registryConfig);
                     break;
                 }

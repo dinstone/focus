@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dinstone.focus</groupId>
 	<artifactId>focus-parent</artifactId>
-	<version>0.9.0</version>
+	<version>0.9.5</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2019~2022</inceptionYear>
 	<modules>
@@ -15,6 +15,7 @@
 		<module>focus-server-starter</module>
 		<module>focus-compress</module>
 		<module>focus-serialize</module>
+		<module>focus-clutch</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -184,4 +185,47 @@
 			</build>
 		</profile>
 	</profiles>
+	<distributionManagement>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name>Nexus Release Repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus Snapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+	<name>focus</name>
+	<url>https://github.com/dinstone/focus</url>
+	<description>Focus is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.</description>
+	<developers>
+		<developer>
+			<name>dinstone</name>
+			<email>dinstone@163.com</email>
+			<roles>
+				<role>Owner</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<organization>
+		<name>dinstone</name>
+		<url>https://dinstone.github.io/</url>
+	</organization>
+	<scm>
+		<url>https://github.com/dinstone/focus.git</url>
+		<connection>scm:https://github.com/dinstone/focus.git</connection>
+	</scm>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/dinstone/focus/issues</url>
+	</issueManagement>
 </project>

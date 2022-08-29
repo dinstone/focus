@@ -20,12 +20,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.clutch.ServiceInstance;
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.client.locate.LoadBalancer;
 import com.dinstone.focus.client.locate.LocateFactory;
 import com.dinstone.focus.client.locate.ServiceRouter;
+import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;

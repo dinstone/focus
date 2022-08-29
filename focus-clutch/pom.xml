@@ -1,0 +1,16 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.dinstone.focus</groupId>
+		<artifactId>focus-parent</artifactId>
+		<version>0.9.5</version>
+	</parent>
+	<groupId>com.dinstone.focus.clutch</groupId>
+	<artifactId>focus-clutch</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>focus-clutch-core</module>
+		<module>focus-clutch-consul</module>
+		<module>focus-clutch-zookeeper</module>
+	</modules>
+</project>

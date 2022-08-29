@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dinstone.clutch.ServiceInstance;
-import com.dinstone.clutch.ServiceRegistry;
+import com.dinstone.focus.clutch.ServiceInstance;
+import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 
@@ -69,7 +69,7 @@ public class DefaultImplementBinding implements ImplementBinding {
         instance.setPort(port);
         instance.setServiceName(config.getService());
         instance.setServiceGroup(group);
-        instance.setRtime(System.currentTimeMillis());
+        instance.setRegistTime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
         for (MethodInfo method : config.methodInfos()) {

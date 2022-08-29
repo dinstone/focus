@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.clutch.consul.ConsulRegistryConfig;
+import com.dinstone.focus.clutch.consul.ConsulClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -31,7 +31,7 @@ public class ConsulFocusClientTest {
         ConnectOptions connectOptions = new ConnectOptions();
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
-                .setRegistryConfig(new ConsulRegistryConfig()).setEndpoint("com.rpc.demo.client");
+                .setRegistryConfig(new ConsulClutchOptions()).setEndpoint("com.rpc.demo.client");
 
         FocusClient client = new FocusClient(option);
         DemoService ds = client.reference(DemoService.class);

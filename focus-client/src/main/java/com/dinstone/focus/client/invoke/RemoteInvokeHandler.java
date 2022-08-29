@@ -19,8 +19,8 @@ import java.net.ConnectException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.clutch.ServiceInstance;
 import com.dinstone.focus.client.transport.ConnectionFactory;
+import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodInfo;

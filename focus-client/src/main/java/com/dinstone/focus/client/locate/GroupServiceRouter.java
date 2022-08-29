@@ -18,7 +18,7 @@ package com.dinstone.focus.client.locate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.clutch.ServiceInstance;
+import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.protocol.Call;
 

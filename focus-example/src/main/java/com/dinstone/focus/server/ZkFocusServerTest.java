@@ -17,7 +17,7 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.clutch.zookeeper.ZookeeperRegistryConfig;
+import com.dinstone.focus.clutch.zookeeper.ZookeeperClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
 import com.dinstone.loghub.Logger;
@@ -28,7 +28,7 @@ public class ZkFocusServerTest {
 
     public static void main(String[] args) {
         // setting registry config
-        ZookeeperRegistryConfig registryConfig = new ZookeeperRegistryConfig().setZookeeperNodes("localhost:2181");
+        ZookeeperClutchOptions registryConfig = new ZookeeperClutchOptions().setZookeeperNodes("localhost:2181");
         ServerOptions setEndpointCode = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
                 .setEndpoint("com.rpc.demo.server");
         FocusServer server = new FocusServer(setEndpointCode);

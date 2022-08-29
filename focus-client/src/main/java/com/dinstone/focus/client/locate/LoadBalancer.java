@@ -17,7 +17,7 @@ package com.dinstone.focus.client.locate;
 
 import java.util.List;
 
-import com.dinstone.clutch.ServiceInstance;
+import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.protocol.Call;
 
 public interface LoadBalancer {

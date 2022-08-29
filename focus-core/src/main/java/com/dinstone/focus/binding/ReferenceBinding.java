@@ -17,7 +17,7 @@ package com.dinstone.focus.binding;
 
 import java.util.List;
 
-import com.dinstone.clutch.ServiceInstance;
+import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 
 /**

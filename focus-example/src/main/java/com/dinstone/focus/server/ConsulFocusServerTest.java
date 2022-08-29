@@ -17,8 +17,8 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.clutch.RegistryConfig;
-import com.dinstone.clutch.consul.ConsulRegistryConfig;
+import com.dinstone.focus.clutch.ClutchOptions;
+import com.dinstone.focus.clutch.consul.ConsulClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
 import com.dinstone.loghub.Logger;
@@ -28,7 +28,7 @@ public class ConsulFocusServerTest {
     private static final Logger LOG = LoggerFactory.getLogger(FocusServerTest.class);
 
     public static void main(String[] args) {
-        RegistryConfig registryConfig = new ConsulRegistryConfig();
+        ClutchOptions registryConfig = new ConsulClutchOptions();
         // setting registry config
         ServerOptions serverOptions = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
                 .setEndpoint("com.rpc.demo.server");

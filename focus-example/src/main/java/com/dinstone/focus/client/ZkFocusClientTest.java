@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.clutch.zookeeper.ZookeeperRegistryConfig;
+import com.dinstone.focus.clutch.zookeeper.ZookeeperClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -31,7 +31,7 @@ public class ZkFocusClientTest {
         ConnectOptions connectOptions = new ConnectOptions();
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
-                .setRegistryConfig(new ZookeeperRegistryConfig()).setEndpoint("com.rpc.demo.client");
+                .setRegistryConfig(new ZookeeperClutchOptions()).setEndpoint("com.rpc.demo.client");
 
         FocusClient client = new FocusClient(option);
         DemoService ds = client.reference(DemoService.class);

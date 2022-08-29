@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.0</version>
+		<version>0.9.5</version>
 	</parent>
 	<artifactId>focus-core</artifactId>
 	<dependencies>
@@ -19,17 +19,17 @@
 			<version>1.1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.dinstone.clutch</groupId>
-			<artifactId>clutch-core</artifactId>
-			<version>1.2.0</version>
+			<groupId>com.dinstone.focus.clutch</groupId>
+			<artifactId>focus-clutch-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.dinstone.focus</groupId>
+			<groupId>com.dinstone.focus.compress</groupId>
 			<artifactId>focus-compress-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.dinstone.focus</groupId>
+			<groupId>com.dinstone.focus.serialize</groupId>
 			<artifactId>focus-serialize-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>

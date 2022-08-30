@@ -106,7 +106,7 @@ public final class UserCheckRequest extends com.google.protobuf.GeneratedMessage
 
     /**
      * <code>string userId = 1;</code>
-     * 
+     *
      * @return The userId.
      */
     @java.lang.Override
@@ -124,7 +124,7 @@ public final class UserCheckRequest extends com.google.protobuf.GeneratedMessage
 
     /**
      * <code>string userId = 1;</code>
-     * 
+     *
      * @return The bytes for userId.
      */
     @java.lang.Override
@@ -445,7 +445,7 @@ public final class UserCheckRequest extends com.google.protobuf.GeneratedMessage
 
         /**
          * <code>string userId = 1;</code>
-         * 
+         *
          * @return The userId.
          */
         public java.lang.String getUserId() {
@@ -462,7 +462,7 @@ public final class UserCheckRequest extends com.google.protobuf.GeneratedMessage
 
         /**
          * <code>string userId = 1;</code>
-         * 
+         *
          * @return The bytes for userId.
          */
         public com.google.protobuf.ByteString getUserIdBytes() {
@@ -478,10 +478,10 @@ public final class UserCheckRequest extends com.google.protobuf.GeneratedMessage
 
         /**
          * <code>string userId = 1;</code>
-         * 
+         *
          * @param value
          *            The userId to set.
-         * 
+         *
          * @return This builder for chaining.
          */
         public Builder setUserId(java.lang.String value) {
@@ -496,7 +496,7 @@ public final class UserCheckRequest extends com.google.protobuf.GeneratedMessage
 
         /**
          * <code>string userId = 1;</code>
-         * 
+         *
          * @return This builder for chaining.
          */
         public Builder clearUserId() {
@@ -508,10 +508,10 @@ public final class UserCheckRequest extends com.google.protobuf.GeneratedMessage
 
         /**
          * <code>string userId = 1;</code>
-         * 
+         *
          * @param value
          *            The bytes for userId to set.
-         * 
+         *
          * @return This builder for chaining.
          */
         public Builder setUserIdBytes(com.google.protobuf.ByteString value) {

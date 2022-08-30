@@ -40,7 +40,7 @@ public class FocusServiceAnnotationProcessor implements BeanPostProcessor, Appli
             if (ifs != null && ifs.length > 0) {
                 clazz = ifs[0];
             }
-            server.publish(clazz, service, group, fsa.timeout(), bean);
+            server.exporting(clazz, service, group, fsa.timeout(), bean);
         }
         return bean;
     }

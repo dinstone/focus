@@ -24,14 +24,14 @@ public interface UserCheckRequestOrBuilder extends
 
     /**
      * <code>string userId = 1;</code>
-     * 
+     *
      * @return The userId.
      */
     java.lang.String getUserId();
 
     /**
      * <code>string userId = 1;</code>
-     * 
+     *
      * @return The bytes for userId.
      */
     com.google.protobuf.ByteString getUserIdBytes();

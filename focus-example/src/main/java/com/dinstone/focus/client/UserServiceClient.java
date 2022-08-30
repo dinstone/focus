@@ -50,7 +50,7 @@ public class UserServiceClient {
                 .connect("localhost", 3301).setConnectOptions(connectOptions).addFilter(tf);
         FocusClient client = new FocusClient(option);
 
-        final UserService ds = client.reference(UserService.class);
+        final UserService ds = client.importing(UserService.class);
 
         try {
             UserCheckRequest ucr = UserCheckRequest.newBuilder().setUserId("dinstone").build();

@@ -19,9 +19,9 @@ import java.util.Collection;
 
 /**
  * Service Discovery
- * 
+ *
  * @author dinstone
- * 
+ *
  * @version 1.0.0
  */
 public interface ServiceDiscovery {

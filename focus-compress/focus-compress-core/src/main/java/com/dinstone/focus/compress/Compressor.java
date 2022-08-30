@@ -16,62 +16,47 @@
 package com.dinstone.focus.compress;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public interface Compressor {
 
     public static final String COMPRESSOR_KEY = "protocol.compressor";
 
-    public static final Map<String, Compressor> COMPRESSOR_MAP = new ConcurrentHashMap<>();
-
-    public static Compressor lookup(String compressId) {
-        if (compressId != null) {
-            return COMPRESSOR_MAP.get(compressId);
-        }
-        return null;
-    }
-
-    public static void regist(Compressor compress) {
-        COMPRESSOR_MAP.put(compress.compressorId(), compress);
-    }
-
     /**
      * The compressor ID
-     * 
+     *
      * @return
      */
-    public String compressorId();
+    public abstract String compressorId();
 
     /**
      * The data enable compress if grate than threshold
-     * 
+     *
      * @param data
-     * 
+     *
      * @return
      */
-    public boolean enable(byte[] data);
+    public abstract boolean enable(byte[] data);
 
     /**
      * The Data compress.
-     * 
+     *
      * @param data
-     * 
+     *
      * @return
-     * 
+     *
      * @throws IOException
      */
-    byte[] encode(byte[] data) throws IOException;
+    public abstract byte[] encode(byte[] data) throws IOException;
 
     /**
      * The Data uncompress.
-     * 
+     *
      * @param data
-     * 
+     *
      * @return
-     * 
+     *
      * @throws IOException
      */
-    byte[] decode(byte[] data) throws IOException;
+    public abstract byte[] decode(byte[] data) throws IOException;
 
 }

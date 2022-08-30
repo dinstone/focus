@@ -23,9 +23,9 @@ import com.dinstone.focus.protocol.Reply;
 
 /**
  * client-side service invoker.
- * 
+ *
  * @author dinstone
- * 
+ *
  * @version 1.0.0
  */
 public class ConsumeInvokeHandler implements InvokeHandler {

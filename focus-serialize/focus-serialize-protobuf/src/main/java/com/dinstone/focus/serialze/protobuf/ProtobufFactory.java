@@ -18,7 +18,7 @@ package com.dinstone.focus.serialze.protobuf;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 
-public class ProtobufFactory implements SerializerFactory {
+public class ProtobufFactory extends SerializerFactory {
 
     @Override
     public Serializer create() {

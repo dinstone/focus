@@ -3,9 +3,8 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.5</version>
+		<version>0.9.6</version>
 	</parent>
-	<groupId>com.dinstone.focus.clutch</groupId>
 	<artifactId>focus-clutch</artifactId>
 	<packaging>pom</packaging>
 	<modules>

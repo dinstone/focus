@@ -21,9 +21,9 @@ import com.dinstone.focus.exception.InvokeException;
 
 /**
  * The Reply is the abstract of RPC response.
- * 
+ *
  * @author dinstone
- * 
+ *
  */
 public class Reply implements Serializable {
 
@@ -44,7 +44,7 @@ public class Reply implements Serializable {
 
     /**
      * the attach to get
-     * 
+     *
      * @return
      */
     public Attach attach() {
@@ -53,11 +53,11 @@ public class Reply implements Serializable {
 
     /**
      * the data to get
-     * 
+     *
      * @return the data
-     * 
+     *
      * @throws Exception
-     * 
+     *
      * @see Reply#data
      */
     public Object getData() {
@@ -66,9 +66,9 @@ public class Reply implements Serializable {
 
     /**
      * the data to set
-     * 
+     *
      * @param data
-     * 
+     *
      * @see Reply#data
      */
     public void setData(Object data) {

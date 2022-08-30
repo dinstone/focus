@@ -22,9 +22,9 @@ import com.dinstone.focus.protocol.Reply;
 
 /**
  * server-side service invoker.
- * 
+ *
  * @author dinstone
- * 
+ *
  * @version 1.0.0
  */
 public class ProvideInvokeHandler implements InvokeHandler {

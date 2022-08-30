@@ -24,9 +24,9 @@ public class ExceptionUtil {
 
     /**
      * get target exception
-     * 
+     *
      * @param e
-     * 
+     *
      * @return
      */
     public static Throwable getTargetException(InvocationTargetException e) {
@@ -42,9 +42,9 @@ public class ExceptionUtil {
 
     /**
      * get non empty message
-     * 
+     *
      * @param cause
-     * 
+     *
      * @return
      */
     public static String getMessage(Throwable cause) {
@@ -60,9 +60,9 @@ public class ExceptionUtil {
 
     /**
      * get exception stack trace string
-     * 
+     *
      * @param e
-     * 
+     *
      * @return
      */
     public static String getStackTrace(Throwable e) {

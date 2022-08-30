@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.dinstone.focus.clutch</groupId>
+		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-clutch</artifactId>
-		<version>0.9.5</version>
+		<version>0.9.6</version>
 	</parent>
 	<artifactId>focus-clutch-zookeeper</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>com.dinstone.focus.clutch</groupId>
+			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-clutch-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>

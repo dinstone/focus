@@ -17,19 +17,19 @@ package com.dinstone.focus.clutch;
 
 /**
  * Service Registry
- * 
+ *
  * @author dinstone
- * 
+ *
  * @version 1.0.0
  */
 public interface ServiceRegistry {
 
     /**
      * Register / Re-register a service instance
-     * 
+     *
      * @param service
      *            the service instance description
-     * 
+     *
      * @throws Exception
      *             errors
      */
@@ -37,10 +37,10 @@ public interface ServiceRegistry {
 
     /**
      * Deregister / Remove a service instance
-     * 
+     *
      * @param service
      *            the service instance description
-     * 
+     *
      * @throws Exception
      *             errors
      */

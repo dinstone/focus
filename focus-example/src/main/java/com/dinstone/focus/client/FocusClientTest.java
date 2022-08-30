@@ -51,15 +51,40 @@ public class FocusClientTest {
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions()).addFilter(tf);
         FocusClient client = new FocusClient(option);
-        final DemoService ds = client.reference(DemoService.class);
+
         LOG.info("init end");
+
+        try {
+            asyncInvoke(client);
+
+            final DemoService ds = client.importing(DemoService.class);
+
+            errorInvoke(ds);
+
+            conparal(ds);
+
+            execute(ds, "hot: ");
+            execute(ds, "exe: ");
+        } finally {
+            client.destroy();
+        }
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+    }
+
+    private static void errorInvoke(final DemoService ds) {
         try {
             ds.hello("");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
-        AuthenCheck a = client.reference(AuthenCheck.class, "AuthenService", "", 2000);
+    private static void asyncInvoke(FocusClient client) {
+        AuthenCheck a = client.importing(AuthenCheck.class, "AuthenService", "", 2000);
         try {
             Future<Boolean> check1 = a.check(null);
             Future<Boolean> check2 = a.check("dinstone");
@@ -69,18 +94,6 @@ public class FocusClientTest {
             System.out.println("check 1 is " + check1.get());
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        conparal(ds);
-
-        execute(ds, "hot: ");
-        execute(ds, "exe: ");
-
-        client.destroy();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
         }
     }
 

@@ -30,7 +30,7 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     private int compressThreshold = 10240;
 
-    private ClutchOptions registryConfig;
+    private ClutchOptions clutchOptions;
 
     private List<Filter> filters = new ArrayList<Filter>();
 
@@ -56,12 +56,12 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
         return (T) this;
     }
 
-    public ClutchOptions getRegistryConfig() {
-        return registryConfig;
+    public ClutchOptions getClutchOptions() {
+        return clutchOptions;
     }
 
-    public T setRegistryConfig(ClutchOptions registryConfig) {
-        this.registryConfig = registryConfig;
+    public T setClutchOptions(ClutchOptions clutchOptions) {
+        this.clutchOptions = clutchOptions;
         return (T) this;
     }
 
@@ -78,8 +78,9 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
         return compressThreshold;
     }
 
-    public void setCompressThreshold(int compressThreshold) {
+    public T setCompressThreshold(int compressThreshold) {
         this.compressThreshold = compressThreshold;
+        return (T) this;
     }
 
 }

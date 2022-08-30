@@ -24,7 +24,7 @@ public interface UserCheckResponseOrBuilder extends
 
     /**
      * <code>bool exist = 1;</code>
-     * 
+     *
      * @return The exist.
      */
     boolean getExist();

@@ -21,7 +21,7 @@ public interface GenericService {
 
     /**
      * generic service sync invoke. only support JSON codec.
-     * 
+     *
      * @param <R>
      * @param <P>
      * @param returnType
@@ -32,16 +32,16 @@ public interface GenericService {
      *            method parameter type, only support ( Object<->HashMap, String, java basic type)
      * @param parameter
      *            parameter object
-     * 
+     *
      * @return return object
-     * 
+     *
      * @throws Exception
      */
     <R, P> R sync(Class<R> returnType, String methodName, Class<P> paramType, P parameter) throws Exception;
 
     /**
      * generic service async invoke. only support JSON codec.
-     * 
+     *
      * @param <R>
      * @param <P>
      * @param returnType
@@ -52,9 +52,9 @@ public interface GenericService {
      *            method parameter type, only support ( Object<->HashMap, String, java basic type)
      * @param parameter
      *            parameter object
-     * 
+     *
      * @return return future
-     * 
+     *
      * @throws Exception
      */
     <R, P> Future<R> async(Class<R> returnType, String methodName, Class<P> paramType, P parameter) throws Exception;

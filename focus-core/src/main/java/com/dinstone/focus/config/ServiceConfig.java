@@ -24,7 +24,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
 
 /**
  * service config
- * 
+ *
  * @author dinstone
  *
  */

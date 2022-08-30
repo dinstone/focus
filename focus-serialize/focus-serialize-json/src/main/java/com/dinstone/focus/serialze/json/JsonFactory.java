@@ -18,11 +18,11 @@ package com.dinstone.focus.serialze.json;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 
-public class JsonFactory implements SerializerFactory {
+public class JsonFactory extends SerializerFactory {
 
     @Override
     public Serializer create() {
-        return new JsonSerializer();
+        return new JacksonSerializer();
     }
 
 }

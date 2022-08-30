@@ -17,11 +17,11 @@ package com.dinstone.focus.endpoint;
 
 public interface ServiceProvider {
 
-    public abstract <T> void publish(Class<T> serviceInterface, T serviceImplement);
+    public abstract <T> void exporting(Class<T> serviceInterface, T serviceImplement);
 
-    public abstract <T> void publish(Class<T> serviceInterface, String group, int timeout, T serviceImplement);
+    public abstract <T> void exporting(Class<T> serviceInterface, String group, int timeout, T serviceImplement);
 
-    public abstract void publish(Class<? extends Object> serviceInterface, String service, String group, int timeout,
+    public abstract void exporting(Class<? extends Object> serviceInterface, String service, String group, int timeout,
             Object serviceImplement);
 
     public abstract void destroy();

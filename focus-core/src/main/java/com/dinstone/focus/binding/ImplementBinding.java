@@ -19,16 +19,16 @@ import com.dinstone.focus.config.ServiceConfig;
 
 /**
  * service implement binding and service lookup
- * 
+ *
  * @author dinstone
- * 
+ *
  * @version 1.0.0
  */
 public interface ImplementBinding {
 
     /**
      * binding service implement
-     * 
+     *
      * @param wrapper
      */
     public <T> void binding(ServiceConfig config);

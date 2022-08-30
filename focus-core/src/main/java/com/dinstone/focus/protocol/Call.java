@@ -19,9 +19,9 @@ import java.io.Serializable;
 
 /**
  * The Call is the abstract of RPC request.
- * 
+ *
  * @author dinstone
- * 
+ *
  */
 public class Call implements Serializable {
 
@@ -58,9 +58,9 @@ public class Call implements Serializable {
 
     /**
      * the method to get
-     * 
+     *
      * @return the method
-     * 
+     *
      * @see Call#method
      */
     public String getMethod() {
@@ -69,9 +69,9 @@ public class Call implements Serializable {
 
     /**
      * the method to set
-     * 
+     *
      * @param method
-     * 
+     *
      * @see Call#method
      */
     public void setMethod(String method) {
@@ -112,7 +112,7 @@ public class Call implements Serializable {
 
     /**
      * the attach to get
-     * 
+     *
      * @return
      */
     public Attach attach() {
@@ -121,9 +121,9 @@ public class Call implements Serializable {
 
     /**
      * the attach to set
-     * 
+     *
      * @param other
-     * 
+     *
      * @return
      */
     public Call attach(Attach other) {
@@ -135,7 +135,7 @@ public class Call implements Serializable {
 
     /**
      * the call context
-     * 
+     *
      * @return
      */
     public Context context() {

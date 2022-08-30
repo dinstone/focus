@@ -17,8 +17,10 @@ package com.dinstone.focus.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Future;
 
+import com.dinstone.focus.compress.snappy.SnappyCompressor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
@@ -29,7 +31,7 @@ public class GenericClientTest {
 
     public static void main(String[] args) {
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-                .setConnectOptions(new ConnectOptions());
+                .setConnectOptions(new ConnectOptions()).setCompressorId(SnappyCompressor.COMPRESSOR_ID);
         FocusClient client = new FocusClient(option);
 
         LOG.info("init end");
@@ -48,10 +50,11 @@ public class GenericClientTest {
 
     private static void demoService(FocusClient client) throws Exception {
         GenericService gs = client.genericService("com.dinstone.focus.example.DemoService", "", 30000);
-        String r = gs.sync(String.class, "hello", String.class, "dinstone");
+        String parameter = generateString(10241);
+        String r = gs.sync(String.class, "hello", String.class, parameter);
         System.out.println("result =  " + r);
 
-        Future<String> future = gs.async(String.class, "hello", String.class, "dinstone");
+        Future<String> future = gs.async(String.class, "hello", String.class, parameter);
         System.out.println("result =  " + future.get());
     }
 
@@ -65,5 +68,17 @@ public class GenericClientTest {
 
         Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", Map.class, p);
         System.out.println("result =  " + r);
+    }
+
+    public static final String allChar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public static String generateString(int length) {
+        StringBuffer sb = new StringBuffer();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            sb.append(allChar.charAt(random.nextInt(allChar.length())));
+        }
+
+        return sb.toString();
     }
 }

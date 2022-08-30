@@ -29,7 +29,7 @@ public class InvokeContext {
 
     /**
      * put if absent
-     * 
+     *
      * @param key
      * @param value
      */
@@ -39,7 +39,7 @@ public class InvokeContext {
 
     /**
      * put
-     * 
+     *
      * @param key
      * @param value
      */
@@ -49,9 +49,9 @@ public class InvokeContext {
 
     /**
      * get
-     * 
+     *
      * @param key
-     * 
+     *
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -61,11 +61,11 @@ public class InvokeContext {
 
     /**
      * get and use default if not found
-     * 
+     *
      * @param key
      * @param defaultIfNotFound
      * @param <T>
-     * 
+     *
      * @return
      */
     @SuppressWarnings("unchecked")

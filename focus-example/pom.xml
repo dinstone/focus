@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.5</version>
+		<version>0.9.6</version>
 	</parent>
 	<artifactId>focus-example</artifactId>
 	<properties>
@@ -21,7 +21,7 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.dinstone.focus.clutch</groupId>
+			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-clutch-zookeeper</artifactId>
 			<version>${project.version}</version>
 			<exclusions>
@@ -43,12 +43,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.dinstone.focus.clutch</groupId>
+			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-clutch-consul</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.dinstone.focus.serialize</groupId>
+			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-serialize-protobuf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -99,8 +99,23 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.dinstone.focus.serialize</groupId>
+			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-serialize-json</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-compress-snappy</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-compress-lz4</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-compress-gzip</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

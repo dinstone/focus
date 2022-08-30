@@ -18,7 +18,7 @@ package com.dinstone.focus.codec;
 public class CodecException extends RuntimeException {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 

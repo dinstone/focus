@@ -17,11 +17,11 @@ package com.dinstone.focus.endpoint;
 
 public interface ServiceConsumer {
 
-    public abstract <T> T reference(Class<T> sic);
+    public abstract <T> T importing(Class<T> sic);
 
-    public abstract <T> T reference(Class<T> sic, String group, int timeout);
+    public abstract <T> T importing(Class<T> sic, String group, int timeout);
 
-    public abstract <T> T reference(Class<T> sic, String service, String group, int timeout);
+    public abstract <T> T importing(Class<T> sic, String service, String group, int timeout);
 
     public abstract void destroy();
 

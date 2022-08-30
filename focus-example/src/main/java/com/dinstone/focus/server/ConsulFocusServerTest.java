@@ -30,10 +30,10 @@ public class ConsulFocusServerTest {
     public static void main(String[] args) {
         ClutchOptions registryConfig = new ConsulClutchOptions();
         // setting registry config
-        ServerOptions serverOptions = new ServerOptions().setRegistryConfig(registryConfig).listen("-", 3333)
+        ServerOptions serverOptions = new ServerOptions().setClutchOptions(registryConfig).listen("-", 3333)
                 .setEndpoint("com.rpc.demo.server");
         FocusServer server = new FocusServer(serverOptions);
-        server.publish(DemoService.class, new DemoServiceImpl());
+        server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();
         LOG.info("server start");
         try {

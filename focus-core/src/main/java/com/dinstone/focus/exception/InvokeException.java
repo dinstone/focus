@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 
 /**
  * invoke exception
- * 
+ *
  * @author dinstone
  *
  */
@@ -53,9 +53,9 @@ public class InvokeException extends FocusException {
 
     /**
      * the code to get
-     * 
+     *
      * @return the code
-     * 
+     *
      * @see FocusException#code
      */
     public int getCode() {

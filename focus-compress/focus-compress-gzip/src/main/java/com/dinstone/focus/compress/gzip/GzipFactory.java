@@ -13,40 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.compress.snappy;
-
-import java.io.IOException;
-
-import org.xerial.snappy.Snappy;
+package com.dinstone.focus.compress.gzip;
 
 import com.dinstone.focus.compress.Compressor;
+import com.dinstone.focus.compress.CompressorFactory;
 
-public class SnappyCompress implements Compressor {
-
-    private int threshold;
-
-    public SnappyCompress(int threshold) {
-        this.threshold = threshold;
-    }
+public class GzipFactory extends CompressorFactory {
 
     @Override
-    public byte[] encode(byte[] data) throws IOException {
-        return Snappy.compress(data);
-    }
-
-    @Override
-    public byte[] decode(byte[] data) throws IOException {
-        return Snappy.uncompress(data);
-    }
-
-    @Override
-    public String compressorId() {
-        return "snappy";
-    }
-
-    @Override
-    public boolean enable(byte[] data) {
-        return data != null && data.length > threshold;
+    public Compressor create(int threshold) {
+        return new GzipCompressor(threshold);
     }
 
 }

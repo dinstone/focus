@@ -3,14 +3,14 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.5</version>
+		<version>0.9.6</version>
 	</parent>
-	<groupId>com.dinstone.focus.compress</groupId>
 	<artifactId>focus-compress</artifactId>
 	<packaging>pom</packaging>
 	<modules>
 		<module>focus-compress-core</module>
 		<module>focus-compress-snappy</module>
 		<module>focus-compress-lz4</module>
+		<module>focus-compress-gzip</module>
 	</modules>
 </project>

@@ -51,7 +51,7 @@ public class OrderServiceClient {
                 .addFilter(tf);
         FocusClient client = new FocusClient(option);
 
-        final OrderService ds = client.reference(OrderService.class);
+        final OrderService ds = client.importing(OrderService.class);
         OrderRequest order = new OrderRequest();
         order.setCt(new Date());
         order.setPoi("1234");

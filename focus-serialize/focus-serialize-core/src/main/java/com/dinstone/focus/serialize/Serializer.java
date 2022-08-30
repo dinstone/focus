@@ -16,29 +16,14 @@
 package com.dinstone.focus.serialize;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public interface Serializer {
 
     public static final String SERIALIZER_KEY = "protocol.serializer";
 
-    public static final Map<String, Serializer> SERIALIZER_MAP = new ConcurrentHashMap<>();
-
-    public static Serializer lookup(String serializerId) {
-        if (serializerId != null) {
-            return SERIALIZER_MAP.get(serializerId);
-        }
-        return null;
-    }
-
-    public static void regist(Serializer serializer) {
-        SERIALIZER_MAP.put(serializer.serializerId(), serializer);
-    }
-
     /**
      * The Serializer ID
-     * 
+     *
      * @return
      */
     public String serializerId();

@@ -20,8 +20,8 @@ import java.util.ServiceLoader;
 
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ClutchFactory;
+import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
@@ -73,12 +73,12 @@ public class FocusServer implements ServiceProvider {
         this.protocolCodec = new PhotonProtocolCodec(serverOptions);
 
         // load and create registry
-        ClutchOptions registryConfig = serverOptions.getRegistryConfig();
-        if (registryConfig != null) {
+        ClutchOptions clutchOptions = serverOptions.getClutchOptions();
+        if (clutchOptions != null) {
             ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
-            for (ClutchFactory registryFactory : serviceLoader) {
-                if (registryFactory.appliable(registryConfig)) {
-                    this.serviceRegistry = registryFactory.createServiceRegistry(registryConfig);
+            for (ClutchFactory clutchFactory : serviceLoader) {
+                if (clutchFactory.appliable(clutchOptions)) {
+                    this.serviceRegistry = clutchFactory.createServiceRegistry(clutchOptions);
                     break;
                 }
             }
@@ -112,17 +112,17 @@ public class FocusServer implements ServiceProvider {
     }
 
     @Override
-    public <T> void publish(Class<T> serviceInterface, T serviceImplement) {
-        publish(serviceInterface, "", serverOptions.getDefaultTimeout(), serviceImplement);
+    public <T> void exporting(Class<T> serviceInterface, T serviceImplement) {
+        exporting(serviceInterface, "", serverOptions.getDefaultTimeout(), serviceImplement);
     }
 
     @Override
-    public <T> void publish(Class<T> sic, String group, int timeout, T sio) {
-        publish(sic, sic.getName(), group, serverOptions.getDefaultTimeout(), sio);
+    public <T> void exporting(Class<T> sic, String group, int timeout, T sio) {
+        exporting(sic, sic.getName(), group, serverOptions.getDefaultTimeout(), sio);
     }
 
     @Override
-    public void publish(Class<? extends Object> clazz, String service, String group, int timeout, Object bean) {
+    public void exporting(Class<? extends Object> clazz, String service, String group, int timeout, Object bean) {
         if (service == null || service.isEmpty()) {
             service = clazz.getName();
         }
@@ -148,7 +148,7 @@ public class FocusServer implements ServiceProvider {
 
             implementBinding.binding(serviceConfig);
         } catch (Exception e) {
-            throw new RuntimeException("can't export service", e);
+            throw new FocusException("export service error", e);
         }
     }
 
@@ -175,7 +175,7 @@ public class FocusServer implements ServiceProvider {
             acceptor.destroy();
         }
 
-        LOG.info("focus server is destroy, {}", serviceAddress);
+        LOG.info("focus server destroyed, {}", serviceAddress);
     }
 
 }

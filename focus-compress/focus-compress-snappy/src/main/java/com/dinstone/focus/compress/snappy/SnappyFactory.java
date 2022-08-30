@@ -18,11 +18,11 @@ package com.dinstone.focus.compress.snappy;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 
-public class SnappyFactory implements CompressorFactory {
+public class SnappyFactory extends CompressorFactory {
 
     @Override
     public Compressor create(int threshold) {
-        return new SnappyCompress(threshold);
+        return new SnappyCompressor(threshold);
     }
 
 }

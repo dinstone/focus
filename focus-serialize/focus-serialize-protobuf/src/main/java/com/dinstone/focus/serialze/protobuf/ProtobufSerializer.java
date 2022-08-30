@@ -25,9 +25,11 @@ public class ProtobufSerializer implements Serializer {
 
     private static final String PARSE_FROM_METHOD = "parseFrom";
 
+    public static final String SERIALIZER_ID = "protobuf";
+
     @Override
     public String serializerId() {
-        return "protobuf";
+        return SERIALIZER_ID;
     }
 
     @Override

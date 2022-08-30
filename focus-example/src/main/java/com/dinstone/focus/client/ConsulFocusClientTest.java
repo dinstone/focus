@@ -31,10 +31,10 @@ public class ConsulFocusClientTest {
         ConnectOptions connectOptions = new ConnectOptions();
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
-                .setRegistryConfig(new ConsulClutchOptions()).setEndpoint("com.rpc.demo.client");
+                .setClutchOptions(new ConsulClutchOptions()).setEndpoint("com.rpc.demo.client");
 
         FocusClient client = new FocusClient(option);
-        DemoService ds = client.reference(DemoService.class);
+        DemoService ds = client.importing(DemoService.class);
 
         LOG.info("int end");
 

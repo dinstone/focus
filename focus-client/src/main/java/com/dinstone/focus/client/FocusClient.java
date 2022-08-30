@@ -25,8 +25,8 @@ import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.client.transport.ConnectionFactory;
-import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ClutchFactory;
+import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
@@ -66,12 +66,12 @@ public class FocusClient implements ServiceConsumer {
         this.protocolCodec = new PhotonProtocolCodec(clientOptions);
 
         // load and create registry
-        ClutchOptions registryConfig = clientOptions.getRegistryConfig();
-        if (registryConfig != null) {
+        ClutchOptions clutchOptions = clientOptions.getClutchOptions();
+        if (clutchOptions != null) {
             ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
-            for (ClutchFactory registryFactory : serviceLoader) {
-                if (registryFactory.appliable(registryConfig)) {
-                    this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
+            for (ClutchFactory clutchFactory : serviceLoader) {
+                if (clutchFactory.appliable(clutchOptions)) {
+                    this.serviceDiscovery = clutchFactory.createServiceDiscovery(clutchOptions);
                     break;
                 }
             }
@@ -92,17 +92,17 @@ public class FocusClient implements ServiceConsumer {
     }
 
     @Override
-    public <T> T reference(Class<T> sic) {
-        return reference(sic, "", clientOptions.getDefaultTimeout());
+    public <T> T importing(Class<T> sic) {
+        return importing(sic, "", clientOptions.getDefaultTimeout());
     }
 
     @Override
-    public <T> T reference(Class<T> sic, String group, int timeout) {
-        return reference(sic, sic.getName(), group, timeout);
+    public <T> T importing(Class<T> sic, String group, int timeout) {
+        return importing(sic, sic.getName(), group, timeout);
     }
 
     @Override
-    public <T> T reference(Class<T> sic, String service, String group, int timeout) {
+    public <T> T importing(Class<T> sic, String service, String group, int timeout) {
         if (service == null || service.isEmpty()) {
             service = sic.getName();
         }
@@ -152,7 +152,7 @@ public class FocusClient implements ServiceConsumer {
         serviceConfig.setService(service);
 
         serviceConfig.setEndpoint(clientOptions.getEndpoint());
-        serviceConfig.setSerializerId(clientOptions.getSerializerId());
+        serviceConfig.setSerializerId(ClientOptions.DEFAULT_SERIALIZER_ID);
         serviceConfig.setCompressorId(clientOptions.getCompressorId());
 
         InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);

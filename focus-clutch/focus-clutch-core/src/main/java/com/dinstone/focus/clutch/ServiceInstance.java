@@ -22,9 +22,9 @@ import java.util.Map;
 
 /**
  * service instance info
- * 
+ *
  * @author dinstone
- * 
+ *
  * @version 1.0.0
  */
 public class ServiceInstance implements Serializable {

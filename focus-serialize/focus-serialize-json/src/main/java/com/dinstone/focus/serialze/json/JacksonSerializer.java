@@ -23,11 +23,13 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class JsonSerializer implements Serializer {
+public class JacksonSerializer implements Serializer {
+
+    public static final String SERIALIZER_ID = "jackson";
 
     private ObjectMapper objectMapper;
 
-    public JsonSerializer() {
+    public JacksonSerializer() {
         objectMapper = new ObjectMapper();
         objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator());
 
@@ -43,7 +45,7 @@ public class JsonSerializer implements Serializer {
 
     @Override
     public String serializerId() {
-        return "json";
+        return SERIALIZER_ID;
     }
 
     @Override

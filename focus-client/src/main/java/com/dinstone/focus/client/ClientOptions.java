@@ -26,7 +26,7 @@ import com.dinstone.photon.ConnectOptions;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
-    private static final String DEFAULT_SERIALIZER_ID = "json";
+    public static final String DEFAULT_SERIALIZER_ID = "jackson";
 
     private static final int DEFAULT_POOL_SIZE = 1;
 

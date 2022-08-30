@@ -22,16 +22,16 @@ import com.dinstone.focus.config.ServiceConfig;
 
 /**
  * service reference binding and service lookup
- * 
+ *
  * @author dinstone
- * 
+ *
  * @version 1.0.0
  */
 public interface ReferenceBinding {
 
     /**
      * service reference bind
-     * 
+     *
      * @param wrapper
      */
     public <T> void binding(ServiceConfig config);

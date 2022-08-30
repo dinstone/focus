@@ -15,7 +15,23 @@
  */
 package com.dinstone.focus.serialize;
 
-public interface SerializerFactory {
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-    public Serializer create();
+public abstract class SerializerFactory {
+
+    private static final Map<String, Serializer> SERIALIZER_MAP = new ConcurrentHashMap<>();
+
+    public static Serializer lookup(String serializerId) {
+        if (serializerId != null) {
+            return SERIALIZER_MAP.get(serializerId);
+        }
+        return null;
+    }
+
+    public static void regist(Serializer serializer) {
+        SERIALIZER_MAP.put(serializer.serializerId(), serializer);
+    }
+
+    public abstract Serializer create();
 }

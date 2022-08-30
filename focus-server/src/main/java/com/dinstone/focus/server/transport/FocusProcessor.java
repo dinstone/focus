@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecException;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
+import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.InvokeException;
@@ -100,7 +101,12 @@ public final class FocusProcessor extends DefaultMessageProcessor {
 
             // invoke call
             Reply reply = config.getHandler().invoke(call);
-            reply.attach().put(Serializer.SERIALIZER_KEY, call.attach().get(Serializer.SERIALIZER_KEY));
+
+            // init reply attach
+            String svalue = headers.get(Serializer.SERIALIZER_KEY);
+            String cvalue = headers.get(Compressor.COMPRESSOR_KEY);
+            reply.attach().put(Serializer.SERIALIZER_KEY, svalue);
+            reply.attach().put(Compressor.COMPRESSOR_KEY, cvalue);
 
             // encode reply to response
             Response response = protocolCodec.encode(reply, methodInfo.getReturnType());
@@ -125,9 +131,9 @@ public final class FocusProcessor extends DefaultMessageProcessor {
         }
 
         if (exception != null) {
+            // send response with exception
             Response response = protocolCodec.encode(new Reply(exception), exception.getClass());
             response.setMsgId(request.getMsgId());
-            // send response with exception
             connection.send(response);
         }
     }

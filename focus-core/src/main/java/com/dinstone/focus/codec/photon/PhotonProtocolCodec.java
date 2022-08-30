@@ -44,12 +44,12 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         // init serializer
         ServiceLoader<SerializerFactory> sfLoader = ServiceLoader.load(SerializerFactory.class);
         for (SerializerFactory serializerFactory : sfLoader) {
-            Serializer.regist(serializerFactory.create());
+            SerializerFactory.regist(serializerFactory.create());
         }
         // init compressor
         ServiceLoader<CompressorFactory> cfLoader = ServiceLoader.load(CompressorFactory.class);
         for (CompressorFactory compressorFactory : cfLoader) {
-            Compressor.regist(compressorFactory.create(endpointOptions.getCompressThreshold()));
+            CompressorFactory.regist(compressorFactory.create(endpointOptions.getCompressThreshold()));
         }
     }
 
@@ -148,13 +148,13 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         }
 
         String sid = headers.get(Serializer.SERIALIZER_KEY);
-        Serializer s = Serializer.lookup(sid);
+        Serializer s = SerializerFactory.lookup(sid);
         if (s == null) {
             throw new CodecException("can't not find serializer");
         }
 
         String cid = headers.get(Compressor.COMPRESSOR_KEY);
-        Compressor c = Compressor.lookup(cid);
+        Compressor c = CompressorFactory.lookup(cid);
         if (c != null) {
             try {
                 content = c.decode(content);
@@ -175,7 +175,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         }
 
         String sid = attach.get(Serializer.SERIALIZER_KEY);
-        Serializer s = Serializer.lookup(sid);
+        Serializer s = SerializerFactory.lookup(sid);
         if (s == null) {
             throw new CodecException("can't not find serializer");
         }
@@ -188,7 +188,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         }
 
         String cid = attach.get(Compressor.COMPRESSOR_KEY);
-        Compressor c = Compressor.lookup(cid);
+        Compressor c = CompressorFactory.lookup(cid);
         if (c != null && c.enable(cs)) {
             try {
                 cs = c.encode(cs);

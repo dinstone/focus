@@ -71,7 +71,7 @@ public class OrderServiceServer {
         FocusServer server = new FocusServer(serverOptions);
         UserService userService = createUserServiceRpc(tracing);
         StoreService storeService = createStoreServiceRpc(tracing);
-        server.publish(OrderService.class, new OrderServiceImpl(userService, storeService));
+        server.exporting(OrderService.class, new OrderServiceImpl(userService, storeService));
 
         return server;
     }
@@ -83,7 +83,7 @@ public class OrderServiceServer {
         ClientOptions option = new ClientOptions().connect("localhost", 3302).setConnectOptions(connectOptions)
                 .addFilter(tf);
         FocusClient client = new FocusClient(option);
-        return client.reference(StoreService.class);
+        return client.importing(StoreService.class);
     }
 
     private static UserService createUserServiceRpc(Tracing tracing) {
@@ -93,7 +93,7 @@ public class OrderServiceServer {
         ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_KEY)
                 .connect("localhost", 3301).setConnectOptions(connectOptions).addFilter(tf);
         FocusClient client = new FocusClient(option);
-        return client.reference(UserService.class);
+        return client.importing(UserService.class);
     }
 
 }

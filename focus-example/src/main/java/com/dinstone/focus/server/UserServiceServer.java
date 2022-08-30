@@ -63,7 +63,7 @@ public class UserServiceServer {
         serverOptions.listen("localhost", 3301);
         serverOptions.addFilter(tf);
         FocusServer server = new FocusServer(serverOptions);
-        server.publish(UserService.class, new UserServiceImpl());
+        server.exporting(UserService.class, new UserServiceImpl());
 
         return server;
     }

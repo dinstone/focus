@@ -15,8 +15,24 @@
  */
 package com.dinstone.focus.compress;
 
-public interface CompressorFactory {
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-    public Compressor create(int threshold);
+public abstract class CompressorFactory {
+
+    private static final Map<String, Compressor> COMPRESSOR_MAP = new ConcurrentHashMap<>();
+
+    public static Compressor lookup(String compressId) {
+        if (compressId != null) {
+            return COMPRESSOR_MAP.get(compressId);
+        }
+        return null;
+    }
+
+    public static void regist(Compressor compress) {
+        COMPRESSOR_MAP.put(compress.compressorId(), compress);
+    }
+
+    public abstract Compressor create(int threshold);
 
 }

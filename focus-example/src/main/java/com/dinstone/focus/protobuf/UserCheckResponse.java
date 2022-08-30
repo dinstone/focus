@@ -104,7 +104,7 @@ public final class UserCheckResponse extends com.google.protobuf.GeneratedMessag
 
     /**
      * <code>bool exist = 1;</code>
-     * 
+     *
      * @return The exist.
      */
     @java.lang.Override
@@ -417,7 +417,7 @@ public final class UserCheckResponse extends com.google.protobuf.GeneratedMessag
 
         /**
          * <code>bool exist = 1;</code>
-         * 
+         *
          * @return The exist.
          */
         @java.lang.Override
@@ -427,10 +427,10 @@ public final class UserCheckResponse extends com.google.protobuf.GeneratedMessag
 
         /**
          * <code>bool exist = 1;</code>
-         * 
+         *
          * @param value
          *            The exist to set.
-         * 
+         *
          * @return This builder for chaining.
          */
         public Builder setExist(boolean value) {
@@ -442,7 +442,7 @@ public final class UserCheckResponse extends com.google.protobuf.GeneratedMessag
 
         /**
          * <code>bool exist = 1;</code>
-         * 
+         *
          * @return This builder for chaining.
          */
         public Builder clearExist() {

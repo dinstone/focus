@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.6</version>
+		<version>0.9.7</version>
 	</parent>
 	<artifactId>focus-clutch</artifactId>
 	<packaging>pom</packaging>
@@ -11,5 +11,6 @@
 		<module>focus-clutch-core</module>
 		<module>focus-clutch-consul</module>
 		<module>focus-clutch-zookeeper</module>
+		<module>focus-clutch-nacos</module>
 	</modules>
 </project>

@@ -3,14 +3,14 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.6</version>
+		<version>0.9.7</version>
 	</parent>
 	<artifactId>focus-tracing</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-core</artifactId>
-			<version>0.9.6</version>
+			<version>0.9.7</version>
 		</dependency>
 		<dependency>
 			<groupId>io.zipkin.brave</groupId>

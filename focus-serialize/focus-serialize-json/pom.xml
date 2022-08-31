@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-serialize</artifactId>
-		<version>0.9.6</version>
+		<version>0.9.7</version>
 	</parent>
 	<artifactId>focus-serialize-json</artifactId>
 	<dependencies>

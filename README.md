@@ -6,7 +6,7 @@
 * Unified API for client and server
 * Support a variety of serialization protocol at the same time - Jackson and Protobuff
 * Layered architecture, including API layer, Proxy layer, Invoke layer, Protocol layer, Transport layer
-* Pluggable service discovery - registry with [Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch) for Zookeeper, Consul
+* Pluggable service discovery - registry with [Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch) for Zookeeper, Consul, Nacos
 
 ## Ease of use
 * Out of the box client-side and server-side API
@@ -22,21 +22,21 @@ select API dependency:
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-client</artifactId>
-			<version>0.9.5</version>
+			<version>0.9.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-server</artifactId>
-			<version>0.9.5</version>
+			<version>0.9.7</version>
 		</dependency>
 
 
 if you need service registry and discovery, please add dependencies :
 
 	<dependency>
-		<groupId>com.dinstone.focus.clutch</groupId>
+		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-clutch-zookeeper</artifactId>
-		<version>0.9.5</version>
+		<version>0.9.7</version>
 		<exclusions>
 			<exclusion>
 				<groupId>log4j</groupId>
@@ -48,9 +48,17 @@ if you need service registry and discovery, please add dependencies :
 	or
 	
 	<dependency>
-		<groupId>com.dinstone.focus.clutch</groupId>
+		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-clutch-consul</artifactId>
-		<version>0.9.5</version>
+		<version>0.9.7</version>
+	</dependency>
+	
+	or
+	
+	<dependency>
+		<groupId>com.dinstone.focus</groupId>
+		<artifactId>focus-clutch-nacos</artifactId>
+		<version>0.9.7</version>
 	</dependency>
 	
 # Example

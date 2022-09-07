@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client;
+package com.dinstone.focus.endpoint;
 
 import java.util.concurrent.Future;
 
@@ -28,16 +28,14 @@ public interface GenericService {
      *            method return type, only support ( Object<->HashMap, String, java basic type)
      * @param methodName
      *            method name
-     * @param paramType
-     *            method parameter type, only support ( Object<->HashMap, String, java basic type)
      * @param parameter
      *            parameter object
-     *
+     * 
      * @return return object
      *
      * @throws Exception
      */
-    <R, P> R sync(Class<R> returnType, String methodName, Class<P> paramType, P parameter) throws Exception;
+    <R, P> R sync(Class<R> returnType, String methodName, P parameter) throws Exception;
 
     /**
      * generic service async invoke. only support JSON codec.
@@ -48,15 +46,13 @@ public interface GenericService {
      *            method return type, only support ( Object<->HashMap, String, java basic type)
      * @param methodName
      *            method name
-     * @param paramType
-     *            method parameter type, only support ( Object<->HashMap, String, java basic type)
      * @param parameter
      *            parameter object
-     *
+     * 
      * @return return future
      *
      * @throws Exception
      */
-    <R, P> Future<R> async(Class<R> returnType, String methodName, Class<P> paramType, P parameter) throws Exception;
+    <R, P> Future<R> async(Class<R> returnType, String methodName, P parameter) throws Exception;
 
 }

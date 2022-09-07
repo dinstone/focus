@@ -129,7 +129,7 @@ public class ServiceConfig {
         for (Method method : methods) {
             // overload check
             if (methodCaches.containsKey(method.getName())) {
-                throw new IllegalArgumentException("unsupported method overload : " + method);
+                throw new IllegalStateException("unsupported method overload : " + method);
             }
             // parameter check
             Class<?> paramType = null;

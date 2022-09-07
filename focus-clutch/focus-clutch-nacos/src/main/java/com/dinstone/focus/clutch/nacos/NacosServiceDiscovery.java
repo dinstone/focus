@@ -158,8 +158,8 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
                     description.setServiceGroup(instance.getMetadata().get("serviceGroup"));
                 }
                 description.setInstanceCode(instance.getInstanceId());
-                description.setHost(instance.getIp());
-                description.setPort(instance.getPort());
+                description.setInstanceHost(instance.getIp());
+                description.setInstancePort(instance.getPort());
 
                 newProviders.put(description.getInstanceCode(), description);
             }

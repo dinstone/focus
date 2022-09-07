@@ -23,8 +23,8 @@ public class NacosServiceRegistryTest {
         ServiceInstance description = new ServiceInstance();
         String serviceName = "HelloService";
         description.setInstanceCode("service-provider-" + System.currentTimeMillis());
-        description.setHost("localhost");
-        description.setPort(80);
+        description.setInstanceHost("localhost");
+        description.setInstancePort(80);
 
         description.setEndpointCode("focus.service.test");
         description.setServiceName(serviceName);

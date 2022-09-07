@@ -65,8 +65,8 @@ public class DefaultImplementBinding implements ImplementBinding {
         ServiceInstance instance = new ServiceInstance();
         instance.setInstanceCode(code.toString());
         instance.setEndpointCode(config.getEndpoint());
-        instance.setHost(host);
-        instance.setPort(port);
+        instance.setInstanceHost(host);
+        instance.setInstancePort(port);
         instance.setServiceName(config.getService());
         instance.setServiceGroup(group);
         instance.setRegistTime(System.currentTimeMillis());

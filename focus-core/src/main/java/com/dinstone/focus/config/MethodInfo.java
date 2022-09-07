@@ -85,8 +85,9 @@ public class MethodInfo {
         return asyncMethod;
     }
 
-    public void setAsyncMethod(boolean asyncMethod) {
+    public MethodInfo setAsyncMethod(boolean asyncMethod) {
         this.asyncMethod = asyncMethod;
+        return this;
     }
 
 }

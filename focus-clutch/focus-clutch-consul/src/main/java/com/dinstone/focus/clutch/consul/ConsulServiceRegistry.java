@@ -93,8 +93,8 @@ public class ConsulServiceRegistry implements ServiceRegistry {
         NewService newService = new NewService();
         newService.setId(service.getInstanceCode());
         newService.setName(service.getServiceName());
-        newService.setAddress(service.getHost());
-        newService.setPort(service.getPort());
+        newService.setAddress(service.getInstanceHost());
+        newService.setPort(service.getInstancePort());
 
         NewService.Check check = new NewService.Check();
         check.setTtl(config.getCheckTtl() + "s");

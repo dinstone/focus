@@ -42,9 +42,9 @@ public class ServiceInstance implements Serializable {
 
     private String serviceGroup;
 
-    private String host;
+    private String instanceHost;
 
-    private int port;
+    private int instancePort;
 
     private long registTime;
 
@@ -82,20 +82,20 @@ public class ServiceInstance implements Serializable {
         this.serviceGroup = group;
     }
 
-    public String getHost() {
-        return host;
+    public String getInstanceHost() {
+        return instanceHost;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setInstanceHost(String instanceHost) {
+        this.instanceHost = instanceHost;
     }
 
-    public int getPort() {
-        return port;
+    public int getInstancePort() {
+        return instancePort;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setInstancePort(int instancePort) {
+        this.instancePort = instancePort;
     }
 
     public long getRegistTime() {
@@ -128,7 +128,7 @@ public class ServiceInstance implements Serializable {
 
     public InetSocketAddress getServiceAddress() {
         if (address == null) {
-            address = new InetSocketAddress(host, port);
+            address = new InetSocketAddress(instanceHost, instancePort);
         }
 
         return address;
@@ -162,8 +162,8 @@ public class ServiceInstance implements Serializable {
     @Override
     public String toString() {
         return "ServiceInstance [instanceCode=" + instanceCode + ", endpointCode=" + endpointCode + ", serviceName="
-                + serviceName + ", serviceGroup=" + serviceGroup + ", host=" + host + ", port=" + port + ", registTime="
-                + registTime + ", address=" + address + "]";
+                + serviceName + ", serviceGroup=" + serviceGroup + ", host=" + instanceHost + ", port=" + instancePort
+                + ", registTime=" + registTime + ", address=" + address + "]";
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.Random;
 import java.util.concurrent.Future;
 
 import com.dinstone.focus.compress.snappy.SnappyCompressor;
+import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
@@ -49,24 +50,25 @@ public class GenericClientTest {
     }
 
     private static void demoService(FocusClient client) throws Exception {
-        GenericService gs = client.genericService("com.dinstone.focus.example.DemoService", "", 30000);
+        GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.DemoService", "", 30000);
         String parameter = generateString(10241);
-        String r = gs.sync(String.class, "hello", String.class, parameter);
+        String r = gs.sync(String.class, "hello", parameter);
         System.out.println("result =  " + r);
 
-        Future<String> future = gs.async(String.class, "hello", String.class, parameter);
+        Future<String> future = gs.async(String.class, "hello", parameter);
         System.out.println("result =  " + future.get());
     }
 
     private static void orderService(FocusClient client) throws Exception {
-        GenericService gs = client.genericService("com.dinstone.focus.example.OrderService", "", 30000);
+        GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.OrderService", "",
+                30000);
         Map<String, String> p = new HashMap<String, String>();
         p.put("sn", "S001");
         p.put("uid", "U981");
         p.put("poi", "20910910");
         p.put("ct", "2022-06-17");
 
-        Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", Map.class, p);
+        Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", p);
         System.out.println("result =  " + r);
     }
 

@@ -76,8 +76,8 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         serviceInstance.setEndpointCode(config.getEndpoint());
         serviceInstance.setServiceName(config.getService());
         serviceInstance.setServiceGroup(group);
-        serviceInstance.setHost(host);
-        serviceInstance.setPort(port);
+        serviceInstance.setInstanceHost(host);
+        serviceInstance.setInstancePort(port);
 
         return serviceInstance;
     }

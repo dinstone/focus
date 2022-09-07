@@ -59,8 +59,8 @@ public class LocationInvokeHandler implements InvokeHandler {
                 ServiceInstance si = new ServiceInstance();
                 si.setServiceName(service);
                 si.setServiceGroup(group);
-                si.setHost(host);
-                si.setPort(port);
+                si.setInstanceHost(host);
+                si.setInstancePort(port);
 
                 StringBuilder code = new StringBuilder();
                 code.append(service).append("@");

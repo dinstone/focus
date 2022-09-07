@@ -17,53 +17,35 @@ package com.dinstone.focus.client.proxy;
 
 import java.util.concurrent.Future;
 
-import com.dinstone.focus.client.GenericService;
 import com.dinstone.focus.config.MethodInfo;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
-public final class GenericServiceProxy implements GenericService {
+class GenericHandler implements GenericService {
+
     private final ServiceConfig serviceConfig;
     private final InvokeHandler invokeHandler;
 
-    public GenericServiceProxy(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+    public GenericHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
         this.serviceConfig = serviceConfig;
         this.invokeHandler = invokeHandler;
     }
 
-    @SuppressWarnings({ "unchecked" })
     @Override
-    public <R, P> R sync(Class<R> returnType, String methodName, Class<P> paramType, P parameter) throws Exception {
-        if (serviceConfig.getMethodInfo(methodName) == null) {
-            serviceConfig.addMethodInfo(new MethodInfo(methodName, paramType, returnType));
-        }
-        serviceConfig.getMethodInfo(methodName).setAsyncMethod(false);
-
-        Call call = new Call(methodName, parameter);
-        call.setGroup(serviceConfig.getGroup());
-        call.setService(serviceConfig.getService());
-        call.setTimeout(serviceConfig.getTimeout());
-
-        Reply reply = invokeHandler.invoke(call);
-
-        Object data = reply.getData();
-        if (data instanceof Exception) {
-            throw (Exception) data;
-        } else {
-            return (R) data;
-        }
+    public <R, P> R sync(Class<R> returnType, String methodName, P parameter) throws Exception {
+        return async(returnType, methodName, parameter).get();
     }
 
     @SuppressWarnings({ "unchecked" })
     @Override
-    public <R, P> Future<R> async(Class<R> returnType, String methodName, Class<P> paramType, P parameter)
-            throws Exception {
+    public <R, P> Future<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
         if (serviceConfig.getMethodInfo(methodName) == null) {
-            serviceConfig.addMethodInfo(new MethodInfo(methodName, paramType, returnType));
+            serviceConfig
+                    .addMethodInfo(new MethodInfo(methodName, parameter.getClass(), returnType).setAsyncMethod(true));
         }
-        serviceConfig.getMethodInfo(methodName).setAsyncMethod(true);
 
         Call call = new Call(methodName, parameter);
         call.setGroup(serviceConfig.getGroup());

@@ -15,67 +15,20 @@
  */
 package com.dinstone.focus.client.proxy;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import com.dinstone.focus.client.GenericService;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.focus.invoke.InvokeHandler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 
 public class JdkProxyFactory implements ProxyFactory {
-
-    private static class ProxyInvocationHandler implements InvocationHandler {
-
-        private ServiceConfig serviceConfig;
-        private InvokeHandler invokeHandler;
-
-        public ProxyInvocationHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
-            this.serviceConfig = serviceConfig;
-            this.invokeHandler = invokeHandler;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            String methodName = method.getName();
-            if (methodName.equals("hashCode")) {
-                return Integer.valueOf(System.identityHashCode(proxy));
-            } else if (methodName.equals("equals")) {
-                return (proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);
-            } else if (methodName.equals("toString")) {
-                return proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode());
-            }
-
-            Object parameter = null;
-            if (args != null && args.length > 0) {
-                parameter = args[0];
-            }
-
-            Call call = new Call(methodName, parameter);
-            call.setGroup(serviceConfig.getGroup());
-            call.setService(serviceConfig.getService());
-            call.setTimeout(serviceConfig.getTimeout());
-
-            Reply reply = invokeHandler.invoke(call);
-
-            Object data = reply.getData();
-            if (data instanceof Exception) {
-                throw (Exception) data;
-            } else {
-                return data;
-            }
-        }
-
-    }
 
     private <T> T createProxy(Class<T> sic, ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
         if (!sic.isInterface()) {
             throw new IllegalArgumentException(sic.getName() + " is not interface");
         }
 
-        ProxyInvocationHandler handler = new ProxyInvocationHandler(serviceConfig, invokeHandler);
+        SpecialHandler handler = new SpecialHandler(serviceConfig, invokeHandler);
         return sic.cast(Proxy.newProxyInstance(sic.getClassLoader(), new Class[] { sic }, handler));
     }
 
@@ -83,7 +36,7 @@ public class JdkProxyFactory implements ProxyFactory {
     @Override
     public <T> T create(Class<T> sic, ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
         if (sic.equals(GenericService.class)) {
-            return (T) new GenericServiceProxy(serviceConfig, invokeHandler);
+            return (T) new GenericHandler(serviceConfig, invokeHandler);
         }
         return createProxy(sic, serviceConfig, invokeHandler);
     }

@@ -93,8 +93,8 @@ public class NacosServiceRegistry implements ServiceRegistry {
     private void register0(final ServiceInstance service) throws Exception {
         Instance instance = new Instance();
         instance.setInstanceId(service.getInstanceCode());
-        instance.setIp(service.getHost());
-        instance.setPort(service.getPort());
+        instance.setIp(service.getInstanceHost());
+        instance.setPort(service.getInstancePort());
         instance.setHealthy(true);
 
         instance.addMetadata("serviceName", service.getServiceName());

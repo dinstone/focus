@@ -31,6 +31,7 @@ import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.focus.endpoint.ServiceConsumer;
 import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -101,8 +102,17 @@ public class FocusClient implements ServiceConsumer {
         return importing(sic, sic.getName(), group, timeout);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T importing(Class<T> sic, String service, String group, int timeout) {
+        if (sic.equals(GenericService.class)) {
+            return (T) genericService(service, group, timeout);
+        } else {
+            return specialService(sic, service, group, timeout);
+        }
+    }
+
+    private <T> T specialService(Class<T> sic, String service, String group, int timeout) {
         if (service == null || service.isEmpty()) {
             service = sic.getName();
         }
@@ -135,7 +145,7 @@ public class FocusClient implements ServiceConsumer {
         return proxy;
     }
 
-    public GenericService genericService(String service, String group, int timeout) {
+    private GenericService genericService(String service, String group, int timeout) {
         if (service == null) {
             throw new IllegalArgumentException("serivce name is null");
         }

@@ -30,7 +30,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
  */
 public class ServiceConfig {
 
-    private Map<String, MethodInfo> methodCaches = new ConcurrentHashMap<String, MethodInfo>();
+    private Map<String, MethodConfig> methodCaches = new ConcurrentHashMap<String, MethodConfig>();
 
     private String endpoint;
 
@@ -125,7 +125,7 @@ public class ServiceConfig {
         this.compressorId = compressorId;
     }
 
-    public void parseMethodInfos(Method[] methods) {
+    public void parseMethod(Method... methods) {
         for (Method method : methods) {
             // overload check
             if (methodCaches.containsKey(method.getName())) {
@@ -139,19 +139,19 @@ public class ServiceConfig {
                 paramType = method.getParameterTypes()[0];
             }
 
-            addMethodInfo(new MethodInfo(method, paramType));
+            addMethodConfig(new MethodConfig(method, paramType));
         }
     }
 
-    public Collection<MethodInfo> methodInfos() {
+    public Collection<MethodConfig> methodConfigs() {
         return methodCaches.values();
     }
 
-    public void addMethodInfo(MethodInfo mi) {
-        methodCaches.putIfAbsent(mi.getMethodName(), mi);
+    public void addMethodConfig(MethodConfig mc) {
+        methodCaches.putIfAbsent(mc.getMethodName(), mc);
     }
 
-    public MethodInfo getMethodInfo(String methodName) {
+    public MethodConfig getMethodConfig(String methodName) {
         return methodCaches.get(methodName);
     }
 

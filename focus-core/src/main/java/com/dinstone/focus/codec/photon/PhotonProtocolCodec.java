@@ -148,22 +148,22 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         }
 
         String sid = headers.get(Serializer.SERIALIZER_KEY);
-        Serializer s = SerializerFactory.lookup(sid);
-        if (s == null) {
+        Serializer serializer = SerializerFactory.lookup(sid);
+        if (serializer == null) {
             throw new CodecException("can't not find serializer");
         }
 
         String cid = headers.get(Compressor.COMPRESSOR_KEY);
-        Compressor c = CompressorFactory.lookup(cid);
-        if (c != null) {
+        Compressor compressor = CompressorFactory.lookup(cid);
+        if (compressor != null) {
             try {
-                content = c.decode(content);
+                content = compressor.decode(content);
             } catch (IOException e) {
                 throw new CodecException("compress decode error", e);
             }
         }
         try {
-            return s.decode(content, contentType);
+            return serializer.decode(content, contentType);
         } catch (IOException e) {
             throw new CodecException("serialize decode error", e);
         }
@@ -175,23 +175,23 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         }
 
         String sid = attach.get(Serializer.SERIALIZER_KEY);
-        Serializer s = SerializerFactory.lookup(sid);
-        if (s == null) {
+        Serializer serializer = SerializerFactory.lookup(sid);
+        if (serializer == null) {
             throw new CodecException("can't not find serializer");
         }
 
         byte[] cs;
         try {
-            cs = s.encode(content, contentType);
+            cs = serializer.encode(content, contentType);
         } catch (IOException e) {
             throw new CodecException("serialize encode error", e);
         }
 
         String cid = attach.get(Compressor.COMPRESSOR_KEY);
-        Compressor c = CompressorFactory.lookup(cid);
-        if (c != null && c.enable(cs)) {
+        Compressor compressor = CompressorFactory.lookup(cid);
+        if (compressor != null && compressor.enable(cs)) {
             try {
-                cs = c.encode(cs);
+                cs = compressor.encode(cs);
             } catch (IOException e) {
                 throw new CodecException("compress encode error", e);
             }

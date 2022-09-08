@@ -17,7 +17,7 @@ package com.dinstone.focus.server.invoke;
 
 import java.lang.reflect.InvocationTargetException;
 
-import com.dinstone.focus.config.MethodInfo;
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
@@ -35,9 +35,9 @@ public class LocalInvokeHandler implements InvokeHandler {
 
     @Override
     public Reply invoke(Call call) throws Exception {
-        MethodInfo methodInfo = serviceConfig.getMethodInfo(call.getMethod());
+        MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
         try {
-            Object result = methodInfo.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());
+            Object result = methodConfig.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());
             return new Reply(result);
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionUtil.getTargetException(e);

@@ -17,7 +17,7 @@ package com.dinstone.focus.client.proxy;
 
 import java.util.concurrent.Future;
 
-import com.dinstone.focus.config.MethodInfo;
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -42,9 +42,12 @@ class GenericHandler implements GenericService {
     @SuppressWarnings({ "unchecked" })
     @Override
     public <R, P> Future<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
-        if (serviceConfig.getMethodInfo(methodName) == null) {
-            serviceConfig
-                    .addMethodInfo(new MethodInfo(methodName, parameter.getClass(), returnType).setAsyncMethod(true));
+        if (serviceConfig.getMethodConfig(methodName) == null) {
+            MethodConfig methodConfig = new MethodConfig(methodName);
+            methodConfig.setParamType(parameter.getClass());
+            methodConfig.setReturnType(returnType);
+            methodConfig.setAsyncInvoke(true);
+            serviceConfig.addMethodConfig(methodConfig);
         }
 
         Call call = new Call(methodName, parameter);

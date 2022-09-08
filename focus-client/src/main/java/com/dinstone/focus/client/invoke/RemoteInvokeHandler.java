@@ -23,7 +23,7 @@ import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.compress.Compressor;
-import com.dinstone.focus.config.MethodInfo;
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.AsyncReply;
@@ -65,15 +65,15 @@ public class RemoteInvokeHandler implements InvokeHandler {
         call.attach().put(Serializer.SERIALIZER_KEY, serviceConfig.getSerializerId());
         call.attach().put(Compressor.COMPRESSOR_KEY, serviceConfig.getCompressorId());
 
-        MethodInfo mi = serviceConfig.getMethodInfo(call.getMethod());
-        if (mi.isAsyncMethod()) {
-            return async(call, instance, mi);
+        MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
+        if (methodConfig.isAsyncInvoke()) {
+            return async(call, instance, methodConfig);
         } else {
-            return sync(call, instance, mi);
+            return sync(call, instance, methodConfig);
         }
     }
 
-    private Reply sync(Call call, ServiceInstance instance, MethodInfo mi) throws Exception {
+    private Reply sync(Call call, ServiceInstance instance, MethodConfig mi) throws Exception {
         // process request
         Request request = protocolCodec.encode(call, mi.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());
@@ -83,7 +83,7 @@ public class RemoteInvokeHandler implements InvokeHandler {
         return protocolCodec.decode(response, mi.getReturnType());
     }
 
-    private Reply async(Call call, ServiceInstance instance, MethodInfo mi) throws Exception {
+    private Reply async(Call call, ServiceInstance instance, MethodConfig mi) throws Exception {
         // process request
         Request request = protocolCodec.encode(call, mi.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());

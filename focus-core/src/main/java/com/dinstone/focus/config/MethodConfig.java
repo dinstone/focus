@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-public class MethodInfo {
+public class MethodConfig {
 
     private Method method;
 
@@ -31,9 +31,9 @@ public class MethodInfo {
 
     private Class<?> returnType;
 
-    private boolean asyncMethod;
+    private boolean asyncInvoke;
 
-    public MethodInfo(Method method, Class<?> paramType) {
+    public MethodConfig(Method method, Class<?> paramType) {
         this.method = method;
         this.paramType = paramType;
         this.methodName = method.getName();
@@ -44,33 +44,19 @@ public class MethodInfo {
             Type rawType = parameterizedType.getRawType();
             if (rawType.equals(CompletableFuture.class) || rawType.equals(Future.class)) {
                 returnType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                asyncMethod = true;
+                asyncInvoke = true;
             }
         } else {
             returnType = method.getReturnType();
         }
     }
 
-    public MethodInfo(String methodName, Class<?> paramType, Class<?> returnType) {
+    public MethodConfig(String methodName) {
         this.methodName = methodName;
-        this.paramType = paramType;
-        this.returnType = returnType;
-    }
-
-    public String getMethodName() {
-        return methodName;
     }
 
     public Method getMethod() {
         return method;
-    }
-
-    public Class<?> getParamType() {
-        return paramType;
-    }
-
-    public Class<?> getReturnType() {
-        return returnType;
     }
 
     public Class<?> getDeclarClass() {
@@ -81,13 +67,32 @@ public class MethodInfo {
         return method.getExceptionTypes();
     }
 
-    public boolean isAsyncMethod() {
-        return asyncMethod;
+    public String getMethodName() {
+        return methodName;
     }
 
-    public MethodInfo setAsyncMethod(boolean asyncMethod) {
-        this.asyncMethod = asyncMethod;
-        return this;
+    public void setParamType(Class<?> paramType) {
+        this.paramType = paramType;
+    }
+
+    public void setReturnType(Class<?> returnType) {
+        this.returnType = returnType;
+    }
+
+    public Class<?> getParamType() {
+        return paramType;
+    }
+
+    public Class<?> getReturnType() {
+        return returnType;
+    }
+
+    public boolean isAsyncInvoke() {
+        return asyncInvoke;
+    }
+
+    public void setAsyncInvoke(boolean asyncInvoke) {
+        this.asyncInvoke = asyncInvoke;
     }
 
 }

@@ -136,11 +136,11 @@ public class FocusServer implements ServiceProvider {
         try {
             ServiceConfig serviceConfig = new ServiceConfig();
             serviceConfig.setGroup(group);
-            serviceConfig.setTimeout(timeout);
             serviceConfig.setService(service);
-            serviceConfig.parseMethodInfos(clazz.getDeclaredMethods());
+            serviceConfig.setTimeout(timeout);
             serviceConfig.setTarget(bean);
 
+            serviceConfig.parseMethod(clazz.getDeclaredMethods());
             serviceConfig.setEndpoint(serverOptions.getEndpoint());
 
             InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);

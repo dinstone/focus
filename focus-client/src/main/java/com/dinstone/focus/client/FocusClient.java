@@ -127,7 +127,7 @@ public class FocusClient implements ServiceConsumer {
         serviceConfig.setGroup(group);
         serviceConfig.setTimeout(timeout);
         serviceConfig.setService(service);
-        serviceConfig.parseMethodInfos(sic.getDeclaredMethods());
+        serviceConfig.parseMethod(sic.getDeclaredMethods());
 
         serviceConfig.setEndpoint(clientOptions.getEndpoint());
         serviceConfig.setSerializerId(clientOptions.getSerializerId());

@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.clutch.ServiceRegistry;
-import com.dinstone.focus.config.MethodInfo;
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 
 public class DefaultImplementBinding implements ImplementBinding {
@@ -72,7 +72,7 @@ public class DefaultImplementBinding implements ImplementBinding {
         instance.setRegistTime(System.currentTimeMillis());
 
         List<String> methodDescList = new ArrayList<>();
-        for (MethodInfo method : config.methodInfos()) {
+        for (MethodConfig method : config.methodConfigs()) {
             methodDescList.add(description(method));
         }
         instance.addAttribute("methods", methodDescList);
@@ -85,7 +85,7 @@ public class DefaultImplementBinding implements ImplementBinding {
         }
     }
 
-    private String description(MethodInfo mi) {
+    private String description(MethodConfig mi) {
         StringBuilder desc = new StringBuilder();
         desc.append(getTypeName(mi.getReturnType()) + " ");
         desc.append(getTypeName(mi.getDeclarClass()) + ".");

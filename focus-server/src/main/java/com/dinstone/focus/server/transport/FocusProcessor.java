@@ -21,7 +21,7 @@ import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecException;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.compress.Compressor;
-import com.dinstone.focus.config.MethodInfo;
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Call;
@@ -91,13 +91,13 @@ public final class FocusProcessor extends DefaultMessageProcessor {
 
             // check method
             String methodName = headers.get(Call.METHOD_KEY);
-            MethodInfo methodInfo = config.getMethodInfo(methodName);
-            if (methodInfo == null) {
+            MethodConfig methodConfig = config.getMethodConfig(methodName);
+            if (methodConfig == null) {
                 throw new NoSuchMethodException("unkown method: " + service + "[" + group + "]." + methodName);
             }
 
             // decode call from request
-            Call call = protocolCodec.decode(request, methodInfo.getParamType());
+            Call call = protocolCodec.decode(request, methodConfig.getParamType());
 
             // invoke call
             Reply reply = config.getHandler().invoke(call);
@@ -109,7 +109,7 @@ public final class FocusProcessor extends DefaultMessageProcessor {
             reply.attach().put(Compressor.COMPRESSOR_KEY, cvalue);
 
             // encode reply to response
-            Response response = protocolCodec.encode(reply, methodInfo.getReturnType());
+            Response response = protocolCodec.encode(reply, methodConfig.getReturnType());
             response.setMsgId(request.getMsgId());
 
             // send response with reply

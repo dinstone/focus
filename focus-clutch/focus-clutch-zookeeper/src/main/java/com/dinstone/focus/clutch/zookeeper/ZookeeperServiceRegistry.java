@@ -28,7 +28,6 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 
 import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.clutch.ServiceInstanceSerializer;
 import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;

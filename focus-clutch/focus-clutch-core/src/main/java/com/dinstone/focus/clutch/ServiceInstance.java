@@ -32,30 +32,24 @@ public class ServiceInstance implements Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> attributes = new HashMap<String, Object>();
+    private Map<String, String> attributes = new HashMap<>();
 
     private String instanceCode;
 
-    private String endpointCode;
-
     private String serviceName;
-
-    private String serviceGroup;
 
     private String instanceHost;
 
     private int instancePort;
 
-    private long registTime;
-
     private volatile InetSocketAddress address;
 
     public String getEndpointCode() {
-        return endpointCode;
+        return attributes.get("endpointCode");
     }
 
     public void setEndpointCode(String endpointCode) {
-        this.endpointCode = endpointCode;
+        attributes.put("endpointCode", endpointCode);
     }
 
     public String getInstanceCode() {
@@ -75,11 +69,11 @@ public class ServiceInstance implements Serializable {
     }
 
     public String getServiceGroup() {
-        return serviceGroup;
+        return attributes.get("serviceGroup");
     }
 
-    public void setServiceGroup(String group) {
-        this.serviceGroup = group;
+    public void setServiceGroup(String serviceGroup) {
+        attributes.put("serviceGroup", serviceGroup);
     }
 
     public String getInstanceHost() {
@@ -99,25 +93,29 @@ public class ServiceInstance implements Serializable {
     }
 
     public long getRegistTime() {
-        return registTime;
+        String rt = attributes.get("registTime");
+        if (rt != null) {
+            return Long.parseLong(rt);
+        }
+        return 0;
     }
 
     public void setRegistTime(long registTime) {
-        this.registTime = registTime;
+        attributes.put("registTime", Long.toString(registTime));
     }
 
-    public Map<String, Object> getAttributes() {
+    public Map<String, String> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, Object> attributes) {
+    public void setAttributes(Map<String, String> attributes) {
         if (attributes != null) {
             this.attributes.putAll(attributes);
         }
     }
 
     public ServiceInstance addAttribute(String att, Object value) {
-        this.attributes.put(att, value);
+        this.attributes.put(att, value.toString());
         return this;
     }
 
@@ -161,9 +159,8 @@ public class ServiceInstance implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceInstance [instanceCode=" + instanceCode + ", endpointCode=" + endpointCode + ", serviceName="
-                + serviceName + ", serviceGroup=" + serviceGroup + ", host=" + instanceHost + ", port=" + instancePort
-                + ", registTime=" + registTime + ", address=" + address + "]";
+        return "ServiceInstance [instanceCode=" + instanceCode + ", serviceName=" + serviceName + ", instanceHost="
+                + instanceHost + ", instancePort=" + instancePort + ", attributes=" + attributes + "]";
     }
 
 }

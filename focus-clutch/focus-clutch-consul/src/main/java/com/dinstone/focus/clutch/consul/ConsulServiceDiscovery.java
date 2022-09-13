@@ -16,6 +16,7 @@
 package com.dinstone.focus.clutch.consul;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,10 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.clutch.ServiceInstanceSerializer;
 import com.ecwid.consul.v1.ConsulClient;
 import com.ecwid.consul.v1.health.HealthServicesRequest;
 import com.ecwid.consul.v1.health.model.HealthService;
+import com.ecwid.consul.v1.health.model.HealthService.Service;
 
 public class ConsulServiceDiscovery implements ServiceDiscovery {
 
@@ -84,7 +85,7 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
         synchronized (serviceCacheMap) {
             ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
             if (serviceCache == null) {
-                serviceCache = new ServiceCache(description, config).build();
+                serviceCache = new ServiceCache(description.getServiceName(), config).build();
                 serviceCacheMap.put(description.getServiceName(), serviceCache);
             }
             serviceCache.increment();
@@ -102,7 +103,7 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 
     public class ServiceCache {
 
-        private ServiceInstance serviceInstance;
+        private String serviceName;
 
         private ConsulClutchOptions clutchOptions;
 
@@ -110,13 +111,11 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 
         private AtomicInteger reference = new AtomicInteger();
 
-        private ServiceInstanceSerializer serializer = new ServiceInstanceSerializer();
-
         private ConcurrentHashMap<String, ServiceInstance> providers = new ConcurrentHashMap<>();
 
-        public ServiceCache(ServiceInstance serviceInstance, ConsulClutchOptions clutchOptions) {
+        public ServiceCache(String serviceName, ConsulClutchOptions clutchOptions) {
+            this.serviceName = serviceName;
             this.clutchOptions = clutchOptions;
-            this.serviceInstance = serviceInstance;
         }
 
         public ServiceCache build() {
@@ -143,19 +142,20 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 
         protected void freshProvidors() throws Exception {
             HealthServicesRequest hr = HealthServicesRequest.newBuilder().setPassing(true).build();
-            List<HealthService> healthServices = client.getHealthServices(serviceInstance.getServiceName(), hr)
-                    .getValue();
+            List<HealthService> healthServices = client.getHealthServices(serviceName, hr).getValue();
+            Map<String, ServiceInstance> newProviders = new HashMap<>();
             for (HealthService healthService : healthServices) {
-                List<String> tags = healthService.getService().getTags();
-                ServiceInstance description = null;
-                if (tags != null && tags.size() > 0) {
-                    description = serializer.deserialize(tags.get(0).getBytes("utf-8"));
-                }
-
-                if (description != null) {
-                    providers.put(description.getInstanceCode(), description);
-                }
+                Service service = healthService.getService();
+                ServiceInstance instance = new ServiceInstance();
+                instance.setInstanceCode(service.getId());
+                instance.setServiceName(service.getService());
+                instance.setInstanceHost(service.getAddress());
+                instance.setInstancePort(service.getPort());
+                instance.setAttributes(service.getMeta());
+                newProviders.put(instance.getInstanceCode(), instance);
             }
+            providers.clear();
+            providers.putAll(newProviders);
         }
 
         public Collection<ServiceInstance> getProviders() {

@@ -16,6 +16,7 @@
 package com.dinstone.focus.clutch.nacos;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -88,7 +89,7 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
         synchronized (serviceCacheMap) {
             ServiceCache serviceCache = serviceCacheMap.get(instance.getServiceName());
             if (serviceCache == null) {
-                serviceCache = new ServiceCache(instance, config).build();
+                serviceCache = new ServiceCache(instance.getServiceName(), config).build();
                 serviceCacheMap.put(instance.getServiceName(), serviceCache);
             }
             serviceCache.increment();
@@ -106,7 +107,7 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
 
     public class ServiceCache {
 
-        private ServiceInstance serviceInstance;
+        private String serviceName;
 
         private NacosClutchOptions clutchOptions;
 
@@ -116,9 +117,9 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
 
         private ConcurrentHashMap<String, ServiceInstance> providers = new ConcurrentHashMap<>();
 
-        public ServiceCache(ServiceInstance serviceInstance, NacosClutchOptions clutchOptions) {
+        public ServiceCache(String serviceName, NacosClutchOptions clutchOptions) {
+            this.serviceName = serviceName;
             this.clutchOptions = clutchOptions;
-            this.serviceInstance = serviceInstance;
         }
 
         public ServiceCache build() {
@@ -144,22 +145,15 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
         }
 
         protected void freshProvidors() throws Exception {
-            List<Instance> instances = naming.selectInstances(serviceInstance.getServiceName(), true, true);
-            ConcurrentHashMap<String, ServiceInstance> newProviders = new ConcurrentHashMap<>();
+            List<Instance> instances = naming.selectInstances(serviceName, true, true);
+            Map<String, ServiceInstance> newProviders = new HashMap<>();
             for (Instance instance : instances) {
                 ServiceInstance description = new ServiceInstance();
-                if (instance.containsMetadata("endpointCode")) {
-                    description.setEndpointCode(instance.getMetadata().get("endpointCode"));
-                }
-                if (instance.containsMetadata("serviceName")) {
-                    description.setServiceName(instance.getMetadata().get("serviceName"));
-                }
-                if (instance.containsMetadata("serviceGroup")) {
-                    description.setServiceGroup(instance.getMetadata().get("serviceGroup"));
-                }
                 description.setInstanceCode(instance.getInstanceId());
+                description.setServiceName(instance.getServiceName());
                 description.setInstanceHost(instance.getIp());
                 description.setInstancePort(instance.getPort());
+                description.setAttributes(instance.getMetadata());
 
                 newProviders.put(description.getInstanceCode(), description);
             }

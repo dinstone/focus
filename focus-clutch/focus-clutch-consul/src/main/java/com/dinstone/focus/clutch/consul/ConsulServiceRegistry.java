@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.clutch.consul;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -25,7 +24,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.clutch.ServiceInstanceSerializer;
 import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -41,8 +39,6 @@ public class ConsulServiceRegistry implements ServiceRegistry {
     private ConsulClutchOptions config;
 
     private Map<String, ScheduledFuture<?>> serviceMap = new ConcurrentHashMap<>();
-
-    private ServiceInstanceSerializer serializer = new ServiceInstanceSerializer();
 
     private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
@@ -95,13 +91,11 @@ public class ConsulServiceRegistry implements ServiceRegistry {
         newService.setName(service.getServiceName());
         newService.setAddress(service.getInstanceHost());
         newService.setPort(service.getInstancePort());
+        newService.setMeta(service.getAttributes());
 
         NewService.Check check = new NewService.Check();
         check.setTtl(config.getCheckTtl() + "s");
         newService.setCheck(check);
-
-        byte[] serialize = serializer.serialize(service);
-        newService.setTags(Arrays.asList(new String(serialize, "utf-8")));
 
         client.agentServiceRegister(newService);
 

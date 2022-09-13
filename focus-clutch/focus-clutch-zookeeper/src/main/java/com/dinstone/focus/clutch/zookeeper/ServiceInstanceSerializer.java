@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.clutch;
+package com.dinstone.focus.clutch.zookeeper;
 
+import com.dinstone.focus.clutch.ServiceInstance;
 import com.google.gson.Gson;
 
 public class ServiceInstanceSerializer {

@@ -16,14 +16,11 @@
 package com.dinstone.focus.binding;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.clutch.ServiceRegistry;
-import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 
 public class DefaultImplementBinding implements ImplementBinding {
@@ -70,50 +67,13 @@ public class DefaultImplementBinding implements ImplementBinding {
         instance.setServiceName(config.getService());
         instance.setServiceGroup(group);
         instance.setRegistTime(System.currentTimeMillis());
-
-        List<String> methodDescList = new ArrayList<>();
-        for (MethodConfig method : config.methodConfigs()) {
-            methodDescList.add(description(method));
-        }
-        instance.addAttribute("methods", methodDescList);
-        instance.addAttribute("timeout", config.getTimeout());
+        instance.addAttribute("serviceTimeout", config.getTimeout());
 
         try {
             serviceRegistry.register(instance);
         } catch (Exception e) {
             throw new RuntimeException("can't publish service", e);
         }
-    }
-
-    private String description(MethodConfig mi) {
-        StringBuilder desc = new StringBuilder();
-        desc.append(getTypeName(mi.getReturnType()) + " ");
-        desc.append(getTypeName(mi.getDeclarClass()) + ".");
-        desc.append(mi.getMethodName() + "(");
-        desc.append(getTypeName(mi.getParamType()));
-        desc.append(")");
-        return desc.toString();
-    }
-
-    private static String getTypeName(Class<?> type) {
-        if (type.isArray()) {
-            try {
-                Class<?> cl = type;
-                int dimensions = 0;
-                while (cl.isArray()) {
-                    dimensions++;
-                    cl = cl.getComponentType();
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append(cl.getName());
-                for (int i = 0; i < dimensions; i++) {
-                    sb.append("[]");
-                }
-                return sb.toString();
-            } catch (Throwable e) {
-            }
-        }
-        return type.getName();
     }
 
     @Override

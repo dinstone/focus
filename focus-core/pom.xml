@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>com.dinstone.photon</groupId>
 			<artifactId>photon</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>

@@ -61,13 +61,17 @@ class GenericHandler implements GenericService {
         CompletableFuture<Reply> replyFuture = invokeHandler.invoke(call);
 
         return (Future<R>) replyFuture.thenApply(reply -> {
-            Object data = reply.getData();
-            if (data instanceof Exception) {
-                throw (InvokeException) data;
-            } else {
-                return (Future<R>) data;
-            }
+            return parseReply(reply);
         });
 
+    }
+
+    private Object parseReply(Reply reply) {
+        Object data = reply.getData();
+        if (data instanceof InvokeException) {
+            throw (InvokeException) data;
+        } else {
+            return data;
+        }
     }
 }

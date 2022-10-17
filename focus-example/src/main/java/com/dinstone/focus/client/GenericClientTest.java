@@ -28,62 +28,62 @@ import com.dinstone.photon.ConnectOptions;
 
 public class GenericClientTest {
 
-	private static final Logger LOG = LoggerFactory.getLogger(GenericClientTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GenericClientTest.class);
 
-	public static void main(String[] args) {
-		ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-				.setConnectOptions(new ConnectOptions()).setCompressorId(SnappyCompressor.COMPRESSOR_ID);
-		FocusClient client = new FocusClient(option);
+    public static void main(String[] args) {
+        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
+                .setConnectOptions(new ConnectOptions()).setCompressorId(SnappyCompressor.COMPRESSOR_ID);
+        FocusClient client = new FocusClient(option);
 
-		LOG.info("init end");
+        LOG.info("init end");
 
-		try {
-			demoService(client);
+        try {
+            demoService(client);
 
-//            orderService(client);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			client.destroy();
-		}
+            // orderService(client);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            client.destroy();
+        }
 
-	}
+    }
 
-	private static void demoService(FocusClient client) throws Exception {
-		GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.DemoService", "", 30000);
-		String parameter = generateString(10241);
-//        String r = gs.sync(String.class, "hello", parameter);
-//        System.out.println("result =  " + r);
+    private static void demoService(FocusClient client) throws Exception {
+        GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.DemoService", "", 30000);
+        String parameter = generateString(10241);
+        // String r = gs.sync(String.class, "hello", parameter);
+        // System.out.println("result = " + r);
 
-		CompletableFuture<String> future = (CompletableFuture<String>) gs.async(String.class, "hello", parameter);
-		future.thenAccept(s -> {
-			System.out.println(Thread.currentThread().getName() + ": accept result =  " + s);
-		});
-		System.out.println(Thread.currentThread().getName() + ": future result =  " + future.get());
-	}
+        CompletableFuture<String> future = (CompletableFuture<String>) gs.async(String.class, "hello", parameter);
+        future.thenAccept(s -> {
+            LOG.info("accept result =  " + s);
+        });
+        LOG.info("future result =  " + future.get());
+    }
 
-	private static void orderService(FocusClient client) throws Exception {
-		GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.OrderService", "",
-				30000);
-		Map<String, String> p = new HashMap<String, String>();
-		p.put("sn", "S001");
-		p.put("uid", "U981");
-		p.put("poi", "20910910");
-		p.put("ct", "2022-06-17");
+    private static void orderService(FocusClient client) throws Exception {
+        GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.OrderService", "",
+                30000);
+        Map<String, String> p = new HashMap<String, String>();
+        p.put("sn", "S001");
+        p.put("uid", "U981");
+        p.put("poi", "20910910");
+        p.put("ct", "2022-06-17");
 
-		Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", p);
-		System.out.println("result =  " + r);
-	}
+        Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", p);
+        System.out.println("result =  " + r);
+    }
 
-	public static final String allChar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static final String allChar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	public static String generateString(int length) {
-		StringBuffer sb = new StringBuffer();
-		Random random = new Random();
-		for (int i = 0; i < length; i++) {
-			sb.append(allChar.charAt(random.nextInt(allChar.length())));
-		}
+    public static String generateString(int length) {
+        StringBuffer sb = new StringBuffer();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            sb.append(allChar.charAt(random.nextInt(allChar.length())));
+        }
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 }

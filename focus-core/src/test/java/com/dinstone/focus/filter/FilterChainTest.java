@@ -17,6 +17,8 @@ package com.dinstone.focus.filter;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.junit.Test;
 
 import com.dinstone.focus.config.ServiceConfig;
@@ -31,7 +33,7 @@ public class FilterChainTest {
         InvokeHandler lih = new InvokeHandler() {
 
             @Override
-            public Reply invoke(Call call) throws Exception {
+            public CompletableFuture<Reply> invoke(Call call) throws Exception {
                 System.out.println("last InvokeHandler");
                 return null;
             }
@@ -39,11 +41,10 @@ public class FilterChainTest {
         Filter first = new Filter() {
 
             @Override
-            public Reply invoke(FilterContext next, Call call) throws Exception {
+            public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
                 System.out.println("first filter before");
-                Reply r = next.invoke(call);
+                CompletableFuture<Reply> r = next.invoke(call);
                 System.out.println("first filter after");
-
                 return r;
             }
 
@@ -56,11 +57,10 @@ public class FilterChainTest {
         Filter second = new Filter() {
 
             @Override
-            public Reply invoke(FilterContext next, Call call) throws Exception {
+            public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
                 System.out.println("second filter before");
-                Reply r = next.invoke(call);
+                CompletableFuture<Reply> r = next.invoke(call);
                 System.out.println("second filter after");
-
                 return r;
             }
 
@@ -72,7 +72,7 @@ public class FilterChainTest {
         };
         FilterChainHandler chain = new FilterChainHandler(new ServiceConfig(), lih).addFilter(first, second);
 
-        Reply reply = chain.invoke(null);
+        CompletableFuture<Reply> reply = chain.invoke(null);
         assertEquals(null, reply);
     }
 

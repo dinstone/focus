@@ -55,16 +55,19 @@ public class FocusClientTest {
         LOG.info("init end");
 
         try {
-            asyncInvoke(client);
+            AuthenCheck ac = client.importing(AuthenCheck.class, "AuthenService", "", 2000);
+            asyncError(ac);
+
+            asyncExecute(ac, "async hot: ");
+            asyncExecute(ac, "async exe: ");
 
             final DemoService ds = client.importing(DemoService.class);
-
-            errorInvoke(ds);
+            syncError(ds);
 
             conparal(ds);
 
-            execute(ds, "hot: ");
-            execute(ds, "exe: ");
+            execute(ds, "sync hot: ");
+            execute(ds, "sync exe: ");
         } finally {
             client.destroy();
         }
@@ -75,7 +78,19 @@ public class FocusClientTest {
         }
     }
 
-    private static void errorInvoke(final DemoService ds) {
+    private static void asyncExecute(AuthenCheck ac, String tag) {
+        int c = 0;
+        long st = System.currentTimeMillis();
+        int loopCount = 100000;
+        while (c < loopCount) {
+            ac.token("dinstoneo");
+            c++;
+        }
+        long et = System.currentTimeMillis() - st;
+        System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
+    }
+
+    private static void syncError(final DemoService ds) {
         try {
             ds.hello("");
         } catch (Exception e) {
@@ -83,12 +98,11 @@ public class FocusClientTest {
         }
     }
 
-    private static void asyncInvoke(FocusClient client) {
-        AuthenCheck a = client.importing(AuthenCheck.class, "AuthenService", "", 2000);
+    private static void asyncError(AuthenCheck ac) {
         try {
-            Future<Boolean> check1 = a.check(null);
-            Future<Boolean> check2 = a.check("dinstone");
-            CompletableFuture<String> future = a.token("dinstone");
+            Future<Boolean> check2 = ac.check("dinstone");
+            CompletableFuture<String> future = ac.token("dinstone");
+            Future<Boolean> check1 = ac.check(null);
             System.out.println("token 1 is " + future.get());
             System.out.println("check 2 is " + check2.get());
             System.out.println("check 1 is " + check1.get());
@@ -103,7 +117,7 @@ public class FocusClientTest {
             Thread t = new Thread() {
                 @Override
                 public void run() {
-                    execute(ds, "client-" + index + " :");
+                    execute(ds, "client-" + index + ": ");
                 }
             };
             t.setName("rpc-client-" + i);

@@ -178,9 +178,9 @@ public class FocusClient implements ServiceConsumer {
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
         RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, protocolCodec, connectionFactory);
-        FilterChainHandler chain = createFilterChain(serviceConfig, remote);
-        InvokeHandler invokeHandler = new LocationInvokeHandler(serviceConfig, chain, referenceBinding, clientOptions);
-        return new ConsumeInvokeHandler(serviceConfig, invokeHandler);
+        InvokeHandler locate = new LocationInvokeHandler(serviceConfig, remote, referenceBinding, clientOptions);
+        FilterChainHandler chain = createFilterChain(serviceConfig, locate);
+        return new ConsumeInvokeHandler(serviceConfig, chain);
     }
 
     private FilterChainHandler createFilterChain(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {

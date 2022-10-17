@@ -19,6 +19,7 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.ClientOptions;
@@ -80,7 +81,7 @@ public class LocationInvokeHandler implements InvokeHandler {
     }
 
     @Override
-    public Reply invoke(Call call) throws Exception {
+    public CompletableFuture<Reply> invoke(Call call) throws Exception {
         List<ServiceInstance> candidates = collect(call);
 
         int retry = 2;

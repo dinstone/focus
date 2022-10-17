@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.server.transport;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import com.dinstone.focus.binding.ImplementBinding;
@@ -100,20 +101,26 @@ public final class FocusProcessor extends DefaultMessageProcessor {
             Call call = protocolCodec.decode(request, methodConfig.getParamType());
 
             // invoke call
-            Reply reply = config.getHandler().invoke(call);
+            CompletableFuture<Reply> replyFuture = config.getHandler().invoke(call);
 
-            // init reply attach
-            String svalue = headers.get(Serializer.SERIALIZER_KEY);
-            String cvalue = headers.get(Compressor.COMPRESSOR_KEY);
-            reply.attach().put(Serializer.SERIALIZER_KEY, svalue);
-            reply.attach().put(Compressor.COMPRESSOR_KEY, cvalue);
+            replyFuture.whenComplete((reply, error) -> {
+                if (error != null) {
+                    errorHandle(connection, request, error);
+                } else {
+                    // init reply attach
+                    String svalue = headers.get(Serializer.SERIALIZER_KEY);
+                    String cvalue = headers.get(Compressor.COMPRESSOR_KEY);
+                    reply.attach().put(Serializer.SERIALIZER_KEY, svalue);
+                    reply.attach().put(Compressor.COMPRESSOR_KEY, cvalue);
 
-            // encode reply to response
-            Response response = protocolCodec.encode(reply, methodConfig.getReturnType());
-            response.setMsgId(request.getMsgId());
+                    // encode reply to response
+                    Response response = protocolCodec.encode(reply, methodConfig.getReturnType());
+                    response.setMsgId(request.getMsgId());
 
-            // send response with reply
-            connection.send(response);
+                    // send response with reply
+                    connection.sendMessage(response);
+                }
+            });
 
             return;
         } catch (InvokeException e) {
@@ -131,10 +138,14 @@ public final class FocusProcessor extends DefaultMessageProcessor {
         }
 
         if (exception != null) {
-            // send response with exception
-            Response response = protocolCodec.encode(new Reply(exception), exception.getClass());
-            response.setMsgId(request.getMsgId());
-            connection.send(response);
+            errorHandle(connection, request, exception);
         }
+    }
+
+    private void errorHandle(Connection connection, Request request, Throwable error) {
+        // send response with exception
+        Response response = protocolCodec.encode(new Reply(error), error.getClass());
+        response.setMsgId(request.getMsgId());
+        connection.sendMessage(response);
     }
 }

@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.server.invoke;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -38,7 +40,7 @@ public class ProvideInvokeHandler implements InvokeHandler {
         this.invokeHandler = invokeHandler;
     }
 
-    public Reply invoke(Call call) throws Exception {
+    public CompletableFuture<Reply> invoke(Call call) throws Exception {
         InvokeContext.getContext();
         try {
             return invokeHandler.invoke(call);

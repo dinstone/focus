@@ -16,6 +16,7 @@
 package com.dinstone.focus.server.invoke;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
@@ -34,11 +35,11 @@ public class LocalInvokeHandler implements InvokeHandler {
     }
 
     @Override
-    public Reply invoke(Call call) throws Exception {
+    public CompletableFuture<Reply> invoke(Call call) throws Exception {
         MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
         try {
             Object result = methodConfig.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());
-            return new Reply(result);
+            return CompletableFuture.completedFuture(new Reply(result));
         } catch (InvocationTargetException e) {
             Throwable te = ExceptionUtil.getTargetException(e);
             if (te instanceof RuntimeException) {

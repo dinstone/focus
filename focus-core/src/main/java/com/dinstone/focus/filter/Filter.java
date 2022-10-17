@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.filter;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -23,6 +25,6 @@ public interface Filter {
 
     boolean matches(ServiceConfig serviceConfig);
 
-    Reply invoke(FilterContext next, Call call) throws Exception;
+    CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception;
 
 }

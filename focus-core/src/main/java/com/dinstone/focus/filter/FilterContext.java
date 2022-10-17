@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.filter;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
@@ -31,7 +33,7 @@ public class FilterContext {
         this.filter = filter;
     }
 
-    public Reply invoke(Call call) throws Exception {
+    public CompletableFuture<Reply> invoke(Call call) throws Exception {
         if (filter != null) {
             return filter.invoke(next, call);
         } else {

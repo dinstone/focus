@@ -17,8 +17,11 @@ package com.dinstone.focus.client.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -54,11 +57,22 @@ class SpecialHandler implements InvocationHandler {
         call.setService(serviceConfig.getService());
         call.setTimeout(serviceConfig.getTimeout());
 
-        Reply reply = invokeHandler.invoke(call);
+        MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
+        if (methodConfig.isAsyncInvoke()) {
+            return invokeHandler.invoke(call).thenApply(reply -> {
+                return parseReply(reply);
+            });
+        } else {
+            Reply reply = invokeHandler.invoke(call).get(call.getTimeout(), TimeUnit.MILLISECONDS);
+            return parseReply(reply);
+        }
 
+    }
+
+    private Object parseReply(Reply reply) {
         Object data = reply.getData();
-        if (data instanceof Exception) {
-            throw (Exception) data;
+        if (data instanceof InvokeException) {
+            throw (InvokeException) data;
         } else {
             return data;
         }

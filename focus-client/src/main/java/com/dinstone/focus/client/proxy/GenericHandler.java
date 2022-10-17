@@ -15,11 +15,14 @@
  */
 package com.dinstone.focus.client.proxy;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.GenericService;
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -36,7 +39,7 @@ class GenericHandler implements GenericService {
 
     @Override
     public <R, P> R sync(Class<R> returnType, String methodName, P parameter) throws Exception {
-        return async(returnType, methodName, parameter).get();
+        return async(returnType, methodName, parameter).get(serviceConfig.getTimeout(), TimeUnit.MILLISECONDS);
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -55,13 +58,16 @@ class GenericHandler implements GenericService {
         call.setService(serviceConfig.getService());
         call.setTimeout(serviceConfig.getTimeout());
 
-        Reply reply = invokeHandler.invoke(call);
+        CompletableFuture<Reply> replyFuture = invokeHandler.invoke(call);
 
-        Object data = reply.getData();
-        if (data instanceof Exception) {
-            throw (Exception) data;
-        } else {
-            return (Future<R>) data;
-        }
+        return (Future<R>) replyFuture.thenApply(reply -> {
+            Object data = reply.getData();
+            if (data instanceof Exception) {
+                throw (InvokeException) data;
+            } else {
+                return (Future<R>) data;
+            }
+        });
+
     }
 }

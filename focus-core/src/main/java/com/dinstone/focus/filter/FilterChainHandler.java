@@ -17,6 +17,7 @@ package com.dinstone.focus.filter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -40,7 +41,7 @@ public class FilterChainHandler implements FilterChain, InvokeHandler {
         this.tail = new FilterContext(this, new Filter() {
 
             @Override
-            public Reply invoke(FilterContext next, Call call) throws Exception {
+            public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
                 return invokeHandler.invoke(call);
             }
 
@@ -100,7 +101,7 @@ public class FilterChainHandler implements FilterChain, InvokeHandler {
     }
 
     @Override
-    public Reply invoke(Call call) throws Exception {
+    public CompletableFuture<Reply> invoke(Call call) throws Exception {
         return head.invoke(call);
     }
 

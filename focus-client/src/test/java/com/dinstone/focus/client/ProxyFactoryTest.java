@@ -18,6 +18,7 @@ package com.dinstone.focus.client;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.Test;
 
@@ -84,13 +85,15 @@ public class ProxyFactoryTest {
     }
 
     private HelloService proxyFactory() {
-        return new JdkProxyFactory().create(HelloService.class, new ServiceConfig(), new InvokeHandler() {
+        ServiceConfig serviceConfig = new ServiceConfig();
+        serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
+        return new JdkProxyFactory().create(HelloService.class, serviceConfig, new InvokeHandler() {
 
             private Reply reply = new Reply();
 
             @Override
-            public Reply invoke(Call call) throws Exception {
-                return reply;
+            public CompletableFuture<Reply> invoke(Call call) throws Exception {
+                return CompletableFuture.completedFuture(reply);
             }
         });
     }
@@ -124,7 +127,7 @@ public class ProxyFactoryTest {
     public static class DefaultHelloService implements HelloService {
 
         @Override
-        public Reply invoke(FilterContext next, Call call) throws Exception {
+        public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
             // TODO Auto-generated method stub
             return null;
         }

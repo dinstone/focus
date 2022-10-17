@@ -17,13 +17,13 @@ package com.dinstone.focus.tracing;
 
 import static brave.internal.Throwables.propagateIfFatal;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterContext;
-import com.dinstone.focus.protocol.AsyncReply;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.focus.protocol.ReplyListener;
 
 import brave.Span;
 import brave.Span.Kind;
@@ -56,7 +56,7 @@ public class TracingFilter implements Filter {
     }
 
     @Override
-    public Reply invoke(FilterContext next, Call call) throws Exception {
+    public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
         Span span;
         RpcRequest request;
         if (kind.equals(Kind.CLIENT)) {
@@ -71,33 +71,15 @@ public class TracingFilter implements Filter {
         }
 
         Scope scope = currentTraceContext.newScope(span.context());
-        Reply reply = null;
-        Throwable error = null;
-        boolean sync = true;
         try {
-            reply = next.invoke(call);
-            if (reply instanceof AsyncReply) {
-                sync = false;
-                AsyncReply ar = (AsyncReply) reply;
-                ar.addListener(new ReplyListener() {
-
-                    @Override
-                    public void complete(Reply reply, Throwable error) {
-                        finishSpan(request, reply, error, span);
-                    }
-
-                });
-            }
-            return reply;
+            return next.invoke(call).whenComplete((reply, e) -> {
+                finishSpan(request, reply, e, span);
+                scope.close();
+            });
         } catch (Throwable e) {
             propagateIfFatal(e);
-            error = e;
-            throw e;
-        } finally {
-            if (sync) {
-                finishSpan(request, reply, error, span);
-            }
             scope.close();
+            throw e;
         }
     }
 

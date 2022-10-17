@@ -15,11 +15,13 @@
  */
 package com.dinstone.focus.invoke;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
 public interface InvokeHandler {
 
-    public Reply invoke(Call call) throws Exception;
+    public CompletableFuture<Reply> invoke(Call call) throws Exception;
 
 }

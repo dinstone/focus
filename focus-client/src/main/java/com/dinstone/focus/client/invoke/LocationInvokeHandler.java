@@ -98,7 +98,7 @@ public class LocationInvokeHandler implements InvokeHandler {
             try {
                 return invocationHandler.invoke(call);
             } catch (ConnectException e) {
-                // ignore
+                // ignore and retry
             } catch (Exception e) {
                 throw e;
             }
@@ -112,7 +112,7 @@ public class LocationInvokeHandler implements InvokeHandler {
         if (instances != null) {
             return instances;
         } else {
-            return new ArrayList<ServiceInstance>(backupServiceInstances);
+            return backupServiceInstances;
         }
     }
 

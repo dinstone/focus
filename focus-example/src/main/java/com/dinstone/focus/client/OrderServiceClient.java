@@ -47,11 +47,12 @@ public class OrderServiceClient {
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
         ConnectOptions connectOptions = new ConnectOptions();
-        ClientOptions option = new ClientOptions().connect("localhost", 3303).setConnectOptions(connectOptions)
+        ClientOptions clientOptions = new ClientOptions().connect("localhost", 3303).setConnectOptions(connectOptions)
                 .addFilter(tf);
-        FocusClient client = new FocusClient(option);
+        FocusClient client = new FocusClient(clientOptions);
 
         final OrderService ds = client.importing(OrderService.class);
+
         OrderRequest order = new OrderRequest();
         order.setCt(new Date());
         order.setPoi("1234");

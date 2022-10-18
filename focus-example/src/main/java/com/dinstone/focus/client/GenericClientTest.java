@@ -40,7 +40,7 @@ public class GenericClientTest {
         try {
             demoService(client);
 
-            // orderService(client);
+            orderService(client);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -62,6 +62,7 @@ public class GenericClientTest {
         LOG.info("future result =  " + future.get());
     }
 
+    @SuppressWarnings("unchecked")
     private static void orderService(FocusClient client) throws Exception {
         GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.OrderService", "",
                 30000);

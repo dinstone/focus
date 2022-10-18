@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.client;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import com.dinstone.focus.client.locate.DefaultLocateFactory;
 import com.dinstone.focus.client.locate.LocateFactory;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.photon.ConnectOptions;
+import com.dinstone.photon.utils.NetworkUtil;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
@@ -38,9 +40,11 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
-    private String compressorId;
+    private LocateFactory locateFactory = new DefaultLocateFactory();
 
-    private LocateFactory locateFactory;
+    private InetSocketAddress consumerAddress;
+
+    private String compressorId;
 
     public ConnectOptions getConnectOptions() {
         return connectOptions;
@@ -115,6 +119,23 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     public ClientOptions setLocateFactory(LocateFactory locateFactory) {
         this.locateFactory = locateFactory;
+        return this;
+    }
+
+    public InetSocketAddress getConsumerAddress() {
+        if (consumerAddress == null) {
+            try {
+                InetAddress addr = NetworkUtil.getPrivateAddresses().get(0);
+                consumerAddress = new InetSocketAddress(addr, 0);
+            } catch (Exception e) {
+                throw new RuntimeException("can't init consumer address", e);
+            }
+        }
+        return this.consumerAddress;
+    }
+
+    public ClientOptions consumerAddress(String host, int port) {
+        consumerAddress = new InetSocketAddress(host, port);
         return this;
     }
 

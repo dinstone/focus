@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public interface Compressor {
 
-    public static final String COMPRESSOR_KEY = "protocol.compressor";
+    public static final String HEADER_KEY = "protocol.compressor";
 
     /**
      * The compressor ID

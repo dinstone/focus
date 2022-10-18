@@ -16,6 +16,7 @@
 package com.dinstone.focus.client;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import com.dinstone.focus.example.AuthenCheck;
@@ -38,7 +39,7 @@ public class FocusClientTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusClientTest.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         LOG.info("init start");
 
@@ -58,11 +59,11 @@ public class FocusClientTest {
             AuthenCheck ac = client.importing(AuthenCheck.class, "AuthenService", "", 2000);
             asyncError(ac);
 
+            DemoService ds = client.importing(DemoService.class);
+            syncError(ds);
+
             asyncExecute(ac, "async hot: ");
             asyncExecute(ac, "async exe: ");
-
-            final DemoService ds = client.importing(DemoService.class);
-            syncError(ds);
 
             conparal(ds);
 
@@ -78,14 +79,16 @@ public class FocusClientTest {
         }
     }
 
-    private static void asyncExecute(AuthenCheck ac, String tag) {
+    private static void asyncExecute(AuthenCheck ac, String tag) throws InterruptedException {
         int c = 0;
         long st = System.currentTimeMillis();
         int loopCount = 100000;
+        CountDownLatch cdl = new CountDownLatch(loopCount);
         while (c < loopCount) {
-            ac.token("dinstoneo");
+            ac.token("dinstoneo").whenComplete((r, e) -> cdl.countDown());
             c++;
         }
+        cdl.await();
         long et = System.currentTimeMillis() - st;
         System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
     }

@@ -47,12 +47,13 @@ public class FocusServerTest {
 
         final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3333).setEndpoint("focus.example.server").addFilter(tf);
+        ServerOptions serverOptions = new ServerOptions().listen("localhost", 3333).setEndpoint("focus.example.server")
+                .addFilter(tf);
         FocusServer server = new FocusServer(serverOptions);
+
         server.exporting(DemoService.class, new DemoServiceImpl());
         server.exporting(OrderService.class, new OrderServiceImpl(null, null));
-
+        // export alias service
         server.exporting(AuthenService.class, "AuthenService", null, 0, new AuthenService());
 
         // server.start();

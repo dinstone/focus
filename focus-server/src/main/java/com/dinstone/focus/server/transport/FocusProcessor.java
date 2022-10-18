@@ -30,12 +30,12 @@ import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.server.ExecutorSelector;
 import com.dinstone.photon.Connection;
-import com.dinstone.photon.handler.DefaultMessageProcessor;
+import com.dinstone.photon.MessageProcessor;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 
-public final class FocusProcessor extends DefaultMessageProcessor {
+public final class FocusProcessor extends MessageProcessor {
     private final ImplementBinding implementBinding;
     private final PhotonProtocolCodec protocolCodec;
     private final ExecutorSelector selector;
@@ -108,10 +108,10 @@ public final class FocusProcessor extends DefaultMessageProcessor {
                     errorHandle(connection, request, error);
                 } else {
                     // init reply attach
-                    String svalue = headers.get(Serializer.SERIALIZER_KEY);
-                    String cvalue = headers.get(Compressor.COMPRESSOR_KEY);
-                    reply.attach().put(Serializer.SERIALIZER_KEY, svalue);
-                    reply.attach().put(Compressor.COMPRESSOR_KEY, cvalue);
+                    String svalue = headers.get(Serializer.HEADER_KEY);
+                    String cvalue = headers.get(Compressor.HEADER_KEY);
+                    reply.attach().put(Serializer.HEADER_KEY, svalue);
+                    reply.attach().put(Compressor.HEADER_KEY, cvalue);
 
                     // encode reply to response
                     Response response = protocolCodec.encode(reply, methodConfig.getReturnType());

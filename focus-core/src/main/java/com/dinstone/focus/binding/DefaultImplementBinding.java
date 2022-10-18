@@ -17,8 +17,11 @@ package com.dinstone.focus.binding;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.focus.clutch.ClutchFactory;
+import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.focus.config.ServiceConfig;
@@ -31,8 +34,16 @@ public class DefaultImplementBinding implements ImplementBinding {
 
     protected ServiceRegistry serviceRegistry;
 
-    public DefaultImplementBinding(ServiceRegistry serviceRegistry, InetSocketAddress providerAddress) {
-        this.serviceRegistry = serviceRegistry;
+    public DefaultImplementBinding(ClutchOptions clutchOptions, InetSocketAddress providerAddress) {
+        if (clutchOptions != null) {
+            ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
+            for (ClutchFactory clutchFactory : serviceLoader) {
+                if (clutchFactory.appliable(clutchOptions)) {
+                    this.serviceRegistry = clutchFactory.createServiceRegistry(clutchOptions);
+                    break;
+                }
+            }
+        }
         this.providerAddress = providerAddress;
     }
 

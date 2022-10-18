@@ -147,13 +147,13 @@ public class PhotonProtocolCodec implements ProtocolCodec {
             return null;
         }
 
-        String sid = headers.get(Serializer.SERIALIZER_KEY);
+        String sid = headers.get(Serializer.HEADER_KEY);
         Serializer serializer = SerializerFactory.lookup(sid);
         if (serializer == null) {
             throw new CodecException("can't not find serializer");
         }
 
-        String cid = headers.get(Compressor.COMPRESSOR_KEY);
+        String cid = headers.get(Compressor.HEADER_KEY);
         Compressor compressor = CompressorFactory.lookup(cid);
         if (compressor != null) {
             try {
@@ -174,10 +174,10 @@ public class PhotonProtocolCodec implements ProtocolCodec {
             return null;
         }
 
-        String sid = attach.get(Serializer.SERIALIZER_KEY);
+        String sid = attach.get(Serializer.HEADER_KEY);
         Serializer serializer = SerializerFactory.lookup(sid);
         if (serializer == null) {
-            throw new CodecException("can't not find serializer");
+            throw new CodecException("can't not find serializer : " + sid);
         }
 
         byte[] cs;
@@ -187,7 +187,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
             throw new CodecException("serialize encode error", e);
         }
 
-        String cid = attach.get(Compressor.COMPRESSOR_KEY);
+        String cid = attach.get(Compressor.HEADER_KEY);
         Compressor compressor = CompressorFactory.lookup(cid);
         if (compressor != null && compressor.enable(cs)) {
             try {
@@ -196,7 +196,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
                 throw new CodecException("compress encode error", e);
             }
         } else {
-            attach.remove(Compressor.COMPRESSOR_KEY);
+            attach.remove(Compressor.HEADER_KEY);
         }
         return cs;
     }

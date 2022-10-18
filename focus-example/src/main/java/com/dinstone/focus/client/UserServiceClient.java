@@ -46,7 +46,7 @@ public class UserServiceClient {
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
         ConnectOptions connectOptions = new ConnectOptions();
-        ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_KEY)
+        ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_ID)
                 .connect("localhost", 3301).setConnectOptions(connectOptions).addFilter(tf);
         FocusClient client = new FocusClient(option);
 

@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.client;
 
-import java.util.ServiceLoader;
+import java.net.InetSocketAddress;
 
 import com.dinstone.focus.binding.DefaultReferenceBinding;
 import com.dinstone.focus.binding.ReferenceBinding;
@@ -25,9 +25,7 @@ import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.client.transport.ConnectionFactory;
-import com.dinstone.focus.clutch.ClutchFactory;
 import com.dinstone.focus.clutch.ClutchOptions;
-import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
@@ -39,8 +37,6 @@ import com.dinstone.focus.invoke.InvokeHandler;
 public class FocusClient implements ServiceConsumer {
 
     private ClientOptions clientOptions;
-
-    private ServiceDiscovery serviceDiscovery;
 
     private ReferenceBinding referenceBinding;
 
@@ -60,36 +56,24 @@ public class FocusClient implements ServiceConsumer {
         }
         this.clientOptions = clientOptions;
 
-        // check transport provider
-        this.connectionFactory = new ConnectionFactory(clientOptions);
+        this.proxyFactory = new JdkProxyFactory();
 
         // init ProtocolCodec
         this.protocolCodec = new PhotonProtocolCodec(clientOptions);
 
-        // load and create registry
-        ClutchOptions clutchOptions = clientOptions.getClutchOptions();
-        if (clutchOptions != null) {
-            ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
-            for (ClutchFactory clutchFactory : serviceLoader) {
-                if (clutchFactory.appliable(clutchOptions)) {
-                    this.serviceDiscovery = clutchFactory.createServiceDiscovery(clutchOptions);
-                    break;
-                }
-            }
-        }
+        // check transport provider
+        this.connectionFactory = new ConnectionFactory(clientOptions);
 
-        this.referenceBinding = new DefaultReferenceBinding(serviceDiscovery);
-        this.proxyFactory = new JdkProxyFactory();
+        // init reference binding
+        ClutchOptions clutchOptions = clientOptions.getClutchOptions();
+        InetSocketAddress consumerAddress = clientOptions.getConsumerAddress();
+        this.referenceBinding = new DefaultReferenceBinding(clutchOptions, consumerAddress);
     }
 
     @Override
     public void destroy() {
         connectionFactory.destroy();
         referenceBinding.destroy();
-
-        if (serviceDiscovery != null) {
-            serviceDiscovery.destroy();
-        }
     }
 
     @Override

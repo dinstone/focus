@@ -16,13 +16,10 @@
 package com.dinstone.focus.server;
 
 import java.net.InetSocketAddress;
-import java.util.ServiceLoader;
 
 import com.dinstone.focus.binding.DefaultImplementBinding;
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.clutch.ClutchFactory;
 import com.dinstone.focus.clutch.ClutchOptions;
-import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
@@ -45,11 +42,7 @@ public class FocusServer implements ServiceProvider {
 
     private InetSocketAddress serviceAddress;
 
-    private ServiceRegistry serviceRegistry;
-
     private ImplementBinding implementBinding;
-
-    private PhotonProtocolCodec protocolCodec;
 
     private Acceptor acceptor;
 
@@ -69,24 +62,12 @@ public class FocusServer implements ServiceProvider {
         }
         this.serviceAddress = serverOptions.getServiceAddress();
 
-        // init ProtocolCodec
-        this.protocolCodec = new PhotonProtocolCodec(serverOptions);
-
         // load and create registry
         ClutchOptions clutchOptions = serverOptions.getClutchOptions();
-        if (clutchOptions != null) {
-            ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
-            for (ClutchFactory clutchFactory : serviceLoader) {
-                if (clutchFactory.appliable(clutchOptions)) {
-                    this.serviceRegistry = clutchFactory.createServiceRegistry(clutchOptions);
-                    break;
-                }
-            }
-        }
+        this.implementBinding = new DefaultImplementBinding(clutchOptions, serviceAddress);
 
-        this.implementBinding = new DefaultImplementBinding(serviceRegistry, serviceAddress);
-
-        this.acceptor = createAcceptor(serverOptions, protocolCodec, implementBinding);
+        // init acceptor
+        this.acceptor = createAcceptor(serverOptions, implementBinding);
 
         LOG.info("focus server startup, {}", serviceAddress);
         try {
@@ -99,11 +80,11 @@ public class FocusServer implements ServiceProvider {
         }
     }
 
-    private Acceptor createAcceptor(ServerOptions serverOptions, PhotonProtocolCodec protocolCodec,
-            ImplementBinding implementBinding) {
+    private Acceptor createAcceptor(ServerOptions serverOptions, ImplementBinding implementBinding) {
         Acceptor acceptor = new Acceptor(serverOptions.getAcceptOptions());
-        ExecutorSelector selector = serverOptions.getExecutorSelector();
-        acceptor.setMessageProcessor(new FocusProcessor(implementBinding, protocolCodec, selector));
+        ExecutorSelector executorSelector = serverOptions.getExecutorSelector();
+        PhotonProtocolCodec protocolCodec = new PhotonProtocolCodec(serverOptions);
+        acceptor.setMessageProcessor(new FocusProcessor(implementBinding, protocolCodec, executorSelector));
         return acceptor;
     }
 
@@ -167,9 +148,6 @@ public class FocusServer implements ServiceProvider {
     public void destroy() {
         if (implementBinding != null) {
             implementBinding.destroy();
-        }
-        if (serviceRegistry != null) {
-            serviceRegistry.destroy();
         }
         if (acceptor != null) {
             acceptor.destroy();

@@ -72,14 +72,15 @@ public class TracingFilter implements Filter {
 
         Scope scope = currentTraceContext.newScope(span.context());
         try {
-            return next.invoke(call).whenComplete((reply, e) -> {
-                finishSpan(request, reply, e, span);
+            return next.invoke(call).whenComplete((reply, error) -> {
+                finishSpan(request, reply, error, span);
                 scope.close();
             });
-        } catch (Throwable e) {
-            propagateIfFatal(e);
+        } catch (Throwable error) {
+            propagateIfFatal(error);
+            finishSpan(request, null, error, span);
             scope.close();
-            throw e;
+            throw error;
         }
     }
 

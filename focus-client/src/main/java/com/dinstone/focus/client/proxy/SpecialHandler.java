@@ -17,6 +17,7 @@ package com.dinstone.focus.client.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.config.MethodConfig;
@@ -57,14 +58,16 @@ class SpecialHandler implements InvocationHandler {
         call.setService(serviceConfig.getService());
         call.setTimeout(serviceConfig.getTimeout());
 
+        CompletableFuture<Reply> future = invokeHandler.invoke(call);
+
+        // reply handle
         MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
-        if (methodConfig.isAsyncInvoke()) {
-            return invokeHandler.invoke(call).thenApply(reply -> {
+        if (methodConfig != null && methodConfig.isAsyncInvoke()) {
+            return future.thenApply(reply -> {
                 return parseReply(reply);
             });
         } else {
-            Reply reply = invokeHandler.invoke(call).get(call.getTimeout(), TimeUnit.MILLISECONDS);
-            return parseReply(reply);
+            return parseReply(future.get(call.getTimeout(), TimeUnit.MILLISECONDS));
         }
 
     }

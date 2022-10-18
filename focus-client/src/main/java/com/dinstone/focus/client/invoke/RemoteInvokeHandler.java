@@ -57,27 +57,18 @@ public class RemoteInvokeHandler implements InvokeHandler {
         }
 
         call.attach().put("provider.endpoint", instance.getEndpointCode());
-        call.attach().put(Serializer.SERIALIZER_KEY, serviceConfig.getSerializerId());
-        call.attach().put(Compressor.COMPRESSOR_KEY, serviceConfig.getCompressorId());
+        call.attach().put(Serializer.HEADER_KEY, serviceConfig.getSerializerId());
+        call.attach().put(Compressor.HEADER_KEY, serviceConfig.getCompressorId());
 
         MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
-        // if (methodConfig.isAsyncInvoke()) {
-        // return async(call, instance, methodConfig);
-        // } else {
-        // }
-        return async(call, instance, methodConfig);
-    }
-
-    private CompletableFuture<Reply> async(Call call, ServiceInstance instance, MethodConfig mi) throws Exception {
         // process request
-        Request request = protocolCodec.encode(call, mi.getParamType());
+        Request request = protocolCodec.encode(call, methodConfig.getParamType());
         request.setMsgId(IDGENER.incrementAndGet());
 
         Connection connection = connectionFactory.create(instance.getServiceAddress());
-        CompletableFuture<Reply> replyFuture = connection.sendRequest(request).thenApply((response) -> {
-            return protocolCodec.decode(response, mi.getReturnType());
+        return connection.sendRequest(request).thenApply((response) -> {
+            return protocolCodec.decode(response, methodConfig.getReturnType());
         });
-        return replyFuture;
     }
 
 }

@@ -78,7 +78,7 @@ public class StoreServiceServer {
         ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_KEY)
+        ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_ID)
                 .connect("localhost", 3301).setConnectOptions(connectOptions).addFilter(tf);
         FocusClient client = new FocusClient(option);
         return client.importing(UserService.class);

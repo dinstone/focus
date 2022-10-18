@@ -15,16 +15,17 @@
  */
 package com.dinstone.focus.binding;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ServiceLoader;
 
+import com.dinstone.focus.clutch.ClutchFactory;
+import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.photon.utils.NetworkUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
 
@@ -32,21 +33,17 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
     protected ServiceDiscovery serviceDiscovery;
 
-    public DefaultReferenceBinding(ServiceDiscovery serviceDiscovery) {
-        this(serviceDiscovery, null);
-    }
-
-    public DefaultReferenceBinding(ServiceDiscovery serviceDiscovery, InetSocketAddress consumerAddress) {
-        this.serviceDiscovery = serviceDiscovery;
-
-        if (consumerAddress == null) {
-            try {
-                InetAddress addr = NetworkUtil.getPrivateAddresses().get(0);
-                consumerAddress = new InetSocketAddress(addr, 0);
-            } catch (Exception e) {
-                throw new RuntimeException("can't init ReferenceBinding", e);
+    public DefaultReferenceBinding(ClutchOptions clutchOptions, InetSocketAddress consumerAddress) {
+        if (clutchOptions != null) {
+            ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
+            for (ClutchFactory clutchFactory : serviceLoader) {
+                if (clutchFactory.appliable(clutchOptions)) {
+                    this.serviceDiscovery = clutchFactory.createServiceDiscovery(clutchOptions);
+                    break;
+                }
             }
         }
+
         this.consumerAddress = consumerAddress;
     }
 

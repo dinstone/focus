@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
+package com.dinstone.focus.server.binding;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -26,7 +26,7 @@ import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.focus.config.ServiceConfig;
 
-public class DefaultImplementBinding implements ImplementBinding {
+public class ImplementBinding {
 
     protected Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
@@ -34,7 +34,7 @@ public class DefaultImplementBinding implements ImplementBinding {
 
     protected ServiceRegistry serviceRegistry;
 
-    public DefaultImplementBinding(ClutchOptions clutchOptions, InetSocketAddress providerAddress) {
+    public ImplementBinding(ClutchOptions clutchOptions, InetSocketAddress providerAddress) {
         if (clutchOptions != null) {
             ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
             for (ClutchFactory clutchFactory : serviceLoader) {
@@ -47,7 +47,6 @@ public class DefaultImplementBinding implements ImplementBinding {
         this.providerAddress = providerAddress;
     }
 
-    @Override
     public <T> void binding(ServiceConfig serviceConfig) {
         String serviceId = serviceConfig.getService() + "-" + serviceConfig.getGroup();
         if (serviceConfigMap.get(serviceId) != null) {
@@ -60,7 +59,18 @@ public class DefaultImplementBinding implements ImplementBinding {
         }
     }
 
-    protected void publish(ServiceConfig config) {
+    public ServiceConfig lookup(String service, String group) {
+        String serviceId = service + "-" + group;
+        return serviceConfigMap.get(serviceId);
+    }
+
+    public void destroy() {
+        if (serviceRegistry != null) {
+            serviceRegistry.destroy();
+        }
+    }
+
+    private void publish(ServiceConfig config) {
         String host = providerAddress.getAddress().getHostAddress();
         int port = providerAddress.getPort();
         String group = config.getGroup();
@@ -85,19 +95,6 @@ public class DefaultImplementBinding implements ImplementBinding {
         } catch (Exception e) {
             throw new RuntimeException("can't publish service", e);
         }
-    }
-
-    @Override
-    public void destroy() {
-        if (serviceRegistry != null) {
-            serviceRegistry.destroy();
-        }
-    }
-
-    @Override
-    public ServiceConfig lookup(String service, String group) {
-        String serviceId = service + "-" + group;
-        return serviceConfigMap.get(serviceId);
     }
 
 }

@@ -15,6 +15,9 @@
  */
 package com.dinstone.focus.client.locate;
 
+import com.dinstone.focus.client.LoadBalancer;
+import com.dinstone.focus.client.LocateFactory;
+import com.dinstone.focus.client.ServiceRouter;
 import com.dinstone.focus.config.ServiceConfig;
 
 public class DefaultLocateFactory implements LocateFactory {

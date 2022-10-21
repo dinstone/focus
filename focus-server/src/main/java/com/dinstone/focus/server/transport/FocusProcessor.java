@@ -18,7 +18,6 @@ package com.dinstone.focus.server.transport;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.codec.CodecException;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.compress.Compressor;
@@ -29,6 +28,7 @@ import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.server.ExecutorSelector;
+import com.dinstone.focus.server.binding.ImplementBinding;
 import com.dinstone.photon.Connection;
 import com.dinstone.photon.MessageProcessor;
 import com.dinstone.photon.message.Headers;

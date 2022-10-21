@@ -17,18 +17,16 @@ package com.dinstone.focus.server;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.focus.binding.DefaultImplementBinding;
-import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.endpoint.ServiceProvider;
 import com.dinstone.focus.exception.FocusException;
-import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.server.binding.ImplementBinding;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
-import com.dinstone.focus.server.invoke.ProvideInvokeHandler;
+import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
 import com.dinstone.focus.server.transport.FocusProcessor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -64,7 +62,7 @@ public class FocusServer implements ServiceProvider {
 
         // load and create registry
         ClutchOptions clutchOptions = serverOptions.getClutchOptions();
-        this.implementBinding = new DefaultImplementBinding(clutchOptions, serviceAddress);
+        this.implementBinding = new ImplementBinding(clutchOptions, serviceAddress);
 
         // init acceptor
         this.acceptor = createAcceptor(serverOptions, implementBinding);
@@ -135,13 +133,7 @@ public class FocusServer implements ServiceProvider {
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
         LocalInvokeHandler localHandler = new LocalInvokeHandler(serviceConfig);
-        FilterChainHandler filterChain = createFilterChain(serviceConfig, localHandler);
-        return new ProvideInvokeHandler(filterChain);
-    }
-
-    private FilterChainHandler createFilterChain(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
-        FilterChainHandler chain = new FilterChainHandler(serviceConfig, invokeHandler);
-        return chain.addFilter(serverOptions.getFilters());
+        return new ProviderInvokeHandler(serviceConfig, localHandler).addFilter(serverOptions.getFilters());
     }
 
     @Override

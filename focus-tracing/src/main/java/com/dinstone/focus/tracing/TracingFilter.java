@@ -19,7 +19,6 @@ import static brave.internal.Throwables.propagateIfFatal;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterContext;
 import com.dinstone.focus.protocol.Call;
@@ -90,11 +89,6 @@ public class TracingFilter implements Filter {
         } else {
             serverHandler.handleSend(new FocusServerResponse((FocusServerRequest) request, result, error), span);
         }
-    }
-
-    @Override
-    public boolean matches(ServiceConfig serviceConfig) {
-        return true;
     }
 
 }

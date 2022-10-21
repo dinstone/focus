@@ -17,32 +17,31 @@ package com.dinstone.focus.filter;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
 public class FilterContext {
 
-    private FilterChain chain;
+    private ServiceConfig serviceConfig;
+    private FilterContext chain;
     private Filter filter;
 
-    FilterContext prev;
-    FilterContext next;
-
-    public FilterContext(FilterChain chain, Filter filter) {
+    public FilterContext(ServiceConfig serviceConfig, FilterContext chain, Filter filter) {
+        if (filter == null) {
+            throw new IllegalArgumentException("filter is null");
+        }
+        this.serviceConfig = serviceConfig;
         this.chain = chain;
         this.filter = filter;
     }
 
     public CompletableFuture<Reply> invoke(Call call) throws Exception {
-        if (filter != null) {
-            return filter.invoke(next, call);
-        } else {
-            return next.invoke(call);
-        }
+        return filter.invoke(chain, call);
     }
 
-    public FilterChain getFilterChain() {
-        return chain;
+    public ServiceConfig getServiceConfig() {
+        return serviceConfig;
     }
 
 }

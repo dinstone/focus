@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.invoke.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -48,11 +49,6 @@ public class FilterChainTest {
                 return r;
             }
 
-            @Override
-            public boolean matches(ServiceConfig serviceConfig) {
-                // TODO Auto-generated method stub
-                return false;
-            }
         };
         Filter second = new Filter() {
 
@@ -63,15 +59,9 @@ public class FilterChainTest {
                 System.out.println("second filter after");
                 return r;
             }
-
-            @Override
-            public boolean matches(ServiceConfig serviceConfig) {
-                // TODO Auto-generated method stub
-                return false;
-            }
         };
-        FilterChainHandler chain = new FilterChainHandler(new ServiceConfig(), lih).addFilter(first, second);
 
+        FilterChainHandler chain = new FilterChainHandler(new ServiceConfig(), lih).addFilter(first, second);
         CompletableFuture<Reply> reply = chain.invoke(null);
         assertEquals(null, reply);
     }

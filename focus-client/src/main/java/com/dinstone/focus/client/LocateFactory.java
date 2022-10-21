@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.locate;
+package com.dinstone.focus.client;
 
-import java.util.List;
+import com.dinstone.focus.config.ServiceConfig;
 
-import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
+public interface LocateFactory {
 
-public interface LoadBalancer {
+    public ServiceRouter createSerivceRouter(ServiceConfig serviceConfig);
 
-    public ServiceInstance select(Call call, ServiceInstance selected, List<ServiceInstance> instances);
+    public LoadBalancer createLoadBalancer(ServiceConfig serviceConfig);
 
 }

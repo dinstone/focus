@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.endpoint;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public interface GenericService {
 
@@ -53,6 +53,6 @@ public interface GenericService {
      *
      * @throws Exception
      */
-    <R, P> Future<R> async(Class<R> returnType, String methodName, P parameter) throws Exception;
+    <R, P> CompletableFuture<R> async(Class<R> returnType, String methodName, P parameter) throws Exception;
 
 }

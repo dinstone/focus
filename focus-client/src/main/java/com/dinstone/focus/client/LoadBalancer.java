@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
+package com.dinstone.focus.client;
 
-import com.dinstone.focus.config.ServiceConfig;
+import java.util.List;
 
-/**
- * service implement binding and service lookup
- *
- * @author dinstone
- *
- * @version 1.0.0
- */
-public interface ImplementBinding {
+import com.dinstone.focus.clutch.ServiceInstance;
+import com.dinstone.focus.protocol.Call;
 
-    /**
-     * binding service implement
-     *
-     * @param wrapper
-     */
-    public <T> void binding(ServiceConfig config);
+public interface LoadBalancer {
 
-    public ServiceConfig lookup(String service, String group);
+    public ServiceInstance select(Call call, ServiceInstance selected, List<ServiceInstance> instances);
 
-    public void destroy();
 }

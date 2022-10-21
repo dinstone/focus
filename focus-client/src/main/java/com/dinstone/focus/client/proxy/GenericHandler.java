@@ -16,7 +16,6 @@
 package com.dinstone.focus.client.proxy;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.config.MethodConfig;
@@ -44,7 +43,7 @@ class GenericHandler implements GenericService {
 
     @SuppressWarnings({ "unchecked" })
     @Override
-    public <R, P> Future<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
+    public <R, P> CompletableFuture<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
         if (serviceConfig.getMethodConfig(methodName) == null) {
             MethodConfig methodConfig = new MethodConfig(methodName);
             methodConfig.setParamType(parameter.getClass());
@@ -60,7 +59,7 @@ class GenericHandler implements GenericService {
 
         CompletableFuture<Reply> replyFuture = invokeHandler.invoke(call);
 
-        return (Future<R>) replyFuture.thenApply(reply -> {
+        return (CompletableFuture<R>) replyFuture.thenApply(reply -> {
             return parseReply(reply);
         });
 

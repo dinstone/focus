@@ -17,9 +17,8 @@ package com.dinstone.focus.client;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.focus.binding.DefaultReferenceBinding;
-import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.client.invoke.ConsumeInvokeHandler;
+import com.dinstone.focus.client.binding.ReferenceBinding;
+import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
 import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
@@ -31,7 +30,6 @@ import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.focus.endpoint.ServiceConsumer;
-import com.dinstone.focus.filter.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeHandler;
 
 public class FocusClient implements ServiceConsumer {
@@ -67,7 +65,7 @@ public class FocusClient implements ServiceConsumer {
         // init reference binding
         ClutchOptions clutchOptions = clientOptions.getClutchOptions();
         InetSocketAddress consumerAddress = clientOptions.getConsumerAddress();
-        this.referenceBinding = new DefaultReferenceBinding(clutchOptions, consumerAddress);
+        this.referenceBinding = new ReferenceBinding(clutchOptions, consumerAddress);
     }
 
     @Override
@@ -163,13 +161,7 @@ public class FocusClient implements ServiceConsumer {
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
         RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, protocolCodec, connectionFactory);
         InvokeHandler locate = new LocationInvokeHandler(serviceConfig, remote, referenceBinding, clientOptions);
-        FilterChainHandler chain = createFilterChain(serviceConfig, locate);
-        return new ConsumeInvokeHandler(serviceConfig, chain);
-    }
-
-    private FilterChainHandler createFilterChain(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
-        FilterChainHandler chain = new FilterChainHandler(serviceConfig, invokeHandler);
-        return chain.addFilter(clientOptions.getFilters());
+        return new ConsumerInvokeHandler(serviceConfig, locate).addFilter(clientOptions.getFilters());
     }
 
 }

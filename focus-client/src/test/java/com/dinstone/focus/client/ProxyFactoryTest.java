@@ -138,12 +138,6 @@ public class ProxyFactoryTest {
         }
 
         @Override
-        public boolean matches(ServiceConfig serviceConfig) {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        @Override
         public String say() {
             // TODO Auto-generated method stub
             return null;

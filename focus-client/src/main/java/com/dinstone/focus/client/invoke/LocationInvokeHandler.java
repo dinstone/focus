@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.ClientOptions;
-import com.dinstone.focus.client.locate.LoadBalancer;
-import com.dinstone.focus.client.locate.LocateFactory;
-import com.dinstone.focus.client.locate.ServiceRouter;
+import com.dinstone.focus.client.LoadBalancer;
+import com.dinstone.focus.client.LocateFactory;
+import com.dinstone.focus.client.ServiceRouter;
+import com.dinstone.focus.client.binding.ReferenceBinding;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;

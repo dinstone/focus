@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dinstone.focus.client.locate.DefaultLocateFactory;
-import com.dinstone.focus.client.locate.LocateFactory;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.photon.ConnectOptions;
 import com.dinstone.photon.utils.NetworkUtil;

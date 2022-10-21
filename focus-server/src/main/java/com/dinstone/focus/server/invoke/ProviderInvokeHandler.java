@@ -17,6 +17,8 @@ package com.dinstone.focus.server.invoke;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.invoke.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -29,21 +31,16 @@ import com.dinstone.focus.protocol.Reply;
  *
  * @version 1.0.0
  */
-public class ProvideInvokeHandler implements InvokeHandler {
+public class ProviderInvokeHandler extends FilterChainHandler {
 
-    private InvokeHandler invokeHandler;
-
-    public ProvideInvokeHandler(InvokeHandler invokeHandler) {
-        if (invokeHandler == null) {
-            throw new IllegalArgumentException("invokeHandler is null");
-        }
-        this.invokeHandler = invokeHandler;
+    public ProviderInvokeHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+        super(serviceConfig, invokeHandler);
     }
 
     public CompletableFuture<Reply> invoke(Call call) throws Exception {
         InvokeContext.getContext();
         try {
-            return invokeHandler.invoke(call);
+            return filterChain.invoke(call);
         } finally {
             InvokeContext.clearContext();
         }

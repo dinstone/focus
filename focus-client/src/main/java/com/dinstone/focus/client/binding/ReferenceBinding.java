@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
+package com.dinstone.focus.client.binding;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -27,13 +27,13 @@ import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 
-public class DefaultReferenceBinding implements ReferenceBinding {
+public class ReferenceBinding {
 
     protected InetSocketAddress consumerAddress;
 
     protected ServiceDiscovery serviceDiscovery;
 
-    public DefaultReferenceBinding(ClutchOptions clutchOptions, InetSocketAddress consumerAddress) {
+    public ReferenceBinding(ClutchOptions clutchOptions, InetSocketAddress consumerAddress) {
         if (clutchOptions != null) {
             ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
             for (ClutchFactory clutchFactory : serviceLoader) {
@@ -47,7 +47,6 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         this.consumerAddress = consumerAddress;
     }
 
-    @Override
     public <T> void binding(ServiceConfig serviceConfig) {
         if (serviceDiscovery != null) {
             try {
@@ -55,6 +54,26 @@ public class DefaultReferenceBinding implements ReferenceBinding {
             } catch (Exception e) {
                 throw new RuntimeException("service reference bind error", e);
             }
+        }
+    }
+
+    public List<ServiceInstance> lookup(String serviceName) {
+        try {
+            if (serviceDiscovery != null) {
+                Collection<ServiceInstance> c = serviceDiscovery.discovery(serviceName);
+                if (c != null) {
+                    return new ArrayList<ServiceInstance>(c);
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("service [" + serviceName + "] discovery error", e);
+        }
+    }
+
+    public void destroy() {
+        if (serviceDiscovery != null) {
+            serviceDiscovery.destroy();
         }
     }
 
@@ -77,28 +96,6 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         serviceInstance.setInstancePort(port);
 
         return serviceInstance;
-    }
-
-    @Override
-    public List<ServiceInstance> lookup(String serviceName) {
-        try {
-            if (serviceDiscovery != null) {
-                Collection<ServiceInstance> c = serviceDiscovery.discovery(serviceName);
-                if (c != null) {
-                    return new ArrayList<ServiceInstance>(c);
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            throw new RuntimeException("service [" + serviceName + "] discovery error", e);
-        }
-    }
-
-    @Override
-    public void destroy() {
-        if (serviceDiscovery != null) {
-            serviceDiscovery.destroy();
-        }
     }
 
 }

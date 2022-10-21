@@ -29,6 +29,8 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     public static final String DEFAULT_SERIALIZER_ID = "jackson";
 
+    private static final int DEFAULT_CONNECT_RETRY = 2;
+
     private static final int DEFAULT_POOL_SIZE = 1;
 
     private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
@@ -38,6 +40,8 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
     private String serializerId = DEFAULT_SERIALIZER_ID;
 
     private int connectPoolSize = DEFAULT_POOL_SIZE;
+
+    private int connectRetry = DEFAULT_CONNECT_RETRY;
 
     private LocateFactory locateFactory = new DefaultLocateFactory();
 
@@ -135,6 +139,15 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     public ClientOptions consumerAddress(String host, int port) {
         consumerAddress = new InetSocketAddress(host, port);
+        return this;
+    }
+
+    public int getConnectRetry() {
+        return connectRetry;
+    }
+
+    public ClientOptions setConnectRetry(int connectRetry) {
+        this.connectRetry = connectRetry;
         return this;
     }
 

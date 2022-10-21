@@ -45,6 +45,8 @@ public class LocationInvokeHandler implements InvokeHandler {
 
     private LoadBalancer loadBalancer;
 
+    private int connectRetry;
+
     public LocationInvokeHandler(ServiceConfig serviceConfig, InvokeHandler invocationHandler,
             ReferenceBinding referenceBinding, ClientOptions clientOptions) {
         this.invocationHandler = invocationHandler;
@@ -78,15 +80,17 @@ public class LocationInvokeHandler implements InvokeHandler {
         LocateFactory locateFactory = clientOptions.getLocateFactory();
         serviceRouter = locateFactory.createSerivceRouter(serviceConfig);
         loadBalancer = locateFactory.createLoadBalancer(serviceConfig);
+
+        connectRetry = clientOptions.getConnectRetry();
     }
 
     @Override
     public CompletableFuture<Reply> invoke(Call call) throws Exception {
+        // find candidate service instance
         List<ServiceInstance> candidates = collect(call);
 
-        int retry = 2;
         ServiceInstance selected = null;
-        for (int i = 0; i < retry; i++) {
+        for (int i = 0; i < connectRetry; i++) {
             List<ServiceInstance> ris = serviceRouter.route(call, selected, candidates);
             selected = loadBalancer.select(call, selected, ris);
             // check

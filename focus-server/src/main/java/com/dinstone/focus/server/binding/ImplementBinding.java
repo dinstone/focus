@@ -88,7 +88,6 @@ public class ImplementBinding {
         instance.setServiceName(config.getService());
         instance.setServiceGroup(group);
         instance.setRegistTime(System.currentTimeMillis());
-        instance.addAttribute("serviceTimeout", config.getTimeout());
 
         try {
             serviceRegistry.register(instance);

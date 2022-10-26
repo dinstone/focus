@@ -19,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Context {
 
+    public static final String SERVICE_INSTANCE_KEY = "service.instance";
+
     private final ConcurrentHashMap<String, Object> contentMap = new ConcurrentHashMap<>();
 
     /**

@@ -56,7 +56,7 @@ public class FocusClientTest {
         LOG.info("init end");
 
         try {
-            AuthenCheck ac = client.importing(AuthenCheck.class, "AuthenService", "", 2000);
+            AuthenCheck ac = client.importing(AuthenCheck.class, new ImportOptions("AuthenService").setTimeout(2000));
             asyncError(ac);
 
             DemoService ds = client.importing(DemoService.class);

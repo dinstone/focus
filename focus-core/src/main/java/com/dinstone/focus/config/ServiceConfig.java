@@ -30,7 +30,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
  */
 public class ServiceConfig {
 
-    private Map<String, MethodConfig> methodCaches = new ConcurrentHashMap<String, MethodConfig>();
+    private Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<String, MethodConfig>();
 
     private String endpoint;
 
@@ -40,9 +40,9 @@ public class ServiceConfig {
 
     private int timeout;
 
-    private Object target;
+    private int retry;
 
-    private Object proxy;
+    private Object target;
 
     private String serializerId;
 
@@ -77,20 +77,20 @@ public class ServiceConfig {
         this.timeout = timeout;
     }
 
+    public int getRetry() {
+        return retry;
+    }
+
+    public void setRetry(int retry) {
+        this.retry = retry;
+    }
+
     public Object getTarget() {
         return target;
     }
 
     public void setTarget(Object target) {
         this.target = target;
-    }
-
-    public Object getProxy() {
-        return proxy;
-    }
-
-    public void setProxy(Object proxy) {
-        this.proxy = proxy;
     }
 
     public InvokeHandler getHandler() {
@@ -128,31 +128,34 @@ public class ServiceConfig {
     public void parseMethod(Method... methods) {
         for (Method method : methods) {
             // overload check
-            if (methodCaches.containsKey(method.getName())) {
+            if (methodConfigs.containsKey(method.getName())) {
                 throw new IllegalStateException("unsupported method overload : " + method);
             }
             // parameter check
             Class<?> paramType = null;
             if (method.getParameterTypes().length > 1) {
-                throw new IllegalArgumentException("call only support one parameter");
+                throw new IllegalArgumentException("call only support one parameter : " + method);
             } else if (method.getParameterTypes().length == 1) {
                 paramType = method.getParameterTypes()[0];
             }
 
-            addMethodConfig(new MethodConfig(method, paramType));
+            MethodConfig methodConfig = new MethodConfig(method, paramType);
+            methodConfig.setInvokeTimeout(timeout);
+            methodConfig.setInvokeRetry(retry);
+            addMethodConfig(methodConfig);
         }
     }
 
     public Collection<MethodConfig> methodConfigs() {
-        return methodCaches.values();
+        return methodConfigs.values();
     }
 
     public void addMethodConfig(MethodConfig mc) {
-        methodCaches.putIfAbsent(mc.getMethodName(), mc);
+        methodConfigs.putIfAbsent(mc.getMethodName(), mc);
     }
 
     public MethodConfig getMethodConfig(String methodName) {
-        return methodCaches.get(methodName);
+        return methodConfigs.get(methodName);
     }
 
 }

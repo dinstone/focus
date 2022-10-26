@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.endpoint;
+package com.dinstone.focus.client;
 
 public interface ServiceConsumer {
 
@@ -21,7 +21,9 @@ public interface ServiceConsumer {
 
     public abstract <T> T importing(Class<T> sic, String group, int timeout);
 
-    public abstract <T> T importing(Class<T> sic, String service, String group, int timeout);
+    public abstract GenericService generic(String service, String group, int timeout);
+
+    public abstract <T> T importing(Class<T> sic, ImportOptions importOptions);
 
     public abstract void destroy();
 

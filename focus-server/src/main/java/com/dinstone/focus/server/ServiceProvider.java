@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.endpoint;
+package com.dinstone.focus.server;
 
 public interface ServiceProvider {
 
-    public abstract <T> void exporting(Class<T> serviceInterface, T serviceImplement);
+    public abstract <T> void exporting(Class<T> clazz, T instance);
 
-    public abstract <T> void exporting(Class<T> serviceInterface, String group, int timeout, T serviceImplement);
+    public abstract <T> void exporting(Class<T> clazz, T instance, ExportOptions exportOptions);
 
-    public abstract void exporting(Class<? extends Object> serviceInterface, String service, String group, int timeout,
-            Object serviceImplement);
+    public abstract <T> void exporting(Class<T> clazz, T instance, String service, String group);
 
     public abstract void destroy();
 

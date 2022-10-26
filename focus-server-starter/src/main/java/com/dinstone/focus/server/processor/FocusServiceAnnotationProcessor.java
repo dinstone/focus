@@ -20,6 +20,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.dinstone.focus.server.ExportOptions;
 import com.dinstone.focus.server.FocusServer;
 import com.dinstone.focus.server.annotation.FocusService;
 
@@ -28,19 +29,19 @@ public class FocusServiceAnnotationProcessor implements BeanPostProcessor, Appli
     private ApplicationContext applicationContext;
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         FocusService fsa = bean.getClass().getAnnotation(FocusService.class);
         if (fsa != null) {
-            String endpoint = fsa.server().length() > 0 ? fsa.server() : "defaultServer";
-            String service = fsa.service();
-            String group = fsa.group();
+            String endpoint = fsa.server().length() > 0 ? fsa.server() : "defaultFocusServer";
             FocusServer server = applicationContext.getBean(endpoint, FocusServer.class);
-            Class<? extends Object> clazz = bean.getClass();
-            Class<? extends Object>[] ifs = bean.getClass().getInterfaces();
+            Class<Object> clazz = (Class<Object>) bean.getClass();
+            Class<Object>[] ifs = (Class<Object>[]) clazz.getInterfaces();
             if (ifs != null && ifs.length > 0) {
                 clazz = ifs[0];
             }
-            server.exporting(clazz, service, group, fsa.timeout(), bean);
+            String service = fsa.service().length() > 0 ? fsa.service() : clazz.getName();
+            server.exporting(clazz, bean, new ExportOptions(service, fsa.group()));
         }
         return bean;
     }

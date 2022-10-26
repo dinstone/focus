@@ -26,8 +26,6 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     private String endpoint;
 
-    private int defaultTimeout = 3000;
-
     private int compressThreshold = 10240;
 
     private ClutchOptions clutchOptions;
@@ -44,15 +42,6 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     public T setEndpoint(String endpoint) {
         this.endpoint = endpoint;
-        return (T) this;
-    }
-
-    public int getDefaultTimeout() {
-        return defaultTimeout;
-    }
-
-    public T setDefaultTimeout(int defaultTimeout) {
-        this.defaultTimeout = defaultTimeout;
         return (T) this;
     }
 

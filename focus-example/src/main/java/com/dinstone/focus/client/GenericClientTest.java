@@ -21,7 +21,6 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.compress.snappy.SnappyCompressor;
-import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
@@ -50,30 +49,33 @@ public class GenericClientTest {
     }
 
     private static void demoService(FocusClient client) throws Exception {
-        GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.DemoService", "", 30000);
+        GenericService gs = client.generic("com.dinstone.focus.example.DemoService", "", 30000);
         String parameter = generateString(10241);
         // String r = gs.sync(String.class, "hello", parameter);
         // System.out.println("result = " + r);
 
-        CompletableFuture<String> future = (CompletableFuture<String>) gs.async(String.class, "hello", parameter);
+        CompletableFuture<String> future = gs.async(String.class, "hello", parameter);
         future.thenAccept(s -> {
             LOG.info("accept result =  " + s);
         });
         LOG.info("future result =  " + future.get());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes" })
     private static void orderService(FocusClient client) throws Exception {
-        GenericService gs = client.importing(GenericService.class, "com.dinstone.focus.example.OrderService", "",
-                30000);
+        GenericService gs = client.generic("com.dinstone.focus.example.OrderService", "", 30000);
         Map<String, String> p = new HashMap<String, String>();
         p.put("sn", "S001");
         p.put("uid", "U981");
         p.put("poi", "20910910");
         p.put("ct", "2022-06-17");
 
-        Map<String, Object> r = gs.sync(HashMap.class, "findOldOrder", p);
-        System.out.println("result =  " + r);
+        CompletableFuture<HashMap> cf = gs.async(HashMap.class, "findOldOrder", p);
+        System.out.println("aync result =  " + cf.get());
+
+        Map<String, Object> r = gs.sync("findOldOrder", p);
+        System.out.println("sync result =  " + r);
+
     }
 
     public static final String allChar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

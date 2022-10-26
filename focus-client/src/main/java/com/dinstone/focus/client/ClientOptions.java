@@ -27,8 +27,6 @@ import com.dinstone.photon.utils.NetworkUtil;
 
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
-    public static final String DEFAULT_SERIALIZER_ID = "jackson";
-
     private static final int DEFAULT_CONNECT_RETRY = 2;
 
     private static final int DEFAULT_POOL_SIZE = 1;
@@ -36,8 +34,6 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
     private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
 
     private ConnectOptions connectOptions = new ConnectOptions();
-
-    private String serializerId = DEFAULT_SERIALIZER_ID;
 
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
@@ -92,15 +88,6 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     public ClientOptions setConnectPoolSize(int connectPoolSize) {
         this.connectPoolSize = connectPoolSize;
-        return this;
-    }
-
-    public String getSerializerId() {
-        return serializerId;
-    }
-
-    public ClientOptions setSerializerId(String serializerId) {
-        this.serializerId = serializerId;
         return this;
     }
 

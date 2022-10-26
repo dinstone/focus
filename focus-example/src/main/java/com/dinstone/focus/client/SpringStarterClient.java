@@ -33,18 +33,21 @@ import com.dinstone.focus.example.ImService;
 public class SpringStarterClient {
 
     public static void main(String[] args) throws Exception {
+
         ConfigurableApplicationContext c = SpringApplication.run(SpringStarterClient.class, args);
-        ImService im = c.getBean(ImService.class);
+        try {
+            ImService im = c.getBean(ImService.class);
 
-        String m = im.sayHi("dinstone");
-        System.out.println("message is " + m);
-
-        c.close();
+            String m = im.sayHi("dinstone");
+            System.out.println("message is " + m);
+        } finally {
+            c.close();
+        }
     }
 
     @Bean(destroyMethod = "destroy")
     @ConditionalOnMissingBean
-    FocusClient defaultClient() {
+    FocusClient defaultFocusClient() {
         return new FocusClient(new ClientOptions().connect("127.0.0.1", 2222));
     }
 

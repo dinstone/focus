@@ -1,9 +1,13 @@
-# What
+# Focus
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/dinstone/focus/blob/master/LICENSE)
+[![Maven Central](https://img.shields.io/maven-central/v/com.dinstone.focus/focus-parent.svg?label=Maven%20Central)](https://search.maven.org/search?q=com.dinstone.focus)
+
+# Overview
 **Focus** is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.
 
 # Features
 ## Design Idea
-* Unified API for client and server
+* Modular client and server APIs, scalable system architecture, and framework core less than 1 MB in size.
 * Support a variety of serialization protocol at the same time - Jackson and Protobuff
 * Layered architecture, including API layer, Proxy layer, Invoke layer, Protocol layer, Transport layer
 * Pluggable service discovery - registry with [Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch) for Zookeeper, Consul, Nacos
@@ -11,6 +15,7 @@
 ## Ease of use
 * Out of the box client-side and server-side API
 * Spring boot starter integration friendly
+* Support synchronous, asynchronous and generalized calls
 
 ## Performance
 * Efficient custom protocol ([Photon](https://github.com/dinstone/photon) message exchange protocol and Focus RPC protocol)

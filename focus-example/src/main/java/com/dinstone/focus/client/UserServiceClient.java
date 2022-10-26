@@ -46,11 +46,13 @@ public class UserServiceClient {
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
         ConnectOptions connectOptions = new ConnectOptions();
-        ClientOptions option = new ClientOptions().setSerializerId(ProtobufSerializer.SERIALIZER_ID)
-                .connect("localhost", 3301).setConnectOptions(connectOptions).addFilter(tf);
+        ClientOptions option = new ClientOptions().connect("localhost", 3301).setConnectOptions(connectOptions)
+                .addFilter(tf);
         FocusClient client = new FocusClient(option);
 
-        final UserService ds = client.importing(UserService.class);
+        ImportOptions ro = new ImportOptions(UserService.class.getName())
+                .setSerializerId(ProtobufSerializer.SERIALIZER_ID);
+        final UserService ds = client.importing(UserService.class, ro);
 
         try {
             UserCheckRequest ucr = UserCheckRequest.newBuilder().setUserId("dinstone").build();

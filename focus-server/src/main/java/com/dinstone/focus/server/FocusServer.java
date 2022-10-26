@@ -21,7 +21,6 @@ import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
-import com.dinstone.focus.endpoint.ServiceProvider;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.server.binding.ImplementBinding;
@@ -91,39 +90,33 @@ public class FocusServer implements ServiceProvider {
     }
 
     @Override
-    public <T> void exporting(Class<T> serviceInterface, T serviceImplement) {
-        exporting(serviceInterface, "", serverOptions.getDefaultTimeout(), serviceImplement);
+    public <T> void exporting(Class<T> clazz, T instance) {
+        exporting(clazz, instance, new ExportOptions(clazz.getName()));
     }
 
     @Override
-    public <T> void exporting(Class<T> sic, String group, int timeout, T sio) {
-        exporting(sic, sic.getName(), group, serverOptions.getDefaultTimeout(), sio);
+    public <T> void exporting(Class<T> clazz, T instance, String service, String group) {
+        exporting(clazz, instance, new ExportOptions(service, group));
     }
 
     @Override
-    public void exporting(Class<? extends Object> clazz, String service, String group, int timeout, Object bean) {
+    public <T> void exporting(Class<T> clazz, T instance, ExportOptions exportOptions) {
+        String service = exportOptions.getService();
         if (service == null || service.isEmpty()) {
-            service = clazz.getName();
-        }
-        if (group == null) {
-            group = "";
-        }
-        if (timeout <= 0) {
-            timeout = serverOptions.getDefaultTimeout();
+            throw new IllegalArgumentException("serivce name is null");
         }
 
         try {
             ServiceConfig serviceConfig = new ServiceConfig();
-            serviceConfig.setGroup(group);
             serviceConfig.setService(service);
-            serviceConfig.setTimeout(timeout);
-            serviceConfig.setTarget(bean);
-
-            serviceConfig.parseMethod(clazz.getDeclaredMethods());
+            serviceConfig.setTarget(instance);
+            serviceConfig.setGroup(exportOptions.getGroup());
+            serviceConfig.setTimeout(exportOptions.getTimeout());
             serviceConfig.setEndpoint(serverOptions.getEndpoint());
 
-            InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-            serviceConfig.setHandler(invokeHandler);
+            serviceConfig.parseMethod(clazz.getDeclaredMethods());
+
+            serviceConfig.setHandler(createInvokeHandler(serviceConfig));
 
             implementBinding.binding(serviceConfig);
         } catch (Exception e) {

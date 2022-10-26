@@ -15,12 +15,13 @@
  */
 package com.dinstone.focus.client.proxy;
 
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.dinstone.focus.client.GenericService;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.GenericService;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -31,38 +32,64 @@ class GenericHandler implements GenericService {
     private final ServiceConfig serviceConfig;
     private final InvokeHandler invokeHandler;
 
-    public GenericHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+    public GenericHandler(ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
-        this.invokeHandler = invokeHandler;
+        this.invokeHandler = serviceConfig.getHandler();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public <P> HashMap<String, Object> sync(String methodName, P parameter) throws Exception {
+        return sync(HashMap.class, methodName, parameter);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public <R, P> R sync(Class<R> returnType, String methodName, P parameter) throws Exception {
-        return async(returnType, methodName, parameter).get(serviceConfig.getTimeout(), TimeUnit.MILLISECONDS);
+        MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
+
+        Call call = new Call(methodName, parameter);
+        call.setGroup(serviceConfig.getGroup());
+        call.setService(serviceConfig.getService());
+        call.setTimeout(methodConfig.getInvokeTimeout());
+
+        CompletableFuture<Reply> future = invokeHandler.invoke(call);
+
+        return (R) parseReply(future.get(call.getTimeout(), TimeUnit.MILLISECONDS));
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public <P> CompletableFuture<HashMap> async(String methodName, P parameter) throws Exception {
+        return async(HashMap.class, methodName, parameter);
     }
 
     @SuppressWarnings({ "unchecked" })
     @Override
     public <R, P> CompletableFuture<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
-        if (serviceConfig.getMethodConfig(methodName) == null) {
-            MethodConfig methodConfig = new MethodConfig(methodName);
-            methodConfig.setParamType(parameter.getClass());
-            methodConfig.setReturnType(returnType);
-            methodConfig.setAsyncInvoke(true);
-            serviceConfig.addMethodConfig(methodConfig);
-        }
+        MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
         Call call = new Call(methodName, parameter);
         call.setGroup(serviceConfig.getGroup());
         call.setService(serviceConfig.getService());
-        call.setTimeout(serviceConfig.getTimeout());
+        call.setTimeout(methodConfig.getInvokeTimeout());
 
-        CompletableFuture<Reply> replyFuture = invokeHandler.invoke(call);
+        CompletableFuture<Reply> future = invokeHandler.invoke(call);
 
-        return (CompletableFuture<R>) replyFuture.thenApply(reply -> {
-            return parseReply(reply);
-        });
+        return (CompletableFuture<R>) future.thenApply(reply -> parseReply(reply));
+    }
 
+    private <P, R> MethodConfig getMethodConfig(Class<R> returnType, String methodName, P parameter) {
+        MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
+        if (methodConfig == null) {
+            methodConfig = new MethodConfig(methodName);
+            methodConfig.setParamType(parameter.getClass());
+            methodConfig.setReturnType(returnType);
+            methodConfig.setAsyncInvoke(true);
+            methodConfig.setInvokeTimeout(serviceConfig.getTimeout());
+            serviceConfig.addMethodConfig(methodConfig);
+        }
+        return methodConfig;
     }
 
     private Object parseReply(Reply reply) {

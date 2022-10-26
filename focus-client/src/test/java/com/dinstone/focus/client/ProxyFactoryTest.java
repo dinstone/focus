@@ -87,7 +87,7 @@ public class ProxyFactoryTest {
     private HelloService proxyFactory() {
         ServiceConfig serviceConfig = new ServiceConfig();
         serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
-        return new JdkProxyFactory().create(HelloService.class, serviceConfig, new InvokeHandler() {
+        serviceConfig.setHandler(new InvokeHandler() {
 
             private Reply reply = new Reply();
 
@@ -96,6 +96,7 @@ public class ProxyFactoryTest {
                 return CompletableFuture.completedFuture(reply);
             }
         });
+        return new JdkProxyFactory().create(HelloService.class, serviceConfig);
     }
 
     private HelloService jdkProxy() {

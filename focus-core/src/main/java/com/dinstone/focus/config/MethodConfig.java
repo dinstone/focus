@@ -33,6 +33,10 @@ public class MethodConfig {
 
     private boolean asyncInvoke;
 
+    private int invokeTimeout;
+
+    private int invokeRetry;
+
     public MethodConfig(Method method, Class<?> paramType) {
         this.method = method;
         this.paramType = paramType;
@@ -125,4 +129,21 @@ public class MethodConfig {
         }
         return type.getName();
     }
+
+    public int getInvokeTimeout() {
+        return invokeTimeout;
+    }
+
+    public void setInvokeTimeout(int invokeTimeout) {
+        this.invokeTimeout = invokeTimeout;
+    }
+
+    public int getInvokeRetry() {
+        return invokeRetry;
+    }
+
+    public void setInvokeRetry(int invokeRetry) {
+        this.invokeRetry = invokeRetry;
+    }
+
 }

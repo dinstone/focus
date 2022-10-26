@@ -31,6 +31,7 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Context;
 import com.dinstone.focus.protocol.Reply;
 
 public class LocationInvokeHandler implements InvokeHandler {
@@ -98,7 +99,7 @@ public class LocationInvokeHandler implements InvokeHandler {
                 continue;
             }
 
-            call.context().put("service.instance", selected);
+            call.context().put(Context.SERVICE_INSTANCE_KEY, selected);
             try {
                 return invocationHandler.invoke(call);
             } catch (ConnectException e) {

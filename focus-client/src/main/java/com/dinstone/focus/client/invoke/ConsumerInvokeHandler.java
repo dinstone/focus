@@ -21,6 +21,7 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.FilterChainHandler;
 import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
@@ -41,7 +42,7 @@ public class ConsumerInvokeHandler extends FilterChainHandler {
         InvokeContext.pushContext();
         InvokeContext.getContext();
         try {
-            call.attach().put("consumer.endpoint", serviceConfig.getEndpoint());
+            call.attach().put(Attach.CONSUMER_KEY, serviceConfig.getEndpoint());
 
             return filterChain.invoke(call);
         } finally {

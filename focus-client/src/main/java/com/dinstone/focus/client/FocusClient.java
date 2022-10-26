@@ -16,6 +16,7 @@
 package com.dinstone.focus.client;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import com.dinstone.focus.client.binding.ReferenceBinding;
 import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
@@ -27,9 +28,8 @@ import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.GenericService;
-import com.dinstone.focus.endpoint.ServiceConsumer;
 import com.dinstone.focus.invoke.InvokeHandler;
 
 public class FocusClient implements ServiceConsumer {
@@ -76,81 +76,54 @@ public class FocusClient implements ServiceConsumer {
 
     @Override
     public <T> T importing(Class<T> sic) {
-        return importing(sic, "", clientOptions.getDefaultTimeout());
+        return importing(sic, "", 3000);
     }
 
     @Override
     public <T> T importing(Class<T> sic, String group, int timeout) {
-        return importing(sic, sic.getName(), group, timeout);
+        return importing(sic, new ImportOptions(sic.getName(), group).setTimeout(timeout));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T importing(Class<T> sic, String service, String group, int timeout) {
-        if (sic.equals(GenericService.class)) {
-            return (T) genericService(service, group, timeout);
-        } else {
-            return specialService(sic, service, group, timeout);
-        }
+    public GenericService generic(String service, String group, int timeout) {
+        return importing(GenericService.class, new ImportOptions(service, group).setTimeout(timeout));
     }
 
-    private <T> T specialService(Class<T> sic, String service, String group, int timeout) {
+    @Override
+    public <T> T importing(Class<T> serviceClass, ImportOptions importOptions) {
+        String service = importOptions.getService();
         if (service == null || service.isEmpty()) {
-            service = sic.getName();
-        }
-        if (group == null) {
-            group = "";
-        }
-        if (timeout <= 0) {
-            timeout = clientOptions.getDefaultTimeout();
-        }
-
-        ServiceConfig serviceConfig = new ServiceConfig();
-        serviceConfig.setGroup(group);
-        serviceConfig.setTimeout(timeout);
-        serviceConfig.setService(service);
-        serviceConfig.parseMethod(sic.getDeclaredMethods());
-
-        serviceConfig.setEndpoint(clientOptions.getEndpoint());
-        serviceConfig.setSerializerId(clientOptions.getSerializerId());
-        serviceConfig.setCompressorId(clientOptions.getCompressorId());
-
-        InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-        T proxy = proxyFactory.create(sic, serviceConfig, invokeHandler);
-
-        serviceConfig.setHandler(invokeHandler);
-        serviceConfig.setProxy(proxy);
-
-        referenceBinding.lookup(serviceConfig.getService());
-        referenceBinding.binding(serviceConfig);
-
-        return proxy;
-    }
-
-    private GenericService genericService(String service, String group, int timeout) {
-        if (service == null) {
             throw new IllegalArgumentException("serivce name is null");
         }
-        if (group == null) {
-            group = "";
-        }
-        if (timeout <= 0) {
-            timeout = clientOptions.getDefaultTimeout();
-        }
 
         ServiceConfig serviceConfig = new ServiceConfig();
-        serviceConfig.setGroup(group);
-        serviceConfig.setTimeout(timeout);
-        serviceConfig.setService(service);
-
+        serviceConfig.setGroup(importOptions.getGroup());
+        serviceConfig.setService(importOptions.getService());
         serviceConfig.setEndpoint(clientOptions.getEndpoint());
-        serviceConfig.setSerializerId(ClientOptions.DEFAULT_SERIALIZER_ID);
-        serviceConfig.setCompressorId(clientOptions.getCompressorId());
+        serviceConfig.setTimeout(importOptions.getTimeout());
+        serviceConfig.setRetry(importOptions.getRetry());
+        serviceConfig.setSerializerId(importOptions.getSerializerId());
+        serviceConfig.setCompressorId(importOptions.getCompressorId());
 
-        InvokeHandler invokeHandler = createInvokeHandler(serviceConfig);
-        GenericService proxy = proxyFactory.create(GenericService.class, serviceConfig, invokeHandler);
-        serviceConfig.setHandler(invokeHandler);
-        serviceConfig.setTarget(proxy);
+        if (serviceClass.equals(GenericService.class)) {
+            serviceConfig.setSerializerId(ImportOptions.DEFAULT_SERIALIZER_ID);
+        } else {
+            // parse method info and set invoke config
+            serviceConfig.parseMethod(serviceClass.getDeclaredMethods());
+            List<InvokeOptions> iol = importOptions.getInvokeOptions();
+            if (iol != null) {
+                for (InvokeOptions io : iol) {
+                    MethodConfig mc = serviceConfig.getMethodConfig(io.getMethodName());
+                    if (mc != null) {
+                        mc.setInvokeTimeout(io.getInvokeTimeout());
+                        mc.setInvokeRetry(io.getInvokeRetry());
+                    }
+                }
+            }
+        }
+
+        serviceConfig.setHandler(createInvokeHandler(serviceConfig));
+        T proxy = proxyFactory.create(serviceClass, serviceConfig);
 
         referenceBinding.lookup(serviceConfig.getService());
         referenceBinding.binding(serviceConfig);

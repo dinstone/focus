@@ -54,7 +54,7 @@ public class FocusServerTest {
         server.exporting(DemoService.class, new DemoServiceImpl());
         server.exporting(OrderService.class, new OrderServiceImpl(null, null));
         // export alias service
-        server.exporting(AuthenService.class, "AuthenService", null, 0, new AuthenService());
+        server.exporting(AuthenService.class, new AuthenService(), "AuthenService", null);
 
         // server.start();
         LOG.info("server start");

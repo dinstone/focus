@@ -17,28 +17,27 @@ package com.dinstone.focus.client.proxy;
 
 import java.lang.reflect.Proxy;
 
+import com.dinstone.focus.client.GenericService;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.GenericService;
-import com.dinstone.focus.invoke.InvokeHandler;
 
 public class JdkProxyFactory implements ProxyFactory {
 
-    private <T> T createProxy(Class<T> sic, ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+    private <T> T createProxy(Class<T> sic, ServiceConfig serviceConfig) {
         if (!sic.isInterface()) {
             throw new IllegalArgumentException(sic.getName() + " is not interface");
         }
 
-        SpecialHandler handler = new SpecialHandler(serviceConfig, invokeHandler);
+        SpecialHandler handler = new SpecialHandler(serviceConfig);
         return sic.cast(Proxy.newProxyInstance(sic.getClassLoader(), new Class[] { sic }, handler));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T create(Class<T> sic, ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+    public <T> T create(Class<T> sic, ServiceConfig serviceConfig) {
         if (sic.equals(GenericService.class)) {
-            return (T) new GenericHandler(serviceConfig, invokeHandler);
+            return (T) new GenericHandler(serviceConfig);
         }
-        return createProxy(sic, serviceConfig, invokeHandler);
+        return createProxy(sic, serviceConfig);
     }
 
 }

@@ -26,7 +26,9 @@ import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Context;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.photon.Connection;
@@ -51,12 +53,12 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     @Override
     public CompletableFuture<Reply> invoke(Call call) throws Exception {
-        ServiceInstance instance = call.context().get("service.instance");
+        ServiceInstance instance = call.context().get(Context.SERVICE_INSTANCE_KEY);
         if (instance == null) {
             throw new ConnectException("can't find a service instance to connect");
         }
 
-        call.attach().put("provider.endpoint", instance.getEndpointCode());
+        call.attach().put(Attach.PROVIDER_KEY, instance.getEndpointCode());
         call.attach().put(Serializer.HEADER_KEY, serviceConfig.getSerializerId());
         call.attach().put(Compressor.HEADER_KEY, serviceConfig.getCompressorId());
 

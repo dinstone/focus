@@ -32,9 +32,9 @@ class SpecialHandler implements InvocationHandler {
     private ServiceConfig serviceConfig;
     private InvokeHandler invokeHandler;
 
-    public SpecialHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+    public SpecialHandler(ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
-        this.invokeHandler = invokeHandler;
+        this.invokeHandler = serviceConfig.getHandler();
     }
 
     @Override
@@ -53,19 +53,25 @@ class SpecialHandler implements InvocationHandler {
             parameter = args[0];
         }
 
+        MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
+        if (methodConfig == null) {
+            methodConfig = new MethodConfig(method, parameter.getClass());
+            methodConfig.setInvokeTimeout(serviceConfig.getTimeout());
+            methodConfig.setInvokeRetry(serviceConfig.getRetry());
+            serviceConfig.addMethodConfig(methodConfig);
+        }
+
         Call call = new Call(methodName, parameter);
         call.setGroup(serviceConfig.getGroup());
         call.setService(serviceConfig.getService());
         call.setTimeout(serviceConfig.getTimeout());
 
+        // invoke
         CompletableFuture<Reply> future = invokeHandler.invoke(call);
 
         // reply handle
-        MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
-        if (methodConfig != null && methodConfig.isAsyncInvoke()) {
-            return future.thenApply(reply -> {
-                return parseReply(reply);
-            });
+        if (methodConfig.isAsyncInvoke()) {
+            return future.thenApply(reply -> parseReply(reply));
         } else {
             return parseReply(future.get(call.getTimeout(), TimeUnit.MILLISECONDS));
         }

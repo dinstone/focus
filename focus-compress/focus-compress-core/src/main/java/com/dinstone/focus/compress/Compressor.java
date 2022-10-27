@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public interface Compressor {
 
-    public static final String HEADER_KEY = "protocol.compressor";
+    public static final String HEADER_KEY = "content.compressor";
 
     /**
      * The compressor ID
@@ -27,15 +27,6 @@ public interface Compressor {
      * @return
      */
     public abstract String compressorId();
-
-    /**
-     * The data enable compress if grate than threshold
-     *
-     * @param data
-     *
-     * @return
-     */
-    public abstract boolean enable(byte[] data);
 
     /**
      * The Data compress.

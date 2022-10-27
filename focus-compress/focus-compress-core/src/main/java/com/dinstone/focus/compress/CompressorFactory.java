@@ -16,11 +16,19 @@
 package com.dinstone.focus.compress;
 
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CompressorFactory {
 
     private static final Map<String, Compressor> COMPRESSOR_MAP = new ConcurrentHashMap<>();
+
+    static {
+        ServiceLoader<CompressorFactory> cfLoader = ServiceLoader.load(CompressorFactory.class);
+        for (CompressorFactory compressorFactory : cfLoader) {
+            CompressorFactory.regist(compressorFactory.create());
+        }
+    }
 
     public static Compressor lookup(String compressId) {
         if (compressId != null) {
@@ -33,6 +41,6 @@ public abstract class CompressorFactory {
         COMPRESSOR_MAP.put(compress.compressorId(), compress);
     }
 
-    public abstract Compressor create(int threshold);
+    public abstract Compressor create();
 
 }

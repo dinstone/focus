@@ -20,6 +20,8 @@ import com.dinstone.focus.serialize.SerializerFactory;
 
 public class ProtobufFactory extends SerializerFactory {
 
+    public static final String SERIALIZER_TYPE = "protobuf";
+
     @Override
     public Serializer create() {
         return new ProtobufSerializer();

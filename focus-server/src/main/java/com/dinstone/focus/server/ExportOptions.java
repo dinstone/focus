@@ -33,6 +33,8 @@ public class ExportOptions {
 
     private String compressorId;
 
+    private int compressThreshold;
+
     public ExportOptions(String service) {
         this(service, null);
     }
@@ -82,6 +84,14 @@ public class ExportOptions {
     public ExportOptions setCompressorId(String compressorId) {
         this.compressorId = compressorId;
         return this;
+    }
+
+    public int getCompressThreshold() {
+        return compressThreshold;
+    }
+
+    public void setCompressThreshold(int compressThreshold) {
+        this.compressThreshold = compressThreshold;
     }
 
 }

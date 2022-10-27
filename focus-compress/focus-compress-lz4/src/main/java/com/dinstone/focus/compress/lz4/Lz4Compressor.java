@@ -31,14 +31,10 @@ public class Lz4Compressor implements Compressor {
 
     public static final String COMPRESSOR_ID = "lz4";
 
-    private int threshold;
-
     private LZ4FastDecompressor decompressor;
     private LZ4Compressor compressor;
 
-    public Lz4Compressor(int threshold) {
-        this.threshold = threshold;
-
+    public Lz4Compressor() {
         LZ4Factory factory = LZ4Factory.fastestInstance();
         decompressor = factory.fastDecompressor();
         compressor = factory.fastCompressor();
@@ -47,11 +43,6 @@ public class Lz4Compressor implements Compressor {
     @Override
     public String compressorId() {
         return COMPRESSOR_ID;
-    }
-
-    @Override
-    public boolean enable(byte[] data) {
-        return data != null && data.length > threshold;
     }
 
     @Override

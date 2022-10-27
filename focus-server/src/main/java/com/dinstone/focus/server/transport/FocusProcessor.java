@@ -19,14 +19,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import com.dinstone.focus.codec.CodecException;
+import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
-import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.server.ExecutorSelector;
 import com.dinstone.focus.server.binding.ImplementBinding;
 import com.dinstone.photon.Connection;
@@ -37,14 +36,13 @@ import com.dinstone.photon.message.Response;
 
 public final class FocusProcessor extends MessageProcessor {
     private final ImplementBinding implementBinding;
-    private final PhotonProtocolCodec protocolCodec;
-    private final ExecutorSelector selector;
+    private final ExecutorSelector executorSelector;
+    private ProtocolCodec errorCodec;
 
-    public FocusProcessor(ImplementBinding implementBinding, PhotonProtocolCodec protocolCodec,
-            ExecutorSelector selector) {
+    public FocusProcessor(ImplementBinding implementBinding, ExecutorSelector executorSelector) {
         this.implementBinding = implementBinding;
-        this.protocolCodec = protocolCodec;
-        this.selector = selector;
+        this.executorSelector = executorSelector;
+        this.errorCodec = new PhotonProtocolCodec(null, null, 0);
     }
 
     @Override
@@ -52,12 +50,12 @@ public final class FocusProcessor extends MessageProcessor {
         if (msg instanceof Request) {
             Executor executor = null;
             Request request = (Request) msg;
-            if (selector != null) {
+            if (executorSelector != null) {
                 Headers headers = request.headers();
                 String g = headers.get(Call.GROUP_KEY);
                 String s = headers.get(Call.SERVICE_KEY);
                 String m = headers.get(Call.METHOD_KEY);
-                executor = selector.select(g, s, m);
+                executor = executorSelector.select(g, s, m);
             }
             if (executor != null) {
                 executor.execute(new Runnable() {
@@ -98,6 +96,7 @@ public final class FocusProcessor extends MessageProcessor {
             }
 
             // decode call from request
+            ProtocolCodec protocolCodec = config.getProtocolCodec();
             Call call = protocolCodec.decode(request, methodConfig.getParamType());
 
             // invoke call
@@ -107,12 +106,6 @@ public final class FocusProcessor extends MessageProcessor {
                 if (error != null) {
                     errorHandle(connection, request, error);
                 } else {
-                    // init reply attach
-                    String svalue = headers.get(Serializer.HEADER_KEY);
-                    String cvalue = headers.get(Compressor.HEADER_KEY);
-                    reply.attach().put(Serializer.HEADER_KEY, svalue);
-                    reply.attach().put(Compressor.HEADER_KEY, cvalue);
-
                     // encode reply to response
                     Response response = protocolCodec.encode(reply, methodConfig.getReturnType());
                     response.setMsgId(request.getMsgId());
@@ -144,7 +137,7 @@ public final class FocusProcessor extends MessageProcessor {
 
     private void errorHandle(Connection connection, Request request, Throwable error) {
         // send response with exception
-        Response response = protocolCodec.encode(new Reply(error), error.getClass());
+        Response response = errorCodec.encode(new Reply(error), error.getClass());
         response.setMsgId(request.getMsgId());
         connection.sendMessage(response);
     }

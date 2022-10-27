@@ -21,8 +21,8 @@ import com.dinstone.focus.compress.CompressorFactory;
 public class Lz4Factory extends CompressorFactory {
 
     @Override
-    public Compressor create(int threshold) {
-        return new Lz4Compressor(threshold);
+    public Compressor create() {
+        return new Lz4Compressor();
     }
 
 }

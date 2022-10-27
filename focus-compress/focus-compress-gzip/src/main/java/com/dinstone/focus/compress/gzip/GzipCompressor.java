@@ -27,21 +27,9 @@ public class GzipCompressor implements Compressor {
 
     public static final String COMPRESSOR_ID = "gzip";
 
-    private int threshold;
-
-    public GzipCompressor(int threshold) {
-        super();
-        this.threshold = threshold;
-    }
-
     @Override
     public String compressorId() {
         return COMPRESSOR_ID;
-    }
-
-    @Override
-    public boolean enable(byte[] data) {
-        return data != null && data.length > threshold;
     }
 
     @Override

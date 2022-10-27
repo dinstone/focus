@@ -21,8 +21,8 @@ import com.dinstone.focus.compress.CompressorFactory;
 public class SnappyFactory extends CompressorFactory {
 
     @Override
-    public Compressor create(int threshold) {
-        return new SnappyCompressor(threshold);
+    public Compressor create() {
+        return new SnappyCompressor();
     }
 
 }

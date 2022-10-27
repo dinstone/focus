@@ -18,7 +18,9 @@ package com.dinstone.focus.serialze.json;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 
-public class JsonFactory extends SerializerFactory {
+public class JacksonFactory extends SerializerFactory {
+
+    public static final String SERIALIZER_TYPE = "jackson";
 
     @Override
     public Serializer create() {

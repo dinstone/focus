@@ -1,1 +1,1 @@
-com.dinstone.focus.serialze.json.JsonFactory
+com.dinstone.focus.serialze.json.JacksonFactory

@@ -15,6 +15,12 @@
  */
 package com.dinstone.focus.client;
 
+/**
+ * method level options
+ * 
+ * @author dinstone
+ *
+ */
 public class InvokeOptions {
 
     private String methodName;

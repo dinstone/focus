@@ -21,8 +21,8 @@ import com.dinstone.focus.compress.CompressorFactory;
 public class GzipFactory extends CompressorFactory {
 
     @Override
-    public Compressor create(int threshold) {
-        return new GzipCompressor(threshold);
+    public Compressor create() {
+        return new GzipCompressor();
     }
 
 }

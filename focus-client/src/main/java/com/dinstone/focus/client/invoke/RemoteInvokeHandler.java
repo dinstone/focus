@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.codec.ProtocolCodec;
-import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -30,7 +29,6 @@ import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Context;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.photon.Connection;
 import com.dinstone.photon.message.Request;
 
@@ -44,11 +42,10 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     private ConnectionFactory connectionFactory;
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, ProtocolCodec protocolCodec,
-            ConnectionFactory connectionFactory) {
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, ConnectionFactory connectionFactory) {
         this.serviceConfig = serviceConfig;
-        this.protocolCodec = protocolCodec;
         this.connectionFactory = connectionFactory;
+        this.protocolCodec = serviceConfig.getProtocolCodec();
     }
 
     @Override
@@ -59,8 +56,6 @@ public class RemoteInvokeHandler implements InvokeHandler {
         }
 
         call.attach().put(Attach.PROVIDER_KEY, instance.getEndpointCode());
-        call.attach().put(Serializer.HEADER_KEY, serviceConfig.getSerializerId());
-        call.attach().put(Compressor.HEADER_KEY, serviceConfig.getCompressorId());
 
         MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
         // process request

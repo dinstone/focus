@@ -17,9 +17,13 @@ package com.dinstone.focus.client;
 
 import java.util.List;
 
+/**
+ * service level options
+ * 
+ * @author dinstone
+ *
+ */
 public class ImportOptions {
-
-    public static final String DEFAULT_SERIALIZER_ID = "jackson";
 
     private static final String DEFAULT_SERVICE_GROUP = "";
 
@@ -39,6 +43,8 @@ public class ImportOptions {
 
     private String compressorId;
 
+    private int compressThreshold;
+
     private List<InvokeOptions> invokeOptions;
 
     public ImportOptions(String service) {
@@ -55,7 +61,6 @@ public class ImportOptions {
 
         this.retry = DEFAULT_INVOKE_RETRY;
         this.timeout = DEFAULT_INVOKE_TIMEOUT;
-        this.serializerId = DEFAULT_SERIALIZER_ID;
     }
 
     public String getService() {
@@ -113,10 +118,12 @@ public class ImportOptions {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "ReferenceOptions [service=" + service + ", group=" + group + ", timeout=" + timeout + ", serializerId="
-                + serializerId + ", compressorId=" + compressorId + "]";
+    public int getCompressThreshold() {
+        return compressThreshold;
+    }
+
+    public void setCompressThreshold(int compressThreshold) {
+        this.compressThreshold = compressThreshold;
     }
 
 }

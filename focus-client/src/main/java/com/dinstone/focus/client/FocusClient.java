@@ -28,9 +28,14 @@ import com.dinstone.focus.client.transport.ConnectionFactory;
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
+import com.dinstone.focus.compress.Compressor;
+import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.serialize.Serializer;
+import com.dinstone.focus.serialize.SerializerFactory;
 
 public class FocusClient implements ServiceConsumer {
 
@@ -39,8 +44,6 @@ public class FocusClient implements ServiceConsumer {
     private ReferenceBinding referenceBinding;
 
     private ConnectionFactory connectionFactory;
-
-    private ProtocolCodec protocolCodec;
 
     private ProxyFactory proxyFactory;
 
@@ -55,9 +58,6 @@ public class FocusClient implements ServiceConsumer {
         this.clientOptions = clientOptions;
 
         this.proxyFactory = new JdkProxyFactory();
-
-        // init ProtocolCodec
-        this.protocolCodec = new PhotonProtocolCodec(clientOptions);
 
         // check transport provider
         this.connectionFactory = new ConnectionFactory(clientOptions);
@@ -102,11 +102,10 @@ public class FocusClient implements ServiceConsumer {
         serviceConfig.setEndpoint(clientOptions.getEndpoint());
         serviceConfig.setTimeout(importOptions.getTimeout());
         serviceConfig.setRetry(importOptions.getRetry());
-        serviceConfig.setSerializerId(importOptions.getSerializerId());
-        serviceConfig.setCompressorId(importOptions.getCompressorId());
 
+        // handle
         if (serviceClass.equals(GenericService.class)) {
-            serviceConfig.setSerializerId(ImportOptions.DEFAULT_SERIALIZER_ID);
+            importOptions.setSerializerId(EndpointOptions.DEFAULT_SERIALIZER_ID);
         } else {
             // parse method info and set invoke config
             serviceConfig.parseMethod(serviceClass.getDeclaredMethods());
@@ -122,17 +121,41 @@ public class FocusClient implements ServiceConsumer {
             }
         }
 
+        // create service protocol codec
+        serviceConfig.setProtocolCodec(protocolCodec(clientOptions, importOptions));
+
+        // create invoke handler chain
         serviceConfig.setHandler(createInvokeHandler(serviceConfig));
-        T proxy = proxyFactory.create(serviceClass, serviceConfig);
 
         referenceBinding.lookup(serviceConfig.getService());
         referenceBinding.binding(serviceConfig);
 
-        return proxy;
+        return proxyFactory.create(serviceClass, serviceConfig);
+    }
+
+    private ProtocolCodec protocolCodec(ClientOptions clientOptions, ImportOptions importOptions) {
+        Serializer serializer = SerializerFactory.lookup(importOptions.getSerializerId());
+        if (serializer == null) {
+            serializer = SerializerFactory.lookup(clientOptions.getSerializerId());
+        }
+        if (serializer == null) {
+            throw new IllegalArgumentException("please configure the correct serializer id");
+        }
+
+        Compressor compressor = CompressorFactory.lookup(importOptions.getCompressorId());
+        if (compressor == null) {
+            compressor = CompressorFactory.lookup(clientOptions.getCompressorId());
+        }
+        int compressThreshold = importOptions.getCompressThreshold();
+        if (compressThreshold <= 0) {
+            compressThreshold = clientOptions.getCompressThreshold();
+        }
+
+        return new PhotonProtocolCodec(serializer, compressor, compressThreshold);
     }
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
-        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, protocolCodec, connectionFactory);
+        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, connectionFactory);
         InvokeHandler locate = new LocationInvokeHandler(serviceConfig, remote, referenceBinding, clientOptions);
         return new ConsumerInvokeHandler(serviceConfig, locate).addFilter(clientOptions.getFilters());
     }

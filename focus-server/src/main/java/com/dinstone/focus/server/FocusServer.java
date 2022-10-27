@@ -18,11 +18,15 @@ package com.dinstone.focus.server;
 import java.net.InetSocketAddress;
 
 import com.dinstone.focus.clutch.ClutchOptions;
+import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.codec.photon.PhotonProtocolCodec;
+import com.dinstone.focus.compress.Compressor;
+import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.serialize.Serializer;
+import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.server.binding.ImplementBinding;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
@@ -35,7 +39,7 @@ public class FocusServer implements ServiceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusServer.class);
 
-    private EndpointOptions<ServerOptions> serverOptions;
+    private ServerOptions serverOptions;
 
     private InetSocketAddress serviceAddress;
 
@@ -80,8 +84,7 @@ public class FocusServer implements ServiceProvider {
     private Acceptor createAcceptor(ServerOptions serverOptions, ImplementBinding implementBinding) {
         Acceptor acceptor = new Acceptor(serverOptions.getAcceptOptions());
         ExecutorSelector executorSelector = serverOptions.getExecutorSelector();
-        PhotonProtocolCodec protocolCodec = new PhotonProtocolCodec(serverOptions);
-        acceptor.setMessageProcessor(new FocusProcessor(implementBinding, protocolCodec, executorSelector));
+        acceptor.setMessageProcessor(new FocusProcessor(implementBinding, executorSelector));
         return acceptor;
     }
 
@@ -114,14 +117,40 @@ public class FocusServer implements ServiceProvider {
             serviceConfig.setTimeout(exportOptions.getTimeout());
             serviceConfig.setEndpoint(serverOptions.getEndpoint());
 
+            // create and set method configure
             serviceConfig.parseMethod(clazz.getDeclaredMethods());
 
+            // create invoke handler chain
             serviceConfig.setHandler(createInvokeHandler(serviceConfig));
+
+            // create service protocol codec
+            serviceConfig.setProtocolCodec(protocolCodec(serverOptions, exportOptions));
 
             implementBinding.binding(serviceConfig);
         } catch (Exception e) {
             throw new FocusException("export service error", e);
         }
+    }
+
+    private ProtocolCodec protocolCodec(ServerOptions serverOptions, ExportOptions exportOptions) {
+        Serializer serializer = SerializerFactory.lookup(exportOptions.getSerializerId());
+        if (serializer == null) {
+            serializer = SerializerFactory.lookup(serverOptions.getSerializerId());
+        }
+        if (serializer == null) {
+            throw new IllegalArgumentException("please configure the correct serializer id");
+        }
+
+        Compressor compressor = CompressorFactory.lookup(exportOptions.getCompressorId());
+        if (compressor == null) {
+            compressor = CompressorFactory.lookup(serverOptions.getCompressorId());
+        }
+        int compressThreshold = exportOptions.getCompressThreshold();
+        if (compressThreshold <= 0) {
+            compressThreshold = serverOptions.getCompressThreshold();
+        }
+
+        return new PhotonProtocolCodec(serializer, compressor, compressThreshold);
     }
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {

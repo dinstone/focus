@@ -27,6 +27,12 @@ import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.AcceptOptions;
 import com.dinstone.photon.utils.NetworkUtil;
 
+/**
+ * global level options
+ * 
+ * @author dinstone
+ *
+ */
 public class ServerOptions extends EndpointOptions<ServerOptions> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerOptions.class);

@@ -19,12 +19,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.ServiceLoader;
 
 import com.dinstone.focus.compress.gzip.GzipCompressor;
 import com.dinstone.focus.compress.lz4.Lz4Compressor;
 import com.dinstone.focus.compress.snappy.SnappyCompressor;
-import com.dinstone.focus.endpoint.EndpointOptions;
 
 public class CompressTest {
 
@@ -57,13 +55,6 @@ public class CompressTest {
     }
 
     public static void main(String[] args) throws IOException {
-
-        EndpointOptions<?> endpointOptions = new EndpointOptions<>().setCompressThreshold(1024);
-        // init compressor
-        ServiceLoader<CompressorFactory> cfLoader = ServiceLoader.load(CompressorFactory.class);
-        for (CompressorFactory compressorFactory : cfLoader) {
-            CompressorFactory.regist(compressorFactory.create(endpointOptions.getCompressThreshold()));
-        }
 
         String data = generateString1(1024 * 10);
 

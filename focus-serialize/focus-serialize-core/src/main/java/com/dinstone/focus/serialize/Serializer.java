@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public interface Serializer {
 
-    public static final String HEADER_KEY = "protocol.serializer";
+    public static final String HEADER_KEY = "content.serializer";
 
     /**
      * The Serializer ID

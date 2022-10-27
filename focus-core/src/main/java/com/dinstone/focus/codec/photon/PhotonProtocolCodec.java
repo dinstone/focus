@@ -18,20 +18,16 @@ package com.dinstone.focus.codec.photon;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ServiceLoader;
 
 import com.dinstone.focus.codec.CodecException;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.compress.Compressor;
-import com.dinstone.focus.compress.CompressorFactory;
-import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
-import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
@@ -40,17 +36,14 @@ import com.dinstone.photon.utils.ByteStreamUtil;
 
 public class PhotonProtocolCodec implements ProtocolCodec {
 
-    public PhotonProtocolCodec(EndpointOptions<?> endpointOptions) {
-        // init serializer
-        ServiceLoader<SerializerFactory> sfLoader = ServiceLoader.load(SerializerFactory.class);
-        for (SerializerFactory serializerFactory : sfLoader) {
-            SerializerFactory.regist(serializerFactory.create());
-        }
-        // init compressor
-        ServiceLoader<CompressorFactory> cfLoader = ServiceLoader.load(CompressorFactory.class);
-        for (CompressorFactory compressorFactory : cfLoader) {
-            CompressorFactory.regist(compressorFactory.create(endpointOptions.getCompressThreshold()));
-        }
+    private Serializer serializer;
+    private Compressor compressor;
+    private int compressThreshold;
+
+    public PhotonProtocolCodec(Serializer serializer, Compressor compressor, int compressThreshold) {
+        this.serializer = serializer;
+        this.compressor = compressor;
+        this.compressThreshold = compressThreshold;
     }
 
     @Override
@@ -147,26 +140,24 @@ public class PhotonProtocolCodec implements ProtocolCodec {
             return null;
         }
 
-        String sid = headers.get(Serializer.HEADER_KEY);
-        Serializer serializer = SerializerFactory.lookup(sid);
-        if (serializer == null) {
-            throw new CodecException("can't not find serializer");
-        }
-
         String cid = headers.get(Compressor.HEADER_KEY);
-        Compressor compressor = CompressorFactory.lookup(cid);
-        if (compressor != null) {
+        if (compressor != null && compressor.compressorId().equals(cid)) {
             try {
                 content = compressor.decode(content);
             } catch (IOException e) {
                 throw new CodecException("compress decode error", e);
             }
         }
-        try {
-            return serializer.decode(content, contentType);
-        } catch (IOException e) {
-            throw new CodecException("serialize decode error", e);
+
+        String sid = headers.get(Serializer.HEADER_KEY);
+        if (serializer.serializerId().equals(sid)) {
+            try {
+                return serializer.decode(content, contentType);
+            } catch (IOException e) {
+                throw new CodecException("serialize decode error", e);
+            }
         }
+        throw new CodecException("can't not find serializer : " + sid);
     }
 
     private byte[] encodeContent(Attach attach, Object content, Class<?> contentType) {
@@ -174,29 +165,21 @@ public class PhotonProtocolCodec implements ProtocolCodec {
             return null;
         }
 
-        String sid = attach.get(Serializer.HEADER_KEY);
-        Serializer serializer = SerializerFactory.lookup(sid);
-        if (serializer == null) {
-            throw new CodecException("can't not find serializer : " + sid);
-        }
-
         byte[] cs;
         try {
             cs = serializer.encode(content, contentType);
+            attach.put(Serializer.HEADER_KEY, serializer.serializerId());
         } catch (IOException e) {
             throw new CodecException("serialize encode error", e);
         }
 
-        String cid = attach.get(Compressor.HEADER_KEY);
-        Compressor compressor = CompressorFactory.lookup(cid);
-        if (compressor != null && compressor.enable(cs)) {
+        if (compressor != null && cs != null && cs.length > compressThreshold) {
             try {
                 cs = compressor.encode(cs);
+                attach.put(Compressor.HEADER_KEY, compressor.compressorId());
             } catch (IOException e) {
                 throw new CodecException("compress encode error", e);
             }
-        } else {
-            attach.remove(Compressor.HEADER_KEY);
         }
         return cs;
     }

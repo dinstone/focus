@@ -25,6 +25,12 @@ import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.photon.ConnectOptions;
 import com.dinstone.photon.utils.NetworkUtil;
 
+/**
+ * global level options
+ * 
+ * @author dinstone
+ *
+ */
 public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     private static final int DEFAULT_CONNECT_RETRY = 2;
@@ -42,8 +48,6 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
     private LocateFactory locateFactory = new DefaultLocateFactory();
 
     private InetSocketAddress consumerAddress;
-
-    private String compressorId;
 
     public ConnectOptions getConnectOptions() {
         return connectOptions;
@@ -88,15 +92,6 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
 
     public ClientOptions setConnectPoolSize(int connectPoolSize) {
         this.connectPoolSize = connectPoolSize;
-        return this;
-    }
-
-    public String getCompressorId() {
-        return compressorId;
-    }
-
-    public ClientOptions setCompressorId(String compressorId) {
-        this.compressorId = compressorId;
         return this;
     }
 

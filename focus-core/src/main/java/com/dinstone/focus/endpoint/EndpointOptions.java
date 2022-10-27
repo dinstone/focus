@@ -24,9 +24,15 @@ import com.dinstone.focus.filter.Filter;
 @SuppressWarnings("unchecked")
 public class EndpointOptions<T extends EndpointOptions<T>> {
 
+    public static final String DEFAULT_SERIALIZER_ID = "jackson";
+
     private String endpoint;
 
     private int compressThreshold = 10240;
+
+    private String compressorId;
+
+    private String serializerId = DEFAULT_SERIALIZER_ID;
 
     private ClutchOptions clutchOptions;
 
@@ -69,6 +75,24 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     public T setCompressThreshold(int compressThreshold) {
         this.compressThreshold = compressThreshold;
+        return (T) this;
+    }
+
+    public String getCompressorId() {
+        return compressorId;
+    }
+
+    public T setCompressorId(String compressorId) {
+        this.compressorId = compressorId;
+        return (T) this;
+    }
+
+    public String getSerializerId() {
+        return serializerId;
+    }
+
+    public T setSerializerId(String serializerId) {
+        this.serializerId = serializerId;
         return (T) this;
     }
 

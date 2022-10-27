@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.invoke.InvokeHandler;
 
 /**
@@ -49,6 +50,8 @@ public class ServiceConfig {
     private String compressorId;
 
     private InvokeHandler handler;
+
+    private ProtocolCodec protocolCodec;
 
     public ServiceConfig() {
     }
@@ -156,6 +159,14 @@ public class ServiceConfig {
 
     public MethodConfig getMethodConfig(String methodName) {
         return methodConfigs.get(methodName);
+    }
+
+    public void setProtocolCodec(ProtocolCodec protocolCodec) {
+        this.protocolCodec = protocolCodec;
+    }
+
+    public ProtocolCodec getProtocolCodec() {
+        return protocolCodec;
     }
 
 }

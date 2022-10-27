@@ -16,11 +16,20 @@
 package com.dinstone.focus.serialize;
 
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SerializerFactory {
 
     private static final Map<String, Serializer> SERIALIZER_MAP = new ConcurrentHashMap<>();
+
+    static {
+        // init serializer
+        ServiceLoader<SerializerFactory> sfLoader = ServiceLoader.load(SerializerFactory.class);
+        for (SerializerFactory serializerFactory : sfLoader) {
+            SerializerFactory.regist(serializerFactory.create());
+        }
+    }
 
     public static Serializer lookup(String serializerId) {
         if (serializerId != null) {
@@ -34,4 +43,5 @@ public abstract class SerializerFactory {
     }
 
     public abstract Serializer create();
+
 }

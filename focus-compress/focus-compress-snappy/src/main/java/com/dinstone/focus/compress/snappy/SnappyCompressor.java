@@ -25,12 +25,6 @@ public class SnappyCompressor implements Compressor {
 
     public static final String COMPRESSOR_ID = "snappy";
 
-    private int threshold;
-
-    public SnappyCompressor(int threshold) {
-        this.threshold = threshold;
-    }
-
     @Override
     public byte[] encode(byte[] data) throws IOException {
         return Snappy.compress(data);
@@ -44,11 +38,6 @@ public class SnappyCompressor implements Compressor {
     @Override
     public String compressorId() {
         return COMPRESSOR_ID;
-    }
-
-    @Override
-    public boolean enable(byte[] data) {
-        return data != null && data.length > threshold;
     }
 
 }

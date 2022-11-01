@@ -15,9 +15,6 @@
  */
 package com.dinstone.focus.exception;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
-
 /**
  * invoke exception
  *
@@ -30,25 +27,14 @@ public class InvokeException extends FocusException {
 
     private int code;
 
-    private String detail;
-
     public InvokeException(int code, String message) {
         super(message);
         this.code = code;
     }
 
     public InvokeException(int code, Throwable cause) {
-        super(null, cause, false, false);
+        super(cause.getMessage(), cause, false, false);
         this.code = code;
-        if (cause != null) {
-            this.detail = ExceptionUtil.getStackTrace(cause);
-        }
-    }
-
-    public InvokeException(int code, String message, String detail) {
-        super(message, null, false, false);
-        this.code = code;
-        this.detail = detail;
     }
 
     /**
@@ -69,30 +55,6 @@ public class InvokeException extends FocusException {
             return msg;
         }
         return ExceptionUtil.getMessage(getCause());
-    }
-
-    public String getDetail() {
-        return detail;
-    }
-
-    @Override
-    public void printStackTrace(PrintStream s) {
-        if (detail != null) {
-            s.println(this);
-            s.print("Caused by: " + detail);
-        } else {
-            super.printStackTrace(s);
-        }
-    }
-
-    @Override
-    public void printStackTrace(PrintWriter s) {
-        if (detail != null) {
-            s.println(this);
-            s.print(detail);
-        } else {
-            super.printStackTrace(s);
-        }
     }
 
     @Override

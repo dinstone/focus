@@ -139,7 +139,7 @@ public class FocusClient implements ServiceConsumer {
             serializer = SerializerFactory.lookup(clientOptions.getSerializerId());
         }
         if (serializer == null) {
-            throw new IllegalArgumentException("please configure the correct serializer id");
+            throw new IllegalArgumentException("please configure the correct serializer");
         }
 
         Compressor compressor = CompressorFactory.lookup(importOptions.getCompressorId());

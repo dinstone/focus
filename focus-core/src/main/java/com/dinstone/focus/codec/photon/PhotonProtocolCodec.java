@@ -22,7 +22,6 @@ import java.io.IOException;
 import com.dinstone.focus.codec.CodecException;
 import com.dinstone.focus.codec.ProtocolCodec;
 import com.dinstone.focus.compress.Compressor;
-import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
@@ -109,11 +108,6 @@ public class PhotonProtocolCodec implements ProtocolCodec {
             ByteArrayOutputStream bao = new ByteArrayOutputStream();
             ByteStreamUtil.writeInt(bao, exception.getCode());
             ByteStreamUtil.writeString(bao, exception.getMessage());
-            if (exception.getDetail() != null) {
-                ByteStreamUtil.writeString(bao, exception.getDetail());
-            } else if (exception.getCause() != null) {
-                ByteStreamUtil.writeString(bao, ExceptionUtil.getStackTrace(exception.getCause()));
-            }
             return bao.toByteArray();
         } catch (IOException e) {
         }
@@ -126,8 +120,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
                 ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
                 int code = ByteStreamUtil.readInt(bai);
                 String message = ByteStreamUtil.readString(bai);
-                String details = ByteStreamUtil.readString(bai);
-                return new InvokeException(code, message, details);
+                return new InvokeException(code, message);
             }
             return new InvokeException(99, "unkown exception");
         } catch (IOException e) {
@@ -149,15 +142,11 @@ public class PhotonProtocolCodec implements ProtocolCodec {
             }
         }
 
-        String sid = headers.get(Serializer.HEADER_KEY);
-        if (serializer.serializerId().equals(sid)) {
-            try {
-                return serializer.decode(content, contentType);
-            } catch (IOException e) {
-                throw new CodecException("serialize decode error", e);
-            }
+        try {
+            return serializer.decode(content, contentType);
+        } catch (IOException e) {
+            throw new CodecException("serialize decode error", e);
         }
-        throw new CodecException("can't not find serializer : " + sid);
     }
 
     private byte[] encodeContent(Attach attach, Object content, Class<?> contentType) {

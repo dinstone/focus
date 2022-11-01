@@ -95,6 +95,7 @@ public class FocusClientTest {
 
     private static void syncError(final DemoService ds) {
         try {
+            System.out.println("====================");
             ds.hello("");
         } catch (Exception e) {
             e.printStackTrace();

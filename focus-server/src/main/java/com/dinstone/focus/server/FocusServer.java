@@ -68,11 +68,9 @@ public class FocusServer implements ServiceProvider {
         this.implementBinding = new ImplementBinding(clutchOptions, serviceAddress);
 
         // init acceptor
-        this.acceptor = createAcceptor(serverOptions, implementBinding);
-
-        LOG.info("focus server startup, {}", serviceAddress);
         try {
-            acceptor.bind(serviceAddress);
+            this.acceptor = createAcceptor(serverOptions, implementBinding);
+            this.acceptor.bind(serviceAddress);
 
             LOG.info("focus server started, {}", serviceAddress);
         } catch (Exception e) {
@@ -138,7 +136,7 @@ public class FocusServer implements ServiceProvider {
             serializer = SerializerFactory.lookup(serverOptions.getSerializerId());
         }
         if (serializer == null) {
-            throw new IllegalArgumentException("please configure the correct serializer id");
+            throw new IllegalArgumentException("please configure the correct serializer");
         }
 
         Compressor compressor = CompressorFactory.lookup(exportOptions.getCompressorId());

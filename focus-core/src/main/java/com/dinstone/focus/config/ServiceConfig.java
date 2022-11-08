@@ -16,6 +16,7 @@
 package com.dinstone.focus.config;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +32,9 @@ import com.dinstone.focus.invoke.InvokeHandler;
  */
 public class ServiceConfig {
 
-    private Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<String, MethodConfig>();
+    private static final String DEFAULT_SERVICE_GROUP = "";
+
+    private Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
 
     private String endpoint;
 
@@ -45,15 +48,12 @@ public class ServiceConfig {
 
     private Object target;
 
-    private String serializerId;
-
-    private String compressorId;
-
     private InvokeHandler handler;
 
     private ProtocolCodec protocolCodec;
 
     public ServiceConfig() {
+        this.group = DEFAULT_SERVICE_GROUP;
     }
 
     public String getService() {
@@ -69,7 +69,9 @@ public class ServiceConfig {
     }
 
     public void setGroup(String group) {
-        this.group = group;
+        if (group != null && group.length() > 0) {
+            this.group = group;
+        }
     }
 
     public int getTimeout() {
@@ -112,32 +114,20 @@ public class ServiceConfig {
         this.endpoint = endpoint;
     }
 
-    public String getSerializerId() {
-        return serializerId;
-    }
-
-    public void setSerializerId(String serializerId) {
-        this.serializerId = serializerId;
-    }
-
-    public String getCompressorId() {
-        return compressorId;
-    }
-
-    public void setCompressorId(String compressorId) {
-        this.compressorId = compressorId;
-    }
-
     public void parseMethod(Method... methods) {
         for (Method method : methods) {
+            // public check
+            if (!Modifier.isPublic(method.getModifiers())) {
+                continue;
+            }
             // overload check
             if (methodConfigs.containsKey(method.getName())) {
-                throw new IllegalStateException("unsupported method overload : " + method);
+                throw new IllegalStateException("method overload unsupported : " + method);
             }
             // parameter check
             Class<?> paramType = null;
             if (method.getParameterTypes().length > 1) {
-                throw new IllegalArgumentException("call only support one parameter : " + method);
+                throw new IllegalArgumentException("only support one parameter : " + method);
             } else if (method.getParameterTypes().length == 1) {
                 paramType = method.getParameterTypes()[0];
             }

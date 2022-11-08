@@ -31,15 +31,15 @@ public abstract class SerializerFactory {
         }
     }
 
-    public static Serializer lookup(String serializerId) {
-        if (serializerId != null) {
-            return SERIALIZER_MAP.get(serializerId);
+    public static Serializer lookup(String serializerType) {
+        if (serializerType != null) {
+            return SERIALIZER_MAP.get(serializerType);
         }
         return null;
     }
 
     public static void regist(Serializer serializer) {
-        SERIALIZER_MAP.put(serializer.serializerId(), serializer);
+        SERIALIZER_MAP.put(serializer.serializerType(), serializer);
     }
 
     public abstract Serializer create();

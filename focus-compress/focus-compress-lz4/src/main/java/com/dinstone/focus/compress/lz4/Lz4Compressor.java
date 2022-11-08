@@ -29,7 +29,7 @@ import net.jpountz.lz4.LZ4FastDecompressor;
 
 public class Lz4Compressor implements Compressor {
 
-    public static final String COMPRESSOR_ID = "lz4";
+    public static final String COMPRESSOR_TYPE = "lz4";
 
     private LZ4FastDecompressor decompressor;
     private LZ4Compressor compressor;
@@ -41,8 +41,8 @@ public class Lz4Compressor implements Compressor {
     }
 
     @Override
-    public String compressorId() {
-        return COMPRESSOR_ID;
+    public String compressorType() {
+        return COMPRESSOR_TYPE;
     }
 
     @Override

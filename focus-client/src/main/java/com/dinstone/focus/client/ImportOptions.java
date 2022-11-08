@@ -25,8 +25,6 @@ import java.util.List;
  */
 public class ImportOptions {
 
-    private static final String DEFAULT_SERVICE_GROUP = "";
-
     public static final int DEFAULT_INVOKE_TIMEOUT = 3000;
 
     public static final int DEFAULT_INVOKE_RETRY = 0;
@@ -39,9 +37,9 @@ public class ImportOptions {
 
     private int retry;
 
-    private String serializerId;
+    private String serializerType;
 
-    private String compressorId;
+    private String compressorType;
 
     private int compressThreshold;
 
@@ -53,11 +51,7 @@ public class ImportOptions {
 
     public ImportOptions(String service, String group) {
         this.service = service;
-        if (group != null && group.length() > 0) {
-            this.group = group;
-        } else {
-            this.group = DEFAULT_SERVICE_GROUP;
-        }
+        this.group = group;
 
         this.retry = DEFAULT_INVOKE_RETRY;
         this.timeout = DEFAULT_INVOKE_TIMEOUT;
@@ -91,21 +85,21 @@ public class ImportOptions {
         return this;
     }
 
-    public String getSerializerId() {
-        return serializerId;
+    public String getSerializerType() {
+        return serializerType;
     }
 
-    public ImportOptions setSerializerId(String serializerId) {
-        this.serializerId = serializerId;
+    public ImportOptions setSerializerType(String serializerType) {
+        this.serializerType = serializerType;
         return this;
     }
 
-    public String getCompressorId() {
-        return compressorId;
+    public String getCompressorType() {
+        return compressorType;
     }
 
-    public ImportOptions setCompressorId(String compressorId) {
-        this.compressorId = compressorId;
+    public ImportOptions setCompressorType(String compressorType) {
+        this.compressorType = compressorType;
         return this;
     }
 

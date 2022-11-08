@@ -42,32 +42,33 @@ public final class FocusProcessor extends MessageProcessor {
     public FocusProcessor(ImplementBinding implementBinding, ExecutorSelector executorSelector) {
         this.implementBinding = implementBinding;
         this.executorSelector = executorSelector;
-        this.errorCodec = new PhotonProtocolCodec(null, null, 0);
+        this.errorCodec = protocolCodec();
+    }
+
+    private PhotonProtocolCodec protocolCodec() {
+        return new PhotonProtocolCodec(null, null, 0);
     }
 
     @Override
-    public void process(Connection connection, Request msg) {
-        if (msg instanceof Request) {
-            Executor executor = null;
-            Request request = (Request) msg;
-            if (executorSelector != null) {
-                Headers headers = request.headers();
-                String g = headers.get(Call.GROUP_KEY);
-                String s = headers.get(Call.SERVICE_KEY);
-                String m = headers.get(Call.METHOD_KEY);
-                executor = executorSelector.select(g, s, m);
-            }
-            if (executor != null) {
-                executor.execute(new Runnable() {
+    public void process(Connection connection, Request request) {
+        Executor executor = null;
+        if (executorSelector != null) {
+            Headers headers = request.headers();
+            String g = headers.get(Call.GROUP_KEY);
+            String s = headers.get(Call.SERVICE_KEY);
+            String m = headers.get(Call.METHOD_KEY);
+            executor = executorSelector.select(g, s, m);
+        }
+        if (executor != null) {
+            executor.execute(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        invoke(connection, request);
-                    }
-                });
-            } else {
-                invoke(connection, request);
-            }
+                @Override
+                public void run() {
+                    invoke(connection, request);
+                }
+            });
+        } else {
+            invoke(connection, request);
         }
     }
 
@@ -101,7 +102,6 @@ public final class FocusProcessor extends MessageProcessor {
 
             // invoke call
             CompletableFuture<Reply> replyFuture = config.getHandler().invoke(call);
-
             replyFuture.whenComplete((reply, error) -> {
                 if (error != null) {
                     errorHandle(connection, request, error);

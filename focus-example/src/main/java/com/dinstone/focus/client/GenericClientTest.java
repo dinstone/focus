@@ -31,7 +31,7 @@ public class GenericClientTest {
 
     public static void main(String[] args) {
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-                .setConnectOptions(new ConnectOptions()).setCompressorId(SnappyCompressor.COMPRESSOR_ID);
+                .setConnectOptions(new ConnectOptions()).setCompressorType(SnappyCompressor.COMPRESSOR_TYPE);
         FocusClient client = new FocusClient(option);
 
         LOG.info("init end");

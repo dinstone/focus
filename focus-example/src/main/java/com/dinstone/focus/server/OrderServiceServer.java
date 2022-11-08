@@ -23,7 +23,7 @@ import com.dinstone.focus.client.ImportOptions;
 import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.StoreService;
-import com.dinstone.focus.example.UserService;
+import com.dinstone.focus.example.UserCheckService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.focus.tracing.TracingFilter;
@@ -71,7 +71,7 @@ public class OrderServiceServer {
         serverOptions.addFilter(tf);
         FocusServer server = new FocusServer(serverOptions);
 
-        UserService userService = createUserServiceRpc(tracing);
+        UserCheckService userService = createUserServiceRpc(tracing);
         StoreService storeService = createStoreServiceRpc(tracing);
         OrderService orderService = new OrderServiceImpl(userService, storeService);
 
@@ -90,7 +90,7 @@ public class OrderServiceServer {
         return client.importing(StoreService.class);
     }
 
-    private static UserService createUserServiceRpc(Tracing tracing) {
+    private static UserCheckService createUserServiceRpc(Tracing tracing) {
         ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
@@ -98,9 +98,9 @@ public class OrderServiceServer {
                 .addFilter(tf);
         FocusClient client = new FocusClient(option);
 
-        ImportOptions ro = new ImportOptions(UserService.class.getName())
-                .setSerializerId(ProtobufSerializer.SERIALIZER_ID);
-        return client.importing(UserService.class, ro);
+        ImportOptions ro = new ImportOptions(UserCheckService.class.getName())
+                .setSerializerType(ProtobufSerializer.SERIALIZER_TYPE);
+        return client.importing(UserCheckService.class, ro);
     }
 
 }

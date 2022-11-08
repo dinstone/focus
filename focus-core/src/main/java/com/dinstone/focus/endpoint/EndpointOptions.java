@@ -24,22 +24,25 @@ import com.dinstone.focus.filter.Filter;
 @SuppressWarnings("unchecked")
 public class EndpointOptions<T extends EndpointOptions<T>> {
 
-    public static final String DEFAULT_SERIALIZER_ID = "jackson";
+    public static final String DEFAULT_SERIALIZER_Type = "json";
+
+    private static final int DEFAULT_COMPRESS_THRESHOLD = 10240;
 
     private String endpoint;
 
-    private int compressThreshold = 10240;
+    private String serializerType;
 
-    private String compressorId;
+    private String compressorType;
 
-    private String serializerId = DEFAULT_SERIALIZER_ID;
+    private int compressThreshold;
 
     private ClutchOptions clutchOptions;
 
     private List<Filter> filters = new ArrayList<Filter>();
 
     public EndpointOptions() {
-        super();
+        compressThreshold = DEFAULT_COMPRESS_THRESHOLD;
+        serializerType = DEFAULT_SERIALIZER_Type;
     }
 
     public String getEndpoint() {
@@ -78,21 +81,21 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
         return (T) this;
     }
 
-    public String getCompressorId() {
-        return compressorId;
+    public String getSerializerType() {
+        return serializerType;
     }
 
-    public T setCompressorId(String compressorId) {
-        this.compressorId = compressorId;
+    public T setSerializerType(String serializerType) {
+        this.serializerType = serializerType;
         return (T) this;
     }
 
-    public String getSerializerId() {
-        return serializerId;
+    public String getCompressorType() {
+        return compressorType;
     }
 
-    public T setSerializerId(String serializerId) {
-        this.serializerId = serializerId;
+    public T setCompressorType(String compressorType) {
+        this.compressorType = compressorType;
         return (T) this;
     }
 

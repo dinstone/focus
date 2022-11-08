@@ -25,11 +25,11 @@ import com.dinstone.focus.compress.Compressor;
 
 public class GzipCompressor implements Compressor {
 
-    public static final String COMPRESSOR_ID = "gzip";
+    public static final String COMPRESSOR_TYPE = "gzip";
 
     @Override
-    public String compressorId() {
-        return COMPRESSOR_ID;
+    public String compressorType() {
+        return COMPRESSOR_TYPE;
     }
 
     @Override

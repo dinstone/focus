@@ -15,13 +15,17 @@
  */
 package com.dinstone.focus.example;
 
-public interface UserService {
-    public boolean existUser(String email);
+import com.dinstone.focus.protobuf.ArithRequest;
+import com.dinstone.focus.protobuf.ArithResponse;
 
-    public boolean createUser(User user);
+public interface ArithService {
 
-    public User getUser(long id);
+    ArithResponse Add(ArithRequest request);
 
-    public Page<User> listUser(int pageNo);
+    ArithResponse Sub(ArithRequest request);
+
+    ArithResponse Mul(ArithRequest request);
+
+    ArithResponse Div(ArithRequest request);
 
 }

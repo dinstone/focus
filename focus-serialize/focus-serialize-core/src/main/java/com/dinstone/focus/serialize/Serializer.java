@@ -19,14 +19,14 @@ import java.io.IOException;
 
 public interface Serializer {
 
-    public static final String HEADER_KEY = "content.serializer";
+    public static final String TYPE_KEY = "serializer.type";
 
     /**
-     * The Serializer ID
+     * The serializer type
      *
      * @return
      */
-    public String serializerId();
+    public String serializerType();
 
     public byte[] encode(Object content, Class<?> contentType) throws IOException;
 

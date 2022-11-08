@@ -30,15 +30,15 @@ public abstract class CompressorFactory {
         }
     }
 
-    public static Compressor lookup(String compressId) {
-        if (compressId != null) {
-            return COMPRESSOR_MAP.get(compressId);
+    public static Compressor lookup(String compressType) {
+        if (compressType != null) {
+            return COMPRESSOR_MAP.get(compressType);
         }
         return null;
     }
 
     public static void regist(Compressor compress) {
-        COMPRESSOR_MAP.put(compress.compressorId(), compress);
+        COMPRESSOR_MAP.put(compress.compressorType(), compress);
     }
 
     public abstract Compressor create();

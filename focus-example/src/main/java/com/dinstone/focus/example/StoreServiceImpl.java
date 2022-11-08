@@ -23,9 +23,9 @@ public class StoreServiceImpl implements StoreService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-    private UserService userService;
+    private UserCheckService userService;
 
-    public StoreServiceImpl(UserService userService) {
+    public StoreServiceImpl(UserCheckService userService) {
         super();
         this.userService = userService;
     }

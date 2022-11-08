@@ -15,13 +15,11 @@
  */
 package com.dinstone.focus.example;
 
-public interface UserService {
-    public boolean existUser(String email);
+import com.dinstone.focus.protobuf.UserCheckRequest;
+import com.dinstone.focus.protobuf.UserCheckResponse;
 
-    public boolean createUser(User user);
+public interface UserCheckService {
 
-    public User getUser(long id);
-
-    public Page<User> listUser(int pageNo);
+    UserCheckResponse checkExist(UserCheckRequest request);
 
 }

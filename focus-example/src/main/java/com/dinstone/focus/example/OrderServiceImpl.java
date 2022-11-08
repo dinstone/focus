@@ -23,11 +23,11 @@ public class OrderServiceImpl implements OrderService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-    private UserService userService;
+    private UserCheckService userService;
 
     private StoreService storeService;
 
-    public OrderServiceImpl(UserService userService, StoreService storeService) {
+    public OrderServiceImpl(UserCheckService userService, StoreService storeService) {
         super();
         this.userService = userService;
         this.storeService = storeService;

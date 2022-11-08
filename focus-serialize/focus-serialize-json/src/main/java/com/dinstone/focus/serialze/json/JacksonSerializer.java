@@ -22,15 +22,18 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class JacksonSerializer implements Serializer {
 
-    public static final String SERIALIZER_ID = "jackson";
+    public static final String SERIALIZER_TYPE = "json";
 
     private ObjectMapper objectMapper;
 
     public JacksonSerializer() {
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator());
 
         // JSON configuration not to serialize null field
@@ -44,8 +47,8 @@ public class JacksonSerializer implements Serializer {
     }
 
     @Override
-    public String serializerId() {
-        return SERIALIZER_ID;
+    public String serializerType() {
+        return SERIALIZER_TYPE;
     }
 
     @Override

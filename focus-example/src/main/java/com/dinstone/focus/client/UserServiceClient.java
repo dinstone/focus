@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.example.UserService;
+import com.dinstone.focus.example.UserCheckService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.protobuf.UserCheckRequest;
 import com.dinstone.focus.protobuf.UserCheckResponse;
@@ -50,9 +50,9 @@ public class UserServiceClient {
                 .addFilter(tf);
         FocusClient client = new FocusClient(option);
 
-        ImportOptions ro = new ImportOptions(UserService.class.getName())
-                .setSerializerId(ProtobufSerializer.SERIALIZER_ID);
-        final UserService ds = client.importing(UserService.class, ro);
+        ImportOptions ro = new ImportOptions(UserCheckService.class.getName())
+                .setSerializerType(ProtobufSerializer.SERIALIZER_TYPE);
+        final UserCheckService ds = client.importing(UserCheckService.class, ro);
 
         try {
             UserCheckRequest ucr = UserCheckRequest.newBuilder().setUserId("dinstone").build();

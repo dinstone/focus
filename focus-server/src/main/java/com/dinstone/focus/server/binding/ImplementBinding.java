@@ -60,6 +60,9 @@ public class ImplementBinding {
     }
 
     public ServiceConfig lookup(String service, String group) {
+        if (group == null) {
+            group = "";
+        }
         String serviceId = service + "-" + group;
         return serviceConfigMap.get(serviceId);
     }

@@ -17,8 +17,8 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.focus.example.UserService;
-import com.dinstone.focus.example.UserServiceImpl;
+import com.dinstone.focus.example.UserCheckService;
+import com.dinstone.focus.example.UserCheckServiceImpl;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
@@ -63,7 +63,7 @@ public class UserServiceServer {
         serverOptions.listen("localhost", 3301);
         serverOptions.addFilter(tf);
         FocusServer server = new FocusServer(serverOptions);
-        server.exporting(UserService.class, new UserServiceImpl());
+        server.exporting(UserCheckService.class, new UserCheckServiceImpl());
 
         return server;
     }

@@ -23,7 +23,7 @@ import com.dinstone.focus.compress.Compressor;
 
 public class SnappyCompressor implements Compressor {
 
-    public static final String COMPRESSOR_ID = "snappy";
+    public static final String COMPRESSOR_TYPE = "snappy";
 
     @Override
     public byte[] encode(byte[] data) throws IOException {
@@ -36,8 +36,8 @@ public class SnappyCompressor implements Compressor {
     }
 
     @Override
-    public String compressorId() {
-        return COMPRESSOR_ID;
+    public String compressorType() {
+        return COMPRESSOR_TYPE;
     }
 
 }

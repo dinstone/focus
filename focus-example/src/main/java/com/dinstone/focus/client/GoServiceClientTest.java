@@ -20,6 +20,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.compress.snappy.SnappyCompressor;
+import com.dinstone.focus.example.ArithService;
+import com.dinstone.focus.protobuf.ArithRequest;
+import com.dinstone.focus.protobuf.ArithResponse;
+import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
@@ -29,15 +33,20 @@ public class GoServiceClientTest {
     private static final Logger LOG = LoggerFactory.getLogger(GoServiceClientTest.class);
 
     public static void main(String[] args) {
-        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 8010)
-                .setConnectOptions(new ConnectOptions()).setCompressorId(SnappyCompressor.COMPRESSOR_ID);
+        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 9010)
+                .setConnectOptions(new ConnectOptions());
         FocusClient client = new FocusClient(option);
 
         LOG.info("init end");
 
         try {
             demoService(client);
+            client.destroy();
 
+            option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 8010)
+                    .setConnectOptions(new ConnectOptions());
+            client = new FocusClient(option);
+            arithService(client);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -46,17 +55,31 @@ public class GoServiceClientTest {
 
     }
 
+    private static void arithService(FocusClient client) {
+        ArithService as = client.importing(ArithService.class,
+                new ImportOptions("ArithService").setSerializerType(ProtobufSerializer.SERIALIZER_TYPE));
+
+        ArithRequest request = ArithRequest.newBuilder().setA(20).setB(34).build();
+        ArithResponse response = as.Add(request);
+
+        System.out.println(response.getC());
+    }
+
     private static void demoService(FocusClient client) throws Exception {
         GenericService gs = client.generic("TestService", "", 30000);
         Map<String, Object> parameter = new HashMap<>();
         parameter.put("A", 20);
         parameter.put("B", 5);
 
-        CompletableFuture<HashMap> future = gs.async("Add", parameter);
+        CompletableFuture<HashMap> future = gs.async("Sub", parameter);
         future.thenAccept(s -> {
             LOG.info("accept result =  " + s);
         });
         LOG.info("future result =  " + future.get());
+
+        parameter.put("A", 20);
+        parameter.put("B", 5);
+        gs.sync("Div", parameter);
     }
 
 }

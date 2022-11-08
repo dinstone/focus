@@ -105,10 +105,10 @@ public class FocusClient implements ServiceConsumer {
 
         // handle
         if (serviceClass.equals(GenericService.class)) {
-            importOptions.setSerializerId(EndpointOptions.DEFAULT_SERIALIZER_ID);
+            importOptions.setSerializerType(EndpointOptions.DEFAULT_SERIALIZER_Type);
         } else {
             // parse method info and set invoke config
-            serviceConfig.parseMethod(serviceClass.getDeclaredMethods());
+            serviceConfig.parseMethod(serviceClass.getMethods());
             List<InvokeOptions> iol = importOptions.getInvokeOptions();
             if (iol != null) {
                 for (InvokeOptions io : iol) {
@@ -134,17 +134,17 @@ public class FocusClient implements ServiceConsumer {
     }
 
     private ProtocolCodec protocolCodec(ClientOptions clientOptions, ImportOptions importOptions) {
-        Serializer serializer = SerializerFactory.lookup(importOptions.getSerializerId());
+        Serializer serializer = SerializerFactory.lookup(importOptions.getSerializerType());
         if (serializer == null) {
-            serializer = SerializerFactory.lookup(clientOptions.getSerializerId());
+            serializer = SerializerFactory.lookup(clientOptions.getSerializerType());
         }
         if (serializer == null) {
             throw new IllegalArgumentException("please configure the correct serializer");
         }
 
-        Compressor compressor = CompressorFactory.lookup(importOptions.getCompressorId());
+        Compressor compressor = CompressorFactory.lookup(importOptions.getCompressorType());
         if (compressor == null) {
-            compressor = CompressorFactory.lookup(clientOptions.getCompressorId());
+            compressor = CompressorFactory.lookup(clientOptions.getCompressorType());
         }
         int compressThreshold = importOptions.getCompressThreshold();
         if (compressThreshold <= 0) {

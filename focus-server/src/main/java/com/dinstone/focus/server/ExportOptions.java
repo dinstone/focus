@@ -17,10 +17,6 @@ package com.dinstone.focus.server;
 
 public class ExportOptions {
 
-    private static final String DEFAULT_SERIALIZER_ID = "jackson";
-
-    private static final String DEFAULT_SERVICE_GROUP = "";
-
     private static final int DEFAULT_INVOKE_TIMEOUT = 3000;
 
     private String service;
@@ -29,9 +25,9 @@ public class ExportOptions {
 
     private int timeout;
 
-    private String serializerId;
+    private String serializerType;
 
-    private String compressorId;
+    private String compressorType;
 
     private int compressThreshold;
 
@@ -41,14 +37,9 @@ public class ExportOptions {
 
     public ExportOptions(String service, String group) {
         this.service = service;
-        if (group != null && group.length() > 0) {
-            this.group = group;
-        } else {
-            this.group = DEFAULT_SERVICE_GROUP;
-        }
+        this.group = group;
 
         this.timeout = DEFAULT_INVOKE_TIMEOUT;
-        this.serializerId = DEFAULT_SERIALIZER_ID;
     }
 
     public String getService() {
@@ -68,21 +59,21 @@ public class ExportOptions {
         return this;
     }
 
-    public String getSerializerId() {
-        return serializerId;
+    public String getSerializerType() {
+        return serializerType;
     }
 
-    public ExportOptions setSerializerId(String serializerId) {
-        this.serializerId = serializerId;
+    public ExportOptions setSerializerType(String serializerType) {
+        this.serializerType = serializerType;
         return this;
     }
 
-    public String getCompressorId() {
-        return compressorId;
+    public String getCompressorType() {
+        return compressorType;
     }
 
-    public ExportOptions setCompressorId(String compressorId) {
-        this.compressorId = compressorId;
+    public ExportOptions setCompressorType(String compressorType) {
+        this.compressorType = compressorType;
         return this;
     }
 
@@ -90,8 +81,9 @@ public class ExportOptions {
         return compressThreshold;
     }
 
-    public void setCompressThreshold(int compressThreshold) {
+    public ExportOptions setCompressThreshold(int compressThreshold) {
         this.compressThreshold = compressThreshold;
+        return this;
     }
 
 }

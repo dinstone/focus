@@ -21,6 +21,9 @@ import java.util.concurrent.Future;
 
 import com.dinstone.focus.example.AuthenCheck;
 import com.dinstone.focus.example.DemoService;
+import com.dinstone.focus.example.Page;
+import com.dinstone.focus.example.User;
+import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
@@ -56,17 +59,22 @@ public class FocusClientTest {
         LOG.info("init end");
 
         try {
+            UserService us = client.importing(UserService.class);
+            Page<User> ps = us.listUser(1);
+            System.out.println(ps);
+
+            User u = us.getUser(10);
+            System.out.println(u);
+
             AuthenCheck ac = client.importing(AuthenCheck.class, new ImportOptions("AuthenService").setTimeout(2000));
             asyncError(ac);
-
-            DemoService ds = client.importing(DemoService.class);
-            syncError(ds);
 
             asyncExecute(ac, "async hot: ");
             asyncExecute(ac, "async exe: ");
 
+            DemoService ds = client.importing(DemoService.class);
+            syncError(ds);
             conparal(ds);
-
             execute(ds, "sync hot: ");
             execute(ds, "sync exe: ");
         } finally {

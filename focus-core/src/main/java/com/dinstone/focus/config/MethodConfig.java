@@ -49,6 +49,8 @@ public class MethodConfig {
             if (rawType.equals(CompletableFuture.class) || rawType.equals(Future.class)) {
                 returnType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                 asyncInvoke = true;
+            } else {
+                returnType = method.getReturnType();
             }
         } else {
             returnType = method.getReturnType();

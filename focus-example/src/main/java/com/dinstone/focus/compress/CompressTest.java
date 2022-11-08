@@ -58,13 +58,13 @@ public class CompressTest {
 
         String data = generateString1(1024 * 10);
 
-        Compressor snac = CompressorFactory.lookup(SnappyCompressor.COMPRESSOR_ID);
+        Compressor snac = CompressorFactory.lookup(SnappyCompressor.COMPRESSOR_TYPE);
         compress(snac, data);
 
-        Compressor lz4c = CompressorFactory.lookup(Lz4Compressor.COMPRESSOR_ID);
+        Compressor lz4c = CompressorFactory.lookup(Lz4Compressor.COMPRESSOR_TYPE);
         compress(lz4c, data);
 
-        Compressor gzip = CompressorFactory.lookup(GzipCompressor.COMPRESSOR_ID);
+        Compressor gzip = CompressorFactory.lookup(GzipCompressor.COMPRESSOR_TYPE);
         compress(gzip, data);
     }
 
@@ -78,7 +78,7 @@ public class CompressTest {
         byte[] uncompressBytes = compress.decode(resultBytes);
         System.out.println("decode after  " + uncompressBytes.length);
         String result = new String(uncompressBytes);
-        System.out.println(compress.compressorId() + " : " + result.equals(data));
+        System.out.println(compress.compressorType() + " : " + result.equals(data));
         System.out.println("===============================");
     }
 

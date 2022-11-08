@@ -47,7 +47,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
 
     @Override
     public Request encode(Call call, Class<?> paramType) throws CodecException {
-        byte[] content = encodeContent(call.attach(), call.getParameter(), paramType);
+        byte[] content = encodeData(call.attach(), call.getParameter(), paramType);
 
         Request request = new Request();
         Headers headers = request.headers();
@@ -64,7 +64,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
     @Override
     public Call decode(Request request, Class<?> paramType) throws CodecException {
         Headers headers = request.headers();
-        Object content = decodeContent(headers, request.getContent(), paramType);
+        Object content = decodeData(headers, request.getContent(), paramType);
         Call call = new Call();
         call.setGroup(headers.get(Call.GROUP_KEY));
         call.setService(headers.get(Call.SERVICE_KEY));
@@ -80,10 +80,10 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         Response response = new Response();
         if (reply.getData() instanceof InvokeException) {
             response.setStatus(Status.FAILURE);
-            response.setContent(encodeException((InvokeException) reply.getData()));
+            response.setContent(encodeError((InvokeException) reply.getData()));
         } else {
             response.setStatus(Status.SUCCESS);
-            response.setContent(encodeContent(reply.attach(), reply.getData(), returnType));
+            response.setContent(encodeData(reply.attach(), reply.getData(), returnType));
         }
         response.headers().setAll(reply.attach());
         return response;
@@ -95,15 +95,15 @@ public class PhotonProtocolCodec implements ProtocolCodec {
 
         Reply reply = new Reply();
         if (response.getStatus() == Status.SUCCESS) {
-            reply.setData(decodeContent(headers, response.getContent(), returnType));
+            reply.setData(decodeData(headers, response.getContent(), returnType));
         } else {
-            reply.setData(decodeException(response.getContent()));
+            reply.setData(decodeError(response.getContent()));
         }
         reply.attach().putAll(headers);
         return reply;
     }
 
-    private byte[] encodeException(InvokeException exception) {
+    private byte[] encodeError(InvokeException exception) {
         try {
             ByteArrayOutputStream bao = new ByteArrayOutputStream();
             ByteStreamUtil.writeInt(bao, exception.getCode());
@@ -114,7 +114,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         return null;
     }
 
-    private InvokeException decodeException(byte[] encoded) {
+    private InvokeException decodeError(byte[] encoded) {
         try {
             if (encoded != null) {
                 ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
@@ -128,13 +128,37 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         }
     }
 
-    private Object decodeContent(Headers headers, byte[] content, Class<?> contentType) {
+    private byte[] encodeData(Attach attach, Object content, Class<?> contentType) {
+        if (content == null) {
+            return null;
+        }
+
+        byte[] cs;
+        try {
+            cs = serializer.encode(content, contentType);
+            attach.put(Serializer.TYPE_KEY, serializer.serializerType());
+        } catch (IOException e) {
+            throw new CodecException("serialize encode error", e);
+        }
+
+        if (compressor != null && cs != null && cs.length > compressThreshold) {
+            try {
+                cs = compressor.encode(cs);
+                attach.put(Compressor.TYPE_KEY, compressor.compressorType());
+            } catch (IOException e) {
+                throw new CodecException("compress encode error", e);
+            }
+        }
+        return cs;
+    }
+
+    private Object decodeData(Headers headers, byte[] content, Class<?> contentType) {
         if (content == null || content.length == 0) {
             return null;
         }
 
-        String cid = headers.get(Compressor.HEADER_KEY);
-        if (compressor != null && compressor.compressorId().equals(cid)) {
+        String compressorType = headers.get(Compressor.TYPE_KEY);
+        if (compressor != null && compressorType != null) {
             try {
                 content = compressor.decode(content);
             } catch (IOException e) {
@@ -147,30 +171,6 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         } catch (IOException e) {
             throw new CodecException("serialize decode error", e);
         }
-    }
-
-    private byte[] encodeContent(Attach attach, Object content, Class<?> contentType) {
-        if (content == null) {
-            return null;
-        }
-
-        byte[] cs;
-        try {
-            cs = serializer.encode(content, contentType);
-            attach.put(Serializer.HEADER_KEY, serializer.serializerId());
-        } catch (IOException e) {
-            throw new CodecException("serialize encode error", e);
-        }
-
-        if (compressor != null && cs != null && cs.length > compressThreshold) {
-            try {
-                cs = compressor.encode(cs);
-                attach.put(Compressor.HEADER_KEY, compressor.compressorId());
-            } catch (IOException e) {
-                throw new CodecException("compress encode error", e);
-            }
-        }
-        return cs;
     }
 
 }

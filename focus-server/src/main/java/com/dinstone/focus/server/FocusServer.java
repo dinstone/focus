@@ -131,17 +131,17 @@ public class FocusServer implements ServiceProvider {
     }
 
     private ProtocolCodec protocolCodec(ServerOptions serverOptions, ExportOptions exportOptions) {
-        Serializer serializer = SerializerFactory.lookup(exportOptions.getSerializerId());
+        Serializer serializer = SerializerFactory.lookup(exportOptions.getSerializerType());
         if (serializer == null) {
-            serializer = SerializerFactory.lookup(serverOptions.getSerializerId());
+            serializer = SerializerFactory.lookup(serverOptions.getSerializerType());
         }
         if (serializer == null) {
             throw new IllegalArgumentException("please configure the correct serializer");
         }
 
-        Compressor compressor = CompressorFactory.lookup(exportOptions.getCompressorId());
+        Compressor compressor = CompressorFactory.lookup(exportOptions.getCompressorType());
         if (compressor == null) {
-            compressor = CompressorFactory.lookup(serverOptions.getCompressorId());
+            compressor = CompressorFactory.lookup(serverOptions.getCompressorType());
         }
         int compressThreshold = exportOptions.getCompressThreshold();
         if (compressThreshold <= 0) {

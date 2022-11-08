@@ -19,7 +19,7 @@ import com.dinstone.focus.protobuf.UserCheckRequest;
 import com.dinstone.focus.protobuf.UserCheckResponse;
 import com.dinstone.focus.protobuf.UserCheckResponse.Builder;
 
-public class UserServiceImpl implements UserService {
+public class UserCheckServiceImpl implements UserCheckService {
 
     @Override
     public UserCheckResponse checkExist(UserCheckRequest request) {

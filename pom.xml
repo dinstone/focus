@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dinstone.focus</groupId>
 	<artifactId>focus-parent</artifactId>
-	<version>0.9.7</version>
+	<version>0.9.8</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2019~2022</inceptionYear>
 	<modules>
@@ -11,11 +11,10 @@
 		<module>focus-server</module>
 		<module>focus-example</module>
 		<module>focus-tracing</module>
-		<module>focus-client-starter</module>
-		<module>focus-server-starter</module>
 		<module>focus-compress</module>
 		<module>focus-serialize</module>
 		<module>focus-clutch</module>
+		<module>focus-starter</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

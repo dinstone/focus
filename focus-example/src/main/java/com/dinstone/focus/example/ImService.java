@@ -17,14 +17,13 @@ package com.dinstone.focus.example;
 
 import java.util.concurrent.Future;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.dinstone.focus.client.annotation.FocusReference;
 
 @Service
 public class ImService {
 
-    @FocusReference(service = "AuthenService")
+    @Autowired
     AuthenCheck check;
 
     public String sayHi(String string) throws Exception {

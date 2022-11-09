@@ -3,13 +3,13 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.7</version>
+		<version>0.9.8</version>
 	</parent>
 	<artifactId>focus-serialize</artifactId>
 	<packaging>pom</packaging>
 	<modules>
+		<module>focus-serialize-core</module>
 		<module>focus-serialize-json</module>
 		<module>focus-serialize-protobuf</module>
-		<module>focus-serialize-core</module>
 	</modules>
 </project>

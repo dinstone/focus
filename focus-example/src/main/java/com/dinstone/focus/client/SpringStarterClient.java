@@ -26,9 +26,9 @@ import org.springframework.context.annotation.ComponentScan;
 import com.dinstone.focus.client.starter.EnableFocusClient;
 import com.dinstone.focus.example.ImService;
 
-@SpringBootApplication
-@EnableFocusClient
 @Configurable
+@SpringBootApplication
+@EnableFocusClient("com.dinstone.focus.example")
 @ComponentScan(basePackages = "com.dinstone.focus.example")
 public class SpringStarterClient {
 

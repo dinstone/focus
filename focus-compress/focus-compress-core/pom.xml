@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-compress</artifactId>
-		<version>0.9.7</version>
+		<version>0.9.8</version>
 	</parent>
 	<artifactId>focus-compress-core</artifactId>
 	<build>

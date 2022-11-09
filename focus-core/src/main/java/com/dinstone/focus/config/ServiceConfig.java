@@ -120,6 +120,10 @@ public class ServiceConfig {
             if (!Modifier.isPublic(method.getModifiers())) {
                 continue;
             }
+            // static check
+            if (Modifier.isStatic(method.getModifiers())) {
+                continue;
+            }
             // overload check
             if (methodConfigs.containsKey(method.getName())) {
                 throw new IllegalStateException("method overload unsupported : " + method);

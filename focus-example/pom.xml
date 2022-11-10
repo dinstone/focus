@@ -47,11 +47,6 @@
 			<artifactId>focus-clutch-consul</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.dinstone.focus</groupId>
-			<artifactId>focus-serialize-protobuf</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>com.dinstone.loghub</groupId>
@@ -101,6 +96,16 @@
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-serialize-json</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-serialize-protobuf</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-serialize-protostuff</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

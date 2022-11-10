@@ -27,7 +27,9 @@ import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.example.UserServiceServerImpl;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
+import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -54,14 +56,23 @@ public class FocusServerTest {
 
         ServerOptions serverOptions = new ServerOptions().listen("localhost", 3333).setEndpoint("focus.example.server")
                 .addFilter(tf);
+        // serverOptions.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
+
         FocusServer server = new FocusServer(serverOptions);
 
         server.exporting(UserService.class, new UserServiceServerImpl());
         server.exporting(DemoService.class, new DemoServiceImpl());
-        server.exporting(OrderService.class, new OrderServiceImpl(null, null));
+
+        // stuff
+        server.exporting(OrderService.class, new OrderServiceImpl(null, null),
+                new ExportOptions(OrderService.class.getName())
+                        .setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE));
+        // json
+        server.exporting(OrderService.class, new OrderServiceImpl(null, null),
+                new ExportOptions("OrderService").setSerializerType(JacksonSerializer.SERIALIZER_TYPE));
+
         // export alias service
         server.exporting(AuthenService.class, new AuthenService(), "AuthenService", null);
-
         server.exporting(ArithService.class, new ArithServiceImpl(),
                 new ExportOptions("ArithService").setSerializerType(ProtobufSerializer.SERIALIZER_TYPE));
 

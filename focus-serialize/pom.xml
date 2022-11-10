@@ -11,5 +11,6 @@
 		<module>focus-serialize-core</module>
 		<module>focus-serialize-json</module>
 		<module>focus-serialize-protobuf</module>
+		<module>focus-serialize-protostuff</module>
 	</modules>
 </project>

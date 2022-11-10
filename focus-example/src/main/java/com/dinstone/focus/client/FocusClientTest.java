@@ -21,10 +21,14 @@ import java.util.concurrent.Future;
 
 import com.dinstone.focus.example.AuthenCheck;
 import com.dinstone.focus.example.DemoService;
+import com.dinstone.focus.example.OrderRequest;
+import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.Page;
 import com.dinstone.focus.example.User;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.serialze.json.JacksonSerializer;
+import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
 import com.dinstone.focus.tracing.TracingFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -54,6 +58,8 @@ public class FocusClientTest {
 
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions()).addFilter(tf);
+        // option.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
+
         FocusClient client = new FocusClient(option);
 
         LOG.info("init end");
@@ -69,14 +75,25 @@ public class FocusClientTest {
             AuthenCheck ac = client.importing(AuthenCheck.class, new ImportOptions("AuthenService").setTimeout(2000));
             asyncError(ac);
 
-            asyncExecute(ac, "async hot: ");
-            asyncExecute(ac, "async exe: ");
+            asyncExecute(ac, "AuthenCheck async hot: ");
+            asyncExecute(ac, "AuthenCheck async exe: ");
 
             DemoService ds = client.importing(DemoService.class);
             syncError(ds);
             conparal(ds);
-            execute(ds, "sync hot: ");
-            execute(ds, "sync exe: ");
+            execute(ds, "DemoService sync hot: ");
+            execute(ds, "DemoService sync exe: ");
+
+            OrderService oc = client.importing(OrderService.class, new ImportOptions(OrderService.class.getName())
+                    .setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE));
+            executeOrderService(oc, "OrderService sync hot: ");
+            executeOrderService(oc, "OrderService sync exe: ");
+
+            oc = client.importing(OrderService.class,
+                    new ImportOptions("OrderService").setSerializerType(JacksonSerializer.SERIALIZER_TYPE));
+            executeOrderService(oc, "OrderService sync hot: ");
+            executeOrderService(oc, "OrderService sync exe: ");
+
         } finally {
             client.destroy();
         }
@@ -85,6 +102,22 @@ public class FocusClientTest {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
+    }
+
+    private static void executeOrderService(OrderService oc, String tag) {
+        int c = 0;
+        long st = System.currentTimeMillis();
+        int loopCount = 100000;
+        while (c < loopCount) {
+            OrderRequest or = new OrderRequest();
+            or.setUid("u-" + c);
+            or.setPoi("p-" + c);
+            or.setSn("s-" + c);
+            oc.findOldOrder(or);
+            c++;
+        }
+        long et = System.currentTimeMillis() - st;
+        System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
     }
 
     private static void asyncExecute(AuthenCheck ac, String tag) throws InterruptedException {

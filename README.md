@@ -8,7 +8,7 @@
 # Features
 ## Design Idea
 * Modular client and server APIs, scalable system architecture, and framework core less than 1 MB in size.
-* Support a variety of serialization protocol at the same time - Jackson and Protobuff
+* Support a variety of serialization protocol at the same time - Jackson、Protobuff、Protostuff
 * Layered architecture, including API layer, Proxy layer, Invoke layer, Protocol layer, Transport layer
 * Pluggable service discovery - registry with [Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch) for Zookeeper, Consul, Nacos
 

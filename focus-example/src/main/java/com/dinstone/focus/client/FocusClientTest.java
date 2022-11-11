@@ -27,20 +27,22 @@ import com.dinstone.focus.example.Page;
 import com.dinstone.focus.example.User;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
-import com.dinstone.focus.tracing.TracingFilter;
+import com.dinstone.focus.telemetry.TelemetryFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
 
-import brave.Span.Kind;
-import brave.Tracing;
-import brave.rpc.RpcTracing;
-import brave.sampler.Sampler;
-import zipkin2.reporter.Sender;
-import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
-import zipkin2.reporter.okhttp3.OkHttpSender;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
 
 public class FocusClientTest {
 
@@ -50,11 +52,23 @@ public class FocusClientTest {
 
         LOG.info("init start");
 
-        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
-                .sampler(Sampler.create(1)).build();
-        Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
+        // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+        // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
+        // Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
+        // .sampler(Sampler.create(1)).build();
+        // Filter tf = new TracingFilter(RpcTracing.create(tracing), Filter.Kind.CLIENT);
+
+        Resource resource = Resource.getDefault()
+                .merge(Resource.create(Attributes.of(AttributeKey.stringKey("endpoint.name"), "focus.example.client")));
+
+        SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
+                // .addSpanProcessor(BatchSpanProcessor.builder(ZipkinSpanExporter.builder().build()).build())
+                .setResource(resource).build();
+
+        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+                .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+                .buildAndRegisterGlobal();
+        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
                 .setConnectOptions(new ConnectOptions()).addFilter(tf);

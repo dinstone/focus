@@ -27,34 +27,39 @@ import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.example.UserServiceServerImpl;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
-import com.dinstone.focus.tracing.TracingFilter;
+import com.dinstone.focus.telemetry.TelemetryFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
-import brave.Span.Kind;
-import brave.Tracing;
-import brave.rpc.RpcTracing;
-import brave.sampler.Sampler;
-import zipkin2.reporter.Sender;
-import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
-import zipkin2.reporter.okhttp3.OkHttpSender;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
 
 public class FocusServerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusServerTest.class);
 
     public static void main(String[] args) {
-        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        Tracing tracing = Tracing.newBuilder().localServiceName("focus.server").sampler(Sampler.create(1))
-                .addSpanHandler(spanHandler).build();
+        // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+        // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
+        // Tracing tracing = Tracing.newBuilder().localServiceName("focus.server").sampler(Sampler.create(1))
+        // .addSpanHandler(spanHandler).build();
+        // final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
+        String serviceName = "focus.example.server";
+        OpenTelemetry openTelemetry = getTelemetry(serviceName);
+        Filter tf = new TelemetryFilter(openTelemetry, Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions().listen("localhost", 3333).setEndpoint("focus.example.server")
+        ServerOptions serverOptions = new ServerOptions().listen("localhost", 3333).setEndpoint(serviceName)
                 .addFilter(tf);
         // serverOptions.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
@@ -86,6 +91,20 @@ public class FocusServerTest {
 
         server.destroy();
         LOG.info("server stop");
+    }
+
+    private static OpenTelemetry getTelemetry(String serviceName) {
+        Resource resource = Resource.getDefault()
+                .merge(Resource.create(Attributes.of(AttributeKey.stringKey("service.name"), serviceName)));
+
+        SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
+                // .addSpanProcessor(BatchSpanProcessor.builder(ZipkinSpanExporter.builder().build()).build())
+                .setResource(resource).build();
+
+        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+                .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+                .buildAndRegisterGlobal();
+        return openTelemetry;
     }
 
 }

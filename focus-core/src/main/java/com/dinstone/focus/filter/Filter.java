@@ -22,6 +22,10 @@ import com.dinstone.focus.protocol.Reply;
 
 public interface Filter {
 
+    public enum Kind {
+        CLIENT, SERVER
+    }
+
     CompletableFuture<Reply> invoke(FilterContext chain, Call call) throws Exception;
 
 }

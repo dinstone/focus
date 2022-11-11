@@ -25,19 +25,23 @@ import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.StoreService;
 import com.dinstone.focus.example.UserCheckService;
 import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
-import com.dinstone.focus.tracing.TracingFilter;
+import com.dinstone.focus.telemetry.TelemetryFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 import com.dinstone.photon.ConnectOptions;
 
-import brave.Span.Kind;
-import brave.Tracing;
-import brave.rpc.RpcTracing;
-import brave.sampler.Sampler;
-import zipkin2.reporter.Sender;
-import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
-import zipkin2.reporter.okhttp3.OkHttpSender;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.exporter.zipkin.ZipkinSpanExporter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 
 public class OrderServiceServer {
 
@@ -59,20 +63,24 @@ public class OrderServiceServer {
     }
 
     private static FocusServer createOrderServiceServer() {
-        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        Tracing tracing = Tracing.newBuilder().localServiceName("order.service").addSpanHandler(spanHandler)
-                .sampler(Sampler.create(1)).build();
+        // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+        // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
+        // Tracing tracing = Tracing.newBuilder().localServiceName("order.service").addSpanHandler(spanHandler)
+        // .sampler(Sampler.create(1)).build();
+        //
+        // final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
+        String serviceName = "order.service";
+        OpenTelemetry openTelemetry = getTelemetry(serviceName);
+        Filter tf = new TelemetryFilter(openTelemetry, Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3303);
+        serverOptions.listen("localhost", 3303).setEndpoint(serviceName);
         serverOptions.addFilter(tf);
         FocusServer server = new FocusServer(serverOptions);
 
-        UserCheckService userService = createUserServiceRpc(tracing);
-        StoreService storeService = createStoreServiceRpc(tracing);
+        UserCheckService userService = createUserServiceRpc(openTelemetry);
+        StoreService storeService = createStoreServiceRpc(openTelemetry);
         OrderService orderService = new OrderServiceImpl(userService, storeService);
 
         server.exporting(OrderService.class, orderService);
@@ -80,9 +88,23 @@ public class OrderServiceServer {
         return server;
     }
 
-    private static StoreService createStoreServiceRpc(Tracing tracing) {
+    private static OpenTelemetry getTelemetry(String serviceName) {
+        Resource resource = Resource.getDefault()
+                .merge(Resource.create(Attributes.of(AttributeKey.stringKey("service.name"), serviceName)));
+
+        SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
+                .addSpanProcessor(BatchSpanProcessor.builder(ZipkinSpanExporter.builder().build()).build())
+                .setResource(resource).build();
+
+        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+                .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+                .buildAndRegisterGlobal();
+        return openTelemetry;
+    }
+
+    private static StoreService createStoreServiceRpc(OpenTelemetry openTelemetry) {
         ConnectOptions connectOptions = new ConnectOptions();
-        Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
+        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().connect("localhost", 3302).setConnectOptions(connectOptions)
                 .addFilter(tf);
@@ -90,9 +112,9 @@ public class OrderServiceServer {
         return client.importing(StoreService.class);
     }
 
-    private static UserCheckService createUserServiceRpc(Tracing tracing) {
+    private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {
         ConnectOptions connectOptions = new ConnectOptions();
-        Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
+        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().connect("localhost", 3301).setConnectOptions(connectOptions)
                 .addFilter(tf);

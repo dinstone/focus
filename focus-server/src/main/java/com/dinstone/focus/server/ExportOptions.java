@@ -15,6 +15,12 @@
  */
 package com.dinstone.focus.server;
 
+/**
+ * service level options
+ * 
+ * @author dinstone
+ *
+ */
 public class ExportOptions {
 
     private static final int DEFAULT_INVOKE_TIMEOUT = 3000;

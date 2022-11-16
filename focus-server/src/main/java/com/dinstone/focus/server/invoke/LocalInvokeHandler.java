@@ -16,11 +16,13 @@
 package com.dinstone.focus.server.invoke;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
@@ -39,10 +41,16 @@ public class LocalInvokeHandler implements InvokeHandler {
         MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
         try {
             Object result = methodConfig.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());
+            if (methodConfig.isAsyncInvoke() && result instanceof Future) {
+                Future<?> future = (Future<?>) result;
+                int invokeTimeout = methodConfig.getInvokeTimeout();
+                result = future.get(invokeTimeout, TimeUnit.MILLISECONDS);
+                return CompletableFuture.completedFuture(new Reply(result));
+            }
             return CompletableFuture.completedFuture(new Reply(result));
         } catch (InvocationTargetException e) {
-            Throwable te = ExceptionUtil.getTargetException(e);
-            if (te instanceof RuntimeException) {
+            Throwable te = e.getTargetException();
+            if (te instanceof UndeclaredThrowableException) {
                 throw new InvokeException(302, te);
             } else {
                 throw new InvokeException(301, te);

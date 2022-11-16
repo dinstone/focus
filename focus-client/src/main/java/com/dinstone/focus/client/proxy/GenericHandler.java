@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import com.dinstone.focus.client.GenericService;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -55,7 +54,7 @@ class GenericHandler implements GenericService {
 
         CompletableFuture<Reply> future = invokeHandler.invoke(call);
 
-        return (R) parseReply(future.get(call.getTimeout(), TimeUnit.MILLISECONDS));
+        return (R) future.get(call.getTimeout(), TimeUnit.MILLISECONDS).getResult();
     }
 
     @Override
@@ -76,7 +75,7 @@ class GenericHandler implements GenericService {
 
         CompletableFuture<Reply> future = invokeHandler.invoke(call);
 
-        return (CompletableFuture<R>) future.thenApply(reply -> parseReply(reply));
+        return (CompletableFuture<R>) future.thenApply(reply -> reply.getResult());
     }
 
     private <P, R> MethodConfig getMethodConfig(Class<R> returnType, String methodName, P parameter) {
@@ -92,12 +91,4 @@ class GenericHandler implements GenericService {
         return methodConfig;
     }
 
-    private Object parseReply(Reply reply) {
-        Object data = reply.getData();
-        if (data instanceof InvokeException) {
-            throw (InvokeException) data;
-        } else {
-            return data;
-        }
-    }
 }

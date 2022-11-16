@@ -38,8 +38,12 @@ public class Reply implements Serializable {
         super();
     }
 
-    public Reply(Object result) {
-        setData(result);
+    public Reply(Object value) {
+        setData(value);
+    }
+
+    public Reply(Throwable error) {
+        setData(error);
     }
 
     /**
@@ -54,13 +58,24 @@ public class Reply implements Serializable {
     /**
      * the data to get
      *
-     * @return the data
-     *
-     * @throws Exception
-     *
+     * @return the result value or error
+     * 
      * @see Reply#data
      */
     public Object getData() {
+        return data;
+    }
+
+    /**
+     * the result to get, maybe throw result error
+     *
+     * @return the result value
+     * 
+     */
+    public Object getResult() {
+        if (isError()) {
+            throw (InvokeException) data;
+        }
         return data;
     }
 
@@ -71,12 +86,24 @@ public class Reply implements Serializable {
      *
      * @see Reply#data
      */
-    public void setData(Object data) {
+    private void setData(Object data) {
         if (data instanceof Throwable && !(data instanceof InvokeException)) {
             this.data = new InvokeException(199, (Throwable) data);
         } else {
             this.data = data;
         }
+    }
+
+    public void value(Object value) {
+        setData(value);
+    }
+
+    public void error(Throwable error) {
+        setData(error);
+    }
+
+    public boolean isError() {
+        return data instanceof InvokeException;
     }
 
 }

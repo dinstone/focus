@@ -47,7 +47,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
 
     @Override
     public Request encode(Call call, Class<?> paramType) throws CodecException {
-        byte[] content = encodeData(call.attach(), call.getParameter(), paramType);
+        byte[] content = encodeValue(call.attach(), call.getParameter(), paramType);
 
         Request request = new Request();
         Headers headers = request.headers();
@@ -64,7 +64,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
     @Override
     public Call decode(Request request, Class<?> paramType) throws CodecException {
         Headers headers = request.headers();
-        Object content = decodeData(headers, request.getContent(), paramType);
+        Object content = decodeValue(headers, request.getContent(), paramType);
         Call call = new Call();
         call.setGroup(headers.get(Call.GROUP_KEY));
         call.setService(headers.get(Call.SERVICE_KEY));
@@ -78,12 +78,12 @@ public class PhotonProtocolCodec implements ProtocolCodec {
     @Override
     public Response encode(Reply reply, Class<?> returnType) throws CodecException {
         Response response = new Response();
-        if (reply.getData() instanceof InvokeException) {
+        if (reply.isError()) {
             response.setStatus(Status.FAILURE);
             response.setContent(encodeError((InvokeException) reply.getData()));
         } else {
             response.setStatus(Status.SUCCESS);
-            response.setContent(encodeData(reply.attach(), reply.getData(), returnType));
+            response.setContent(encodeValue(reply.attach(), reply.getData(), returnType));
         }
         response.headers().setAll(reply.attach());
         return response;
@@ -95,9 +95,9 @@ public class PhotonProtocolCodec implements ProtocolCodec {
 
         Reply reply = new Reply();
         if (response.getStatus() == Status.SUCCESS) {
-            reply.setData(decodeData(headers, response.getContent(), returnType));
+            reply.value(decodeValue(headers, response.getContent(), returnType));
         } else {
-            reply.setData(decodeError(response.getContent()));
+            reply.error(decodeError(response.getContent()));
         }
         reply.attach().putAll(headers);
         return reply;
@@ -128,7 +128,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         }
     }
 
-    private byte[] encodeData(Attach attach, Object content, Class<?> contentType) {
+    private byte[] encodeValue(Attach attach, Object content, Class<?> contentType) {
         if (content == null) {
             return null;
         }
@@ -152,7 +152,7 @@ public class PhotonProtocolCodec implements ProtocolCodec {
         return cs;
     }
 
-    private Object decodeData(Headers headers, byte[] content, Class<?> contentType) {
+    private Object decodeValue(Headers headers, byte[] content, Class<?> contentType) {
         if (content == null || content.length == 0) {
             return null;
         }

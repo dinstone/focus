@@ -34,18 +34,18 @@ The quick start gives a basic example of running client and server on the same m
 ```xml
 <dependency>
 	<groupId>com.dinstone.focus</groupId>
-	<artifactId>focus-server</artifactId>
-	<version>0.9.7</version>
+	<artifactId>focus-server-photon</artifactId>
+	<version>0.9.8</version>
 </dependency>
 <dependency>
 	<groupId>com.dinstone.focus</groupId>
-	<artifactId>focus-client</artifactId>
-	<version>0.9.7</version>
+	<artifactId>focus-client-photon</artifactId>
+	<version>0.9.8</version>
 </dependency>
 <dependency>
 	<groupId>com.dinstone.focus</groupId>
 	<artifactId>focus-serialize-json</artifactId>
-	<version>0.9.7</version>
+	<version>0.9.8</version>
 </dependency>
 ```
 
@@ -54,7 +54,10 @@ The quick start gives a basic example of running client and server on the same m
 package focus.quickstart;
 
 public interface FooService {
+
     public String hello(String name);
+
+    public CompletableFuture<String> async(String name);
 }
 ```
 
@@ -70,6 +73,9 @@ public class FooServiceImpl implements FooService {
         return "hello " + name;
     }
 
+    public CompletableFuture<String> async(String name) {
+        return CompletableFuture.completedFuture("async hello " + name);
+    }
 }
 ```
 
@@ -123,23 +129,25 @@ import focus.quickstart.FooService;
 
 public class FocusClientBootstrap {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         ClientOptions option = new ClientOptions().setEndpoint("focus.quickstart.client").connect("localhost", 3333);
         FocusClient client = new FocusClient(option);
         try {
             FooService fooService = client.importing(FooService.class);
             String reply = fooService.hello("dinstone");
             System.out.println(reply);
+
+            CompletableFuture<String> rf = fooService.async("dinstone");
+            System.out.println(rf.get());
         } finally {
             client.destroy();
         }
     }
-
 }
 ```
 
 ## Asynchronous calls
-1. create service interface  for async invoke RPC.
+1. another way to call RPC asynchronously is to create an asynchronous interface class.
 ```java
 package focus.quickstart.client;
 

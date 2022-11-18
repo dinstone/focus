@@ -15,11 +15,11 @@
  */
 package com.dinstone.focus.client;
 
+import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.clutch.consul.ConsulClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 
 public class ConsulFocusClientTest {
 
@@ -28,7 +28,7 @@ public class ConsulFocusClientTest {
     public static void main(String[] args) {
 
         LOG.info("init start");
-        ConnectOptions connectOptions = new ConnectOptions();
+        PhotonConnectOptions connectOptions = new PhotonConnectOptions();
 
         ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
                 .setClutchOptions(new ConsulClutchOptions()).setEndpoint("com.rpc.demo.client");

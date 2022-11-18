@@ -15,11 +15,11 @@
  */
 package com.dinstone.focus.client;
 
+import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.clutch.zookeeper.ZookeeperClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 
 public class ZkFocusClientTest {
 
@@ -28,9 +28,8 @@ public class ZkFocusClientTest {
     public static void main(String[] args) {
 
         LOG.info("init start");
-        ConnectOptions connectOptions = new ConnectOptions();
 
-        ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
+        ClientOptions option = new ClientOptions().setConnectOptions(new PhotonConnectOptions())
                 .setClutchOptions(new ZookeeperClutchOptions()).setEndpoint("com.rpc.demo.client");
 
         FocusClient client = new FocusClient(option);

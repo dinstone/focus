@@ -6,22 +6,9 @@
 		<version>0.9.8</version>
 	</parent>
 	<artifactId>focus-server</artifactId>
-	<dependencies>
-		<dependency>
-			<groupId>com.dinstone.focus</groupId>
-			<artifactId>focus-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>net.revelc.code.formatter</groupId>
-				<artifactId>formatter-maven-plugin</artifactId>
-				<configuration>
-					<configFile>../guide/formatter-java.xml</configFile>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+	<packaging>pom</packaging>
+	<modules>
+		<module>focus-server-photon</module>
+		<module>focus-server-core</module>
+	</modules>
 </project>

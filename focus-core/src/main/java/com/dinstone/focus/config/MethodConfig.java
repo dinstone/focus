@@ -21,6 +21,12 @@ import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+/**
+ * method level config
+ * 
+ * @author dinstone
+ *
+ */
 public class MethodConfig {
 
     private Method method;

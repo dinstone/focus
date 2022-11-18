@@ -21,11 +21,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dinstone.focus.codec.ProtocolCodec;
+import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.serialize.Serializer;
 
 /**
- * service config
+ * service level config
  *
  * @author dinstone
  *
@@ -50,7 +51,11 @@ public class ServiceConfig {
 
     private InvokeHandler handler;
 
-    private ProtocolCodec protocolCodec;
+    private Serializer serializer;
+
+    private Compressor compressor;
+
+    private int compressThreshold;
 
     public ServiceConfig() {
         this.group = DEFAULT_SERVICE_GROUP;
@@ -155,12 +160,28 @@ public class ServiceConfig {
         return methodConfigs.get(methodName);
     }
 
-    public void setProtocolCodec(ProtocolCodec protocolCodec) {
-        this.protocolCodec = protocolCodec;
+    public Serializer getSerializer() {
+        return serializer;
     }
 
-    public ProtocolCodec getProtocolCodec() {
-        return protocolCodec;
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
+    }
+
+    public Compressor getCompressor() {
+        return compressor;
+    }
+
+    public void setCompressor(Compressor compressor) {
+        this.compressor = compressor;
+    }
+
+    public int getCompressThreshold() {
+        return compressThreshold;
+    }
+
+    public void setCompressThreshold(int compressThreshold) {
+        this.compressThreshold = compressThreshold;
     }
 
 }

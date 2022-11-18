@@ -20,16 +20,17 @@ import java.io.IOException;
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ImportOptions;
+import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.example.StoreService;
 import com.dinstone.focus.example.StoreServiceImpl;
 import com.dinstone.focus.example.UserCheckService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
+import com.dinstone.focus.server.photon.PhotonAcceptOptions;
 import com.dinstone.focus.telemetry.TelemetryFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
@@ -75,7 +76,7 @@ public class StoreServiceServer {
 
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3302).setEndpoint(serviceName);
-        serverOptions.addFilter(tf);
+        serverOptions.addFilter(tf).setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         UserCheckService userService = createUserServiceRpc(openTelemetry);
         server.exporting(StoreService.class, new StoreServiceImpl(userService));
@@ -84,11 +85,10 @@ public class StoreServiceServer {
     }
 
     private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {
-        ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3301).setConnectOptions(connectOptions)
-                .addFilter(tf);
+        ClientOptions option = new ClientOptions().connect("localhost", 3301)
+                .setConnectOptions(new PhotonConnectOptions()).addFilter(tf);
         FocusClient client = new FocusClient(option);
 
         ImportOptions ro = new ImportOptions(UserCheckService.class.getName())

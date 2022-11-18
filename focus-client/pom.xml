@@ -6,28 +6,9 @@
 		<version>0.9.8</version>
 	</parent>
 	<artifactId>focus-client</artifactId>
-	<dependencies>
-		<dependency>
-			<groupId>com.dinstone.focus</groupId>
-			<artifactId>focus-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>net.revelc.code.formatter</groupId>
-				<artifactId>formatter-maven-plugin</artifactId>
-				<configuration>
-					<configFile>../guide/formatter-java.xml</configFile>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+	<packaging>pom</packaging>
+	<modules>
+		<module>focus-client-core</module>
+		<module>focus-client-photon</module>
+	</modules>
 </project>

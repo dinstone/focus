@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
+import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.compress.snappy.SnappyCompressor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -31,7 +32,7 @@ public class GenericClientTest {
 
     public static void main(String[] args) {
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-                .setConnectOptions(new ConnectOptions()).setCompressorType(SnappyCompressor.COMPRESSOR_TYPE);
+                .setConnectOptions(new PhotonConnectOptions()).setCompressorType(SnappyCompressor.COMPRESSOR_TYPE);
         FocusClient client = new FocusClient(option);
 
         LOG.info("init end");

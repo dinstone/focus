@@ -33,7 +33,6 @@ import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
 import com.dinstone.focus.telemetry.TelemetryFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
@@ -71,7 +70,7 @@ public class FocusClientTest {
         Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-                .setConnectOptions(new ConnectOptions()).addFilter(tf);
+                .addFilter(tf);
         // option.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
         FocusClient client = new FocusClient(option);

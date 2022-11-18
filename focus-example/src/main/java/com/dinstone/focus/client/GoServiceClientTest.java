@@ -19,14 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.compress.snappy.SnappyCompressor;
+import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.example.ArithService;
 import com.dinstone.focus.protobuf.ArithRequest;
 import com.dinstone.focus.protobuf.ArithResponse;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 
 public class GoServiceClientTest {
 
@@ -34,7 +33,7 @@ public class GoServiceClientTest {
 
     public static void main(String[] args) {
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 9010)
-                .setConnectOptions(new ConnectOptions());
+                .setConnectOptions(new PhotonConnectOptions());
         FocusClient client = new FocusClient(option);
 
         LOG.info("init end");
@@ -44,7 +43,7 @@ public class GoServiceClientTest {
             client.destroy();
 
             option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 8010)
-                    .setConnectOptions(new ConnectOptions());
+                    .setConnectOptions(new PhotonConnectOptions());
             client = new FocusClient(option);
             arithService(client);
         } catch (Exception e) {

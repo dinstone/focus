@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ImportOptions;
+import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.StoreService;
@@ -27,10 +28,10 @@ import com.dinstone.focus.example.UserCheckService;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
+import com.dinstone.focus.server.photon.PhotonAcceptOptions;
 import com.dinstone.focus.telemetry.TelemetryFilter;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
@@ -74,7 +75,7 @@ public class OrderServiceServer {
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
         Filter tf = new TelemetryFilter(openTelemetry, Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions();
+        ServerOptions serverOptions = new ServerOptions().setAcceptOptions(new PhotonAcceptOptions());
         serverOptions.listen("localhost", 3303).setEndpoint(serviceName);
         serverOptions.addFilter(tf);
         FocusServer server = new FocusServer(serverOptions);
@@ -103,21 +104,19 @@ public class OrderServiceServer {
     }
 
     private static StoreService createStoreServiceRpc(OpenTelemetry openTelemetry) {
-        ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3302).setConnectOptions(connectOptions)
-                .addFilter(tf);
+        ClientOptions option = new ClientOptions().connect("localhost", 3302)
+                .setConnectOptions(new PhotonConnectOptions()).addFilter(tf);
         FocusClient client = new FocusClient(option);
         return client.importing(StoreService.class);
     }
 
     private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {
-        ConnectOptions connectOptions = new ConnectOptions();
         Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3301).setConnectOptions(connectOptions)
-                .addFilter(tf);
+        ClientOptions option = new ClientOptions().connect("localhost", 3301)
+                .setConnectOptions(new PhotonConnectOptions()).addFilter(tf);
         FocusClient client = new FocusClient(option);
 
         ImportOptions ro = new ImportOptions(UserCheckService.class.getName())

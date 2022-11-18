@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.dinstone.focus.clutch.zookeeper.ZookeeperClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
+import com.dinstone.focus.server.photon.PhotonAcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -30,7 +31,7 @@ public class ZkFocusServerTest {
         // setting registry config
         ZookeeperClutchOptions registryConfig = new ZookeeperClutchOptions().setZookeeperNodes("localhost:2181");
         ServerOptions setEndpointCode = new ServerOptions().setClutchOptions(registryConfig).listen("-", 3333)
-                .setEndpoint("com.rpc.demo.server");
+                .setEndpoint("com.rpc.demo.server").setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(setEndpointCode);
         server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();

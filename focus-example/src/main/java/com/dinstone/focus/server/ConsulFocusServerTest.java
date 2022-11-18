@@ -21,6 +21,7 @@ import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.consul.ConsulClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
+import com.dinstone.focus.server.photon.PhotonAcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class ConsulFocusServerTest {
         ClutchOptions registryConfig = new ConsulClutchOptions();
         // setting registry config
         ServerOptions serverOptions = new ServerOptions().setClutchOptions(registryConfig).listen("-", 3333)
-                .setEndpoint("com.rpc.demo.server");
+                .setEndpoint("com.rpc.demo.server").setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();

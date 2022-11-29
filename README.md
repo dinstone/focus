@@ -222,7 +222,7 @@ public class FocusClientGenericCallBootstrap {
 
 # Documents
 - [Wiki](https://github.com/dinstone/focus/wiki)
-- [Wiki(中文)](https://github.com/dinstone/focus/wiki/zh)
+- [Wiki(中文)](https://github.com/dinstone/focus/wiki/home_zh)
 
 # License
 Focus is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).

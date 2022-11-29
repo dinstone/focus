@@ -39,8 +39,7 @@ public class ConnectionFactory {
     public Connection create(InetSocketAddress socketAddress) throws Exception {
         ConnectionPool connectionPool = connectionPoolMap.get(socketAddress);
         if (connectionPool == null) {
-            connectionPoolMap.putIfAbsent(socketAddress, new ConnectionPool(socketAddress));
-            connectionPool = connectionPoolMap.get(socketAddress);
+            connectionPool = connectionPoolMap.computeIfAbsent(socketAddress, k -> new ConnectionPool(k));
         }
         return connectionPool.getConnection();
     }

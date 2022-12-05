@@ -51,12 +51,6 @@ public class FocusClientTest {
 
         LOG.info("init start");
 
-        // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        // Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
-        // .sampler(Sampler.create(1)).build();
-        // Filter tf = new TracingFilter(RpcTracing.create(tracing), Filter.Kind.CLIENT);
-
         Resource resource = Resource.getDefault()
                 .merge(Resource.create(Attributes.of(AttributeKey.stringKey("endpoint.name"), "focus.example.client")));
 

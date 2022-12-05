@@ -40,14 +40,14 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     @Override
     public CompletableFuture<Reply> invoke(Call call) throws Exception {
-        ServiceInstance instance = call.context().get(Context.SERVICE_INSTANCE_KEY);
-        if (instance == null) {
+        ServiceInstance serviceInstance = call.context().get(Context.SERVICE_INSTANCE_KEY);
+        if (serviceInstance == null) {
             throw new ConnectException("can't find a service instance to connect");
         }
 
-        call.attach().put(Attach.PROVIDER_KEY, instance.getEndpointCode());
+        call.attach().put(Attach.PROVIDER_KEY, serviceInstance.getEndpointCode());
 
-        return connectBootstrap.send(call, serviceConfig, instance);
+        return connectBootstrap.send(call, serviceConfig, serviceInstance);
     }
 
 }

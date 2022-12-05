@@ -49,11 +49,6 @@ public class FocusServerTest {
     private static final Logger LOG = LoggerFactory.getLogger(FocusServerTest.class);
 
     public static void main(String[] args) {
-        // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        // Tracing tracing = Tracing.newBuilder().localServiceName("focus.server").sampler(Sampler.create(1))
-        // .addSpanHandler(spanHandler).build();
-        // final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
         String serviceName = "focus.example.server";
         OpenTelemetry openTelemetry = getTelemetry(serviceName);

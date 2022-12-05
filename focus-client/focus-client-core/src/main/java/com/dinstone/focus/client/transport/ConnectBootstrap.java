@@ -24,7 +24,8 @@ import com.dinstone.focus.protocol.Reply;
 
 public interface ConnectBootstrap {
 
-    CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, ServiceInstance instance) throws Exception;
+    CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, ServiceInstance serviceInstance)
+            throws Exception;
 
     void destroy();
 }

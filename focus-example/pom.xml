@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>0.9.8</version>
+		<version>0.9.9</version>
 	</parent>
 	<artifactId>focus-example</artifactId>
 	<properties>
@@ -17,7 +17,17 @@
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-client-http2</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-server-photon</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.focus</groupId>
+			<artifactId>focus-server-http2</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -34,11 +44,6 @@
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-telemetry</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.dinstone.focus</groupId>
-			<artifactId>focus-tracing</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-server</artifactId>
-		<version>0.9.8</version>
+		<version>0.9.9</version>
 	</parent>
 	<artifactId>focus-server-photon</artifactId>
 	<dependencies>

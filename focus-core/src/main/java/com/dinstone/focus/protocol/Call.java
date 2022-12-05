@@ -33,6 +33,8 @@ public class Call implements Serializable {
 
     public static final String GROUP_KEY = "call.group";
 
+    public static final String TIMEOUT_KEY = "call.timeout";
+
     private String group;
 
     private String service;

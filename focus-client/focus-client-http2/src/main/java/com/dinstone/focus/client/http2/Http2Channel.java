@@ -28,6 +28,7 @@ import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -84,19 +85,17 @@ public class Http2Channel {
             }
         });
 
-        headers.path(PATH);
-        headers.method(HttpMethod.POST.toString());
+        headers.path(PATH).method(HttpMethod.POST.toString());
 
         byte[] content = encodeContent(call, serviceConfig, methodConfig);
         if (content != null) {
-            DefaultHttp2HeadersFrame hf = new DefaultHttp2HeadersFrame(headers);
-            streamChannel.write(hf);
-            ByteBuf bb = streamChannel.alloc().ioBuffer(content.length).writeBytes(content);
-            DefaultHttp2DataFrame df = new DefaultHttp2DataFrame(bb, true);
-            streamChannel.writeAndFlush(df);
+            streamChannel.write(new DefaultHttp2HeadersFrame(headers));
+
+            ByteBufAllocator alloc = streamChannel.alloc();
+            ByteBuf byteBuf = alloc.ioBuffer(content.length).writeBytes(content);
+            streamChannel.writeAndFlush(new DefaultHttp2DataFrame(byteBuf, true));
         } else {
-            DefaultHttp2HeadersFrame hf = new DefaultHttp2HeadersFrame(headers, true);
-            streamChannel.writeAndFlush(hf);
+            streamChannel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, true));
         }
 
         return future;
@@ -151,11 +150,7 @@ public class Http2Channel {
             } else if (msg instanceof Http2DataFrame) {
                 Http2HeadersFrame headersFrame = ctx.channel().attr(HEADER_KEY).get();
                 Http2DataFrame dataFrame = (Http2DataFrame) msg;
-                try {
-                    handle(headersFrame, dataFrame);
-                } finally {
-                    // dataFrame.release();
-                }
+                handle(headersFrame, dataFrame);
             } else {
                 ctx.fireChannelRead(msg);
             }

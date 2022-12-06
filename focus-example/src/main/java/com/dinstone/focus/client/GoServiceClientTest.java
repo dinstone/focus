@@ -64,6 +64,7 @@ public class GoServiceClientTest {
         System.out.println(response.getC());
     }
 
+    @SuppressWarnings("rawtypes")
     private static void demoService(FocusClient client) throws Exception {
         GenericService gs = client.generic("TestService", "", 30000);
         Map<String, Object> parameter = new HashMap<>();

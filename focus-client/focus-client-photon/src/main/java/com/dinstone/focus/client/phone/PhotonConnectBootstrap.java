@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.client.phone;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,7 +34,8 @@ import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
-import com.dinstone.photon.utils.ByteStreamUtil;
+
+import io.netty.util.CharsetUtil;
 
 public class PhotonConnectBootstrap implements ConnectBootstrap {
 
@@ -95,21 +95,17 @@ public class PhotonConnectBootstrap implements ConnectBootstrap {
             }
             reply.value(value);
         } else {
-            try {
-                InvokeException error;
-                byte[] encoded = response.getContent();
-                if (encoded == null || encoded.length == 0) {
-                    error = new InvokeException(99, "unkown exception");
-                } else {
-                    ByteArrayInputStream bai = new ByteArrayInputStream(encoded);
-                    int code = ByteStreamUtil.readInt(bai);
-                    String message = ByteStreamUtil.readString(bai);
-                    error = new InvokeException(code, message);
-                }
-                reply.error(error);
-            } catch (IOException e) {
-                throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
+            int code = headers.getInt(InvokeException.CODE_KEY, 0);
+
+            InvokeException error;
+            byte[] encoded = response.getContent();
+            if (encoded == null || encoded.length == 0) {
+                error = new InvokeException(code, "unkown exception");
+            } else {
+                String message = new String(encoded, CharsetUtil.UTF_8);
+                error = new InvokeException(code, message);
             }
+            reply.error(error);
         }
         reply.attach().putAll(headers);
         return reply;

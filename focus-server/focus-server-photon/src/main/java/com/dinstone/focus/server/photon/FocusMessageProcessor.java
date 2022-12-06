@@ -38,6 +38,8 @@ import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
 import com.dinstone.photon.utils.ByteStreamUtil;
 
+import io.netty.util.CharsetUtil;
+
 public final class FocusMessageProcessor extends MessageProcessor {
     private final ImplementBinding implementBinding;
     private final ExecutorSelector executorSelector;
@@ -220,13 +222,10 @@ public final class FocusMessageProcessor extends MessageProcessor {
         Response response = new Response();
         response.setMsgId(request.getMsgId());
         response.setStatus(Status.FAILURE);
-        try {
-            ByteArrayOutputStream bao = new ByteArrayOutputStream();
-            ByteStreamUtil.writeInt(bao, exception.getCode());
-            ByteStreamUtil.writeString(bao, exception.getMessage());
-            response.setContent(bao.toByteArray());
-        } catch (IOException e) {
-            throw new CodecException("serialize encode error", e);
+
+        response.headers().setInt(InvokeException.CODE_KEY, exception.getCode());
+        if (exception.getMessage() != null) {
+            response.setContent(exception.getMessage().getBytes(CharsetUtil.UTF_8));
         }
         connection.sendMessage(response);
     }

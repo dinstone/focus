@@ -24,7 +24,6 @@ import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.compress.snappy.SnappyCompressor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-import com.dinstone.photon.ConnectOptions;
 
 public class GenericClientTest {
 

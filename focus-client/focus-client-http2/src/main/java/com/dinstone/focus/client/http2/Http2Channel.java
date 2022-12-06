@@ -154,7 +154,7 @@ public class Http2Channel {
                 try {
                     handle(headersFrame, dataFrame);
                 } finally {
-                   // dataFrame.release();
+                    // dataFrame.release();
                 }
             } else {
                 ctx.fireChannelRead(msg);

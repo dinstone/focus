@@ -16,7 +16,6 @@
 package com.dinstone.focus.server.http2;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -40,9 +39,10 @@ import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
+import io.netty.util.CharsetUtil;
 
 public final class FocusMessageProcessor {
-    private static final Charset UTF_8 = Charset.forName("utf-8");
+
     private final ImplementBinding implementBinding;
     private final ExecutorSelector executorSelector;
 
@@ -149,9 +149,10 @@ public final class FocusMessageProcessor {
         if (message == null) {
             channel.write(new DefaultHttp2HeadersFrame(headers, true));
         } else {
-            ByteBuf bb = channel.alloc().ioBuffer().writeBytes(message.getBytes(UTF_8));
+            ByteBuf ioBuffer = channel.alloc().ioBuffer();
+            ByteBuf buf = ioBuffer.writeBytes(message.getBytes(CharsetUtil.UTF_8));
             channel.write(new DefaultHttp2HeadersFrame(headers, false));
-            channel.writeAndFlush(new DefaultHttp2DataFrame(bb, true));
+            channel.writeAndFlush(new DefaultHttp2DataFrame(buf, true));
         }
 
     }

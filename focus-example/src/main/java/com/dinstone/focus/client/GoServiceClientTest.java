@@ -19,11 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.example.ArithService;
 import com.dinstone.focus.protobuf.ArithRequest;
 import com.dinstone.focus.protobuf.ArithResponse;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
+import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 

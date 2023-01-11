@@ -18,6 +18,7 @@ package com.dinstone.focus.server;
 import java.net.InetSocketAddress;
 import java.util.ServiceLoader;
 
+import com.dinstone.focus.binding.ImplementBinding;
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
@@ -26,12 +27,12 @@ import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
-import com.dinstone.focus.server.binding.ImplementBinding;
+import com.dinstone.focus.server.binding.DefaultImplementBinding;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
-import com.dinstone.focus.server.transport.AcceptBootstrap;
-import com.dinstone.focus.server.transport.AcceptBootstrapFactory;
-import com.dinstone.focus.server.transport.AcceptOptions;
+import com.dinstone.focus.transport.AcceptBootstrap;
+import com.dinstone.focus.transport.AcceptBootstrapFactory;
+import com.dinstone.focus.transport.AcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -65,7 +66,7 @@ public class FocusServer implements ServiceProvider {
 
         // load and create registry
         ClutchOptions clutchOptions = serverOptions.getClutchOptions();
-        this.implementBinding = new ImplementBinding(clutchOptions, serviceAddress);
+        this.implementBinding = new DefaultImplementBinding(clutchOptions, serviceAddress);
 
         AcceptOptions acceptOptions = serverOptions.getAcceptOptions();
         if (acceptOptions == null) {

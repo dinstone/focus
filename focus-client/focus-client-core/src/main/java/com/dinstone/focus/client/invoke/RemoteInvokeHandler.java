@@ -18,7 +18,6 @@ package com.dinstone.focus.client.invoke;
 import java.net.ConnectException;
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.client.transport.ConnectBootstrap;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -26,6 +25,7 @@ import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Context;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.transport.ConnectBootstrap;
 
 public class RemoteInvokeHandler implements InvokeHandler {
 

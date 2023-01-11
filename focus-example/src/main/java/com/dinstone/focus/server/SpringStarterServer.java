@@ -23,8 +23,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.dinstone.focus.server.photon.PhotonAcceptOptions;
 import com.dinstone.focus.server.starter.EnableFocusServer;
+import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 
 @Configurable
 @EnableFocusServer

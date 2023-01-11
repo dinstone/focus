@@ -19,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import com.dinstone.focus.client.http2.Http2ConnectOptions;
 import com.dinstone.focus.example.AuthenCheck;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.OrderRequest;
@@ -32,6 +31,7 @@ import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
 import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.transport.http2.Http2ConnectOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 

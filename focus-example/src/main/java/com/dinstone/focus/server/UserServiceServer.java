@@ -22,8 +22,8 @@ import com.dinstone.focus.example.UserCheckServiceImpl;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
-import com.dinstone.focus.server.photon.PhotonAcceptOptions;
 import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 

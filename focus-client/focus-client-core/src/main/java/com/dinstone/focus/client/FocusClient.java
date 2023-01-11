@@ -19,15 +19,13 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import com.dinstone.focus.client.binding.ReferenceBinding;
+import com.dinstone.focus.binding.ReferenceBinding;
+import com.dinstone.focus.client.binding.DefaultReferenceBinding;
 import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
 import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
-import com.dinstone.focus.client.transport.ConnectBootstrap;
-import com.dinstone.focus.client.transport.ConnectBootstrapFactory;
-import com.dinstone.focus.client.transport.ConnectOptions;
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
@@ -38,6 +36,9 @@ import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
+import com.dinstone.focus.transport.ConnectBootstrap;
+import com.dinstone.focus.transport.ConnectBootstrapFactory;
+import com.dinstone.focus.transport.ConnectOptions;
 
 public class FocusClient implements ServiceConsumer {
 
@@ -78,7 +79,7 @@ public class FocusClient implements ServiceConsumer {
         // init reference binding
         ClutchOptions clutchOptions = clientOptions.getClutchOptions();
         InetSocketAddress consumerAddress = clientOptions.getConsumerAddress();
-        this.referenceBinding = new ReferenceBinding(clutchOptions, consumerAddress);
+        this.referenceBinding = new DefaultReferenceBinding(clutchOptions, consumerAddress);
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.dinstone.focus.clutch.zookeeper.ZookeeperClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
-import com.dinstone.focus.server.photon.PhotonAcceptOptions;
+import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 

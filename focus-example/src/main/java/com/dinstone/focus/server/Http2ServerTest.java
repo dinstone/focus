@@ -31,8 +31,8 @@ import com.dinstone.focus.filter.Filter.Kind;
 import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
-import com.dinstone.focus.server.http2.Http2AcceptOptions;
 import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.transport.http2.Http2AcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 

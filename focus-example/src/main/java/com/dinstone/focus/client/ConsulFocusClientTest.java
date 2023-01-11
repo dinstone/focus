@@ -15,9 +15,9 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.clutch.consul.ConsulClutchOptions;
 import com.dinstone.focus.example.DemoService;
+import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 

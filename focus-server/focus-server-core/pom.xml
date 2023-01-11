@@ -9,7 +9,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
-			<artifactId>focus-core</artifactId>
+			<artifactId>focus-transport-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

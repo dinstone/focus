@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dinstone.focus.endpoint.EndpointOptions;
-import com.dinstone.focus.server.transport.AcceptOptions;
+import com.dinstone.focus.transport.AcceptOptions;
 import com.dinstone.focus.utils.NetworkUtil;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;

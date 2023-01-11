@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.client.phone.PhotonConnectOptions;
 import com.dinstone.focus.compress.snappy.SnappyCompressor;
+import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 

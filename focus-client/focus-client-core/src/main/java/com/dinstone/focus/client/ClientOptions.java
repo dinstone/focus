@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dinstone.focus.client.locate.DefaultLocateFactory;
-import com.dinstone.focus.client.transport.ConnectOptions;
 import com.dinstone.focus.endpoint.EndpointOptions;
+import com.dinstone.focus.transport.ConnectOptions;
 import com.dinstone.focus.utils.NetworkUtil;
 
 /**

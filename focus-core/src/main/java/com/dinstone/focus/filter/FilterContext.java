@@ -27,13 +27,13 @@ public class FilterContext {
     private FilterContext chain;
     private Filter filter;
 
-    public FilterContext(ServiceConfig serviceConfig, FilterContext chain, Filter filter) {
+    public FilterContext(ServiceConfig serviceConfig, Filter filter, FilterContext chain) {
         if (filter == null) {
             throw new IllegalArgumentException("filter is null");
         }
         this.serviceConfig = serviceConfig;
-        this.chain = chain;
         this.filter = filter;
+        this.chain = chain;
     }
 
     public CompletableFuture<Reply> invoke(Call call) throws Exception {

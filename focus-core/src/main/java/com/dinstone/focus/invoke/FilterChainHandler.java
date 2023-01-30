@@ -38,13 +38,13 @@ public class FilterChainHandler implements InvokeHandler {
         }
 
         this.serviceConfig = serviceConfig;
-        this.filterChain = new FilterContext(serviceConfig, null, new Filter() {
+        this.filterChain = new FilterContext(serviceConfig, new Filter() {
 
             @Override
             public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
                 return invokeHandler.invoke(call);
             }
-        });
+        }, null);
     }
 
     public FilterChainHandler addFilter(Filter... filters) {
@@ -54,7 +54,7 @@ public class FilterChainHandler implements InvokeHandler {
     public FilterChainHandler addFilter(List<Filter> filters) {
         if (filters != null) {
             for (ListIterator<Filter> iterator = filters.listIterator(filters.size()); iterator.hasPrevious();) {
-                filterChain = new FilterContext(serviceConfig, filterChain, iterator.previous());
+                filterChain = new FilterContext(serviceConfig, iterator.previous(), filterChain);
             }
         }
         return this;

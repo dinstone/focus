@@ -15,23 +15,24 @@
  */
 package com.dinstone.focus.transport.photon;
 
-import com.dinstone.focus.transport.AcceptBootstrap;
-import com.dinstone.focus.transport.AcceptBootstrapFactory;
-import com.dinstone.focus.transport.AcceptOptions;
+import com.dinstone.focus.transport.Connector;
+import com.dinstone.focus.transport.ConnectorFactory;
+import com.dinstone.focus.transport.ConnectOptions;
 
-public class PhotonAcceptBootstrapFactory implements AcceptBootstrapFactory {
+public class PhotonConnectorFactory implements ConnectorFactory {
 
     @Override
-    public boolean appliable(AcceptOptions acceptOptions) {
-        return acceptOptions instanceof PhotonAcceptOptions || acceptOptions == AcceptOptions.DEFAULT_ACCEPT_OPTIONS;
+    public boolean appliable(ConnectOptions connectOptions) {
+        return connectOptions instanceof PhotonConnectOptions
+                || connectOptions == ConnectOptions.DEFAULT_CONNECT_OPTIONS;
     }
 
     @Override
-    public AcceptBootstrap create(AcceptOptions acceptOptions) {
-        if (acceptOptions == AcceptOptions.DEFAULT_ACCEPT_OPTIONS) {
-            acceptOptions = new PhotonAcceptOptions();
+    public Connector create(ConnectOptions connectOptions) {
+        if (connectOptions == ConnectOptions.DEFAULT_CONNECT_OPTIONS) {
+            connectOptions = new PhotonConnectOptions();
         }
-        return new PhotonAcceptBootstrap((PhotonAcceptOptions) acceptOptions);
+        return new PhotonConnector((PhotonConnectOptions) connectOptions);
     }
 
 }

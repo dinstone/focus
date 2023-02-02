@@ -21,13 +21,13 @@ import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.focus.transport.ConnectBootstrap;
+import com.dinstone.focus.transport.Connector;
 
-public class Http2ConnectBootstrap implements ConnectBootstrap {
+public class Http2Connector implements Connector {
 
     private Http2ChannelFactory factory;
 
-    public Http2ConnectBootstrap(Http2ConnectOptions connectOptions) {
+    public Http2Connector(Http2ConnectOptions connectOptions) {
         factory = new Http2ChannelFactory(connectOptions);
     }
 

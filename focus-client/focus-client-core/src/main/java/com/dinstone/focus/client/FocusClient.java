@@ -36,15 +36,15 @@ import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
-import com.dinstone.focus.transport.ConnectBootstrap;
-import com.dinstone.focus.transport.ConnectBootstrapFactory;
 import com.dinstone.focus.transport.ConnectOptions;
+import com.dinstone.focus.transport.Connector;
+import com.dinstone.focus.transport.ConnectorFactory;
 
 public class FocusClient implements ServiceConsumer {
 
     private ClientOptions clientOptions;
 
-    private ConnectBootstrap connectBootstrap;
+    private Connector connector;
 
     private ReferenceBinding referenceBinding;
 
@@ -64,16 +64,16 @@ public class FocusClient implements ServiceConsumer {
 
         ConnectOptions connectOptions = clientOptions.getConnectOptions();
         if (connectOptions == null) {
-            throw new FocusException("please set transport options for connect bootstrap");
+            throw new FocusException("please set transport options for connector");
         }
-        ServiceLoader<ConnectBootstrapFactory> cfLoader = ServiceLoader.load(ConnectBootstrapFactory.class);
-        for (ConnectBootstrapFactory bootstrapFactory : cfLoader) {
-            if (bootstrapFactory.appliable(connectOptions)) {
-                this.connectBootstrap = bootstrapFactory.create(connectOptions);
+        ServiceLoader<ConnectorFactory> cfLoader = ServiceLoader.load(ConnectorFactory.class);
+        for (ConnectorFactory connectorFactory : cfLoader) {
+            if (connectorFactory.appliable(connectOptions)) {
+                this.connector = connectorFactory.create(connectOptions);
             }
         }
-        if (this.connectBootstrap == null) {
-            throw new FocusException("can't find a connect bootstrap implement");
+        if (this.connector == null) {
+            throw new FocusException("can't find a connector implement");
         }
 
         // init reference binding
@@ -84,7 +84,7 @@ public class FocusClient implements ServiceConsumer {
 
     @Override
     public void destroy() {
-        connectBootstrap.destroy();
+        connector.destroy();
         referenceBinding.destroy();
     }
 
@@ -170,7 +170,7 @@ public class FocusClient implements ServiceConsumer {
     }
 
     private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
-        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, connectBootstrap);
+        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, connector);
         InvokeHandler locate = new LocationInvokeHandler(serviceConfig, remote, referenceBinding, clientOptions);
         return new ConsumerInvokeHandler(serviceConfig, locate).addFilter(clientOptions.getFilters());
     }

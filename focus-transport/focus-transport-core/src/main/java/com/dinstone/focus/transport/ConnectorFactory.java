@@ -15,17 +15,10 @@
  */
 package com.dinstone.focus.transport;
 
-import java.util.concurrent.CompletableFuture;
+public interface ConnectorFactory {
 
-import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+    public boolean appliable(ConnectOptions connectOptions);
 
-public interface ConnectBootstrap {
+    public Connector create(ConnectOptions connectOptions);
 
-    CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, ServiceInstance serviceInstance)
-            throws Exception;
-
-    void destroy();
 }

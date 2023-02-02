@@ -18,17 +18,16 @@ package com.dinstone.focus.transport.photon;
 import java.net.InetSocketAddress;
 
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.transport.AcceptBootstrap;
+import com.dinstone.focus.transport.Acceptor;
 import com.dinstone.focus.transport.ExecutorSelector;
-import com.dinstone.photon.Acceptor;
 
-public class PhotonAcceptBootstrap implements AcceptBootstrap {
+public class PhotonAcceptor implements Acceptor {
 
-    private Acceptor acceptor;
+    private com.dinstone.photon.Acceptor acceptor;
     private ExecutorSelector executorSelector;
 
-    public PhotonAcceptBootstrap(PhotonAcceptOptions acceptOptions) {
-        acceptor = new Acceptor(acceptOptions);
+    public PhotonAcceptor(PhotonAcceptOptions acceptOptions) {
+        acceptor = new com.dinstone.photon.Acceptor(acceptOptions);
         executorSelector = acceptOptions.getExecutorSelector();
     }
 

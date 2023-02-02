@@ -28,7 +28,7 @@ import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
-import com.dinstone.focus.transport.ConnectBootstrap;
+import com.dinstone.focus.transport.Connector;
 import com.dinstone.photon.Connection;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
@@ -37,13 +37,13 @@ import com.dinstone.photon.message.Response.Status;
 
 import io.netty.util.CharsetUtil;
 
-public class PhotonConnectBootstrap implements ConnectBootstrap {
+public class PhotonConnector implements Connector {
 
     private static final AtomicInteger IDGENER = new AtomicInteger();
 
     private final PhotonConnectionFactory factory;
 
-    public PhotonConnectBootstrap(PhotonConnectOptions connectOptions) {
+    public PhotonConnector(PhotonConnectOptions connectOptions) {
         if (connectOptions == null) {
             throw new IllegalArgumentException("connectOptions is null");
         }

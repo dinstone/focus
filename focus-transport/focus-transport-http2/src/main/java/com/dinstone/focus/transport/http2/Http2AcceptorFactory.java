@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.transport;
+package com.dinstone.focus.transport.http2;
 
-public interface ConnectBootstrapFactory {
+import com.dinstone.focus.transport.Acceptor;
+import com.dinstone.focus.transport.AcceptorFactory;
+import com.dinstone.focus.transport.AcceptOptions;
 
-    public boolean appliable(ConnectOptions connectOptions);
+public class Http2AcceptorFactory implements AcceptorFactory {
 
-    public ConnectBootstrap create(ConnectOptions connectOptions);
+    @Override
+    public boolean appliable(AcceptOptions acceptOptions) {
+        return acceptOptions instanceof Http2AcceptOptions;
+    }
+
+    @Override
+    public Acceptor create(AcceptOptions acceptOptions) {
+        return new Http2Acceptor((Http2AcceptOptions) acceptOptions);
+    }
 
 }

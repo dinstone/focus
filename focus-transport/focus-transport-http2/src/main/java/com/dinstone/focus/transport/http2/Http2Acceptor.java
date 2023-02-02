@@ -20,7 +20,7 @@ import java.net.InetSocketAddress;
 import javax.net.ssl.SSLException;
 
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.transport.AcceptBootstrap;
+import com.dinstone.focus.transport.Acceptor;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -52,7 +52,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
-public class Http2AcceptBootstrap implements AcceptBootstrap {
+public class Http2Acceptor implements Acceptor {
     private static final AttributeKey<Http2HeadersFrame> HEADER_KEY = AttributeKey.newInstance("header.key");
     private Http2AcceptOptions acceptOptions;
     private NioEventLoopGroup bossGroup;
@@ -60,7 +60,7 @@ public class Http2AcceptBootstrap implements AcceptBootstrap {
     private ServerBootstrap bootstrap;
     private FocusMessageProcessor messageProcessor;
 
-    public Http2AcceptBootstrap(Http2AcceptOptions acceptOptions) {
+    public Http2Acceptor(Http2AcceptOptions acceptOptions) {
         this.acceptOptions = acceptOptions;
 
         final SslContext sslContext;

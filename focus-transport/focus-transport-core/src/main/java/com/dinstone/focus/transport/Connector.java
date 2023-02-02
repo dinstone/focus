@@ -15,14 +15,17 @@
  */
 package com.dinstone.focus.transport;
 
-import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.binding.ImplementBinding;
+import com.dinstone.focus.clutch.ServiceInstance;
+import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
-public interface AcceptBootstrap {
+public interface Connector {
 
-    void bind(InetSocketAddress serviceAddress, ImplementBinding implementBinding) throws Exception;
+    CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, ServiceInstance serviceInstance)
+            throws Exception;
 
     void destroy();
-
 }

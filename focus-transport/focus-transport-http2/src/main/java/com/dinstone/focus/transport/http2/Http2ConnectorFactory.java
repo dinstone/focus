@@ -15,11 +15,11 @@
  */
 package com.dinstone.focus.transport.http2;
 
-import com.dinstone.focus.transport.ConnectBootstrap;
-import com.dinstone.focus.transport.ConnectBootstrapFactory;
+import com.dinstone.focus.transport.Connector;
+import com.dinstone.focus.transport.ConnectorFactory;
 import com.dinstone.focus.transport.ConnectOptions;
 
-public class Http2ConnectBootstrapFactory implements ConnectBootstrapFactory {
+public class Http2ConnectorFactory implements ConnectorFactory {
 
     @Override
     public boolean appliable(ConnectOptions connectOptions) {
@@ -27,8 +27,8 @@ public class Http2ConnectBootstrapFactory implements ConnectBootstrapFactory {
     }
 
     @Override
-    public ConnectBootstrap create(ConnectOptions connectOptions) {
-        return new Http2ConnectBootstrap((Http2ConnectOptions) connectOptions);
+    public Connector create(ConnectOptions connectOptions) {
+        return new Http2Connector((Http2ConnectOptions) connectOptions);
     }
 
 }

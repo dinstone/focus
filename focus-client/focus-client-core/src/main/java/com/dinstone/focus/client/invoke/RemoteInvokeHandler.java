@@ -25,17 +25,17 @@ import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Context;
 import com.dinstone.focus.protocol.Reply;
-import com.dinstone.focus.transport.ConnectBootstrap;
+import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements InvokeHandler {
 
     private ServiceConfig serviceConfig;
 
-    private ConnectBootstrap connectBootstrap;
+    private Connector connector;
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, ConnectBootstrap connectBootstrap) {
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, Connector connector) {
         this.serviceConfig = serviceConfig;
-        this.connectBootstrap = connectBootstrap;
+        this.connector = connector;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
         call.attach().put(Attach.PROVIDER_KEY, serviceInstance.getEndpointCode());
 
-        return connectBootstrap.send(call, serviceConfig, serviceInstance);
+        return connector.send(call, serviceConfig, serviceInstance);
     }
 
 }

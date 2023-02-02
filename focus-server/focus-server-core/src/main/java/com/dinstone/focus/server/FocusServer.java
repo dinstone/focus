@@ -30,9 +30,9 @@ import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.server.binding.DefaultImplementBinding;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
-import com.dinstone.focus.transport.AcceptBootstrap;
-import com.dinstone.focus.transport.AcceptBootstrapFactory;
 import com.dinstone.focus.transport.AcceptOptions;
+import com.dinstone.focus.transport.Acceptor;
+import com.dinstone.focus.transport.AcceptorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class FocusServer implements ServiceProvider {
 
     private ImplementBinding implementBinding;
 
-    private AcceptBootstrap acceptBootstrap;
+    private Acceptor acceptor;
 
     public FocusServer(ServerOptions serverOption) {
         checkAndInit(serverOption);
@@ -70,20 +70,20 @@ public class FocusServer implements ServiceProvider {
 
         AcceptOptions acceptOptions = serverOptions.getAcceptOptions();
         if (acceptOptions == null) {
-            throw new FocusException("please set transport options for accept bootstrap");
+            throw new FocusException("please set transport options for acceptor");
         }
-        ServiceLoader<AcceptBootstrapFactory> cfLoader = ServiceLoader.load(AcceptBootstrapFactory.class);
-        for (AcceptBootstrapFactory bootstrapFactory : cfLoader) {
-            if (bootstrapFactory.appliable(acceptOptions)) {
-                this.acceptBootstrap = bootstrapFactory.create(acceptOptions);
+        ServiceLoader<AcceptorFactory> cfLoader = ServiceLoader.load(AcceptorFactory.class);
+        for (AcceptorFactory acceptorFactory : cfLoader) {
+            if (acceptorFactory.appliable(acceptOptions)) {
+                this.acceptor = acceptorFactory.create(acceptOptions);
             }
         }
-        if (this.acceptBootstrap == null) {
-            throw new FocusException("can't find a accept bootstrap implement");
+        if (this.acceptor == null) {
+            throw new FocusException("can't find a acceptor implement");
         }
 
         try {
-            this.acceptBootstrap.bind(serviceAddress, implementBinding);
+            this.acceptor.bind(serviceAddress, implementBinding);
             LOG.info("focus server started, {}", serviceAddress);
         } catch (Exception e) {
             LOG.warn("focus server failure, {}", serviceAddress, e);
@@ -167,8 +167,8 @@ public class FocusServer implements ServiceProvider {
         if (implementBinding != null) {
             implementBinding.destroy();
         }
-        if (acceptBootstrap != null) {
-            acceptBootstrap.destroy();
+        if (acceptor != null) {
+            acceptor.destroy();
         }
 
         LOG.info("focus server destroyed, {}", serviceAddress);

@@ -15,10 +15,14 @@
  */
 package com.dinstone.focus.transport;
 
-public interface AcceptBootstrapFactory {
+import java.net.InetSocketAddress;
 
-    public boolean appliable(AcceptOptions acceptOptions);
+import com.dinstone.focus.binding.ImplementBinding;
 
-    public AcceptBootstrap create(AcceptOptions acceptOptions);
+public interface Acceptor {
+
+    void bind(InetSocketAddress serviceAddress, ImplementBinding implementBinding) throws Exception;
+
+    void destroy();
 
 }

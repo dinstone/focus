@@ -14,21 +14,25 @@
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-client-photon</artifactId>
 			<version>${project.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-client-http2</artifactId>
 			<version>${project.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-server-photon</artifactId>
 			<version>${project.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-server-http2</artifactId>
 			<version>${project.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.focus</groupId>

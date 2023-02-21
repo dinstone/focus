@@ -6,6 +6,7 @@
 		<version>0.9.9</version>
 	</parent>
 	<artifactId>focus-server-http2</artifactId>
+	<packaging>pom</packaging>
 	<properties>
 		<netty.version>4.1.82.Final</netty.version>
 	</properties>

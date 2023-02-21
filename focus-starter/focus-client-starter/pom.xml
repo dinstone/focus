@@ -28,6 +28,7 @@
 			<groupId>com.dinstone.focus</groupId>
 			<artifactId>focus-client-photon</artifactId>
 			<version>${project.version}</version>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 	<build>

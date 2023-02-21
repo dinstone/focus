@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2023 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,13 @@ public interface AcceptOptions {
     /**
      * default accept options : photon accept options
      */
-    public static final AcceptOptions DEFAULT_ACCEPT_OPTIONS = new AcceptOptions() {
+    AcceptOptions DEFAULT_ACCEPT_OPTIONS = new AcceptOptions() {
+
+        @Override
+        public ExecutorSelector getExecutorSelector() {
+            return null;
+        }
     };
+
+    ExecutorSelector getExecutorSelector();
 }

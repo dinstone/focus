@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019~2022 dinstone<dinstone@163.com>
+ * Copyright (C) 2019~2023 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,7 @@ public class Http2AcceptOptions implements AcceptOptions {
         this.idleTimeout = idleTimeout;
     }
 
+    @Override
     public ExecutorSelector getExecutorSelector() {
         return executorSelector;
     }

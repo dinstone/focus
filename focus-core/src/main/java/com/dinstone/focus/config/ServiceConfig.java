@@ -17,7 +17,6 @@ package com.dinstone.focus.config;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,31 +30,31 @@ import com.dinstone.focus.serialize.Serializer;
  * @author dinstone
  *
  */
-public class ServiceConfig {
+public abstract class ServiceConfig {
 
-    private static final String DEFAULT_SERVICE_GROUP = "";
+    protected static final String DEFAULT_SERVICE_GROUP = "";
 
-    private Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
+    protected Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
 
-    private String endpoint;
+    protected String endpoint;
 
-    private String service;
+    protected String service;
 
-    private String group;
+    protected String group;
 
-    private int timeout;
+    protected int timeout;
 
-    private int retry;
+    protected int retry;
 
-    private Object target;
+    protected Object target;
 
-    private InvokeHandler handler;
+    protected InvokeHandler handler;
 
-    private Serializer serializer;
+    protected Serializer serializer;
 
-    private Compressor compressor;
+    protected Compressor compressor;
 
-    private int compressThreshold;
+    protected int compressThreshold;
 
     public ServiceConfig() {
         this.group = DEFAULT_SERVICE_GROUP;
@@ -65,91 +64,28 @@ public class ServiceConfig {
         return service;
     }
 
-    public void setService(String service) {
-        this.service = service;
-    }
-
     public String getGroup() {
         return group;
-    }
-
-    public void setGroup(String group) {
-        if (group != null && group.length() > 0) {
-            this.group = group;
-        }
     }
 
     public int getTimeout() {
         return timeout;
     }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
     public int getRetry() {
         return retry;
-    }
-
-    public void setRetry(int retry) {
-        this.retry = retry;
     }
 
     public Object getTarget() {
         return target;
     }
 
-    public void setTarget(Object target) {
-        this.target = target;
-    }
-
     public InvokeHandler getHandler() {
         return handler;
     }
 
-    public void setHandler(InvokeHandler handler) {
-        this.handler = handler;
-    }
-
     public String getEndpoint() {
         return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public void parseMethod(Method... methods) {
-        for (Method method : methods) {
-            // public check
-            if (!Modifier.isPublic(method.getModifiers())) {
-                continue;
-            }
-            // static check
-            if (Modifier.isStatic(method.getModifiers())) {
-                continue;
-            }
-            // overload check
-            if (methodConfigs.containsKey(method.getName())) {
-                throw new IllegalStateException("method overload unsupported : " + method);
-            }
-            // parameter check
-            Class<?> paramType = null;
-            if (method.getParameterTypes().length > 1) {
-                throw new IllegalArgumentException("only support one parameter : " + method);
-            } else if (method.getParameterTypes().length == 1) {
-                paramType = method.getParameterTypes()[0];
-            }
-
-            MethodConfig methodConfig = new MethodConfig(method, paramType);
-            methodConfig.setInvokeTimeout(timeout);
-            methodConfig.setInvokeRetry(retry);
-            addMethodConfig(methodConfig);
-        }
-    }
-
-    public Collection<MethodConfig> methodConfigs() {
-        return methodConfigs.values();
     }
 
     public void addMethodConfig(MethodConfig mc) {
@@ -164,24 +100,36 @@ public class ServiceConfig {
         return serializer;
     }
 
-    public void setSerializer(Serializer serializer) {
-        this.serializer = serializer;
-    }
-
     public Compressor getCompressor() {
         return compressor;
-    }
-
-    public void setCompressor(Compressor compressor) {
-        this.compressor = compressor;
     }
 
     public int getCompressThreshold() {
         return compressThreshold;
     }
 
-    public void setCompressThreshold(int compressThreshold) {
-        this.compressThreshold = compressThreshold;
+    protected MethodConfig createMethodConfig(Method method) {
+        // public check
+        if (!Modifier.isPublic(method.getModifiers())) {
+            return null;
+        }
+        // static check
+        if (Modifier.isStatic(method.getModifiers())) {
+            return null;
+        }
+        // overload check
+        if (methodConfigs.containsKey(method.getName())) {
+            throw new IllegalStateException("method overload unsupported : " + method);
+        }
+        // parameter check
+        Class<?> paramType = null;
+        if (method.getParameterTypes().length > 1) {
+            throw new IllegalArgumentException("only support one parameter : " + method);
+        } else if (method.getParameterTypes().length == 1) {
+            paramType = method.getParameterTypes()[0];
+        }
+
+        return new MethodConfig(method, paramType);
     }
 
 }

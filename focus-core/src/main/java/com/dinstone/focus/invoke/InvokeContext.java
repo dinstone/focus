@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class InvokeContext {
 
+    public static final String SERVICE_INSTANCE_KEY = "service.instance";
+
     private static final ThreadLocal<Deque<InvokeContext>> DEQUE_LOCAL = new ThreadLocal<Deque<InvokeContext>>();
 
     private static final ThreadLocal<InvokeContext> CONTEXT_LOCAL = new ThreadLocal<InvokeContext>();

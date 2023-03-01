@@ -20,10 +20,10 @@ import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.invoke.InvokeContext;
 import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Context;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.transport.Connector;
 
@@ -40,7 +40,7 @@ public class RemoteInvokeHandler implements InvokeHandler {
 
     @Override
     public CompletableFuture<Reply> invoke(Call call) throws Exception {
-        ServiceInstance serviceInstance = call.context().get(Context.SERVICE_INSTANCE_KEY);
+        ServiceInstance serviceInstance = InvokeContext.getContext().get(InvokeContext.SERVICE_INSTANCE_KEY);
         if (serviceInstance == null) {
             throw new ConnectException("can't find a service instance to connect");
         }

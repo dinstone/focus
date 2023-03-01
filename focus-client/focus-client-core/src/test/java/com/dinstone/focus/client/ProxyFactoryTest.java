@@ -22,8 +22,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.junit.Test;
 
+import com.dinstone.focus.client.config.ConsumerConfig;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
-import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterContext;
 import com.dinstone.focus.invoke.InvokeHandler;
@@ -38,20 +38,20 @@ public class ProxyFactoryTest {
 
         HelloService h = jdkProxy();
 
-        // for (Method m : HelloService.class.getDeclaredMethods()) {
-        // System.out.println(m.getName() + " : " + m.getDeclaringClass().getName());
-        // // m.setAccessible(true);
-        // //
-        // // long s = System.currentTimeMillis();
-        // //
-        // // for (int i = 0; i < 100000000; i++) {
-        // // m.invoke(h, "hhhhhh");
-        // // }
-        // //
-        // // long e = System.currentTimeMillis();
-        // // System.out.println((e - s) + "ms");
-        //
-        // }
+        for (Method m : HelloService.class.getDeclaredMethods()) {
+            System.out.println(m.getName() + " : " + m.getDeclaringClass().getName());
+            // m.setAccessible(true);
+            //
+            // long s = System.currentTimeMillis();
+            //
+            // for (int i = 0; i < 100000000; i++) {
+            // m.invoke(h, "hhhhhh");
+            // }
+            //
+            // long e = System.currentTimeMillis();
+            // System.out.println((e - s) + "ms");
+
+        }
 
         h.hi(null);
         h.hi("hahh");
@@ -85,7 +85,7 @@ public class ProxyFactoryTest {
     }
 
     private HelloService proxyFactory() {
-        ServiceConfig serviceConfig = new ServiceConfig();
+        ConsumerConfig serviceConfig = new ConsumerConfig(null);
         serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
         serviceConfig.setHandler(new InvokeHandler() {
 

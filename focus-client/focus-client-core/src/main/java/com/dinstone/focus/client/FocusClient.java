@@ -21,6 +21,7 @@ import java.util.ServiceLoader;
 
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.binding.DefaultReferenceBinding;
+import com.dinstone.focus.client.config.ConsumerConfig;
 import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
 import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
@@ -110,10 +111,9 @@ public class FocusClient implements ServiceConsumer {
             throw new IllegalArgumentException("serivce name is null");
         }
 
-        ServiceConfig serviceConfig = new ServiceConfig();
+        ConsumerConfig serviceConfig = new ConsumerConfig(clientOptions.getEndpoint());
         serviceConfig.setGroup(importOptions.getGroup());
         serviceConfig.setService(importOptions.getService());
-        serviceConfig.setEndpoint(clientOptions.getEndpoint());
         serviceConfig.setTimeout(importOptions.getTimeout());
         serviceConfig.setRetry(importOptions.getRetry());
 
@@ -147,7 +147,7 @@ public class FocusClient implements ServiceConsumer {
         return proxyFactory.create(serviceClass, serviceConfig);
     }
 
-    private void protocolCodec(ServiceConfig serviceConfig, ClientOptions clientOptions, ImportOptions importOptions) {
+    private void protocolCodec(ConsumerConfig serviceConfig, ClientOptions clientOptions, ImportOptions importOptions) {
         Serializer serializer = SerializerFactory.lookup(importOptions.getSerializerType());
         if (serializer == null) {
             serializer = SerializerFactory.lookup(clientOptions.getSerializerType());

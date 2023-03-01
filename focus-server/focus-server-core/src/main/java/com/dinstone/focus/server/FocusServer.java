@@ -28,6 +28,7 @@ import com.dinstone.focus.invoke.InvokeHandler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.server.binding.DefaultImplementBinding;
+import com.dinstone.focus.server.config.ProviderConfig;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
 import com.dinstone.focus.transport.AcceptOptions;
@@ -113,12 +114,11 @@ public class FocusServer implements ServiceProvider {
         }
 
         try {
-            ServiceConfig serviceConfig = new ServiceConfig();
+            ProviderConfig serviceConfig = new ProviderConfig(serverOptions.getEndpoint());
             serviceConfig.setService(service);
             serviceConfig.setTarget(instance);
             serviceConfig.setGroup(exportOptions.getGroup());
             serviceConfig.setTimeout(exportOptions.getTimeout());
-            serviceConfig.setEndpoint(serverOptions.getEndpoint());
 
             // create and set method configure
             serviceConfig.parseMethod(clazz.getDeclaredMethods());
@@ -135,7 +135,7 @@ public class FocusServer implements ServiceProvider {
         }
     }
 
-    private void protocolCodec(ServiceConfig serviceConfig, ServerOptions serverOptions, ExportOptions exportOptions) {
+    private void protocolCodec(ProviderConfig serviceConfig, ServerOptions serverOptions, ExportOptions exportOptions) {
         Serializer serializer = SerializerFactory.lookup(exportOptions.getSerializerType());
         if (serializer == null) {
             serializer = SerializerFactory.lookup(serverOptions.getSerializerType());

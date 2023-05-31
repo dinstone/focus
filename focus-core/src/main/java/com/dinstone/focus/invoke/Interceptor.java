@@ -20,8 +20,11 @@ import java.util.concurrent.CompletableFuture;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
-public interface InvokeHandler {
+public interface Interceptor {
 
-    public CompletableFuture<Reply> invoke(Call call) throws Exception;
+    public enum Kind {
+        CLIENT, SERVER
+    }
 
+    public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception;
 }

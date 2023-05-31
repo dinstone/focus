@@ -26,12 +26,11 @@ import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.example.UserServiceServerImpl;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.Filter.Kind;
+import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
-import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -52,10 +51,10 @@ public class FocusServerTest {
 
         String serviceName = "focus.example.server";
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.SERVER);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions().listen("localhost", 3333).setEndpoint(serviceName)
-                .addFilter(tf);
+                .addInterceptor(tf);
         // serverOptions.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
         FocusServer server = new FocusServer(serverOptions);

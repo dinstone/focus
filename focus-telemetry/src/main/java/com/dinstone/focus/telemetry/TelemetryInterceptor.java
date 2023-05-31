@@ -17,8 +17,8 @@ package com.dinstone.focus.telemetry;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.FilterContext;
+import com.dinstone.focus.invoke.Handler;
+import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
@@ -32,7 +32,7 @@ import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapSetter;
 
-public class TelemetryFilter implements Filter {
+public class TelemetryInterceptor implements Interceptor {
 
     private static final String RPC_SERVICE = "rpc.service";
 
@@ -40,14 +40,14 @@ public class TelemetryFilter implements Filter {
 
     private Kind kind;
 
-    private OpenTelemetry openTelemetry;
+    private OpenTelemetry telemetry;
 
     private TextMapGetter<Call> getter;
 
     private TextMapSetter<Call> setter;
 
-    public TelemetryFilter(OpenTelemetry openTelemetry, Kind kind) {
-        this.openTelemetry = openTelemetry;
+    public TelemetryInterceptor(OpenTelemetry telemetry, Kind kind) {
+        this.telemetry = telemetry;
         this.kind = kind;
 
         this.getter = new TextMapGetter<Call>() {
@@ -72,15 +72,16 @@ public class TelemetryFilter implements Filter {
     }
 
     @Override
-    public CompletableFuture<Reply> invoke(FilterContext chain, Call call) throws Exception {
-        Tracer tracer = openTelemetry.getTracer(chain.getServiceConfig().getService());
+    public CompletableFuture<Reply> intercept(Call call, Handler chain) throws Exception {
+        Tracer tracer = telemetry.getTracer(call.getService());
         if (kind == Kind.SERVER) {
             // Extract the SpanContext and other elements from the request.
-            Context ec = openTelemetry.getPropagators().getTextMapPropagator().extract(Context.current(), call, getter);
-            // span = tracer.spanBuilder(call.getMethod()).setParent(ec).setSpanKind(SpanKind.SERVER).startSpan();
+            Context ec = telemetry.getPropagators().getTextMapPropagator().extract(Context.current(), call, getter);
+            // span =
+            // tracer.spanBuilder(call.getMethod()).setParent(ec).setSpanKind(SpanKind.SERVER).startSpan();
 
             try (Scope ss = ec.makeCurrent()) {
-                return chain.invoke(call);
+                return chain.handle(call);
             } catch (Throwable error) {
                 throw error;
             }
@@ -88,9 +89,10 @@ public class TelemetryFilter implements Filter {
             Span span = tracer.spanBuilder(call.getMethod()).setSpanKind(SpanKind.CLIENT).startSpan();
             try (Scope ss = span.makeCurrent()) {
                 span.setAttribute(RPC_SERVICE, call.getService()).setAttribute(RPC_METHOD, call.getMethod());
-                // Inject the request with the *current* Context, which contains our current Span.
-                openTelemetry.getPropagators().getTextMapPropagator().inject(Context.current(), call, setter);
-                return chain.invoke(call).whenComplete((reply, error) -> {
+                // Inject the request with the *current* Context, which contains our current
+                // Span.
+                telemetry.getPropagators().getTextMapPropagator().inject(Context.current(), call, setter);
+                return chain.handle(call).whenComplete((reply, error) -> {
                     finishSpan(reply, error, span);
                 });
             } catch (Throwable error) {

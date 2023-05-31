@@ -24,10 +24,9 @@ import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.StoreService;
 import com.dinstone.focus.example.UserCheckService;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.Filter.Kind;
+import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
-import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
@@ -66,18 +65,19 @@ public class OrderServiceServer {
     private static FocusServer createOrderServiceServer() {
         // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        // Tracing tracing = Tracing.newBuilder().localServiceName("order.service").addSpanHandler(spanHandler)
+        // Tracing tracing =
+        // Tracing.newBuilder().localServiceName("order.service").addSpanHandler(spanHandler)
         // .sampler(Sampler.create(1)).build();
         //
         // final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
         String serviceName = "order.service";
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.SERVER);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions().setAcceptOptions(new PhotonAcceptOptions());
         serverOptions.listen("localhost", 3303).setEndpoint(serviceName);
-        serverOptions.addFilter(tf);
+        serverOptions.addInterceptor(tf);
         FocusServer server = new FocusServer(serverOptions);
 
         UserCheckService userService = createUserServiceRpc(openTelemetry);
@@ -104,19 +104,19 @@ public class OrderServiceServer {
     }
 
     private static StoreService createStoreServiceRpc(OpenTelemetry openTelemetry) {
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().connect("localhost", 3302)
-                .setConnectOptions(new PhotonConnectOptions()).addFilter(tf);
+                .setConnectOptions(new PhotonConnectOptions()).addInterceptor(tf);
         FocusClient client = new FocusClient(option);
         return client.importing(StoreService.class);
     }
 
     private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().connect("localhost", 3301)
-                .setConnectOptions(new PhotonConnectOptions()).addFilter(tf);
+                .setConnectOptions(new PhotonConnectOptions()).addInterceptor(tf);
         FocusClient client = new FocusClient(option);
 
         ImportOptions ro = new ImportOptions(UserCheckService.class.getName())

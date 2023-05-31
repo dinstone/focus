@@ -13,20 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.locate;
+package com.dinstone.focus.client;
 
-import com.dinstone.focus.client.LoadBalancer;
-import com.dinstone.focus.client.LocateFactory;
-import com.dinstone.focus.client.ServiceRouter;
 import com.dinstone.focus.config.ServiceConfig;
 
-public class DefaultLocateFactory implements LocateFactory {
+public interface LocaterFactory {
 
-    public ServiceRouter createSerivceRouter(ServiceConfig serviceConfig) {
-        return new GroupServiceRouter(serviceConfig);
-    }
+    public SerivceLocater createSerivceLocater(ServiceConfig serviceConfig);
 
-    public LoadBalancer createLoadBalancer(ServiceConfig serviceConfig) {
-        return new RoundRobinLoadBalancer(serviceConfig);
-    }
 }

@@ -16,12 +16,11 @@
 package com.dinstone.focus.client;
 
 import com.dinstone.focus.example.UserCheckService;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.Filter.Kind;
+import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.protobuf.UserCheckRequest;
 import com.dinstone.focus.protobuf.UserCheckResponse;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
-import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -50,9 +49,10 @@ public class UserServiceClient {
 
         String serviceName = "user.client";
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3301).setEndpoint(serviceName).addFilter(tf);
+        ClientOptions option = new ClientOptions().connect("localhost", 3301).setEndpoint(serviceName)
+                .addInterceptor(tf);
         FocusClient client = new FocusClient(option);
 
         ImportOptions ro = new ImportOptions(UserCheckService.class.getName())

@@ -24,7 +24,7 @@ import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.server.binding.DefaultImplementBinding;
@@ -157,9 +157,9 @@ public class FocusServer implements ServiceProvider {
         serviceConfig.setCompressThreshold(compressThreshold);
     }
 
-    private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
+    private Handler createInvokeHandler(ServiceConfig serviceConfig) {
         LocalInvokeHandler localHandler = new LocalInvokeHandler(serviceConfig);
-        return new ProviderInvokeHandler(serviceConfig, localHandler).addFilter(serverOptions.getFilters());
+        return new ProviderInvokeHandler(serviceConfig, localHandler).addInterceptor(serverOptions.getInterceptors());
     }
 
     @Override

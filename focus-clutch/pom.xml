@@ -12,5 +12,6 @@
 		<module>focus-clutch-consul</module>
 		<module>focus-clutch-zookeeper</module>
 		<module>focus-clutch-nacos</module>
+		<module>focus-clutch-polaris</module>
 	</modules>
 </project>

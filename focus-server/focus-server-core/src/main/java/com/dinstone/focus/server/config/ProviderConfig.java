@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
 
 public class ProviderConfig extends ServiceConfig {
@@ -51,7 +51,7 @@ public class ProviderConfig extends ServiceConfig {
         this.target = target;
     }
 
-    public void setHandler(InvokeHandler handler) {
+    public void setHandler(Handler handler) {
         this.handler = handler;
     }
 

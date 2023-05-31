@@ -15,23 +15,29 @@
  */
 package com.dinstone.focus.client.locate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.focus.client.LoadBalancer;
+import com.dinstone.focus.client.SerivceLocater;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.protocol.Call;
 
-public class RoundRobinLoadBalancer implements LoadBalancer {
+public class DefaultSerivceLocater implements SerivceLocater {
 
     private final AtomicInteger index = new AtomicInteger(0);
 
-    public RoundRobinLoadBalancer(ServiceConfig serviceConfig) {
+    private ServiceConfig serviceConfig;
+
+    public DefaultSerivceLocater(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
     }
 
     @Override
-    public ServiceInstance select(Call call, ServiceInstance selected, List<ServiceInstance> instances) {
+    public ServiceInstance locate(Call call, ServiceInstance selected, List<ServiceInstance> instances) {
+        instances = route(selected, instances);
+
         if (instances == null || instances.size() == 0) {
             return null;
         } else if (instances.size() == 1) {
@@ -40,6 +46,20 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             int next = Math.abs(index.getAndIncrement());
             return instances.get(next % instances.size());
         }
+    }
+
+    private List<ServiceInstance> route(ServiceInstance selected, List<ServiceInstance> instances) {
+        String group = serviceConfig.getGroup();
+        List<ServiceInstance> sds = new ArrayList<ServiceInstance>();
+        for (ServiceInstance instance : instances) {
+            if (instance == selected) {
+                continue;
+            }
+            if (group.equals(instance.getServiceGroup())) {
+                sds.add(instance);
+            }
+        }
+        return sds;
     }
 
 }

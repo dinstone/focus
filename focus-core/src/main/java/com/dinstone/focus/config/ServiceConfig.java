@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.focus.compress.Compressor;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
 
 /**
@@ -48,7 +48,7 @@ public abstract class ServiceConfig {
 
     protected Object target;
 
-    protected InvokeHandler handler;
+    protected Handler handler;
 
     protected Serializer serializer;
 
@@ -80,7 +80,7 @@ public abstract class ServiceConfig {
         return target;
     }
 
-    public InvokeHandler getHandler() {
+    public Handler getHandler() {
         return handler;
     }
 

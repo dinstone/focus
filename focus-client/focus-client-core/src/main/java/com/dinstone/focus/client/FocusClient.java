@@ -23,7 +23,6 @@ import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.binding.DefaultReferenceBinding;
 import com.dinstone.focus.client.config.ConsumerConfig;
 import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
-import com.dinstone.focus.client.invoke.LocationInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
@@ -34,7 +33,7 @@ import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.exception.FocusException;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.transport.ConnectOptions;
@@ -91,7 +90,7 @@ public class FocusClient implements ServiceConsumer {
 
     @Override
     public <T> T importing(Class<T> sic) {
-        return importing(sic, "", 3000);
+        return importing(sic, null, 3000);
     }
 
     @Override
@@ -169,10 +168,9 @@ public class FocusClient implements ServiceConsumer {
         serviceConfig.setCompressThreshold(compressThreshold);
     }
 
-    private InvokeHandler createInvokeHandler(ServiceConfig serviceConfig) {
-        RemoteInvokeHandler remote = new RemoteInvokeHandler(serviceConfig, connector);
-        InvokeHandler locate = new LocationInvokeHandler(serviceConfig, remote, referenceBinding, clientOptions);
-        return new ConsumerInvokeHandler(serviceConfig, locate).addFilter(clientOptions.getFilters());
+    private Handler createInvokeHandler(ServiceConfig serviceConfig) {
+        Handler remote = new RemoteInvokeHandler(serviceConfig, connector, referenceBinding, clientOptions);
+        return new ConsumerInvokeHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
     }
 
 }

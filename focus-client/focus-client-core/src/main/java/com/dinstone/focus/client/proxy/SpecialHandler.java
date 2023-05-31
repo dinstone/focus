@@ -22,14 +22,14 @@ import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
 class SpecialHandler implements InvocationHandler {
 
     private ServiceConfig serviceConfig;
-    private InvokeHandler invokeHandler;
+    private Handler invokeHandler;
 
     public SpecialHandler(ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
@@ -66,7 +66,7 @@ class SpecialHandler implements InvocationHandler {
         call.setTimeout(serviceConfig.getTimeout());
 
         // invoke
-        CompletableFuture<Reply> future = invokeHandler.invoke(call);
+        CompletableFuture<Reply> future = invokeHandler.handle(call);
 
         // reply handle
         if (methodConfig.isAsyncInvoke()) {

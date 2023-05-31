@@ -23,10 +23,9 @@ import com.dinstone.focus.client.ImportOptions;
 import com.dinstone.focus.example.StoreService;
 import com.dinstone.focus.example.StoreServiceImpl;
 import com.dinstone.focus.example.UserCheckService;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.Filter.Kind;
+import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
-import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
@@ -65,18 +64,19 @@ public class StoreServiceServer {
     private static FocusServer createStoreServiceServer() {
         // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        // Tracing tracing = Tracing.newBuilder().localServiceName("store.service").addSpanHandler(spanHandler)
+        // Tracing tracing =
+        // Tracing.newBuilder().localServiceName("store.service").addSpanHandler(spanHandler)
         // .sampler(Sampler.create(1)).build();
         //
         // final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
         String serviceName = "store.service";
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.SERVER);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3302).setEndpoint(serviceName);
-        serverOptions.addFilter(tf).setAcceptOptions(new PhotonAcceptOptions());
+        serverOptions.addInterceptor(tf).setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         UserCheckService userService = createUserServiceRpc(openTelemetry);
         server.exporting(StoreService.class, new StoreServiceImpl(userService));
@@ -85,10 +85,10 @@ public class StoreServiceServer {
     }
 
     private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().connect("localhost", 3301)
-                .setConnectOptions(new PhotonConnectOptions()).addFilter(tf);
+                .setConnectOptions(new PhotonConnectOptions()).addInterceptor(tf);
         FocusClient client = new FocusClient(option);
 
         ImportOptions ro = new ImportOptions(UserCheckService.class.getName())

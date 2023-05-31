@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dinstone.focus.clutch.ClutchOptions;
-import com.dinstone.focus.filter.Filter;
+import com.dinstone.focus.invoke.Interceptor;
 
 @SuppressWarnings("unchecked")
 public class EndpointOptions<T extends EndpointOptions<T>> {
@@ -38,7 +38,7 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     private ClutchOptions clutchOptions;
 
-    private List<Filter> filters = new ArrayList<Filter>();
+    private List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
     public EndpointOptions() {
         compressThreshold = DEFAULT_COMPRESS_THRESHOLD;
@@ -63,12 +63,12 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
         return (T) this;
     }
 
-    public List<Filter> getFilters() {
-        return filters;
+    public List<Interceptor> getInterceptors() {
+        return interceptors;
     }
 
-    public T addFilter(Filter filter) {
-        filters.add(filter);
+    public T addInterceptor(Interceptor interceptor) {
+        interceptors.add(interceptor);
         return (T) this;
     }
 

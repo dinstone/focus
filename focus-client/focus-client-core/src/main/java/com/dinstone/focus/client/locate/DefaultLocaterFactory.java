@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client;
+package com.dinstone.focus.client.locate;
 
-import java.util.List;
+import com.dinstone.focus.client.LocaterFactory;
+import com.dinstone.focus.client.SerivceLocater;
+import com.dinstone.focus.config.ServiceConfig;
 
-import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
+public class DefaultLocaterFactory implements LocaterFactory {
 
-public interface LoadBalancer {
-
-    public ServiceInstance select(Call call, ServiceInstance selected, List<ServiceInstance> instances);
-
+    public SerivceLocater createSerivceLocater(ServiceConfig serviceConfig) {
+        return new DefaultSerivceLocater(serviceConfig);
+    }
 }

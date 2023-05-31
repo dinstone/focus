@@ -16,38 +16,113 @@
 package com.dinstone.focus.client.invoke;
 
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.dinstone.focus.binding.ReferenceBinding;
+import com.dinstone.focus.client.ClientOptions;
+import com.dinstone.focus.client.LocaterFactory;
+import com.dinstone.focus.client.SerivceLocater;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.invoke.InvokeContext;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.transport.Connector;
 
-public class RemoteInvokeHandler implements InvokeHandler {
+public class RemoteInvokeHandler implements Handler {
 
-    private ServiceConfig serviceConfig;
+    private List<ServiceInstance> backupServiceInstances = new ArrayList<ServiceInstance>();
 
     private Connector connector;
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, Connector connector) {
+    private ServiceConfig serviceConfig;
+
+    private ReferenceBinding referenceBinding;
+
+    private SerivceLocater serivceLocater;
+
+    private int connectRetry;
+
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, Connector connector, ReferenceBinding referenceBinding,
+            ClientOptions clientOptions) {
         this.serviceConfig = serviceConfig;
         this.connector = connector;
+        this.referenceBinding = referenceBinding;
+
+        // init backup service instances
+        if (clientOptions.getServiceAddresses() != null) {
+            for (InetSocketAddress socketAddress : clientOptions.getServiceAddresses()) {
+                String service = serviceConfig.getService();
+                String group = serviceConfig.getGroup();
+                String host = socketAddress.getHostString();
+                int port = socketAddress.getPort();
+
+                ServiceInstance si = new ServiceInstance();
+                si.setServiceName(service);
+                si.setServiceGroup(group);
+                si.setInstanceHost(host);
+                si.setInstancePort(port);
+
+                StringBuilder code = new StringBuilder();
+                code.append(service).append("@");
+                code.append(host).append(":");
+                code.append(port).append("$");
+                code.append((group == null ? "" : group));
+                si.setInstanceCode(code.toString());
+
+                backupServiceInstances.add(si);
+            }
+        }
+
+        // init router and load balancer
+        LocaterFactory locateFactory = clientOptions.getLocaterFactory();
+        serivceLocater = locateFactory.createSerivceLocater(serviceConfig);
+
+        connectRetry = clientOptions.getConnectRetry();
     }
 
     @Override
-    public CompletableFuture<Reply> invoke(Call call) throws Exception {
-        ServiceInstance serviceInstance = InvokeContext.getContext().get(InvokeContext.SERVICE_INSTANCE_KEY);
-        if (serviceInstance == null) {
-            throw new ConnectException("can't find a service instance to connect");
+    public CompletableFuture<Reply> handle(Call call) throws Exception {
+        // find candidate service instance
+        List<ServiceInstance> candidates = collect(call);
+
+        ServiceInstance selected = null;
+        for (int i = 0; i < connectRetry; i++) {
+            selected = serivceLocater.locate(call, selected, candidates);
+            // check
+            if (selected == null) {
+                continue;
+            }
+
+            try {
+                return remoteInvoke(call, selected);
+            } catch (ConnectException e) {
+                // ignore and retry
+            } catch (Exception e) {
+                throw e;
+            }
         }
 
-        call.attach().put(Attach.PROVIDER_KEY, serviceInstance.getEndpointCode());
+        throw new FocusException("can't find a live service instance for " + call.getService());
+    }
 
-        return connector.send(call, serviceConfig, serviceInstance);
+    private List<ServiceInstance> collect(Call call) {
+        List<ServiceInstance> instances = referenceBinding.lookup(call.getService());
+        if (instances != null) {
+            return instances;
+        } else {
+            return backupServiceInstances;
+        }
+    }
+
+    private CompletableFuture<Reply> remoteInvoke(Call call, ServiceInstance instance) throws Exception {
+        call.attach().put(Attach.PROVIDER_KEY, instance.getEndpointCode());
+        return connector.send(call, serviceConfig, instance);
     }
 
 }

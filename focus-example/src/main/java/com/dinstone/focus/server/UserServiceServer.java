@@ -19,10 +19,9 @@ import java.io.IOException;
 
 import com.dinstone.focus.example.UserCheckService;
 import com.dinstone.focus.example.UserCheckServiceImpl;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.Filter.Kind;
+import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
-import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -61,11 +60,11 @@ public class UserServiceServer {
 
         String serviceName = "user.service";
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.SERVER);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
         ServerOptions serverOptions = new ServerOptions();
         serverOptions.listen("localhost", 3301).setEndpoint(serviceName);
-        serverOptions.addFilter(tf).setAcceptOptions(new PhotonAcceptOptions());
+        serverOptions.addInterceptor(tf).setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(UserCheckService.class, new UserCheckServiceImpl(),
                 new ExportOptions(UserCheckService.class.getName())

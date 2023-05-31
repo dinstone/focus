@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.invoke;
+package com.dinstone.focus.filter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,16 +23,17 @@ import java.util.concurrent.CompletableFuture;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.filter.Filter;
 import com.dinstone.focus.filter.FilterContext;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
-public class FilterChainHandler implements InvokeHandler {
+public class FilterChainHandler implements Handler {
 
     protected ServiceConfig serviceConfig;
 
     protected FilterContext filterChain;
 
-    public FilterChainHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+    public FilterChainHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
         if (invokeHandler == null) {
             throw new IllegalArgumentException("invokeHandler is null");
         }
@@ -42,7 +43,7 @@ public class FilterChainHandler implements InvokeHandler {
 
             @Override
             public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
-                return invokeHandler.invoke(call);
+                return invokeHandler.handle(call);
             }
         }, null);
     }
@@ -61,7 +62,7 @@ public class FilterChainHandler implements InvokeHandler {
     }
 
     @Override
-    public CompletableFuture<Reply> invoke(Call call) throws Exception {
+    public CompletableFuture<Reply> handle(Call call) throws Exception {
         return filterChain.invoke(call);
     }
 }

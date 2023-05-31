@@ -24,9 +24,7 @@ import org.junit.Test;
 
 import com.dinstone.focus.client.config.ConsumerConfig;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.FilterContext;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
@@ -87,12 +85,12 @@ public class ProxyFactoryTest {
     private HelloService proxyFactory() {
         ConsumerConfig serviceConfig = new ConsumerConfig(null);
         serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
-        serviceConfig.setHandler(new InvokeHandler() {
+        serviceConfig.setHandler(new Handler() {
 
             private Reply reply = new Reply();
 
             @Override
-            public CompletableFuture<Reply> invoke(Call call) throws Exception {
+            public CompletableFuture<Reply> handle(Call call) throws Exception {
                 return CompletableFuture.completedFuture(reply);
             }
         });
@@ -117,7 +115,7 @@ public class ProxyFactoryTest {
                 });
     }
 
-    public static interface HelloService extends Filter {
+    public static interface HelloService {
         String hi(String name);
 
         String say();
@@ -126,12 +124,6 @@ public class ProxyFactoryTest {
     }
 
     public static class DefaultHelloService implements HelloService {
-
-        @Override
-        public CompletableFuture<Reply> invoke(FilterContext next, Call call) throws Exception {
-            // TODO Auto-generated method stub
-            return null;
-        }
 
         @Override
         public String hi(String name) {

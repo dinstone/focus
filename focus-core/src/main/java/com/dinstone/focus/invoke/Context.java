@@ -19,13 +19,13 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class InvokeContext {
+public class Context {
 
     public static final String SERVICE_INSTANCE_KEY = "service.instance";
 
-    private static final ThreadLocal<Deque<InvokeContext>> DEQUE_LOCAL = new ThreadLocal<Deque<InvokeContext>>();
+    private static final ThreadLocal<Deque<Context>> DEQUE_LOCAL = new ThreadLocal<Deque<Context>>();
 
-    private static final ThreadLocal<InvokeContext> CONTEXT_LOCAL = new ThreadLocal<InvokeContext>();
+    private static final ThreadLocal<Context> CONTEXT_LOCAL = new ThreadLocal<Context>();
 
     private final ConcurrentHashMap<String, Object> contentMap = new ConcurrentHashMap<>();
 
@@ -82,16 +82,16 @@ public class InvokeContext {
         this.contentMap.clear();
     }
 
-    public static InvokeContext getContext() {
-        InvokeContext context = CONTEXT_LOCAL.get();
+    public static Context getContext() {
+        Context context = CONTEXT_LOCAL.get();
         if (context == null) {
-            context = new InvokeContext();
+            context = new Context();
             CONTEXT_LOCAL.set(context);
         }
         return context;
     }
 
-    public static InvokeContext peekContext() {
+    public static Context peekContext() {
         return CONTEXT_LOCAL.get();
     }
 
@@ -100,11 +100,11 @@ public class InvokeContext {
     }
 
     public static void pushContext() {
-        InvokeContext context = CONTEXT_LOCAL.get();
+        Context context = CONTEXT_LOCAL.get();
         if (context != null) {
-            Deque<InvokeContext> deque = DEQUE_LOCAL.get();
+            Deque<Context> deque = DEQUE_LOCAL.get();
             if (deque == null) {
-                deque = new ArrayDeque<InvokeContext>();
+                deque = new ArrayDeque<Context>();
                 DEQUE_LOCAL.set(deque);
             }
             deque.push(context);
@@ -113,9 +113,9 @@ public class InvokeContext {
     }
 
     public static void popContext() {
-        Deque<InvokeContext> deque = DEQUE_LOCAL.get();
+        Deque<Context> deque = DEQUE_LOCAL.get();
         if (deque != null) {
-            InvokeContext context = deque.peek();
+            Context context = deque.peek();
             if (context != null) {
                 CONTEXT_LOCAL.set(deque.pop());
             }

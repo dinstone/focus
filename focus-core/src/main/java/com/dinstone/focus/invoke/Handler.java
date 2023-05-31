@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client;
+package com.dinstone.focus.invoke;
 
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
-public interface ServiceRouter {
+public interface Handler {
 
-    public List<ServiceInstance> route(Call call, ServiceInstance selected, List<ServiceInstance> instances);
+    public CompletableFuture<Reply> handle(Call call) throws Exception;
+
 }

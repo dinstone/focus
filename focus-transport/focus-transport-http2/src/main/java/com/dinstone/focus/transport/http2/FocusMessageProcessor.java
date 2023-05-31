@@ -75,7 +75,7 @@ public final class FocusMessageProcessor {
             Call call = decode(headers, dataBuf, serviceConfig, methodConfig);
 
             // invoke call
-            CompletableFuture<Reply> replyFuture = serviceConfig.getHandler().invoke(call);
+            CompletableFuture<Reply> replyFuture = serviceConfig.getHandler().handle(call);
             replyFuture.whenComplete((reply, error) -> {
                 if (error != null) {
                     errorHandle(channel, error);

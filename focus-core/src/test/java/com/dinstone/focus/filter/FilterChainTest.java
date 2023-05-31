@@ -21,8 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.junit.Test;
 
-import com.dinstone.focus.invoke.FilterChainHandler;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
@@ -30,10 +29,10 @@ public class FilterChainTest {
 
     @Test
     public void test() throws Exception {
-        InvokeHandler lih = new InvokeHandler() {
+        Handler lih = new Handler() {
 
             @Override
-            public CompletableFuture<Reply> invoke(Call call) throws Exception {
+            public CompletableFuture<Reply> handle(Call call) throws Exception {
                 System.out.println("last InvokeHandler");
                 return null;
             }
@@ -61,7 +60,7 @@ public class FilterChainTest {
         };
 
         FilterChainHandler chain = new FilterChainHandler(null, lih).addFilter(first, second);
-        CompletableFuture<Reply> reply = chain.invoke(null);
+        CompletableFuture<Reply> reply = chain.handle(null);
         assertEquals(null, reply);
     }
 

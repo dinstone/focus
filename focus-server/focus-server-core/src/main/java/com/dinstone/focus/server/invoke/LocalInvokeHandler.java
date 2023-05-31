@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.InvokeException;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
-public class LocalInvokeHandler implements InvokeHandler {
+public class LocalInvokeHandler implements Handler {
 
     private ServiceConfig serviceConfig;
 
@@ -37,7 +37,7 @@ public class LocalInvokeHandler implements InvokeHandler {
     }
 
     @Override
-    public CompletableFuture<Reply> invoke(Call call) throws Exception {
+    public CompletableFuture<Reply> handle(Call call) throws Exception {
         MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
         try {
             Object result = methodConfig.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());

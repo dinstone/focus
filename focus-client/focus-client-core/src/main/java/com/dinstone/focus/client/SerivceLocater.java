@@ -15,12 +15,12 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.config.ServiceConfig;
+import java.util.List;
 
-public interface LocateFactory {
+import com.dinstone.focus.clutch.ServiceInstance;
+import com.dinstone.focus.protocol.Call;
 
-    public ServiceRouter createSerivceRouter(ServiceConfig serviceConfig);
+public interface SerivceLocater {
 
-    public LoadBalancer createLoadBalancer(ServiceConfig serviceConfig);
-
+    public ServiceInstance locate(Call call, ServiceInstance selected, List<ServiceInstance> instances);
 }

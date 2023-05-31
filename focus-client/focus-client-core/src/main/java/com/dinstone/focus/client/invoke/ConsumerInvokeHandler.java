@@ -18,9 +18,9 @@ package com.dinstone.focus.client.invoke;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.invoke.FilterChainHandler;
-import com.dinstone.focus.invoke.InvokeContext;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.ChainHandler;
+import com.dinstone.focus.invoke.Context;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -32,22 +32,22 @@ import com.dinstone.focus.protocol.Reply;
  *
  * @version 1.0.0
  */
-public class ConsumerInvokeHandler extends FilterChainHandler {
+public class ConsumerInvokeHandler extends ChainHandler {
 
-    public ConsumerInvokeHandler(ServiceConfig serviceConfig, InvokeHandler invokeHandler) {
+    public ConsumerInvokeHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
         super(serviceConfig, invokeHandler);
     }
 
-    public CompletableFuture<Reply> invoke(Call call) throws Exception {
-        InvokeContext.pushContext();
-        InvokeContext.getContext();
+    public CompletableFuture<Reply> handle(Call call) throws Exception {
+        Context.pushContext();
+        Context.getContext();
         try {
             call.attach().put(Attach.CONSUMER_KEY, serviceConfig.getEndpoint());
 
-            return filterChain.invoke(call);
+            return invokeHandler.handle(call);
         } finally {
-            InvokeContext.removeContext();
-            InvokeContext.popContext();
+            Context.removeContext();
+            Context.popContext();
         }
     }
 

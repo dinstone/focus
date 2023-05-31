@@ -22,14 +22,14 @@ import java.util.concurrent.TimeUnit;
 import com.dinstone.focus.client.GenericService;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.invoke.InvokeHandler;
+import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
 class GenericHandler implements GenericService {
 
     private final ServiceConfig serviceConfig;
-    private final InvokeHandler invokeHandler;
+    private final Handler invokeHandler;
 
     public GenericHandler(ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
@@ -52,7 +52,7 @@ class GenericHandler implements GenericService {
         call.setService(serviceConfig.getService());
         call.setTimeout(methodConfig.getInvokeTimeout());
 
-        CompletableFuture<Reply> future = invokeHandler.invoke(call);
+        CompletableFuture<Reply> future = invokeHandler.handle(call);
 
         return (R) future.get(call.getTimeout(), TimeUnit.MILLISECONDS).getResult();
     }
@@ -73,7 +73,7 @@ class GenericHandler implements GenericService {
         call.setService(serviceConfig.getService());
         call.setTimeout(methodConfig.getInvokeTimeout());
 
-        CompletableFuture<Reply> future = invokeHandler.invoke(call);
+        CompletableFuture<Reply> future = invokeHandler.handle(call);
 
         return (CompletableFuture<R>) future.thenApply(reply -> reply.getResult());
     }

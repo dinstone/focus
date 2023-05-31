@@ -26,11 +26,10 @@ import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.Page;
 import com.dinstone.focus.example.User;
 import com.dinstone.focus.example.UserService;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.Filter.Kind;
+import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
-import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -61,10 +60,10 @@ public class FocusClientTest {
         OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
                 .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
                 .buildAndRegisterGlobal();
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
         ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-                .addFilter(tf);
+                .addInterceptor(tf);
         // option.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
         FocusClient client = new FocusClient(option);

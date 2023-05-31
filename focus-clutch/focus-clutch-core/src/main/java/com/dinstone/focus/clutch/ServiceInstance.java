@@ -34,9 +34,11 @@ public class ServiceInstance implements Serializable {
 
     private Map<String, String> attributes = new HashMap<>();
 
-    private String instanceCode;
-
     private String serviceName;
+
+    private String serviceGroup;
+
+    private String instanceCode;
 
     private String instanceHost;
 
@@ -69,11 +71,11 @@ public class ServiceInstance implements Serializable {
     }
 
     public String getServiceGroup() {
-        return attributes.get("serviceGroup");
+        return serviceGroup;
     }
 
     public void setServiceGroup(String serviceGroup) {
-        attributes.put("serviceGroup", serviceGroup);
+        this.serviceGroup = serviceGroup;
     }
 
     public String getInstanceHost() {
@@ -159,8 +161,9 @@ public class ServiceInstance implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceInstance [instanceCode=" + instanceCode + ", serviceName=" + serviceName + ", instanceHost="
-                + instanceHost + ", instancePort=" + instancePort + ", attributes=" + attributes + "]";
+        return "ServiceInstance [serviceName=" + serviceName + ", serviceGroup=" + serviceGroup + ", instanceCode="
+                + instanceCode + ", instanceHost=" + instanceHost + ", instancePort=" + instancePort + ", attributes="
+                + attributes + "]";
     }
 
 }

@@ -20,9 +20,8 @@ import java.util.Date;
 import com.dinstone.focus.example.OrderRequest;
 import com.dinstone.focus.example.OrderResponse;
 import com.dinstone.focus.example.OrderService;
-import com.dinstone.focus.filter.Filter;
-import com.dinstone.focus.filter.Filter.Kind;
-import com.dinstone.focus.telemetry.TelemetryFilter;
+import com.dinstone.focus.invoke.Interceptor;
+import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
@@ -50,10 +49,10 @@ public class OrderServiceClient {
         // Filter tf = new TracingFilter(RpcTracing.create(tracing), Filter.Kind.CLIENT);
         String serviceName = "order.client";
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
-        Filter tf = new TelemetryFilter(openTelemetry, Kind.CLIENT);
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
         ClientOptions clientOptions = new ClientOptions().setEndpoint(serviceName).connect("localhost", 3303)
-                .addFilter(tf);
+                .addInterceptor(tf);
         FocusClient client = new FocusClient(clientOptions);
 
         OrderService oc = client.importing(OrderService.class);

@@ -86,8 +86,9 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
         return locaterFactory;
     }
 
-    public void setLocaterFactory(LocaterFactory locaterFactory) {
+    public ClientOptions setLocaterFactory(LocaterFactory locaterFactory) {
         this.locaterFactory = locaterFactory;
+        return this;
     }
 
     public InetSocketAddress getConsumerAddress() {

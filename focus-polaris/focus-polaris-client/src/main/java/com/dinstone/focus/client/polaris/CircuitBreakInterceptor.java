@@ -16,7 +16,7 @@
 package com.dinstone.focus.client.polaris;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
@@ -24,9 +24,10 @@ import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.tencent.polaris.api.pojo.ServiceKey;
 import com.tencent.polaris.circuitbreak.api.CircuitBreakAPI;
-import com.tencent.polaris.circuitbreak.api.FunctionalDecorator;
+import com.tencent.polaris.circuitbreak.api.InvokeHandler;
 import com.tencent.polaris.circuitbreak.api.pojo.FunctionalDecoratorRequest;
-import com.tencent.polaris.circuitbreak.api.pojo.ResultToErrorCode;
+import com.tencent.polaris.circuitbreak.api.pojo.InvokeContext;
+import com.tencent.polaris.circuitbreak.api.pojo.InvokeContext.RequestContext;
 import com.tencent.polaris.circuitbreak.factory.CircuitBreakAPIFactory;
 
 public class CircuitBreakInterceptor implements Interceptor {
@@ -39,34 +40,41 @@ public class CircuitBreakInterceptor implements Interceptor {
 
     @Override
     public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
-        ServiceKey skey = new ServiceKey("default", call.getService());
-        FunctionalDecoratorRequest makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
-        makeDecoratorRequest.setResultToErrorCode(new ResultToErrorCode() {
-            @Override
-            public int onSuccess(Object value) {
-                return 200;
-            }
+        ServiceKey skey = new ServiceKey(call.getGroup(), call.getService());
+        RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
+        InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
 
-            @Override
-            public int onError(Throwable throwable) {
-                return 500;
-            }
-        });
-        FunctionalDecorator decorator = circuitBreak.makeFunctionalDecorator(makeDecoratorRequest);
-        Function<Call, CompletableFuture<Reply>> f = decorator
-                .decorateFunction(new Function<Call, CompletableFuture<Reply>>() {
+        invokeHandler.acquirePermission();
 
-                    @Override
-                    public CompletableFuture<Reply> apply(Call call) {
-                        try {
-                            return handler.handle(call);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
+        long startTimeMilli = System.currentTimeMillis();
+        try {
+            CompletableFuture<Reply> future = handler.handle(call);
+            return future.whenComplete((reply, error) -> {
+                long delay = System.currentTimeMillis() - startTimeMilli;
 
-        return f.apply(call);
+                InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
+                responseContext.setDuration(delay);
+                responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
+
+                if (error == null) {
+                    responseContext.setResult(reply);
+                    invokeHandler.onSuccess(responseContext);
+                } else {
+                    responseContext.setError(error);
+                    invokeHandler.onError(responseContext);
+                }
+            });
+        } catch (Throwable e) {
+            long delay = System.currentTimeMillis() - startTimeMilli;
+            InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
+            responseContext.setDuration(delay);
+            responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
+            responseContext.setError(e);
+            invokeHandler.onError(responseContext);
+
+            throw e;
+        }
+
     }
 
 }

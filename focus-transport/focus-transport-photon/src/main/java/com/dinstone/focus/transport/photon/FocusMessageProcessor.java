@@ -126,7 +126,7 @@ public final class FocusMessageProcessor extends MessageProcessor {
         } catch (NoSuchMethodException e) {
             exception = new InvokeException(204, e);
         } catch (Throwable e) {
-            exception = new InvokeException(309, e);
+            exception = new InvokeException(509, e);
         }
 
         if (exception != null) {

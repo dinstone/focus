@@ -58,7 +58,7 @@ public class RateLimitInterceptor implements Interceptor {
         if (response.getCode() == QuotaResultCode.QuotaResultOk) {
             return handler.handle(call);
         } else {
-            throw new InvokeException(301, "rate limit is enabled");
+            throw new InvokeException(501, "service is rate-limit");
         }
     }
 

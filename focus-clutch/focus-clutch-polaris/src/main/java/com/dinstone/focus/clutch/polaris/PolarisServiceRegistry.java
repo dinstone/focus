@@ -47,7 +47,7 @@ public class PolarisServiceRegistry implements ServiceRegistry {
         // 设置实例版本
         request.setVersion("1.0.0");
         // 设置实例的协议
-        request.setProtocol("photon");
+        request.setProtocol("rpc/photon");
         // 设置实例权重
         request.setWeight(100);
         // 设置实例的标签

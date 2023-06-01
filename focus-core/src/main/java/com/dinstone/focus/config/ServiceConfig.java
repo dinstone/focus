@@ -32,7 +32,7 @@ import com.dinstone.focus.serialize.Serializer;
  */
 public abstract class ServiceConfig {
 
-    protected static final String DEFAULT_SERVICE_GROUP = "";
+    protected static final String DEFAULT_SERVICE_GROUP = "default";
 
     protected Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
 

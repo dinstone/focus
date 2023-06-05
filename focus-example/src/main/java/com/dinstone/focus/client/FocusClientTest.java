@@ -62,8 +62,7 @@ public class FocusClientTest {
                 .buildAndRegisterGlobal();
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-                .addInterceptor(tf);
+        ClientOptions option = new ClientOptions("focus.example.client").connect("localhost", 3333).addInterceptor(tf);
         // option.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
         FocusClient client = new FocusClient(option);

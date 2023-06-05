@@ -76,10 +76,10 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
     @Override
     public void cancel(ServiceInstance instance) {
         synchronized (serviceCacheMap) {
-            ServiceCache serviceCache = serviceCacheMap.get(instance.getServiceName());
+            ServiceCache serviceCache = serviceCacheMap.get(instance.getIdentity());
             if (serviceCache != null && serviceCache.decrement() <= 0) {
                 serviceCache.destroy();
-                serviceCacheMap.remove(instance.getServiceName());
+                serviceCacheMap.remove(instance.getIdentity());
             }
         }
     }
@@ -87,10 +87,10 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
     @Override
     public void listen(ServiceInstance instance) throws Exception {
         synchronized (serviceCacheMap) {
-            ServiceCache serviceCache = serviceCacheMap.get(instance.getServiceName());
+            ServiceCache serviceCache = serviceCacheMap.get(instance.getIdentity());
             if (serviceCache == null) {
-                serviceCache = new ServiceCache(instance.getServiceName(), config).build();
-                serviceCacheMap.put(instance.getServiceName(), serviceCache);
+                serviceCache = new ServiceCache(instance.getIdentity(), config).build();
+                serviceCacheMap.put(instance.getIdentity(), serviceCache);
             }
             serviceCache.increment();
         }
@@ -149,11 +149,11 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
             Map<String, ServiceInstance> newProviders = new HashMap<>();
             for (Instance instance : instances) {
                 ServiceInstance description = new ServiceInstance();
+                description.setIdentity(instance.getServiceName());
                 description.setInstanceCode(instance.getInstanceId());
-                description.setServiceName(instance.getServiceName());
                 description.setInstanceHost(instance.getIp());
                 description.setInstancePort(instance.getPort());
-                description.setAttributes(instance.getMetadata());
+                description.setMetadata(instance.getMetadata());
 
                 newProviders.put(description.getInstanceCode(), description);
             }

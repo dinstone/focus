@@ -50,15 +50,11 @@ public class DefaultImplementBinding implements ImplementBinding {
 
     @Override
     public void binding(ServiceConfig serviceConfig) {
-        String serviceId = serviceConfig.getService() + "-" + serviceConfig.getGroup();
+        String serviceId = serviceConfig.getService();
         if (serviceConfigMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
         }
         serviceConfigMap.put(serviceId, serviceConfig);
-
-        if (serviceRegistry != null) {
-            publish(serviceConfig);
-        }
     }
 
     @Override
@@ -66,7 +62,7 @@ public class DefaultImplementBinding implements ImplementBinding {
         if (group == null) {
             group = "";
         }
-        String serviceId = service + "-" + group;
+        String serviceId = service;
         return serviceConfigMap.get(serviceId);
     }
 
@@ -77,29 +73,32 @@ public class DefaultImplementBinding implements ImplementBinding {
         }
     }
 
-    private void publish(ServiceConfig config) {
+    @Override
+    public void publish(String application, String namespace) {
+        if (serviceRegistry == null) {
+            return;
+        }
+
         String host = providerAddress.getAddress().getHostAddress();
         int port = providerAddress.getPort();
-        String group = config.getGroup();
 
         StringBuilder code = new StringBuilder();
-        code.append(config.getEndpoint()).append("@");
+        code.append(application).append("@");
         code.append(host).append(":").append(port).append("$");
-        code.append((group == null ? "" : group));
+        code.append((namespace == null ? "default" : namespace));
 
         ServiceInstance instance = new ServiceInstance();
         instance.setInstanceCode(code.toString());
-        instance.setEndpointCode(config.getEndpoint());
         instance.setInstanceHost(host);
         instance.setInstancePort(port);
-        instance.setServiceName(config.getService());
-        instance.setServiceGroup(group);
+        instance.setIdentity(application);
+        instance.setNamespace(namespace);
         instance.setRegistTime(System.currentTimeMillis());
 
         try {
             serviceRegistry.register(instance);
         } catch (Exception e) {
-            throw new RuntimeException("can't publish service", e);
+            throw new RuntimeException("can't publish service: " + application, e);
         }
     }
 

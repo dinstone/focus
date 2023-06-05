@@ -19,9 +19,9 @@ public interface ServiceConsumer {
 
     public abstract <T> T importing(Class<T> sic);
 
-    public abstract <T> T importing(Class<T> sic, String group, int timeout);
+    public abstract <T> T importing(Class<T> sic, String application);
 
-    public abstract GenericService generic(String service, String group, int timeout);
+    public abstract GenericService generic(String application, String service);
 
     public abstract <T> T importing(Class<T> sic, ImportOptions importOptions);
 

@@ -19,9 +19,9 @@ public interface ServiceProvider {
 
     public abstract <T> void exporting(Class<T> clazz, T instance);
 
-    public abstract <T> void exporting(Class<T> clazz, T instance, ExportOptions exportOptions);
+    public abstract <T> void exporting(Class<T> clazz, T instance, String service);
 
-    public abstract <T> void exporting(Class<T> clazz, T instance, String service, String group);
+    public abstract <T> void exporting(Class<T> clazz, T instance, ExportOptions exportOptions);
 
     public abstract void destroy();
 

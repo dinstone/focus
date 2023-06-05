@@ -72,10 +72,10 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
     @Override
     public void cancel(ServiceInstance description) {
         synchronized (serviceCacheMap) {
-            ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
+            ServiceCache serviceCache = serviceCacheMap.get(description.getIdentity());
             if (serviceCache != null && serviceCache.decrement() <= 0) {
                 serviceCache.destroy();
-                serviceCacheMap.remove(description.getServiceName());
+                serviceCacheMap.remove(description.getIdentity());
             }
         }
     }
@@ -83,10 +83,10 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
     @Override
     public void listen(ServiceInstance description) throws Exception {
         synchronized (serviceCacheMap) {
-            ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
+            ServiceCache serviceCache = serviceCacheMap.get(description.getIdentity());
             if (serviceCache == null) {
-                serviceCache = new ServiceCache(description.getServiceName(), config).build();
-                serviceCacheMap.put(description.getServiceName(), serviceCache);
+                serviceCache = new ServiceCache(description.getIdentity(), config).build();
+                serviceCacheMap.put(description.getIdentity(), serviceCache);
             }
             serviceCache.increment();
         }
@@ -111,7 +111,7 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 
         private AtomicInteger reference = new AtomicInteger();
 
-        private ConcurrentHashMap<String, ServiceInstance> providers = new ConcurrentHashMap<>();
+        private volatile Map<String, ServiceInstance> providers = new HashMap<>();
 
         public ServiceCache(String serviceName, ConsulClutchOptions clutchOptions) {
             this.serviceName = serviceName;
@@ -148,14 +148,14 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
                 Service service = healthService.getService();
                 ServiceInstance instance = new ServiceInstance();
                 instance.setInstanceCode(service.getId());
-                instance.setServiceName(service.getService());
+                instance.setIdentity(service.getService());
                 instance.setInstanceHost(service.getAddress());
                 instance.setInstancePort(service.getPort());
-                instance.setAttributes(service.getMeta());
+                instance.setMetadata(service.getMeta());
                 newProviders.put(instance.getInstanceCode(), instance);
             }
-            providers.clear();
-            providers.putAll(newProviders);
+
+            providers = newProviders;
         }
 
         public Collection<ServiceInstance> getProviders() {

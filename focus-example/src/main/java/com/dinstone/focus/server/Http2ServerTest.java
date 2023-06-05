@@ -53,8 +53,8 @@ public class Http2ServerTest {
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions().listen("localhost", 8080).setEndpoint(serviceName)
-                .addInterceptor(tf).setAcceptOptions(new Http2AcceptOptions());
+        ServerOptions serverOptions = new ServerOptions(serviceName).listen("localhost", 8080).addInterceptor(tf)
+                .setAcceptOptions(new Http2AcceptOptions());
         // serverOptions.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
         FocusServer server = new FocusServer(serverOptions);
@@ -71,7 +71,7 @@ public class Http2ServerTest {
                 new ExportOptions("OrderService").setSerializerType(JacksonSerializer.SERIALIZER_TYPE));
 
         // export alias service
-        server.exporting(AuthenService.class, new AuthenService(), "AuthenService", null);
+        server.exporting(AuthenService.class, new AuthenService(), "AuthenService");
         server.exporting(ArithService.class, new ArithServiceImpl(),
                 new ExportOptions("ArithService").setSerializerType(ProtobufSerializer.SERIALIZER_TYPE));
 

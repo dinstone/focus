@@ -27,7 +27,7 @@ public class NacosServiceDiscoveryTest {
 
         ServiceInstance description = new ServiceInstance();
         String serviceName = "HelloService";
-        description.setServiceName(serviceName);
+        description.setIdentity(serviceName);
 
         try {
             discovery.listen(description);

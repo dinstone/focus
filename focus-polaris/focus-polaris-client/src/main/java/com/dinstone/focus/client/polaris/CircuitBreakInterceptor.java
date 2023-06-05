@@ -40,7 +40,7 @@ public class CircuitBreakInterceptor implements Interceptor {
 
     @Override
     public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
-        ServiceKey skey = new ServiceKey(call.getGroup(), call.getService());
+        ServiceKey skey = new ServiceKey("default", call.getService());
         RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
         InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
 

@@ -54,10 +54,9 @@ public final class FocusMessageProcessor extends MessageProcessor {
         Executor executor = null;
         if (executorSelector != null) {
             Headers headers = request.headers();
-            String g = headers.get(Call.GROUP_KEY);
             String s = headers.get(Call.SERVICE_KEY);
             String m = headers.get(Call.METHOD_KEY);
-            executor = executorSelector.select(g, s, m);
+            executor = executorSelector.select(s, m);
         }
         if (executor != null) {
             executor.execute(new Runnable() {
@@ -82,8 +81,9 @@ public final class FocusMessageProcessor extends MessageProcessor {
 
             Headers headers = request.headers();
             // check service
-            String group = headers.get(Call.GROUP_KEY);
             String service = headers.get(Call.SERVICE_KEY);
+            // TODO delete
+            String group = null;
             ServiceConfig serviceConfig = implementBinding.lookup(service, group);
             if (serviceConfig == null) {
                 throw new NoSuchMethodException("unkown service: " + service + "[" + group + "]");
@@ -202,7 +202,8 @@ public final class FocusMessageProcessor extends MessageProcessor {
         }
 
         Call call = new Call();
-        call.setGroup(headers.get(Call.GROUP_KEY));
+        call.setSource(headers.get(Call.SOURCE_KEY));
+        call.setTarget(headers.get(Call.TARGET_KEY));
         call.setService(headers.get(Call.SERVICE_KEY));
         call.setMethod(headers.get(Call.METHOD_KEY));
         call.setTimeout(request.getTimeout());

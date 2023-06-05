@@ -43,7 +43,8 @@ public class UserServiceClient {
 
         // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
         // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        // Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
+        // Tracing tracing =
+        // Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
         // .sampler(Sampler.create(1)).build();
         // Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.CLIENT);
 
@@ -51,8 +52,7 @@ public class UserServiceClient {
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3301).setEndpoint(serviceName)
-                .addInterceptor(tf);
+        ClientOptions option = new ClientOptions(serviceName).connect("localhost", 3301).addInterceptor(tf);
         FocusClient client = new FocusClient(option);
 
         ImportOptions ro = new ImportOptions(UserCheckService.class.getName())

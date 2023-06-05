@@ -90,6 +90,8 @@ public class FocusServer implements ServiceProvider {
             LOG.warn("focus server failure, {}", serviceAddress, e);
             throw new FocusException("start focus server error", e);
         }
+
+        implementBinding.publish(serverOptions.getIdentity(), serverOptions.getNamespace());
     }
 
     public InetSocketAddress getServiceAddress() {
@@ -102,8 +104,8 @@ public class FocusServer implements ServiceProvider {
     }
 
     @Override
-    public <T> void exporting(Class<T> clazz, T instance, String service, String group) {
-        exporting(clazz, instance, new ExportOptions(service, group));
+    public <T> void exporting(Class<T> clazz, T instance, String service) {
+        exporting(clazz, instance, new ExportOptions(service));
     }
 
     @Override
@@ -114,10 +116,11 @@ public class FocusServer implements ServiceProvider {
         }
 
         try {
-            ProviderConfig serviceConfig = new ProviderConfig(serverOptions.getEndpoint());
+            ProviderConfig serviceConfig = new ProviderConfig(serverOptions.getIdentity(),
+                    serverOptions.getNamespace());
+            serviceConfig.setApplication(serverOptions.getIdentity());
             serviceConfig.setService(service);
             serviceConfig.setTarget(instance);
-            serviceConfig.setGroup(exportOptions.getGroup());
             serviceConfig.setTimeout(exportOptions.getTimeout());
 
             // create and set method configure

@@ -25,9 +25,8 @@ public class ConsulServiceRegistryTest {
         description.setInstanceHost("localhost");
         description.setInstancePort(80);
 
-        description.setEndpointCode("focus.service.test");
-        description.setServiceName(serviceName);
-        description.setServiceGroup("default");
+        description.setIdentity(serviceName);
+        description.setNamespace("default");
 
         ConsulClutchOptions config = new ConsulClutchOptions();
         ConsulServiceRegistry registry = new ConsulServiceRegistry(config);

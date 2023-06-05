@@ -35,15 +35,15 @@ public class PolarisServiceRegistry implements ServiceRegistry {
     public void register(ServiceInstance service) throws Exception {
         InstanceRegisterRequest request = new InstanceRegisterRequest();
         // 设置实例所属服务信息
-        request.setService(service.getServiceName());
+        request.setService(service.getIdentity());
         // 设置实例所属服务的命名空间信息
-        request.setNamespace(service.getServiceGroup());
+        request.setNamespace(service.getNamespace());
         // 设置实例的 host 信息
         request.setHost(service.getInstanceHost());
         // 设置实例的端口信息
         request.setPort(service.getInstancePort());
         // 可选，资源访问Token，即用户/用户组访问凭据，仅当服务端开启客户端鉴权时才需配置
-        request.setToken(service.getAttributes().get("token"));
+        request.setToken(service.getMetadata().get("token"));
         // 设置实例版本
         request.setVersion("1.0.0");
         // 设置实例的协议
@@ -51,7 +51,7 @@ public class PolarisServiceRegistry implements ServiceRegistry {
         // 设置实例权重
         request.setWeight(100);
         // 设置实例的标签
-        request.setMetadata(service.getAttributes());
+        request.setMetadata(service.getMetadata());
         // 设置实例地理位置 zone 信息
         request.setZone("unkown");
         // 设置实例地理位置 region 信息

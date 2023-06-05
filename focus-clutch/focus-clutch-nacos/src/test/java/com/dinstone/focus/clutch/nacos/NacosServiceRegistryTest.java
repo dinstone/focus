@@ -26,9 +26,8 @@ public class NacosServiceRegistryTest {
         description.setInstanceHost("localhost");
         description.setInstancePort(80);
 
-        description.setEndpointCode("focus.service.test");
-        description.setServiceName(serviceName);
-        description.setServiceGroup("default");
+        description.setIdentity(serviceName);
+        description.setNamespace("default");
 
         NacosClutchOptions config = new NacosClutchOptions();
         NacosServiceRegistry registry = new NacosServiceRegistry(config);

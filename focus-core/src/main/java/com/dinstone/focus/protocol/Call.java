@@ -27,15 +27,25 @@ public class Call implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final String SOURCE_KEY = "call.source";
+
+    public static final String TARGET_KEY = "call.target";
+
     public static final String SERVICE_KEY = "call.service";
 
     public static final String METHOD_KEY = "call.method";
 
-    public static final String GROUP_KEY = "call.group";
-
     public static final String TIMEOUT_KEY = "call.timeout";
 
-    private String group;
+    /**
+     * source application identity
+     */
+    private String source;
+
+    /**
+     * target application identity
+     */
+    private String target;
 
     private String service;
 
@@ -86,12 +96,20 @@ public class Call implements Serializable {
         this.service = service;
     }
 
-    public String getGroup() {
-        return group;
+    public String getSource() {
+        return source;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public int getTimeout() {
@@ -131,6 +149,12 @@ public class Call implements Serializable {
             attach.putAll(other);
         }
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Call [source=" + source + ", target=" + target + ", service=" + service + ", method=" + method
+                + ", timeout=" + timeout + ", parameter=" + parameter + ", attach=" + attach + "]";
     }
 
 }

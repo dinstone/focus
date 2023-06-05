@@ -60,18 +60,25 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public List<ServiceInstance> lookup(String serviceName) {
-        try {
-            if (serviceDiscovery != null) {
+    public List<ServiceInstance> lookup(ServiceConfig serviceConfig) {
+
+        if (serviceDiscovery != null) {
+            String serviceName = serviceConfig.getApplication();
+            if (serviceName == null || serviceName.isEmpty()) {
+                throw new RuntimeException("service identity must not be empty");
+            }
+
+            try {
                 Collection<ServiceInstance> c = serviceDiscovery.discovery(serviceName);
                 if (c != null) {
                     return new ArrayList<ServiceInstance>(c);
                 }
+            } catch (Exception e) {
+                throw new RuntimeException("service [" + serviceName + "] discovery error", e);
             }
-            return null;
-        } catch (Exception e) {
-            throw new RuntimeException("service [" + serviceName + "] discovery error", e);
         }
+
+        return null;
     }
 
     @Override
@@ -82,20 +89,19 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     protected <T> ServiceInstance createServiceInstance(ServiceConfig config) {
-        String group = config.getGroup();
+        String group = config.getNamespace();
         String host = consumerAddress.getAddress().getHostAddress();
         int port = consumerAddress.getPort();
 
         StringBuilder code = new StringBuilder();
-        code.append(config.getEndpoint()).append("@");
+        code.append(config.getIdentity()).append("@");
         code.append(host).append(":").append(port).append("$");
         code.append((group == null ? "" : group));
 
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setInstanceCode(code.toString());
-        serviceInstance.setEndpointCode(config.getEndpoint());
-        serviceInstance.setServiceName(config.getService());
-        serviceInstance.setServiceGroup(group);
+        serviceInstance.setIdentity(config.getApplication());
+        serviceInstance.setNamespace(group);
         serviceInstance.setInstanceHost(host);
         serviceInstance.setInstancePort(port);
 

@@ -136,7 +136,6 @@ public class PhotonConnector implements Connector {
         Request request = new Request();
         request.setMsgId(IDGENER.incrementAndGet());
         Headers headers = request.headers();
-        headers.add(Call.GROUP_KEY, call.getGroup());
         headers.add(Call.SERVICE_KEY, call.getService());
         headers.add(Call.METHOD_KEY, call.getMethod());
         headers.setAll(call.attach());

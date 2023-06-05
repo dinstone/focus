@@ -33,9 +33,8 @@ public class PolarisFocusServerTest {
         // setting registry config
         PolarisClutchOptions clutchOptions = new PolarisClutchOptions().addAddresses("192.168.1.120:8091");
         Interceptor rateLimt = new RateLimitInterceptor("192.168.1.120:8091");
-        ServerOptions serverOptions = new ServerOptions().setClutchOptions(clutchOptions).listen("-", 3333)
-                .setEndpoint("com.rpc.demo.server").setAcceptOptions(new PhotonAcceptOptions())
-                .addInterceptor(rateLimt);
+        ServerOptions serverOptions = new ServerOptions("com.rpc.demo.server").setClutchOptions(clutchOptions)
+                .listen("-", 3333).setAcceptOptions(new PhotonAcceptOptions()).addInterceptor(rateLimt);
 
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());

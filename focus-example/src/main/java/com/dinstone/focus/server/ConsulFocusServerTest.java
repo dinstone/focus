@@ -29,10 +29,10 @@ public class ConsulFocusServerTest {
     private static final Logger LOG = LoggerFactory.getLogger(FocusServerTest.class);
 
     public static void main(String[] args) {
-        ClutchOptions registryConfig = new ConsulClutchOptions();
+        ClutchOptions registryConfig = new ConsulClutchOptions().setAgentHost("192.168.1.120").setAgentPort(8500);
         // setting registry config
-        ServerOptions serverOptions = new ServerOptions().setClutchOptions(registryConfig).listen("-", 3333)
-                .setEndpoint("com.rpc.demo.server").setAcceptOptions(new PhotonAcceptOptions());
+        ServerOptions serverOptions = new ServerOptions("com.rpc.demo.server").setClutchOptions(registryConfig)
+                .listen("-", 3333).setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());
         // server.start();

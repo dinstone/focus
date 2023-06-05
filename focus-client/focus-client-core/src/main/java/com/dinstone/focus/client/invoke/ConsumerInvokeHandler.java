@@ -42,7 +42,7 @@ public class ConsumerInvokeHandler extends ChainHandler {
         Context.pushContext();
         Context.getContext();
         try {
-            call.attach().put(Attach.CONSUMER_KEY, serviceConfig.getEndpoint());
+            call.attach().put(Attach.CONSUMER_KEY, serviceConfig.getIdentity());
 
             return invokeHandler.handle(call);
         } finally {

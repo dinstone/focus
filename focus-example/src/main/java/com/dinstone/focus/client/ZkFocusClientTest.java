@@ -29,11 +29,11 @@ public class ZkFocusClientTest {
 
         LOG.info("init start");
 
-        ClientOptions option = new ClientOptions().setConnectOptions(new PhotonConnectOptions())
-                .setClutchOptions(new ZookeeperClutchOptions()).setEndpoint("com.rpc.demo.client");
+        ClientOptions option = new ClientOptions("com.rpc.demo.client").setConnectOptions(new PhotonConnectOptions())
+                .setClutchOptions(new ZookeeperClutchOptions().setZookeeperNodes("192.168.1.120:2181"));
 
         FocusClient client = new FocusClient(option);
-        DemoService ds = client.importing(DemoService.class);
+        DemoService ds = client.importing(DemoService.class, "com.rpc.demo.server");
 
         try {
             Thread.sleep(1000);

@@ -56,7 +56,8 @@ public final class FocusMessageProcessor {
         try {
             Http2Headers headers = headersFrame.headers();
             // check service
-            String group = headers.get(Call.GROUP_KEY).toString();
+            // TODO delete
+            String group = null;
             String service = headers.get(Call.SERVICE_KEY).toString();
             ServiceConfig serviceConfig = implementBinding.lookup(service, group);
             if (serviceConfig == null) {
@@ -185,7 +186,8 @@ public final class FocusMessageProcessor {
         }
 
         Call call = new Call();
-        call.setGroup(headers.get(Call.GROUP_KEY).toString());
+        call.setSource(headers.get(Call.SOURCE_KEY, "").toString());
+        call.setTarget(headers.get(Call.TARGET_KEY, "").toString());
         call.setService(headers.get(Call.SERVICE_KEY).toString());
         call.setMethod(headers.get(Call.METHOD_KEY).toString());
         call.setTimeout(headers.getIntAndRemove(Call.TIMEOUT_KEY));
@@ -198,10 +200,9 @@ public final class FocusMessageProcessor {
         Executor executor = null;
         if (executorSelector != null) {
             Http2Headers headers = headersFrame.headers();
-            String g = headers.get(Call.GROUP_KEY).toString();
             String s = headers.get(Call.SERVICE_KEY).toString();
             String m = headers.get(Call.METHOD_KEY).toString();
-            executor = executorSelector.select(g, s, m);
+            executor = executorSelector.select(s, m);
         }
         if (executor != null) {
             executor.execute(new Runnable() {

@@ -19,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import com.dinstone.focus.ApplicationOptions;
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.binding.DefaultReferenceBinding;
 import com.dinstone.focus.client.config.ConsumerConfig;
@@ -31,7 +32,6 @@ import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
@@ -90,17 +90,17 @@ public class FocusClient implements ServiceConsumer {
 
     @Override
     public <T> T importing(Class<T> sic) {
-        return importing(sic, null, 3000);
+        return importing(sic, new ImportOptions(sic.getName()));
     }
 
     @Override
-    public <T> T importing(Class<T> sic, String group, int timeout) {
-        return importing(sic, new ImportOptions(sic.getName(), group).setTimeout(timeout));
+    public <T> T importing(Class<T> sic, String application) {
+        return importing(sic, new ImportOptions(application, sic.getName()));
     }
 
     @Override
-    public GenericService generic(String service, String group, int timeout) {
-        return importing(GenericService.class, new ImportOptions(service, group).setTimeout(timeout));
+    public GenericService generic(String application, String service) {
+        return importing(GenericService.class, new ImportOptions(application, service));
     }
 
     @Override
@@ -110,15 +110,15 @@ public class FocusClient implements ServiceConsumer {
             throw new IllegalArgumentException("serivce name is null");
         }
 
-        ConsumerConfig serviceConfig = new ConsumerConfig(clientOptions.getEndpoint());
-        serviceConfig.setGroup(importOptions.getGroup());
+        ConsumerConfig serviceConfig = new ConsumerConfig(clientOptions.getIdentity(), clientOptions.getNamespace());
+        serviceConfig.setApplication(importOptions.getApplication());
         serviceConfig.setService(importOptions.getService());
         serviceConfig.setTimeout(importOptions.getTimeout());
         serviceConfig.setRetry(importOptions.getRetry());
 
         // handle
         if (serviceClass.equals(GenericService.class)) {
-            importOptions.setSerializerType(EndpointOptions.DEFAULT_SERIALIZER_Type);
+            importOptions.setSerializerType(ApplicationOptions.DEFAULT_SERIALIZER_Type);
         } else {
             // parse method info and set invoke config
             serviceConfig.parseMethod(serviceClass.getMethods());
@@ -140,7 +140,7 @@ public class FocusClient implements ServiceConsumer {
         // create invoke handler chain
         serviceConfig.setHandler(createInvokeHandler(serviceConfig));
 
-        referenceBinding.lookup(serviceConfig.getService());
+        referenceBinding.lookup(serviceConfig);
         referenceBinding.binding(serviceConfig);
 
         return proxyFactory.create(serviceClass, serviceConfig);

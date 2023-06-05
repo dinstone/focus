@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.compress.snappy.SnappyCompressor;
 import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
@@ -30,8 +29,9 @@ public class GenericClientTest {
     private static final Logger LOG = LoggerFactory.getLogger(GenericClientTest.class);
 
     public static void main(String[] args) {
-        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 3333)
-                .setConnectOptions(new PhotonConnectOptions()).setCompressorType(SnappyCompressor.COMPRESSOR_TYPE);
+        ClientOptions option = new ClientOptions("focus.example.client").connect("localhost", 3333)
+                .setConnectOptions(new PhotonConnectOptions());
+        // .setCompressorType(SnappyCompressor.COMPRESSOR_TYPE);
         FocusClient client = new FocusClient(option);
 
         LOG.info("init end");
@@ -49,7 +49,7 @@ public class GenericClientTest {
     }
 
     private static void demoService(FocusClient client) throws Exception {
-        GenericService gs = client.generic("com.dinstone.focus.example.DemoService", "", 30000);
+        GenericService gs = client.generic("", "com.dinstone.focus.example.DemoService");
         String parameter = generateString(10241);
         // String r = gs.sync(String.class, "hello", parameter);
         // System.out.println("result = " + r);
@@ -63,7 +63,7 @@ public class GenericClientTest {
 
     @SuppressWarnings({ "rawtypes" })
     private static void orderService(FocusClient client) throws Exception {
-        GenericService gs = client.generic("com.dinstone.focus.example.OrderService", "", 30000);
+        GenericService gs = client.generic("", "OrderService");
         Map<String, String> p = new HashMap<String, String>();
         p.put("sn", "S001");
         p.put("uid", "U981");

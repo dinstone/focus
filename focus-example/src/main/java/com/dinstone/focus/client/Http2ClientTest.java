@@ -63,8 +63,8 @@ public class Http2ClientTest {
                 .buildAndRegisterGlobal();
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 8080)
-                .addInterceptor(tf).setConnectOptions(new Http2ConnectOptions());
+        ClientOptions option = new ClientOptions("focus.example.client").connect("localhost", 8080).addInterceptor(tf)
+                .setConnectOptions(new Http2ConnectOptions());
         // option.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
         FocusClient client = new FocusClient(option);

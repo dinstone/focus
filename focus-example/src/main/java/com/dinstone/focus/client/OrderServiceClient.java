@@ -42,17 +42,11 @@ public class OrderServiceClient {
 
     public static void main(String[] args) {
 
-        // Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
-        // AsyncZipkinSpanHandler spanHandler = AsyncZipkinSpanHandler.create(sender);
-        // Tracing tracing = Tracing.newBuilder().localServiceName("focus.client").addSpanHandler(spanHandler)
-        // .sampler(Sampler.create(1)).build();
-        // Filter tf = new TracingFilter(RpcTracing.create(tracing), Filter.Kind.CLIENT);
-        String serviceName = "order.client";
-        OpenTelemetry openTelemetry = getTelemetry(serviceName);
+        String appName = "order.client";
+        OpenTelemetry openTelemetry = getTelemetry(appName);
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions clientOptions = new ClientOptions().setEndpoint(serviceName).connect("localhost", 3303)
-                .addInterceptor(tf);
+        ClientOptions clientOptions = new ClientOptions(appName).connect("localhost", 3303).addInterceptor(tf);
         FocusClient client = new FocusClient(clientOptions);
 
         OrderService oc = client.importing(OrderService.class);

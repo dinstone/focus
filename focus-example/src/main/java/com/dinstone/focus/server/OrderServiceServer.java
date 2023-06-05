@@ -71,12 +71,12 @@ public class OrderServiceServer {
         //
         // final Filter tf = new TracingFilter(RpcTracing.create(tracing), Kind.SERVER);
 
-        String serviceName = "order.service";
-        OpenTelemetry openTelemetry = getTelemetry(serviceName);
+        String appName = "order.service";
+        OpenTelemetry openTelemetry = getTelemetry(appName);
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions().setAcceptOptions(new PhotonAcceptOptions());
-        serverOptions.listen("localhost", 3303).setEndpoint(serviceName);
+        ServerOptions serverOptions = new ServerOptions(appName).setAcceptOptions(new PhotonAcceptOptions());
+        serverOptions.listen("localhost", 3303);
         serverOptions.addInterceptor(tf);
         FocusServer server = new FocusServer(serverOptions);
 
@@ -106,7 +106,7 @@ public class OrderServiceServer {
     private static StoreService createStoreServiceRpc(OpenTelemetry openTelemetry) {
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3302)
+        ClientOptions option = new ClientOptions("store.service.client").connect("localhost", 3302)
                 .setConnectOptions(new PhotonConnectOptions()).addInterceptor(tf);
         FocusClient client = new FocusClient(option);
         return client.importing(StoreService.class);
@@ -115,7 +115,7 @@ public class OrderServiceServer {
     private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3301)
+        ClientOptions option = new ClientOptions("user.service.client").connect("localhost", 3301)
                 .setConnectOptions(new PhotonConnectOptions()).addInterceptor(tf);
         FocusClient client = new FocusClient(option);
 

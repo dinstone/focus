@@ -109,10 +109,10 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
 
     @Override
     public void cancel(ServiceInstance description) {
-        ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
+        ServiceCache serviceCache = serviceCacheMap.get(description.getIdentity());
         if (serviceCache != null && serviceCache.removeConsumer() <= 0) {
             serviceCache.destroy();
-            serviceCacheMap.remove(description.getServiceName());
+            serviceCacheMap.remove(description.getIdentity());
         }
     }
 
@@ -120,10 +120,10 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
     public void listen(ServiceInstance description) throws Exception {
         ServiceCache serviceCache = null;
         synchronized (serviceCacheMap) {
-            serviceCache = serviceCacheMap.get(description.getServiceName());
+            serviceCache = serviceCacheMap.get(description.getIdentity());
             if (serviceCache == null) {
                 serviceCache = new ServiceCache(client, description).build();
-                serviceCacheMap.put(description.getServiceName(), serviceCache);
+                serviceCacheMap.put(description.getIdentity(), serviceCache);
             }
         }
         if (connectionState == ConnectionState.CONNECTED) {
@@ -165,7 +165,7 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
         private String providerPath;
 
         public ServiceCache(CuratorFramework client, ServiceInstance description) {
-            providerPath = pathForProviders(description.getServiceName());
+            providerPath = pathForProviders(description.getIdentity());
             this.description = description;
 
             pathCache = CuratorCache.build(client, providerPath);
@@ -189,7 +189,7 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
 
                 description.setRegistTime(System.currentTimeMillis());
                 byte[] bytes = serializer.serialize(description);
-                String path = pathForConsumer(description.getServiceName(), description.getInstanceCode());
+                String path = pathForConsumer(description.getIdentity(), description.getInstanceCode());
 
                 final int MAX_TRIES = 2;
                 boolean isDone = false;
@@ -234,7 +234,7 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
         public void destroy() {
             if (connectionState == ConnectionState.CONNECTED) {
                 for (ServiceInstance consumer : consumers.values()) {
-                    String path = pathForConsumer(consumer.getServiceName(), consumer.getInstanceCode());
+                    String path = pathForConsumer(consumer.getIdentity(), consumer.getInstanceCode());
                     try {
                         client.delete().forPath(path);
                     } catch (Exception e) {

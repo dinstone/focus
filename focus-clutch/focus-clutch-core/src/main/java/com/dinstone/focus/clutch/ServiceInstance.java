@@ -17,11 +17,11 @@ package com.dinstone.focus.clutch;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * service instance info
+ * service instance info: service part and instance part and metadata part.
  *
  * @author dinstone
  *
@@ -32,27 +32,23 @@ public class ServiceInstance implements Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private Map<String, String> attributes = new HashMap<>();
+    private static final String DEFAULT_NAMESPACE = "default";
 
-    private String serviceName;
+    private Map<String, String> metadata = new LinkedHashMap<>();
 
-    private String serviceGroup;
+    private String namespace = DEFAULT_NAMESPACE;
+
+    private String identity;
 
     private String instanceCode;
+
+    private String instanceType;
 
     private String instanceHost;
 
     private int instancePort;
 
     private volatile InetSocketAddress address;
-
-    public String getEndpointCode() {
-        return attributes.get("endpointCode");
-    }
-
-    public void setEndpointCode(String endpointCode) {
-        attributes.put("endpointCode", endpointCode);
-    }
 
     public String getInstanceCode() {
         return instanceCode;
@@ -62,20 +58,28 @@ public class ServiceInstance implements Serializable {
         this.instanceCode = instanceCode;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getIdentity() {
+        return identity;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setIdentity(String identity) {
+        this.identity = identity;
     }
 
-    public String getServiceGroup() {
-        return serviceGroup;
+    public String getNamespace() {
+        return namespace;
     }
 
-    public void setServiceGroup(String serviceGroup) {
-        this.serviceGroup = serviceGroup;
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getInstanceType() {
+        return instanceType;
+    }
+
+    public void setInstanceType(String instanceType) {
+        this.instanceType = instanceType;
     }
 
     public String getInstanceHost() {
@@ -95,7 +99,7 @@ public class ServiceInstance implements Serializable {
     }
 
     public long getRegistTime() {
-        String rt = attributes.get("registTime");
+        String rt = metadata.get("registTime");
         if (rt != null) {
             return Long.parseLong(rt);
         }
@@ -103,26 +107,26 @@ public class ServiceInstance implements Serializable {
     }
 
     public void setRegistTime(long registTime) {
-        attributes.put("registTime", Long.toString(registTime));
+        metadata.put("registTime", Long.toString(registTime));
     }
 
-    public Map<String, String> getAttributes() {
-        return attributes;
+    public Map<String, String> getMetadata() {
+        return metadata;
     }
 
-    public void setAttributes(Map<String, String> attributes) {
-        if (attributes != null) {
-            this.attributes.putAll(attributes);
+    public void setMetadata(Map<String, String> metadata) {
+        if (metadata != null) {
+            this.metadata.putAll(metadata);
         }
     }
 
-    public ServiceInstance addAttribute(String att, Object value) {
-        this.attributes.put(att, value.toString());
+    public ServiceInstance addMetadata(String meta, Object data) {
+        this.metadata.put(meta, data.toString());
         return this;
     }
 
-    public ServiceInstance removeAttribute(String att) {
-        this.attributes.remove(att);
+    public ServiceInstance removeMetadata(String meta) {
+        this.metadata.remove(meta);
         return this;
     }
 
@@ -161,9 +165,9 @@ public class ServiceInstance implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceInstance [serviceName=" + serviceName + ", serviceGroup=" + serviceGroup + ", instanceCode="
-                + instanceCode + ", instanceHost=" + instanceHost + ", instancePort=" + instancePort + ", attributes="
-                + attributes + "]";
+        return "ServiceInstance [identity=" + identity + ", namespace=" + namespace + ", instanceCode=" + instanceCode
+                + ", instanceType=" + instanceType + ", instanceHost=" + instanceHost + ", instancePort=" + instancePort
+                + ", metadata=" + metadata + "]";
     }
 
 }

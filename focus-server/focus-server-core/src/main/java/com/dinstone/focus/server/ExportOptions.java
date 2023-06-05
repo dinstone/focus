@@ -38,13 +38,7 @@ public class ExportOptions {
     private int compressThreshold;
 
     public ExportOptions(String service) {
-        this(service, null);
-    }
-
-    public ExportOptions(String service, String group) {
         this.service = service;
-        this.group = group;
-
         this.timeout = DEFAULT_INVOKE_TIMEOUT;
     }
 

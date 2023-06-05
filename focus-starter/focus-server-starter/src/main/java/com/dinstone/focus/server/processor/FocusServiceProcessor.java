@@ -41,7 +41,7 @@ public class FocusServiceProcessor implements BeanPostProcessor, ApplicationCont
                 clazz = ifs[0];
             }
             String service = fsa.service().length() > 0 ? fsa.service() : clazz.getName();
-            server.exporting(clazz, bean, new ExportOptions(service, fsa.group()));
+            server.exporting(clazz, bean, new ExportOptions(service));
         }
         return bean;
     }

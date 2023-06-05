@@ -20,8 +20,8 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dinstone.focus.ApplicationOptions;
 import com.dinstone.focus.client.locate.DefaultLocaterFactory;
-import com.dinstone.focus.endpoint.EndpointOptions;
 import com.dinstone.focus.transport.ConnectOptions;
 import com.dinstone.focus.utils.NetworkUtil;
 
@@ -31,7 +31,7 @@ import com.dinstone.focus.utils.NetworkUtil;
  * @author dinstone
  *
  */
-public class ClientOptions extends EndpointOptions<ClientOptions> {
+public class ClientOptions extends ApplicationOptions<ClientOptions> {
 
     private static final int DEFAULT_CONNECT_RETRY = 2;
 
@@ -44,6 +44,10 @@ public class ClientOptions extends EndpointOptions<ClientOptions> {
     private int connectRetry = DEFAULT_CONNECT_RETRY;
 
     private InetSocketAddress consumerAddress;
+
+    public ClientOptions(String identity) {
+        super(identity);
+    }
 
     public ConnectOptions getConnectOptions() {
         return connectOptions;

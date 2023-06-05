@@ -49,12 +49,11 @@ public class FocusServerTest {
 
     public static void main(String[] args) {
 
-        String serviceName = "focus.example.server";
-        OpenTelemetry openTelemetry = getTelemetry(serviceName);
+        String appName = "focus.example.server";
+        OpenTelemetry openTelemetry = getTelemetry(appName);
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions().listen("localhost", 3333).setEndpoint(serviceName)
-                .addInterceptor(tf);
+        ServerOptions serverOptions = new ServerOptions(appName).listen("localhost", 3333).addInterceptor(tf);
         // serverOptions.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
         FocusServer server = new FocusServer(serverOptions);
@@ -71,7 +70,7 @@ public class FocusServerTest {
                 new ExportOptions("OrderService").setSerializerType(JacksonSerializer.SERIALIZER_TYPE));
 
         // export alias service
-        server.exporting(AuthenService.class, new AuthenService(), "AuthenService", null);
+        server.exporting(AuthenService.class, new AuthenService(), "AuthenService");
         server.exporting(ArithService.class, new ArithServiceImpl(),
                 new ExportOptions("ArithService").setSerializerType(ProtobufSerializer.SERIALIZER_TYPE));
 

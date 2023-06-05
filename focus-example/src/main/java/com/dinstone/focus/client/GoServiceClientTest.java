@@ -32,7 +32,7 @@ public class GoServiceClientTest {
     private static final Logger LOG = LoggerFactory.getLogger(GoServiceClientTest.class);
 
     public static void main(String[] args) {
-        ClientOptions option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 9010)
+        ClientOptions option = new ClientOptions("focus.example.client").connect("localhost", 9010)
                 .setConnectOptions(new PhotonConnectOptions());
         FocusClient client = new FocusClient(option);
 
@@ -42,7 +42,7 @@ public class GoServiceClientTest {
             demoService(client);
             client.destroy();
 
-            option = new ClientOptions().setEndpoint("focus.example.client").connect("localhost", 8010)
+            option = new ClientOptions("focus.example.client").connect("localhost", 8010)
                     .setConnectOptions(new PhotonConnectOptions());
             client = new FocusClient(option);
             arithService(client);
@@ -66,7 +66,7 @@ public class GoServiceClientTest {
 
     @SuppressWarnings("rawtypes")
     private static void demoService(FocusClient client) throws Exception {
-        GenericService gs = client.generic("TestService", "", 30000);
+        GenericService gs = client.generic("", "TestService");
         Map<String, Object> parameter = new HashMap<>();
         parameter.put("A", 20);
         parameter.put("B", 5);

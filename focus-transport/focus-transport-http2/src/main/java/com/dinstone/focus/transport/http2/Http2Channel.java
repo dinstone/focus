@@ -75,7 +75,8 @@ public class Http2Channel {
         streamChannel.pipeline().addLast(new StreamChannelHandler(future, serviceConfig, methodConfig));
 
         DefaultHttp2Headers headers = new DefaultHttp2Headers();
-        headers.add(Call.GROUP_KEY, call.getGroup());
+        headers.add(Call.SOURCE_KEY, call.getSource());
+        headers.add(Call.TARGET_KEY, call.getTarget());
         headers.add(Call.SERVICE_KEY, call.getService());
         headers.add(Call.METHOD_KEY, call.getMethod());
         headers.addInt(Call.TIMEOUT_KEY, call.getTimeout());

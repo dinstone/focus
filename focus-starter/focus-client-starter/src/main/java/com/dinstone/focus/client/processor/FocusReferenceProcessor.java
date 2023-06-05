@@ -41,7 +41,7 @@ public class FocusReferenceProcessor implements BeanPostProcessor, ApplicationCo
 
                 ReflectionUtils.makeAccessible(field);
                 ReflectionUtils.setField(field, bean, client.importing(field.getType(),
-                        new ImportOptions(autowired.service(), autowired.group()).setTimeout(autowired.timeout())));
+                        new ImportOptions(autowired.group(), autowired.service()).setTimeout(autowired.timeout())));
             }
         });
         return bean;

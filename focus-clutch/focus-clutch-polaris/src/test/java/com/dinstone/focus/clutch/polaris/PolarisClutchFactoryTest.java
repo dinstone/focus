@@ -55,9 +55,8 @@ public class PolarisClutchFactoryTest {
 
     private static void testRigstry(ServiceRegistry registry) {
         ServiceInstance si = new ServiceInstance();
-        si.setEndpointCode("test.provider");
-        si.setServiceName("provider.user");
-        si.setServiceGroup("default");
+        si.setIdentity("provider.user");
+        si.setNamespace("default");
         si.setInstanceHost("192.168.1.20");
         si.setInstancePort(8888);
         try {

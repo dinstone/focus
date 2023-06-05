@@ -21,7 +21,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.focus.endpoint.EndpointOptions;
+import com.dinstone.focus.ApplicationOptions;
 import com.dinstone.focus.transport.AcceptOptions;
 import com.dinstone.focus.utils.NetworkUtil;
 import com.dinstone.loghub.Logger;
@@ -33,13 +33,17 @@ import com.dinstone.loghub.LoggerFactory;
  * @author dinstone
  *
  */
-public class ServerOptions extends EndpointOptions<ServerOptions> {
+public class ServerOptions extends ApplicationOptions<ServerOptions> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerOptions.class);
 
     private AcceptOptions acceptOptions = AcceptOptions.DEFAULT_ACCEPT_OPTIONS;
 
     private InetSocketAddress serviceAddress;
+
+    public ServerOptions(String identity) {
+        super(identity);
+    }
 
     public ServerOptions listen(InetSocketAddress socketAddress) {
         if (socketAddress != null) {

@@ -36,7 +36,7 @@ class EnableFocusServerTest {
     @Bean(destroyMethod = "destroy")
     @ConditionalOnMissingBean
     FocusServer defaultFocusServer() {
-        return new FocusServer(new ServerOptions().listen(2222));
+        return new FocusServer(new ServerOptions("demo.server").listen(2222));
     }
 
 }

@@ -48,7 +48,6 @@ class GenericHandler implements GenericService {
         MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
         Call call = new Call(methodName, parameter);
-        call.setGroup(serviceConfig.getGroup());
         call.setService(serviceConfig.getService());
         call.setTimeout(methodConfig.getInvokeTimeout());
 
@@ -69,7 +68,6 @@ class GenericHandler implements GenericService {
         MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
         Call call = new Call(methodName, parameter);
-        call.setGroup(serviceConfig.getGroup());
         call.setService(serviceConfig.getService());
         call.setTimeout(methodConfig.getInvokeTimeout());
 

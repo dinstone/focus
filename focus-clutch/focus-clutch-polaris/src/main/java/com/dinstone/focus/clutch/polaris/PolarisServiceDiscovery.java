@@ -65,12 +65,12 @@ public class PolarisServiceDiscovery implements ServiceDiscovery {
         InstancesResponse response = consumerAPI.getInstances(request);
         for (Instance instance : response.getInstances()) {
             ServiceInstance si = new ServiceInstance();
-            si.setServiceGroup(instance.getNamespace());
-            si.setServiceName(instance.getService());
+            si.setNamespace(instance.getNamespace());
+            si.setIdentity(instance.getService());
             si.setInstanceCode(instance.getId());
             si.setInstanceHost(instance.getHost());
             si.setInstancePort(instance.getPort());
-            si.setAttributes(instance.getMetadata());
+            si.setMetadata(instance.getMetadata());
             silist.add(si);
         }
 

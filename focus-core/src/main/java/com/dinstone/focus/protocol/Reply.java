@@ -106,4 +106,9 @@ public class Reply implements Serializable {
         return data instanceof InvokeException;
     }
 
+    @Override
+    public String toString() {
+        return "Reply [data=" + data + ", attach=" + attach + "]";
+    }
+
 }

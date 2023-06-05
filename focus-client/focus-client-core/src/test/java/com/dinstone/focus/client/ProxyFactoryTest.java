@@ -83,7 +83,7 @@ public class ProxyFactoryTest {
     }
 
     private HelloService proxyFactory() {
-        ConsumerConfig serviceConfig = new ConsumerConfig(null);
+        ConsumerConfig serviceConfig = new ConsumerConfig(null, null);
         serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
         serviceConfig.setHandler(new Handler() {
 

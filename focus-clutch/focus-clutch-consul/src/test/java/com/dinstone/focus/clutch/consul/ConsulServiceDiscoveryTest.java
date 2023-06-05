@@ -26,7 +26,7 @@ public class ConsulServiceDiscoveryTest {
 
         ServiceInstance description = new ServiceInstance();
         String serviceName = "HelloService";
-        description.setServiceName(serviceName);
+        description.setIdentity(serviceName);
 
         try {
             discovery.listen(description);

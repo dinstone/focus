@@ -19,7 +19,7 @@ import java.util.concurrent.Executor;
 
 public interface ExecutorSelector {
 
-    Executor select(String g, String s, String m);
+    Executor select(String s, String m);
 
     void destroy();
 

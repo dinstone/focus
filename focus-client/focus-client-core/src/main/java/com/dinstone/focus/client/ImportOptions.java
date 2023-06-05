@@ -29,9 +29,9 @@ public class ImportOptions {
 
     public static final int DEFAULT_INVOKE_RETRY = 0;
 
-    private String service;
+    private String application;
 
-    private String group;
+    private String service;
 
     private int timeout;
 
@@ -46,12 +46,12 @@ public class ImportOptions {
     private List<InvokeOptions> invokeOptions;
 
     public ImportOptions(String service) {
-        this(service, null);
+        this(null, service);
     }
 
-    public ImportOptions(String service, String group) {
+    public ImportOptions(String application, String service) {
+        this.application = application;
         this.service = service;
-        this.group = group;
 
         this.retry = DEFAULT_INVOKE_RETRY;
         this.timeout = DEFAULT_INVOKE_TIMEOUT;
@@ -61,8 +61,8 @@ public class ImportOptions {
         return service;
     }
 
-    public String getGroup() {
-        return group;
+    public String getApplication() {
+        return application;
     }
 
     public int getTimeout() {

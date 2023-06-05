@@ -57,14 +57,14 @@ public class RemoteInvokeHandler implements Handler {
         // init backup service instances
         if (clientOptions.getServiceAddresses() != null) {
             for (InetSocketAddress socketAddress : clientOptions.getServiceAddresses()) {
-                String service = serviceConfig.getService();
-                String group = serviceConfig.getGroup();
+                String service = serviceConfig.getApplication();
+                String group = serviceConfig.getNamespace();
                 String host = socketAddress.getHostString();
                 int port = socketAddress.getPort();
 
                 ServiceInstance si = new ServiceInstance();
-                si.setServiceName(service);
-                si.setServiceGroup(group);
+                si.setIdentity(service);
+                si.setNamespace(group);
                 si.setInstanceHost(host);
                 si.setInstancePort(port);
 
@@ -112,7 +112,7 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     private List<ServiceInstance> collect(Call call) {
-        List<ServiceInstance> instances = referenceBinding.lookup(call.getService());
+        List<ServiceInstance> instances = referenceBinding.lookup(serviceConfig);
         if (instances != null) {
             return instances;
         } else {
@@ -121,7 +121,7 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     private CompletableFuture<Reply> remoteInvoke(Call call, ServiceInstance instance) throws Exception {
-        call.attach().put(Attach.PROVIDER_KEY, instance.getEndpointCode());
+        call.attach().put(Attach.PROVIDER_KEY, instance.getIdentity());
         return connector.send(call, serviceConfig, instance);
     }
 

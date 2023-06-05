@@ -23,6 +23,8 @@ public interface ImplementBinding {
 
     ServiceConfig lookup(String service, String group);
 
+    void publish(String application, String namespace);
+
     void destroy();
 
 }

@@ -74,8 +74,8 @@ public class StoreServiceServer {
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3302).setEndpoint(serviceName);
+        ServerOptions serverOptions = new ServerOptions(serviceName);
+        serverOptions.listen("localhost", 3302);
         serverOptions.addInterceptor(tf).setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         UserCheckService userService = createUserServiceRpc(openTelemetry);
@@ -87,7 +87,7 @@ public class StoreServiceServer {
     private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-        ClientOptions option = new ClientOptions().connect("localhost", 3301)
+        ClientOptions option = new ClientOptions("user.service.client").connect("localhost", 3301)
                 .setConnectOptions(new PhotonConnectOptions()).addInterceptor(tf);
         FocusClient client = new FocusClient(option);
 

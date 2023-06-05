@@ -43,6 +43,6 @@ class EnableFocusClientTest {
     @Bean(destroyMethod = "destroy")
     @ConditionalOnMissingBean
     FocusClient defaultFocusClient() {
-        return new FocusClient(new ClientOptions().connect("127.0.0.1", 2222));
+        return new FocusClient(new ClientOptions("demo.client").connect("127.0.0.1", 2222));
     }
 }

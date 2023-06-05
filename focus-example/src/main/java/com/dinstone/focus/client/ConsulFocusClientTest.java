@@ -30,11 +30,11 @@ public class ConsulFocusClientTest {
         LOG.info("init start");
         PhotonConnectOptions connectOptions = new PhotonConnectOptions();
 
-        ClientOptions option = new ClientOptions().setConnectOptions(connectOptions)
-                .setClutchOptions(new ConsulClutchOptions()).setEndpoint("com.rpc.demo.client");
+        ClientOptions option = new ClientOptions("com.rpc.demo.client").setConnectOptions(connectOptions)
+                .setClutchOptions(new ConsulClutchOptions().setAgentHost("192.168.1.120").setAgentPort(8500));
 
         FocusClient client = new FocusClient(option);
-        DemoService ds = client.importing(DemoService.class);
+        DemoService ds = client.importing(DemoService.class, "com.rpc.demo.server");
 
         LOG.info("int end");
 

@@ -25,18 +25,16 @@ import com.dinstone.focus.serialize.Serializer;
 
 public class ProviderConfig extends ServiceConfig {
 
-    public ProviderConfig(String endpoint) {
-        this.endpoint = endpoint;
+    public ProviderConfig(String identity, String namespace) {
+        super(identity, namespace);
     }
 
     public void setService(String service) {
         this.service = service;
     }
 
-    public void setGroup(String group) {
-        if (group != null && group.length() > 0) {
-            this.group = group;
-        }
+    public void setApplication(String application) {
+        this.application = application;
     }
 
     public void setTimeout(int timeout) {

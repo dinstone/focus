@@ -62,8 +62,8 @@ public class UserServiceServer {
         OpenTelemetry openTelemetry = getTelemetry(serviceName);
         Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions();
-        serverOptions.listen("localhost", 3301).setEndpoint(serviceName);
+        ServerOptions serverOptions = new ServerOptions(serviceName);
+        serverOptions.listen("localhost", 3301);
         serverOptions.addInterceptor(tf).setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(UserCheckService.class, new UserCheckServiceImpl(),

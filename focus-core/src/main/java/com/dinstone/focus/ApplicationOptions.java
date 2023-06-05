@@ -13,22 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.endpoint;
+package com.dinstone.focus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.dinstone.focus.clutch.ClutchOptions;
+import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Interceptor;
 
 @SuppressWarnings("unchecked")
-public class EndpointOptions<T extends EndpointOptions<T>> {
+public class ApplicationOptions<T extends ApplicationOptions<T>> {
+
+    public static final String DEFAULT_NAMESPACE = "default";
 
     public static final String DEFAULT_SERIALIZER_Type = "json";
 
     private static final int DEFAULT_COMPRESS_THRESHOLD = 10240;
 
-    private String endpoint;
+    /**
+     * application identity for micro-service name
+     */
+    private String identity;
+
+    /**
+     * application identity for runtime environment
+     */
+    private String namespace;
 
     private String serializerType;
 
@@ -40,17 +51,27 @@ public class EndpointOptions<T extends EndpointOptions<T>> {
 
     private List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
-    public EndpointOptions() {
-        compressThreshold = DEFAULT_COMPRESS_THRESHOLD;
+    public ApplicationOptions(String identity) {
+        if (identity == null) {
+            throw new FocusException("application.identity must be not empty");
+        }
+        this.identity = identity;
+
+        namespace = DEFAULT_NAMESPACE;
         serializerType = DEFAULT_SERIALIZER_Type;
+        compressThreshold = DEFAULT_COMPRESS_THRESHOLD;
     }
 
-    public String getEndpoint() {
-        return endpoint;
+    public String getIdentity() {
+        return identity;
     }
 
-    public T setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public T setNamespace(String namespace) {
+        this.namespace = namespace;
         return (T) this;
     }
 

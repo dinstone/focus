@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.server.binding;
 
-import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,16 +25,19 @@ import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.clutch.ServiceRegistry;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.server.ServerOptions;
 
 public class DefaultImplementBinding implements ImplementBinding {
 
     protected Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
-    protected InetSocketAddress providerAddress;
-
     protected ServiceRegistry serviceRegistry;
 
-    public DefaultImplementBinding(ClutchOptions clutchOptions, InetSocketAddress providerAddress) {
+    private ServerOptions serverOptions;
+
+    public DefaultImplementBinding(ServerOptions serverOptions) {
+        ClutchOptions clutchOptions = serverOptions.getClutchOptions();
         if (clutchOptions != null) {
             ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
             for (ClutchFactory clutchFactory : serviceLoader) {
@@ -45,25 +47,21 @@ public class DefaultImplementBinding implements ImplementBinding {
                 }
             }
         }
-        this.providerAddress = providerAddress;
+        this.serverOptions = serverOptions;
     }
 
     @Override
     public void binding(ServiceConfig serviceConfig) {
-        String serviceId = serviceConfig.getService();
-        if (serviceConfigMap.get(serviceId) != null) {
-            throw new RuntimeException("multiple object registed with the service interface " + serviceId);
+        String serviceName = serviceConfig.getService();
+        if (serviceConfigMap.get(serviceName) != null) {
+            throw new RuntimeException("multiple object registed with the service name : " + serviceName);
         }
-        serviceConfigMap.put(serviceId, serviceConfig);
+        serviceConfigMap.put(serviceName, serviceConfig);
     }
 
     @Override
-    public ServiceConfig lookup(String service, String group) {
-        if (group == null) {
-            group = "";
-        }
-        String serviceId = service;
-        return serviceConfigMap.get(serviceId);
+    public ServiceConfig lookup(String serviceName) {
+        return serviceConfigMap.get(serviceName);
     }
 
     @Override
@@ -74,31 +72,31 @@ public class DefaultImplementBinding implements ImplementBinding {
     }
 
     @Override
-    public void publish(String application, String namespace) {
+    public void publish() {
         if (serviceRegistry == null) {
             return;
         }
 
-        String host = providerAddress.getAddress().getHostAddress();
-        int port = providerAddress.getPort();
+        String app = serverOptions.getApplication();
+        String host = serverOptions.getListenAddress().getHostString();
+        int port = serverOptions.getListenAddress().getPort();
 
         StringBuilder code = new StringBuilder();
-        code.append(application).append("@");
-        code.append(host).append(":").append(port).append("$");
-        code.append((namespace == null ? "default" : namespace));
+        code.append(app).append("@");
+        code.append(host).append(":").append(port);
 
         ServiceInstance instance = new ServiceInstance();
         instance.setInstanceCode(code.toString());
         instance.setInstanceHost(host);
         instance.setInstancePort(port);
-        instance.setIdentity(application);
-        instance.setNamespace(namespace);
+        instance.setServiceName(app);
         instance.setRegistTime(System.currentTimeMillis());
+        instance.setMetadata(serverOptions.getMetadata());
 
         try {
             serviceRegistry.register(instance);
         } catch (Exception e) {
-            throw new RuntimeException("can't publish service: " + application, e);
+            throw new FocusException("can't register application: " + app, e);
         }
     }
 

@@ -38,11 +38,11 @@ public class ServiceInstance implements Serializable {
 
     private String namespace = DEFAULT_NAMESPACE;
 
-    private String identity;
+    private String serviceName;
+
+    private String serviceType;
 
     private String instanceCode;
-
-    private String instanceType;
 
     private String instanceHost;
 
@@ -58,12 +58,12 @@ public class ServiceInstance implements Serializable {
         this.instanceCode = instanceCode;
     }
 
-    public String getIdentity() {
-        return identity;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setIdentity(String identity) {
-        this.identity = identity;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getNamespace() {
@@ -74,12 +74,12 @@ public class ServiceInstance implements Serializable {
         this.namespace = namespace;
     }
 
-    public String getInstanceType() {
-        return instanceType;
+    public String getServiceType() {
+        return serviceType;
     }
 
-    public void setInstanceType(String instanceType) {
-        this.instanceType = instanceType;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     public String getInstanceHost() {
@@ -120,8 +120,10 @@ public class ServiceInstance implements Serializable {
         }
     }
 
-    public ServiceInstance addMetadata(String meta, Object data) {
-        this.metadata.put(meta, data.toString());
+    public ServiceInstance addMetadata(String meta, String data) {
+        if (meta != null) {
+            this.metadata.put(meta, data);
+        }
         return this;
     }
 
@@ -130,7 +132,7 @@ public class ServiceInstance implements Serializable {
         return this;
     }
 
-    public InetSocketAddress getServiceAddress() {
+    public InetSocketAddress getSocketAddress() {
         if (address == null) {
             address = new InetSocketAddress(instanceHost, instancePort);
         }
@@ -165,9 +167,9 @@ public class ServiceInstance implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceInstance [identity=" + identity + ", namespace=" + namespace + ", instanceCode=" + instanceCode
-                + ", instanceType=" + instanceType + ", instanceHost=" + instanceHost + ", instancePort=" + instancePort
-                + ", metadata=" + metadata + "]";
+        return "ServiceInstance [identity=" + serviceName + ", namespace=" + namespace + ", instanceCode="
+                + instanceCode + ", instanceType=" + serviceType + ", instanceHost=" + instanceHost + ", instancePort="
+                + instancePort + ", metadata=" + metadata + "]";
     }
 
 }

@@ -96,7 +96,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
 
     @Override
     public void deregister(ServiceInstance service) throws Exception {
-        String path = pathForProvider(service.getIdentity(), service.getInstanceCode());
+        String path = pathForProvider(service.getServiceName(), service.getInstanceCode());
         try {
             client.delete().forPath(path);
         } finally {
@@ -128,7 +128,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
     protected void internalRegister(ServiceInstance service) throws Exception {
         service.setRegistTime(System.currentTimeMillis());
         byte[] bytes = serializer.serialize(service);
-        String path = pathForProvider(service.getIdentity(), service.getInstanceCode());
+        String path = pathForProvider(service.getServiceName(), service.getInstanceCode());
 
         final int MAX_TRIES = 2;
         boolean isDone = false;
@@ -144,7 +144,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
     }
 
     private String pathForProvider(String name, String id) {
-        return ZKPaths.makePath(pathForService(name) + "/providers", id);
+        return ZKPaths.makePath(pathForService(name), id);
     }
 
     private String pathForService(String name) {

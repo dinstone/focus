@@ -47,6 +47,21 @@ public class Reply implements Serializable {
     }
 
     /**
+     * the data to set
+     *
+     * @param data
+     *
+     * @see Reply#data
+     */
+    private void setData(Object data) {
+        if (data instanceof Throwable && !(data instanceof InvokeException)) {
+            this.data = new InvokeException(199, (Throwable) data);
+        } else {
+            this.data = data;
+        }
+    }
+
+    /**
      * the attach to get
      *
      * @return
@@ -67,7 +82,7 @@ public class Reply implements Serializable {
     }
 
     /**
-     * the result to get, maybe throw result error
+     * the result to get, maybe throw error
      *
      * @return the result value
      * 
@@ -77,21 +92,6 @@ public class Reply implements Serializable {
             throw (InvokeException) data;
         }
         return data;
-    }
-
-    /**
-     * the data to set
-     *
-     * @param data
-     *
-     * @see Reply#data
-     */
-    private void setData(Object data) {
-        if (data instanceof Throwable && !(data instanceof InvokeException)) {
-            this.data = new InvokeException(199, (Throwable) data);
-        } else {
-            this.data = data;
-        }
     }
 
     public void value(Object value) {

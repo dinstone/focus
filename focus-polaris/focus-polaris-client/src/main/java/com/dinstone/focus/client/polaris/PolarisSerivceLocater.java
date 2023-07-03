@@ -62,7 +62,7 @@ public class PolarisSerivceLocater implements SerivceLocater {
 
         ProcessLoadBalanceRequest lbRequest = new ProcessLoadBalanceRequest();
         // 设置需要参与负载均衡的服务实例
-        ServiceKey serviceKey = new ServiceKey("default", call.getService());
+        ServiceKey serviceKey = new ServiceKey("default", call.getTarget());
         lbRequest.setDstInstances(new DefaultServiceInstances(serviceKey, instances));
         // 设置负载均衡策略
         // 当前支持的负载均衡策略如下

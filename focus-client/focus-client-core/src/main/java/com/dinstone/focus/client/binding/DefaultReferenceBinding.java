@@ -52,7 +52,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     public void binding(ServiceConfig serviceConfig) {
         if (serviceDiscovery != null) {
             try {
-                serviceDiscovery.listen(createServiceInstance(serviceConfig));
+                serviceDiscovery.subscribe(serviceConfig.getProvider());
             } catch (Exception e) {
                 throw new RuntimeException("service reference bind error", e);
             }
@@ -60,21 +60,16 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public List<ServiceInstance> lookup(ServiceConfig serviceConfig) {
+    public List<ServiceInstance> lookup(String application) {
 
         if (serviceDiscovery != null) {
-            String serviceName = serviceConfig.getApplication();
-            if (serviceName == null || serviceName.isEmpty()) {
-                throw new RuntimeException("service identity must not be empty");
-            }
-
             try {
-                Collection<ServiceInstance> c = serviceDiscovery.discovery(serviceName);
+                Collection<ServiceInstance> c = serviceDiscovery.discovery(application);
                 if (c != null) {
                     return new ArrayList<ServiceInstance>(c);
                 }
             } catch (Exception e) {
-                throw new RuntimeException("service [" + serviceName + "] discovery error", e);
+                throw new RuntimeException("service [" + application + "] discovery error", e);
             }
         }
 
@@ -86,26 +81,6 @@ public class DefaultReferenceBinding implements ReferenceBinding {
         if (serviceDiscovery != null) {
             serviceDiscovery.destroy();
         }
-    }
-
-    protected <T> ServiceInstance createServiceInstance(ServiceConfig config) {
-        String group = config.getNamespace();
-        String host = consumerAddress.getAddress().getHostAddress();
-        int port = consumerAddress.getPort();
-
-        StringBuilder code = new StringBuilder();
-        code.append(config.getIdentity()).append("@");
-        code.append(host).append(":").append(port).append("$");
-        code.append((group == null ? "" : group));
-
-        ServiceInstance serviceInstance = new ServiceInstance();
-        serviceInstance.setInstanceCode(code.toString());
-        serviceInstance.setIdentity(config.getApplication());
-        serviceInstance.setNamespace(group);
-        serviceInstance.setInstanceHost(host);
-        serviceInstance.setInstancePort(port);
-
-        return serviceInstance;
     }
 
 }

@@ -25,16 +25,16 @@ import com.dinstone.focus.serialize.Serializer;
 
 public class ConsumerConfig extends ServiceConfig {
 
-    public ConsumerConfig(String identity, String namespace) {
-        super(identity, namespace);
-    }
-
     public void setService(String service) {
         this.service = service;
     }
 
-    public void setApplication(String application) {
-        this.application = application;
+    public void setConsumer(String consumer) {
+        this.consumer = consumer;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public void setTimeout(int timeout) {

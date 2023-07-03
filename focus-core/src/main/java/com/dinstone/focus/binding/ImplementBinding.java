@@ -21,9 +21,9 @@ public interface ImplementBinding {
 
     void binding(ServiceConfig serviceConfig);
 
-    ServiceConfig lookup(String service, String group);
+    ServiceConfig lookup(String serviceName);
 
-    void publish(String application, String namespace);
+    void publish();
 
     void destroy();
 

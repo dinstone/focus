@@ -28,9 +28,9 @@ public interface ServiceDiscovery {
 
     public abstract void destroy();
 
-    public abstract void cancel(ServiceInstance instance);
+    public abstract void cancel(String serviceName);
 
-    public abstract void listen(ServiceInstance instance) throws Exception;
+    public abstract void subscribe(String serviceName) throws Exception;
 
     public abstract Collection<ServiceInstance> discovery(String serviceName) throws Exception;
 

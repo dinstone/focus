@@ -25,14 +25,11 @@ public class NacosServiceDiscoveryTest {
     public static void main(String[] args) throws NacosException {
         NacosServiceDiscovery discovery = new NacosServiceDiscovery(new NacosClutchOptions());
 
-        ServiceInstance description = new ServiceInstance();
         String serviceName = "HelloService";
-        description.setIdentity(serviceName);
-
         try {
-            discovery.listen(description);
+            discovery.subscribe(serviceName);
 
-            discovery.listen(description);
+            discovery.subscribe(serviceName);
 
             while (true) {
                 Collection<ServiceInstance> plist = discovery.discovery(serviceName);

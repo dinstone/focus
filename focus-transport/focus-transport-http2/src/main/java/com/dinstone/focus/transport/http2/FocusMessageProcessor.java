@@ -59,7 +59,7 @@ public final class FocusMessageProcessor {
             // TODO delete
             String group = null;
             String service = headers.get(Call.SERVICE_KEY).toString();
-            ServiceConfig serviceConfig = implementBinding.lookup(service, group);
+            ServiceConfig serviceConfig = implementBinding.lookup(service);
             if (serviceConfig == null) {
                 throw new NoSuchMethodException("unkown service: " + service + "[" + group + "]");
             }

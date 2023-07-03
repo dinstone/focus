@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import com.dinstone.focus.ApplicationOptions;
+import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.binding.ReferenceBinding;
 import com.dinstone.focus.client.binding.DefaultReferenceBinding;
 import com.dinstone.focus.client.config.ConsumerConfig;
@@ -42,13 +42,13 @@ import com.dinstone.focus.transport.ConnectorFactory;
 
 public class FocusClient implements ServiceConsumer {
 
-    private ClientOptions clientOptions;
-
-    private Connector connector;
-
     private ReferenceBinding referenceBinding;
 
+    private ClientOptions clientOptions;
+
     private ProxyFactory proxyFactory;
+
+    private Connector connector;
 
     public FocusClient(ClientOptions clientOption) {
         checkAndInit(clientOption);
@@ -82,7 +82,6 @@ public class FocusClient implements ServiceConsumer {
         this.referenceBinding = new DefaultReferenceBinding(clutchOptions, consumerAddress);
     }
 
-    @Override
     public void destroy() {
         connector.destroy();
         referenceBinding.destroy();
@@ -110,15 +109,16 @@ public class FocusClient implements ServiceConsumer {
             throw new IllegalArgumentException("serivce name is null");
         }
 
-        ConsumerConfig serviceConfig = new ConsumerConfig(clientOptions.getIdentity(), clientOptions.getNamespace());
-        serviceConfig.setApplication(importOptions.getApplication());
+        ConsumerConfig serviceConfig = new ConsumerConfig();
+        serviceConfig.setConsumer(clientOptions.getApplication());
+        serviceConfig.setProvider(importOptions.getApplication());
         serviceConfig.setService(importOptions.getService());
         serviceConfig.setTimeout(importOptions.getTimeout());
         serviceConfig.setRetry(importOptions.getRetry());
 
         // handle
         if (serviceClass.equals(GenericService.class)) {
-            importOptions.setSerializerType(ApplicationOptions.DEFAULT_SERIALIZER_Type);
+            importOptions.setSerializerType(FocusOptions.DEFAULT_SERIALIZER_TYPE);
         } else {
             // parse method info and set invoke config
             serviceConfig.parseMethod(serviceClass.getMethods());
@@ -140,7 +140,6 @@ public class FocusClient implements ServiceConsumer {
         // create invoke handler chain
         serviceConfig.setHandler(createInvokeHandler(serviceConfig));
 
-        referenceBinding.lookup(serviceConfig);
         referenceBinding.binding(serviceConfig);
 
         return proxyFactory.create(serviceClass, serviceConfig);

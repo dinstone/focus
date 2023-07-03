@@ -19,7 +19,6 @@ import java.net.InetSocketAddress;
 import java.util.ServiceLoader;
 
 import com.dinstone.focus.binding.ImplementBinding;
-import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.ServiceConfig;
@@ -43,11 +42,11 @@ public class FocusServer implements ServiceProvider {
 
     private ServerOptions serverOptions;
 
-    private InetSocketAddress serviceAddress;
-
     private ImplementBinding implementBinding;
 
     private Acceptor acceptor;
+
+    private AcceptorFactory acceptorFactory;
 
     public FocusServer(ServerOptions serverOption) {
         checkAndInit(serverOption);
@@ -60,42 +59,63 @@ public class FocusServer implements ServiceProvider {
         this.serverOptions = serverOptions;
 
         // check bind service address
-        if (serverOptions.getServiceAddress() == null) {
-            throw new RuntimeException("server not bind a service address");
+        if (serverOptions.getListenAddress() == null) {
+            throw new IllegalArgumentException("listen address is null");
         }
-        this.serviceAddress = serverOptions.getServiceAddress();
 
-        // load and create registry
-        ClutchOptions clutchOptions = serverOptions.getClutchOptions();
-        this.implementBinding = new DefaultImplementBinding(clutchOptions, serviceAddress);
+        // load binding and create service registry
+        this.implementBinding = new DefaultImplementBinding(serverOptions);
 
         AcceptOptions acceptOptions = serverOptions.getAcceptOptions();
         if (acceptOptions == null) {
-            throw new FocusException("please set transport options for acceptor");
+            throw new IllegalArgumentException("accept options is null");
         }
         ServiceLoader<AcceptorFactory> cfLoader = ServiceLoader.load(AcceptorFactory.class);
         for (AcceptorFactory acceptorFactory : cfLoader) {
             if (acceptorFactory.appliable(acceptOptions)) {
-                this.acceptor = acceptorFactory.create(acceptOptions);
+                this.acceptorFactory = acceptorFactory;
             }
         }
-        if (this.acceptor == null) {
-            throw new FocusException("can't find a acceptor implement");
+        if (this.acceptorFactory == null) {
+            throw new FocusException("can't find a acceptor implement for " + acceptOptions);
         }
 
+    }
+
+    public synchronized FocusServer start() {
+        InetSocketAddress listenAddress = serverOptions.getListenAddress();
         try {
-            this.acceptor.bind(serviceAddress, implementBinding);
-            LOG.info("focus server started, {}", serviceAddress);
+            // startup acceptor
+            AcceptOptions acceptOptions = serverOptions.getAcceptOptions();
+            this.acceptor = acceptorFactory.create(acceptOptions);
+            this.acceptor.bind(listenAddress, implementBinding);
+
+            // register application
+            this.implementBinding.publish();
+
+            LOG.info("focus server startup success on {}", listenAddress);
         } catch (Exception e) {
-            LOG.warn("focus server failure, {}", serviceAddress, e);
+            LOG.warn("focus server startup failure on {}", listenAddress, e);
             throw new FocusException("start focus server error", e);
         }
 
-        implementBinding.publish(serverOptions.getIdentity(), serverOptions.getNamespace());
+        return this;
     }
 
-    public InetSocketAddress getServiceAddress() {
-        return serviceAddress;
+    public synchronized FocusServer stop() {
+        if (implementBinding != null) {
+            implementBinding.destroy();
+        }
+        if (acceptor != null) {
+            acceptor.destroy();
+        }
+
+        LOG.info("focus server shutdown on {}", serverOptions.getListenAddress());
+        return this;
+    }
+
+    public InetSocketAddress getListenAddress() {
+        return serverOptions.getListenAddress();
     }
 
     @Override
@@ -116,9 +136,8 @@ public class FocusServer implements ServiceProvider {
         }
 
         try {
-            ProviderConfig serviceConfig = new ProviderConfig(serverOptions.getIdentity(),
-                    serverOptions.getNamespace());
-            serviceConfig.setApplication(serverOptions.getIdentity());
+            ProviderConfig serviceConfig = new ProviderConfig();
+            serviceConfig.setProvider(serverOptions.getApplication());
             serviceConfig.setService(service);
             serviceConfig.setTarget(instance);
             serviceConfig.setTimeout(exportOptions.getTimeout());
@@ -144,7 +163,7 @@ public class FocusServer implements ServiceProvider {
             serializer = SerializerFactory.lookup(serverOptions.getSerializerType());
         }
         if (serializer == null) {
-            throw new IllegalArgumentException("please configure the correct serializer");
+            throw new IllegalArgumentException("serializer type is error");
         }
         serviceConfig.setSerializer(serializer);
 
@@ -163,18 +182,6 @@ public class FocusServer implements ServiceProvider {
     private Handler createInvokeHandler(ServiceConfig serviceConfig) {
         LocalInvokeHandler localHandler = new LocalInvokeHandler(serviceConfig);
         return new ProviderInvokeHandler(serviceConfig, localHandler).addInterceptor(serverOptions.getInterceptors());
-    }
-
-    @Override
-    public void destroy() {
-        if (implementBinding != null) {
-            implementBinding.destroy();
-        }
-        if (acceptor != null) {
-            acceptor.destroy();
-        }
-
-        LOG.info("focus server destroyed, {}", serviceAddress);
     }
 
 }

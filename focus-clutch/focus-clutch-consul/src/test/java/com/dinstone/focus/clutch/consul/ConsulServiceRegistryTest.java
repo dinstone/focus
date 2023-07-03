@@ -25,7 +25,7 @@ public class ConsulServiceRegistryTest {
         description.setInstanceHost("localhost");
         description.setInstancePort(80);
 
-        description.setIdentity(serviceName);
+        description.setServiceName(serviceName);
         description.setNamespace("default");
 
         ConsulClutchOptions config = new ConsulClutchOptions();

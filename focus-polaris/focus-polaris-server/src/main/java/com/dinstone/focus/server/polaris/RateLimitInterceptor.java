@@ -45,7 +45,7 @@ public class RateLimitInterceptor implements Interceptor {
         // 设置需要进行限流的服务信息：设置命名空间信息
         quotaRequest.setNamespace("default");
         // 设置需要进行限流的服务信息：设置服务名称信息
-        quotaRequest.setService(call.getService());
+        quotaRequest.setService(call.getTarget());
         // 设置本次被调用的方法信息
         quotaRequest.setMethod(call.getMethod());
         // 设置本次的请求标签

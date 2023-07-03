@@ -26,7 +26,7 @@ public class NacosServiceRegistryTest {
         description.setInstanceHost("localhost");
         description.setInstancePort(80);
 
-        description.setIdentity(serviceName);
+        description.setServiceName(serviceName);
         description.setNamespace("default");
 
         NacosClutchOptions config = new NacosClutchOptions();

@@ -17,10 +17,10 @@ package com.dinstone.focus.client;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import com.dinstone.focus.ApplicationOptions;
+import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.client.locate.DefaultLocaterFactory;
 import com.dinstone.focus.transport.ConnectOptions;
 import com.dinstone.focus.utils.NetworkUtil;
@@ -31,13 +31,13 @@ import com.dinstone.focus.utils.NetworkUtil;
  * @author dinstone
  *
  */
-public class ClientOptions extends ApplicationOptions<ClientOptions> {
+public class ClientOptions extends FocusOptions<ClientOptions> {
 
     private static final int DEFAULT_CONNECT_RETRY = 2;
 
     private LocaterFactory locaterFactory = new DefaultLocaterFactory();
 
-    private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
+    private List<InetSocketAddress> connectAddresses = new LinkedList<>();
 
     private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
 
@@ -70,7 +70,7 @@ public class ClientOptions extends ApplicationOptions<ClientOptions> {
                 String host = address.substring(0, pidx);
                 int port = Integer.parseInt(address.substring(pidx + 1));
 
-                serviceAddresses.add(new InetSocketAddress(host, port));
+                connectAddresses.add(new InetSocketAddress(host, port));
             }
         }
 
@@ -78,12 +78,12 @@ public class ClientOptions extends ApplicationOptions<ClientOptions> {
     }
 
     public ClientOptions connect(String host, int port) {
-        serviceAddresses.add(new InetSocketAddress(host, port));
+        connectAddresses.add(new InetSocketAddress(host, port));
         return this;
     }
 
-    public List<InetSocketAddress> getServiceAddresses() {
-        return serviceAddresses;
+    public List<InetSocketAddress> getConnectAddresses() {
+        return connectAddresses;
     }
 
     public LocaterFactory getLocaterFactory() {

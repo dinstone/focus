@@ -57,7 +57,7 @@ public class StoreServiceServer {
             e.printStackTrace();
         }
 
-        sss.destroy();
+        sss.stop();
         LOG.info("server stop");
     }
 
@@ -81,7 +81,7 @@ public class StoreServiceServer {
         UserCheckService userService = createUserServiceRpc(openTelemetry);
         server.exporting(StoreService.class, new StoreServiceImpl(userService));
 
-        return server;
+        return server.start();
     }
 
     private static UserCheckService createUserServiceRpc(OpenTelemetry openTelemetry) {

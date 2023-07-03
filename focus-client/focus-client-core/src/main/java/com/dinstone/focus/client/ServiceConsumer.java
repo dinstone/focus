@@ -25,6 +25,4 @@ public interface ServiceConsumer {
 
     public abstract <T> T importing(Class<T> sic, ImportOptions importOptions);
 
-    public abstract void destroy();
-
 }

@@ -35,7 +35,8 @@ public class PolarisServiceRegistry implements ServiceRegistry {
     public void register(ServiceInstance service) throws Exception {
         InstanceRegisterRequest request = new InstanceRegisterRequest();
         // 设置实例所属服务信息
-        request.setService(service.getIdentity());
+        request.setService(service.getServiceName());
+        request.setProtocol(service.getServiceType());
         // 设置实例所属服务的命名空间信息
         request.setNamespace(service.getNamespace());
         // 设置实例的 host 信息
@@ -46,8 +47,6 @@ public class PolarisServiceRegistry implements ServiceRegistry {
         request.setToken(service.getMetadata().get("token"));
         // 设置实例版本
         request.setVersion("1.0.0");
-        // 设置实例的协议
-        request.setProtocol("rpc/photon");
         // 设置实例权重
         request.setWeight(100);
         // 设置实例的标签

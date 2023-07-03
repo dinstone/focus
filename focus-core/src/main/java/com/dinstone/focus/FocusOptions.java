@@ -16,30 +16,27 @@
 package com.dinstone.focus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Interceptor;
 
 @SuppressWarnings("unchecked")
-public class ApplicationOptions<T extends ApplicationOptions<T>> {
+public class FocusOptions<T extends FocusOptions<T>> {
 
     public static final String DEFAULT_NAMESPACE = "default";
 
-    public static final String DEFAULT_SERIALIZER_Type = "json";
+    public static final String DEFAULT_SERIALIZER_TYPE = "json";
 
     private static final int DEFAULT_COMPRESS_THRESHOLD = 10240;
 
     /**
-     * application identity for micro-service name
+     * application identity
      */
-    private String identity;
-
-    /**
-     * application identity for runtime environment
-     */
-    private String namespace;
+    private String application;
 
     private String serializerType;
 
@@ -49,30 +46,22 @@ public class ApplicationOptions<T extends ApplicationOptions<T>> {
 
     private ClutchOptions clutchOptions;
 
+    private Map<String, String> metadata = new HashMap<>();
+
     private List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
-    public ApplicationOptions(String identity) {
-        if (identity == null) {
-            throw new FocusException("application.identity must be not empty");
+    public FocusOptions(String application) {
+        if (application == null || application.isEmpty()) {
+            throw new FocusException("application is empty");
         }
-        this.identity = identity;
+        this.application = application;
 
-        namespace = DEFAULT_NAMESPACE;
-        serializerType = DEFAULT_SERIALIZER_Type;
+        serializerType = DEFAULT_SERIALIZER_TYPE;
         compressThreshold = DEFAULT_COMPRESS_THRESHOLD;
     }
 
-    public String getIdentity() {
-        return identity;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public T setNamespace(String namespace) {
-        this.namespace = namespace;
-        return (T) this;
+    public String getApplication() {
+        return application;
     }
 
     public ClutchOptions getClutchOptions() {
@@ -90,6 +79,17 @@ public class ApplicationOptions<T extends ApplicationOptions<T>> {
 
     public T addInterceptor(Interceptor interceptor) {
         interceptors.add(interceptor);
+        return (T) this;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public T addMetadata(String meta, String data) {
+        if (meta != null) {
+            this.metadata.put(meta, data);
+        }
         return (T) this;
     }
 

@@ -26,37 +26,20 @@ import com.dinstone.focus.example.OrderService;
 import com.dinstone.focus.example.OrderServiceImpl;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.example.UserServiceServerImpl;
-import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.serialze.json.JacksonSerializer;
 import com.dinstone.focus.serialze.protobuf.ProtobufSerializer;
 import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
-import com.dinstone.focus.telemetry.TelemetryInterceptor;
-import com.dinstone.focus.transport.http2.Http2AcceptOptions;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
-import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.resources.Resource;
-import io.opentelemetry.sdk.trace.SdkTracerProvider;
+public class CommonFocusServerTest {
 
-public class Http2ServerTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Http2ServerTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CommonFocusServerTest.class);
 
     public static void main(String[] args) {
-        String serviceName = "focus.example.server";
-        OpenTelemetry openTelemetry = getTelemetry(serviceName);
-        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.SERVER);
 
-        ServerOptions serverOptions = new ServerOptions(serviceName).listen("localhost", 8080).addInterceptor(tf)
-                .setAcceptOptions(new Http2AcceptOptions());
-        // serverOptions.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
-
+        String appName = "focus.example.server";
+        ServerOptions serverOptions = new ServerOptions(appName).listen("localhost", 3333);
         FocusServer server = new FocusServer(serverOptions);
 
         server.exporting(UserService.class, new UserServiceServerImpl());
@@ -75,8 +58,13 @@ public class Http2ServerTest {
         server.exporting(ArithService.class, new ArithServiceImpl(),
                 new ExportOptions("ArithService").setSerializerType(ProtobufSerializer.SERIALIZER_TYPE));
 
+        try {
+            LOG.info("server start");
+            server.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         server.start();
-        LOG.info("server start");
         try {
             System.in.read();
         } catch (IOException e) {
@@ -85,20 +73,6 @@ public class Http2ServerTest {
 
         server.stop();
         LOG.info("server stop");
-    }
-
-    private static OpenTelemetry getTelemetry(String serviceName) {
-        Resource resource = Resource.getDefault()
-                .merge(Resource.create(Attributes.of(AttributeKey.stringKey("service.name"), serviceName)));
-
-        SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
-                // .addSpanProcessor(BatchSpanProcessor.builder(ZipkinSpanExporter.builder().build()).build())
-                .setResource(resource).build();
-
-        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
-                .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
-                .buildAndRegisterGlobal();
-        return openTelemetry;
     }
 
 }

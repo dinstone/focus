@@ -70,31 +70,31 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
     }
 
     @Override
-    public void cancel(ServiceInstance description) {
+    public void cancel(String serviceName) {
         synchronized (serviceCacheMap) {
-            ServiceCache serviceCache = serviceCacheMap.get(description.getIdentity());
+            ServiceCache serviceCache = serviceCacheMap.get(serviceName);
             if (serviceCache != null && serviceCache.decrement() <= 0) {
                 serviceCache.destroy();
-                serviceCacheMap.remove(description.getIdentity());
+                serviceCacheMap.remove(serviceName);
             }
         }
     }
 
     @Override
-    public void listen(ServiceInstance description) throws Exception {
+    public void subscribe(String serviceName) throws Exception {
         synchronized (serviceCacheMap) {
-            ServiceCache serviceCache = serviceCacheMap.get(description.getIdentity());
+            ServiceCache serviceCache = serviceCacheMap.get(serviceName);
             if (serviceCache == null) {
-                serviceCache = new ServiceCache(description.getIdentity(), config).build();
-                serviceCacheMap.put(description.getIdentity(), serviceCache);
+                serviceCache = new ServiceCache(serviceName, config).build();
+                serviceCacheMap.put(serviceName, serviceCache);
             }
             serviceCache.increment();
         }
     }
 
     @Override
-    public Collection<ServiceInstance> discovery(String name) throws Exception {
-        ServiceCache serviceCache = serviceCacheMap.get(name);
+    public Collection<ServiceInstance> discovery(String serviceName) throws Exception {
+        ServiceCache serviceCache = serviceCacheMap.get(serviceName);
         if (serviceCache != null) {
             return serviceCache.getProviders();
         }
@@ -148,7 +148,7 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
                 Service service = healthService.getService();
                 ServiceInstance instance = new ServiceInstance();
                 instance.setInstanceCode(service.getId());
-                instance.setIdentity(service.getService());
+                instance.setServiceName(service.getService());
                 instance.setInstanceHost(service.getAddress());
                 instance.setInstancePort(service.getPort());
                 instance.setMetadata(service.getMeta());

@@ -24,14 +24,11 @@ public class ConsulServiceDiscoveryTest {
     public static void main(String[] args) {
         ConsulServiceDiscovery discovery = new ConsulServiceDiscovery(new ConsulClutchOptions());
 
-        ServiceInstance description = new ServiceInstance();
         String serviceName = "HelloService";
-        description.setIdentity(serviceName);
-
         try {
-            discovery.listen(description);
+            discovery.subscribe(serviceName);
 
-            discovery.listen(description);
+            discovery.subscribe(serviceName);
 
             while (true) {
                 Collection<ServiceInstance> plist = discovery.discovery(serviceName);

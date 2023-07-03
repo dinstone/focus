@@ -29,14 +29,13 @@ import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements Handler {
 
-    private List<ServiceInstance> backupServiceInstances = new ArrayList<ServiceInstance>();
+    private List<ServiceInstance> directConnectInstances = new ArrayList<ServiceInstance>();
 
     private Connector connector;
 
@@ -55,27 +54,24 @@ public class RemoteInvokeHandler implements Handler {
         this.referenceBinding = referenceBinding;
 
         // init backup service instances
-        if (clientOptions.getServiceAddresses() != null) {
-            for (InetSocketAddress socketAddress : clientOptions.getServiceAddresses()) {
-                String service = serviceConfig.getApplication();
-                String group = serviceConfig.getNamespace();
+        if (clientOptions.getConnectAddresses() != null) {
+            for (InetSocketAddress socketAddress : clientOptions.getConnectAddresses()) {
+                String app = serviceConfig.getProvider();
                 String host = socketAddress.getHostString();
                 int port = socketAddress.getPort();
 
                 ServiceInstance si = new ServiceInstance();
-                si.setIdentity(service);
-                si.setNamespace(group);
+                si.setServiceName(app);
                 si.setInstanceHost(host);
                 si.setInstancePort(port);
 
                 StringBuilder code = new StringBuilder();
-                code.append(service).append("@");
+                code.append(app).append("@");
                 code.append(host).append(":");
-                code.append(port).append("$");
-                code.append((group == null ? "" : group));
+                code.append(port);
                 si.setInstanceCode(code.toString());
 
-                backupServiceInstances.add(si);
+                directConnectInstances.add(si);
             }
         }
 
@@ -112,17 +108,16 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     private List<ServiceInstance> collect(Call call) {
-        List<ServiceInstance> instances = referenceBinding.lookup(serviceConfig);
+        List<ServiceInstance> instances = referenceBinding.lookup(serviceConfig.getProvider());
         if (instances != null) {
             return instances;
         } else {
-            return backupServiceInstances;
+            return directConnectInstances;
         }
     }
 
     private CompletableFuture<Reply> remoteInvoke(Call call, ServiceInstance instance) throws Exception {
-        call.attach().put(Attach.PROVIDER_KEY, instance.getIdentity());
-        return connector.send(call, serviceConfig, instance);
+        return connector.send(call, serviceConfig, instance.getSocketAddress());
     }
 
 }

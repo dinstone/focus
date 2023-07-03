@@ -40,10 +40,10 @@ public class SpringStarterServer {
         c.close();
     }
 
-    @Bean(destroyMethod = "destroy")
+    @Bean(destroyMethod = "stop")
     @ConditionalOnMissingBean
     FocusServer defaultFocusServer() {
         return new FocusServer(
-                new ServerOptions("focus.example").listen(2222).setAcceptOptions(new PhotonAcceptOptions()));
+                new ServerOptions("focus.example").listen(2222).setAcceptOptions(new PhotonAcceptOptions())).start();
     }
 }

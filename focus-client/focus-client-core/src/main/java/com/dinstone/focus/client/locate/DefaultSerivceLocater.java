@@ -49,15 +49,12 @@ public class DefaultSerivceLocater implements SerivceLocater {
     }
 
     private List<ServiceInstance> route(ServiceInstance selected, List<ServiceInstance> instances) {
-        String namespace = serviceConfig.getNamespace();
         List<ServiceInstance> sds = new ArrayList<ServiceInstance>();
         for (ServiceInstance instance : instances) {
             if (instance == selected) {
                 continue;
             }
-            if (namespace.equals(instance.getNamespace())) {
-                sds.add(instance);
-            }
+            sds.add(instance);
         }
         return sds;
     }

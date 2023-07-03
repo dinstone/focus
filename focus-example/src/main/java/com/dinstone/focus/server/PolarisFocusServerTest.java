@@ -38,6 +38,7 @@ public class PolarisFocusServerTest {
 
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());
+        server.start();
         LOG.info("server start");
         try {
             System.in.read();
@@ -45,7 +46,7 @@ public class PolarisFocusServerTest {
             e.printStackTrace();
         }
 
-        server.destroy();
+        server.stop();
         LOG.info("server stop");
     }
 

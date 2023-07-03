@@ -21,7 +21,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.focus.ApplicationOptions;
+import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.transport.AcceptOptions;
 import com.dinstone.focus.utils.NetworkUtil;
 import com.dinstone.loghub.Logger;
@@ -33,13 +33,13 @@ import com.dinstone.loghub.LoggerFactory;
  * @author dinstone
  *
  */
-public class ServerOptions extends ApplicationOptions<ServerOptions> {
+public class ServerOptions extends FocusOptions<ServerOptions> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerOptions.class);
 
     private AcceptOptions acceptOptions = AcceptOptions.DEFAULT_ACCEPT_OPTIONS;
 
-    private InetSocketAddress serviceAddress;
+    private InetSocketAddress listenAddress;
 
     public ServerOptions(String identity) {
         super(identity);
@@ -47,13 +47,13 @@ public class ServerOptions extends ApplicationOptions<ServerOptions> {
 
     public ServerOptions listen(InetSocketAddress socketAddress) {
         if (socketAddress != null) {
-            this.serviceAddress = socketAddress;
+            this.listenAddress = socketAddress;
         }
         return this;
     }
 
     public ServerOptions listen(int port) {
-        this.serviceAddress = new InetSocketAddress(port);
+        this.listenAddress = new InetSocketAddress(port);
         return this;
     }
 
@@ -74,7 +74,7 @@ public class ServerOptions extends ApplicationOptions<ServerOptions> {
             throw new RuntimeException("address is empty");
         }
 
-        InetSocketAddress socketAddress = parseServiceAddress(address);
+        InetSocketAddress socketAddress = parseSocketAddress(address);
         if (socketAddress == null) {
             throw new RuntimeException("address is invalid");
         }
@@ -82,11 +82,11 @@ public class ServerOptions extends ApplicationOptions<ServerOptions> {
         return listen(socketAddress);
     }
 
-    public InetSocketAddress getServiceAddress() {
-        return serviceAddress;
+    public InetSocketAddress getListenAddress() {
+        return listenAddress;
     }
 
-    private InetSocketAddress parseServiceAddress(String address) {
+    private InetSocketAddress parseSocketAddress(String address) {
         try {
             String[] hpParts = address.split(":", 2);
             if (hpParts.length == 2) {

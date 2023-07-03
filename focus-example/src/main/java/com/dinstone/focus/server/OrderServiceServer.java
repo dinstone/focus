@@ -58,7 +58,7 @@ public class OrderServiceServer {
             e.printStackTrace();
         }
 
-        sss.destroy();
+        sss.stop();
         LOG.info("server stop");
     }
 
@@ -86,7 +86,7 @@ public class OrderServiceServer {
 
         server.exporting(OrderService.class, orderService);
 
-        return server;
+        return server.start();
     }
 
     private static OpenTelemetry getTelemetry(String serviceName) {

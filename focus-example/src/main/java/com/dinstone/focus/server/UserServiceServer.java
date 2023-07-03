@@ -52,7 +52,7 @@ public class UserServiceServer {
             e.printStackTrace();
         }
 
-        uss.destroy();
+        uss.stop();
         LOG.info("server stop");
     }
 
@@ -70,7 +70,7 @@ public class UserServiceServer {
                 new ExportOptions(UserCheckService.class.getName())
                         .setSerializerType(ProtobufSerializer.SERIALIZER_TYPE));
 
-        return server;
+        return server.start();
     }
 
     private static OpenTelemetry getTelemetry(String serviceName) {

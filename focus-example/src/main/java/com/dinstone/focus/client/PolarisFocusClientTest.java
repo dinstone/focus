@@ -36,7 +36,9 @@ public class PolarisFocusClientTest {
                 .addInterceptor(new CircuitBreakInterceptor("192.168.1.120:8091"));
 
         FocusClient client = new FocusClient(option);
-        DemoService ds = client.importing(DemoService.class);
+        DemoService ds = client.importing(DemoService.class, "com.rpc.demo.server");
+
+        LOG.info("int end");
 
         try {
             Thread.sleep(1000);
@@ -45,8 +47,6 @@ public class PolarisFocusClientTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        LOG.info("int end");
 
         try {
             execute(ds, "hot: ");

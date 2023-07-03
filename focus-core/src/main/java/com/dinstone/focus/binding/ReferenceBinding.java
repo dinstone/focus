@@ -24,7 +24,7 @@ public interface ReferenceBinding {
 
     void binding(ServiceConfig serviceConfig);
 
-    List<ServiceInstance> lookup(ServiceConfig serviceConfig);
+    List<ServiceInstance> lookup(String application);
 
     void destroy();
 

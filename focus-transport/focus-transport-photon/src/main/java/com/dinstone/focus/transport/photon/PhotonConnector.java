@@ -16,10 +16,10 @@
 package com.dinstone.focus.transport.photon;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
@@ -51,10 +51,10 @@ public class PhotonConnector implements Connector {
     }
 
     @Override
-    public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, ServiceInstance instance)
+    public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, InetSocketAddress socketAddress)
             throws Exception {
         // create connection
-        Connection connection = factory.create(instance.getServiceAddress());
+        Connection connection = factory.create(socketAddress);
 
         MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
         // process request
@@ -136,10 +136,12 @@ public class PhotonConnector implements Connector {
         Request request = new Request();
         request.setMsgId(IDGENER.incrementAndGet());
         Headers headers = request.headers();
+        headers.add(Call.SOURCE_KEY, call.getSource());
+        headers.add(Call.TARGET_KEY, call.getTarget());
         headers.add(Call.SERVICE_KEY, call.getService());
         headers.add(Call.METHOD_KEY, call.getMethod());
-        headers.setAll(call.attach());
         request.setTimeout(call.getTimeout());
+        headers.setAll(call.attach());
         request.setContent(content);
         return request;
     }

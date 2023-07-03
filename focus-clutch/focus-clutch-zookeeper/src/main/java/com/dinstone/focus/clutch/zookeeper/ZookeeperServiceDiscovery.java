@@ -27,8 +27,6 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.ZKPaths;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
 
 import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.clutch.ServiceInstance;
@@ -42,8 +40,6 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
     private final ConcurrentHashMap<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<>();
 
     private final ServiceInstanceSerializer serializer = new ServiceInstanceSerializer();
-
-    private volatile ConnectionState connectionState = ConnectionState.LOST;
 
     private final String basePath;
 
@@ -72,10 +68,9 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
 
             @Override
             public void stateChanged(CuratorFramework client, ConnectionState newState) {
-                connectionState = newState;
                 if ((newState == ConnectionState.RECONNECTED) || (newState == ConnectionState.CONNECTED)) {
                     try {
-                        watch();
+                        // watch();
                     } catch (Exception e) {
                         LOG.error("Could not re-register instances after reconnection", e);
                     }
@@ -86,14 +81,6 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
 
         // start CuratorFramework service;
         this.client.start();
-    }
-
-    protected void watch() throws Exception {
-        synchronized (serviceCacheMap) {
-            for (ServiceCache serviceCache : serviceCacheMap.values()) {
-                serviceCache.addConsumer();
-            }
-        }
     }
 
     @Override
@@ -108,44 +95,37 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
     }
 
     @Override
-    public void cancel(ServiceInstance description) {
-        ServiceCache serviceCache = serviceCacheMap.get(description.getIdentity());
-        if (serviceCache != null && serviceCache.removeConsumer() <= 0) {
+    public void cancel(String serviceName) {
+        ServiceCache serviceCache = serviceCacheMap.get(serviceName);
+        if (serviceCache != null) {
             serviceCache.destroy();
-            serviceCacheMap.remove(description.getIdentity());
+            serviceCacheMap.remove(serviceName);
         }
     }
 
     @Override
-    public void listen(ServiceInstance description) throws Exception {
+    public void subscribe(String serviceName) throws Exception {
         ServiceCache serviceCache = null;
         synchronized (serviceCacheMap) {
-            serviceCache = serviceCacheMap.get(description.getIdentity());
+            serviceCache = serviceCacheMap.get(serviceName);
             if (serviceCache == null) {
-                serviceCache = new ServiceCache(client, description).build();
-                serviceCacheMap.put(description.getIdentity(), serviceCache);
+                serviceCache = new ServiceCache(client, serviceName).build();
+                serviceCacheMap.put(serviceName, serviceCache);
             }
-        }
-        if (connectionState == ConnectionState.CONNECTED) {
-            serviceCache.addConsumer();
         }
     }
 
     @Override
-    public Collection<ServiceInstance> discovery(String name) throws Exception {
-        ServiceCache serviceCache = serviceCacheMap.get(name);
+    public Collection<ServiceInstance> discovery(String serviceName) throws Exception {
+        ServiceCache serviceCache = serviceCacheMap.get(serviceName);
         if (serviceCache != null) {
             return serviceCache.getProviders();
         }
         return null;
     }
 
-    private String pathForConsumer(String name, String id) {
-        return ZKPaths.makePath(pathForService(name) + "/consumers", id);
-    }
-
     private String pathForProviders(String name) {
-        return ZKPaths.makePath(pathForService(name) + "/providers", "");
+        return ZKPaths.makePath(pathForService(name), "");
     }
 
     private String pathForService(String name) {
@@ -156,17 +136,12 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
 
         private final ConcurrentHashMap<String, ServiceInstance> providers = new ConcurrentHashMap<String, ServiceInstance>();
 
-        private final ConcurrentHashMap<String, ServiceInstance> consumers = new ConcurrentHashMap<String, ServiceInstance>();
-
-        private ServiceInstance description;
-
         private CuratorCache pathCache;
 
         private String providerPath;
 
-        public ServiceCache(CuratorFramework client, ServiceInstance description) {
-            providerPath = pathForProviders(description.getIdentity());
-            this.description = description;
+        public ServiceCache(CuratorFramework client, String serviceName) {
+            providerPath = pathForProviders(serviceName);
 
             pathCache = CuratorCache.build(client, providerPath);
             pathCache.listenable().addListener(this);
@@ -179,42 +154,6 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
         public ServiceCache build() throws Exception {
             pathCache.start();
             return this;
-        }
-
-        public int addConsumer() throws Exception {
-            synchronized (consumers) {
-                if (consumers.containsKey(description.getInstanceCode())) {
-                    return consumers.size();
-                }
-
-                description.setRegistTime(System.currentTimeMillis());
-                byte[] bytes = serializer.serialize(description);
-                String path = pathForConsumer(description.getIdentity(), description.getInstanceCode());
-
-                final int MAX_TRIES = 2;
-                boolean isDone = false;
-                for (int i = 0; !isDone && (i < MAX_TRIES); ++i) {
-                    try {
-                        client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bytes);
-                        isDone = true;
-                    } catch (KeeperException.NodeExistsException e) {
-                        // must delete then re-create so that watchers fire
-                        client.delete().forPath(path);
-                    }
-                }
-
-                consumers.put(description.getInstanceCode(), description);
-
-                return consumers.size();
-            }
-        }
-
-        public int removeConsumer() {
-            synchronized (consumers) {
-                consumers.remove(description.getInstanceCode());
-
-                return consumers.size();
-            }
         }
 
         private void addProvider(ChildData childData, boolean onlyIfAbsent) {
@@ -232,16 +171,6 @@ public class ZookeeperServiceDiscovery implements ServiceDiscovery {
         }
 
         public void destroy() {
-            if (connectionState == ConnectionState.CONNECTED) {
-                for (ServiceInstance consumer : consumers.values()) {
-                    String path = pathForConsumer(consumer.getIdentity(), consumer.getInstanceCode());
-                    try {
-                        client.delete().forPath(path);
-                    } catch (Exception e) {
-                    }
-                }
-            }
-
             pathCache.listenable().removeListener(this);
             pathCache.close();
         }

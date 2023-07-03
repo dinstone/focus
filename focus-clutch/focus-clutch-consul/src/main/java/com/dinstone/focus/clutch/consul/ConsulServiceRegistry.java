@@ -88,7 +88,7 @@ public class ConsulServiceRegistry implements ServiceRegistry {
     private void register0(final ServiceInstance service) throws Exception {
         NewService newService = new NewService();
         newService.setId(service.getInstanceCode());
-        newService.setName(service.getIdentity());
+        newService.setName(service.getServiceName());
         newService.setAddress(service.getInstanceHost());
         newService.setPort(service.getInstancePort());
         newService.setMeta(service.getMetadata());

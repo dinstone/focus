@@ -18,6 +18,7 @@ package com.dinstone.focus.client.polaris;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.protocol.Call;
@@ -40,21 +41,26 @@ public class CircuitBreakInterceptor implements Interceptor {
 
     @Override
     public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
-        ServiceKey skey = new ServiceKey("default", call.getService());
+        ServiceKey skey = new ServiceKey("default", call.getTarget());
         RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
         InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
 
         invokeHandler.acquirePermission();
 
-        long startTimeMilli = System.currentTimeMillis();
+        long startTimeMillis = System.currentTimeMillis();
         try {
             CompletableFuture<Reply> future = handler.handle(call);
             return future.whenComplete((reply, error) -> {
-                long delay = System.currentTimeMillis() - startTimeMilli;
+
+                long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
 
                 InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
-                responseContext.setDuration(delay);
+                responseContext.setDuration(delayTimeMillis);
                 responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
+
+                if (error == null && reply.isError()) {
+                    InvokeException e = (InvokeException) reply.getData();
+                }
 
                 if (error == null) {
                     responseContext.setResult(reply);
@@ -65,9 +71,9 @@ public class CircuitBreakInterceptor implements Interceptor {
                 }
             });
         } catch (Throwable e) {
-            long delay = System.currentTimeMillis() - startTimeMilli;
+            long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
             InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
-            responseContext.setDuration(delay);
+            responseContext.setDuration(delayTimeMillis);
             responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
             responseContext.setError(e);
             invokeHandler.onError(responseContext);

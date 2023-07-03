@@ -34,7 +34,7 @@ public class ZkFocusServerTest {
                 .listen("-", 3333).setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(setEndpointCode);
         server.exporting(DemoService.class, new DemoServiceImpl());
-        // server.start();
+        server.start();
         LOG.info("server start");
         try {
             System.in.read();
@@ -42,7 +42,7 @@ public class ZkFocusServerTest {
             e.printStackTrace();
         }
 
-        server.destroy();
+        server.stop();
         LOG.info("server stop");
     }
 

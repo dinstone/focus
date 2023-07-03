@@ -17,6 +17,7 @@ package com.dinstone.focus.clutch.polaris;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.clutch.ServiceInstance;
@@ -40,17 +41,21 @@ public class PolarisServiceDiscovery implements ServiceDiscovery {
     }
 
     @Override
-    public void cancel(ServiceInstance instance) {
+    public void cancel(String serviceName) {
 
     }
 
     @Override
-    public void listen(ServiceInstance instance) throws Exception {
+    public void subscribe(String serviceName) throws Exception {
 
     }
 
     @Override
     public Collection<ServiceInstance> discovery(String serviceName) throws Exception {
+        if (serviceName == null || serviceName.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         GetInstancesRequest request = new GetInstancesRequest();
         // 设置服务命名空间
         request.setNamespace("default");
@@ -66,7 +71,8 @@ public class PolarisServiceDiscovery implements ServiceDiscovery {
         for (Instance instance : response.getInstances()) {
             ServiceInstance si = new ServiceInstance();
             si.setNamespace(instance.getNamespace());
-            si.setIdentity(instance.getService());
+            si.setServiceName(instance.getService());
+            si.setServiceType(instance.getProtocol());
             si.setInstanceCode(instance.getId());
             si.setInstanceHost(instance.getHost());
             si.setInstancePort(instance.getPort());

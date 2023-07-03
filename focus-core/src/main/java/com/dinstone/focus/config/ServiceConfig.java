@@ -20,7 +20,6 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dinstone.focus.ApplicationOptions;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
@@ -37,11 +36,9 @@ public abstract class ServiceConfig {
 
     protected Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
 
-    protected String identity;
+    protected String provider;
 
-    protected String namespace;
-
-    protected String application;
+    protected String consumer;
 
     protected String service;
 
@@ -59,30 +56,16 @@ public abstract class ServiceConfig {
 
     protected int compressThreshold;
 
-    public ServiceConfig(String identity, String namespace) {
-        this.identity = identity;
-
-        if (namespace != null && namespace.length() > 0) {
-            this.namespace = namespace;
-        } else {
-            this.namespace = ApplicationOptions.DEFAULT_NAMESPACE;
-        }
-    }
-
-    public String getIdentity() {
-        return identity;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
     public String getService() {
         return service;
     }
 
-    public String getApplication() {
-        return application;
+    public String getProvider() {
+        return provider;
+    }
+
+    public String getConsumer() {
+        return consumer;
     }
 
     public int getTimeout() {

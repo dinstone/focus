@@ -21,7 +21,6 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.ChainHandler;
 import com.dinstone.focus.invoke.Context;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Attach;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 
@@ -42,8 +41,6 @@ public class ConsumerInvokeHandler extends ChainHandler {
         Context.pushContext();
         Context.getContext();
         try {
-            call.attach().put(Attach.CONSUMER_KEY, serviceConfig.getIdentity());
-
             return invokeHandler.handle(call);
         } finally {
             Context.removeContext();

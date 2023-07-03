@@ -74,7 +74,7 @@ public class FocusServerTest {
         server.exporting(ArithService.class, new ArithServiceImpl(),
                 new ExportOptions("ArithService").setSerializerType(ProtobufSerializer.SERIALIZER_TYPE));
 
-        // server.start();
+        server.start();
         LOG.info("server start");
         try {
             System.in.read();
@@ -82,7 +82,7 @@ public class FocusServerTest {
             e.printStackTrace();
         }
 
-        server.destroy();
+        server.stop();
         LOG.info("server stop");
     }
 

@@ -16,10 +16,12 @@
 package com.dinstone.focus.transport.http2;
 
 import java.net.InetSocketAddress;
+import java.util.function.Function;
 
 import javax.net.ssl.SSLException;
 
-import com.dinstone.focus.binding.ImplementBinding;
+import com.dinstone.focus.binding.HandlerRegistry;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.transport.Acceptor;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -115,8 +117,8 @@ public class Http2Acceptor implements Acceptor {
     }
 
     @Override
-    public void bind(InetSocketAddress serviceAddress, ImplementBinding implementBinding) throws Exception {
-        messageProcessor = new FocusMessageProcessor(implementBinding, acceptOptions.getExecutorSelector());
+    public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> lookup) throws Exception {
+        messageProcessor = new FocusMessageProcessor(lookup, acceptOptions.getExecutorSelector());
         bootstrap.bind(serviceAddress).sync().channel();
     }
 

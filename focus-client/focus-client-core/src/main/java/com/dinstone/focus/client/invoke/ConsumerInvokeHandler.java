@@ -33,19 +33,21 @@ import com.dinstone.focus.protocol.Reply;
  */
 public class ConsumerInvokeHandler extends ChainHandler {
 
-    public ConsumerInvokeHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
-        super(serviceConfig, invokeHandler);
-    }
+	public ConsumerInvokeHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
+		super(serviceConfig, invokeHandler);
+	}
 
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
-        Context.pushContext();
-        Context.getContext();
-        try {
-            return invokeHandler.handle(call);
-        } finally {
-            Context.removeContext();
-            Context.popContext();
-        }
-    }
+	public CompletableFuture<Reply> handle(Call call) throws Exception {
+		Context.pushContext();
+		Context.getContext();
+		try {
+			call.setSource(serviceConfig.getConsumer());
+			call.setTarget(serviceConfig.getProvider());
+			return invokeHandler.handle(call);
+		} finally {
+			Context.removeContext();
+			Context.popContext();
+		}
+	}
 
 }

@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
+package com.dinstone.focus.client;
 
-import java.util.List;
+import java.net.InetSocketAddress;
 
-import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.protocol.Call;
 
-public interface ReferenceBinding {
+public interface ServiceLocater {
 
-    void binding(ServiceConfig serviceConfig);
+	public InetSocketAddress locate(Call call, InetSocketAddress selected);
 
-    List<ServiceInstance> lookup(String application);
+	public void subscribe(String serviceName);
 
-    void destroy();
+	public void destroy();
 
 }

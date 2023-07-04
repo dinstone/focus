@@ -15,13 +15,20 @@
  */
 package com.dinstone.focus.client.locate;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+
 import com.dinstone.focus.client.LocaterFactory;
-import com.dinstone.focus.client.SerivceLocater;
-import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.clutch.ClutchOptions;
 
 public class DefaultLocaterFactory implements LocaterFactory {
 
-    public SerivceLocater createSerivceLocater(ServiceConfig serviceConfig) {
-        return new DefaultSerivceLocater(serviceConfig);
-    }
+	@Override
+	public ServiceLocater createLocater(ClutchOptions clutchOptions, List<InetSocketAddress> connectAddresses) {
+		if (clutchOptions != null) {
+			return new DiscoveryServiceLocater(clutchOptions);
+		}
+		return new DirectServiceLocater(connectAddresses);
+	}
 }

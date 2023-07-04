@@ -26,28 +26,27 @@ import com.dinstone.focus.server.annotation.FocusService;
 
 public class FocusServiceProcessor implements BeanPostProcessor, ApplicationContextAware {
 
-    private ApplicationContext applicationContext;
+	private ApplicationContext applicationContext;
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        FocusService fsa = bean.getClass().getAnnotation(FocusService.class);
-        if (fsa != null) {
-            String endpoint = fsa.server().length() > 0 ? fsa.server() : "defaultFocusServer";
-            FocusServer server = applicationContext.getBean(endpoint, FocusServer.class);
-            Class<Object> clazz = (Class<Object>) bean.getClass();
-            Class<Object>[] ifs = (Class<Object>[]) clazz.getInterfaces();
-            if (ifs != null && ifs.length > 0) {
-                clazz = ifs[0];
-            }
-            String service = fsa.service().length() > 0 ? fsa.service() : clazz.getName();
-            server.exporting(clazz, bean, new ExportOptions(service));
-        }
-        return bean;
-    }
+	@Override
+	@SuppressWarnings("unchecked")
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		FocusService fsa = bean.getClass().getAnnotation(FocusService.class);
+		if (fsa != null) {
+			FocusServer server = applicationContext.getBean(FocusServer.class);
+			Class<Object> clazz = (Class<Object>) bean.getClass();
+			Class<Object>[] ifs = (Class<Object>[]) clazz.getInterfaces();
+			if (ifs != null && ifs.length > 0) {
+				clazz = ifs[0];
+			}
+			String service = fsa.service().length() > 0 ? fsa.service() : clazz.getName();
+			server.exporting(clazz, bean, new ExportOptions(service));
+		}
+		return bean;
+	}
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
 }

@@ -32,100 +32,98 @@ import com.dinstone.focus.serialize.Serializer;
  */
 public abstract class ServiceConfig {
 
-    protected static final String DEFAULT_SERVICE_GROUP = "default";
+	protected Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
 
-    protected Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
+	protected String provider;
 
-    protected String provider;
+	protected String consumer;
 
-    protected String consumer;
+	protected String service;
 
-    protected String service;
+	protected int timeout;
 
-    protected int timeout;
+	protected int retry;
 
-    protected int retry;
+	protected Object target;
 
-    protected Object target;
+	protected Handler handler;
 
-    protected Handler handler;
+	protected Serializer serializer;
 
-    protected Serializer serializer;
+	protected Compressor compressor;
 
-    protected Compressor compressor;
+	protected int compressThreshold;
 
-    protected int compressThreshold;
+	public String getService() {
+		return service;
+	}
 
-    public String getService() {
-        return service;
-    }
+	public String getProvider() {
+		return provider;
+	}
 
-    public String getProvider() {
-        return provider;
-    }
+	public String getConsumer() {
+		return consumer;
+	}
 
-    public String getConsumer() {
-        return consumer;
-    }
+	public int getTimeout() {
+		return timeout;
+	}
 
-    public int getTimeout() {
-        return timeout;
-    }
+	public int getRetry() {
+		return retry;
+	}
 
-    public int getRetry() {
-        return retry;
-    }
+	public Object getTarget() {
+		return target;
+	}
 
-    public Object getTarget() {
-        return target;
-    }
+	public Handler getHandler() {
+		return handler;
+	}
 
-    public Handler getHandler() {
-        return handler;
-    }
+	public void addMethodConfig(MethodConfig mc) {
+		methodConfigs.putIfAbsent(mc.getMethodName(), mc);
+	}
 
-    public void addMethodConfig(MethodConfig mc) {
-        methodConfigs.putIfAbsent(mc.getMethodName(), mc);
-    }
+	public MethodConfig getMethodConfig(String methodName) {
+		return methodConfigs.get(methodName);
+	}
 
-    public MethodConfig getMethodConfig(String methodName) {
-        return methodConfigs.get(methodName);
-    }
+	public Serializer getSerializer() {
+		return serializer;
+	}
 
-    public Serializer getSerializer() {
-        return serializer;
-    }
+	public Compressor getCompressor() {
+		return compressor;
+	}
 
-    public Compressor getCompressor() {
-        return compressor;
-    }
+	public int getCompressThreshold() {
+		return compressThreshold;
+	}
 
-    public int getCompressThreshold() {
-        return compressThreshold;
-    }
+	protected MethodConfig createMethodConfig(Method method) {
+		// public check
+		if (!Modifier.isPublic(method.getModifiers())) {
+			return null;
+		}
+		// static check
+		if (Modifier.isStatic(method.getModifiers())) {
+			return null;
+		}
+		// overload check
+		if (methodConfigs.containsKey(method.getName())) {
+			throw new IllegalStateException("method overload unsupported : " + method);
+		}
+		// parameter check
+		Class<?> paramType = null;
+		if (method.getParameterTypes().length > 1) {
+			throw new IllegalArgumentException("only support one parameter : " + method);
+		} else if (method.getParameterTypes().length == 1) {
+			paramType = method.getParameterTypes()[0];
+		}
 
-    protected MethodConfig createMethodConfig(Method method) {
-        // public check
-        if (!Modifier.isPublic(method.getModifiers())) {
-            return null;
-        }
-        // static check
-        if (Modifier.isStatic(method.getModifiers())) {
-            return null;
-        }
-        // overload check
-        if (methodConfigs.containsKey(method.getName())) {
-            throw new IllegalStateException("method overload unsupported : " + method);
-        }
-        // parameter check
-        Class<?> paramType = null;
-        if (method.getParameterTypes().length > 1) {
-            throw new IllegalArgumentException("only support one parameter : " + method);
-        } else if (method.getParameterTypes().length == 1) {
-            paramType = method.getParameterTypes()[0];
-        }
-
-        return new MethodConfig(method, paramType);
-    }
+		return new MethodConfig(method, paramType);
+	}
 
 }

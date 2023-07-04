@@ -16,33 +16,34 @@
 package com.dinstone.focus.transport.photon;
 
 import java.net.InetSocketAddress;
+import java.util.function.Function;
 
-import com.dinstone.focus.binding.ImplementBinding;
+import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.transport.Acceptor;
 import com.dinstone.focus.transport.ExecutorSelector;
 
 public class PhotonAcceptor implements Acceptor {
 
-    private com.dinstone.photon.Acceptor acceptor;
-    private ExecutorSelector executorSelector;
+	private com.dinstone.photon.Acceptor acceptor;
+	private ExecutorSelector executorSelector;
 
-    public PhotonAcceptor(PhotonAcceptOptions acceptOptions) {
-        acceptor = new com.dinstone.photon.Acceptor(acceptOptions);
-        executorSelector = acceptOptions.getExecutorSelector();
-    }
+	public PhotonAcceptor(PhotonAcceptOptions acceptOptions) {
+		acceptor = new com.dinstone.photon.Acceptor(acceptOptions);
+		executorSelector = acceptOptions.getExecutorSelector();
+	}
 
-    @Override
-    public void bind(InetSocketAddress serviceAddress, ImplementBinding implementBinding) throws Exception {
-        acceptor.setMessageProcessor(new FocusMessageProcessor(implementBinding, executorSelector));
-        acceptor.bind(serviceAddress);
-    }
+	@Override
+	public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> lookup) throws Exception {
+		acceptor.setMessageProcessor(new FocusMessageProcessor(lookup, executorSelector));
+		acceptor.bind(serviceAddress);
+	}
 
-    @Override
-    public void destroy() {
-        acceptor.destroy();
-        if (executorSelector != null) {
-            executorSelector.destroy();
-        }
-    }
+	@Override
+	public void destroy() {
+		acceptor.destroy();
+		if (executorSelector != null) {
+			executorSelector.destroy();
+		}
+	}
 
 }

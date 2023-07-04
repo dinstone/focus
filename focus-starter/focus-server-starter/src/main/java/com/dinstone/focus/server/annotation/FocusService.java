@@ -26,12 +26,8 @@ import java.lang.annotation.Target;
 @Documented
 public @interface FocusService {
 
-    String server() default "";
+	String service() default "";
 
-    String service() default "";
-
-    String group() default "";
-
-    int timeout() default 0;
+	int timeout() default 0;
 
 }

@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client;
+package com.dinstone.focus.binding;
 
-import java.util.List;
+import com.dinstone.focus.config.ServiceConfig;
 
-import com.dinstone.focus.clutch.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
+public interface HandlerRegistry {
 
-public interface SerivceLocater {
+    void registry(ServiceConfig serviceConfig);
 
-    public ServiceInstance locate(Call call, ServiceInstance selected, List<ServiceInstance> instances);
+    ServiceConfig lookup(String serviceName);
+
+    void publish();
+
+    void destroy();
+
 }

@@ -15,11 +15,12 @@
  */
 package com.dinstone.focus.client.polaris;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+
 import com.dinstone.focus.client.LocaterFactory;
-import com.dinstone.focus.client.SerivceLocater;
-import com.dinstone.focus.config.ServiceConfig;
-import com.tencent.polaris.factory.api.RouterAPIFactory;
-import com.tencent.polaris.router.api.core.RouterAPI;
+import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.clutch.ClutchOptions;
 
 /**
  * integrate polaris's router and load balance
@@ -29,16 +30,15 @@ import com.tencent.polaris.router.api.core.RouterAPI;
  */
 public class PolarisLocaterFactory implements LocaterFactory {
 
-    private RouterAPI router;
+	private String[] polarisAddress;
 
-    public PolarisLocaterFactory(String... addresses) {
-        router = RouterAPIFactory.createRouterAPI();
+	public PolarisLocaterFactory(String... addresses) {
+		this.polarisAddress = addresses;
+	}
 
-    }
-
-    @Override
-    public SerivceLocater createSerivceLocater(ServiceConfig serviceConfig) {
-        return new PolarisSerivceLocater(router);
-    }
+	@Override
+	public ServiceLocater createLocater(ClutchOptions clutchOptions, List<InetSocketAddress> connectAddresses) {
+		return new PolarisServiceLocater(polarisAddress);
+	}
 
 }

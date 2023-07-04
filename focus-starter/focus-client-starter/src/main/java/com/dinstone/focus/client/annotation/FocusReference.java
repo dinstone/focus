@@ -26,11 +26,11 @@ import java.lang.annotation.Target;
 @Documented
 public @interface FocusReference {
 
-    String client() default "";
+	String application() default "";
 
-    String service() default "";
+	String service() default "";
 
-    String group() default "";
+	String group() default "";
 
-    int timeout() default 0;
+	int timeout() default 0;
 }

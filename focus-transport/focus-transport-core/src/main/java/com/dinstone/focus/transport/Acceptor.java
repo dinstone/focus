@@ -16,13 +16,14 @@
 package com.dinstone.focus.transport;
 
 import java.net.InetSocketAddress;
+import java.util.function.Function;
 
-import com.dinstone.focus.binding.ImplementBinding;
+import com.dinstone.focus.config.ServiceConfig;
 
 public interface Acceptor {
 
-    void bind(InetSocketAddress serviceAddress, ImplementBinding implementBinding) throws Exception;
+	void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> lookup) throws Exception;
 
-    void destroy();
+	void destroy();
 
 }

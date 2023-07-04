@@ -17,15 +17,9 @@ package com.dinstone.focus.client.invoke;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.client.ClientOptions;
-import com.dinstone.focus.client.LocaterFactory;
-import com.dinstone.focus.client.SerivceLocater;
-import com.dinstone.focus.clutch.ServiceInstance;
+import com.dinstone.focus.client.ServiceLocater;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
@@ -35,89 +29,44 @@ import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements Handler {
 
-    private List<ServiceInstance> directConnectInstances = new ArrayList<ServiceInstance>();
+	private Connector connector;
 
-    private Connector connector;
+	private ServiceConfig serviceConfig;
 
-    private ServiceConfig serviceConfig;
+	private ServiceLocater serivceLocater;
 
-    private ReferenceBinding referenceBinding;
+	private int connectRetry;
 
-    private SerivceLocater serivceLocater;
+	public RemoteInvokeHandler(Connector connector, ServiceConfig serviceConfig, ServiceLocater serivceLocater) {
+		this.connector = connector;
+		this.serviceConfig = serviceConfig;
+		this.serivceLocater = serivceLocater;
 
-    private int connectRetry;
+		this.connectRetry = serviceConfig.getRetry();
+	}
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, Connector connector, ReferenceBinding referenceBinding,
-            ClientOptions clientOptions) {
-        this.serviceConfig = serviceConfig;
-        this.connector = connector;
-        this.referenceBinding = referenceBinding;
+	@Override
+	public CompletableFuture<Reply> handle(Call call) throws Exception {
+		InetSocketAddress selected = null;
+		// find an address
+		for (int i = 0; i < connectRetry; i++) {
+			selected = serivceLocater.locate(call, selected);
 
-        // init backup service instances
-        if (clientOptions.getConnectAddresses() != null) {
-            for (InetSocketAddress socketAddress : clientOptions.getConnectAddresses()) {
-                String app = serviceConfig.getProvider();
-                String host = socketAddress.getHostString();
-                int port = socketAddress.getPort();
+			// check
+			if (selected == null) {
+				continue;
+			}
 
-                ServiceInstance si = new ServiceInstance();
-                si.setServiceName(app);
-                si.setInstanceHost(host);
-                si.setInstancePort(port);
+			try {
+				return connector.send(call, serviceConfig, selected);
+			} catch (ConnectException e) {
+				// ignore and retry
+			} catch (Exception e) {
+				throw e;
+			}
+		}
 
-                StringBuilder code = new StringBuilder();
-                code.append(app).append("@");
-                code.append(host).append(":");
-                code.append(port);
-                si.setInstanceCode(code.toString());
-
-                directConnectInstances.add(si);
-            }
-        }
-
-        // init router and load balancer
-        LocaterFactory locateFactory = clientOptions.getLocaterFactory();
-        serivceLocater = locateFactory.createSerivceLocater(serviceConfig);
-
-        connectRetry = clientOptions.getConnectRetry();
-    }
-
-    @Override
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
-        // find candidate service instance
-        List<ServiceInstance> candidates = collect(call);
-
-        ServiceInstance selected = null;
-        for (int i = 0; i < connectRetry; i++) {
-            selected = serivceLocater.locate(call, selected, candidates);
-            // check
-            if (selected == null) {
-                continue;
-            }
-
-            try {
-                return remoteInvoke(call, selected);
-            } catch (ConnectException e) {
-                // ignore and retry
-            } catch (Exception e) {
-                throw e;
-            }
-        }
-
-        throw new FocusException("can't find a live service instance for " + call.getService());
-    }
-
-    private List<ServiceInstance> collect(Call call) {
-        List<ServiceInstance> instances = referenceBinding.lookup(serviceConfig.getProvider());
-        if (instances != null) {
-            return instances;
-        } else {
-            return directConnectInstances;
-        }
-    }
-
-    private CompletableFuture<Reply> remoteInvoke(Call call, ServiceInstance instance) throws Exception {
-        return connector.send(call, serviceConfig, instance.getSocketAddress());
-    }
+		throw new FocusException("can't find a live service instance for " + call.getService());
+	}
 
 }

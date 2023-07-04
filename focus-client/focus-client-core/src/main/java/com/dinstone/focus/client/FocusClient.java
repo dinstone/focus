@@ -20,12 +20,9 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import com.dinstone.focus.FocusOptions;
-import com.dinstone.focus.binding.ReferenceBinding;
-import com.dinstone.focus.client.binding.DefaultReferenceBinding;
 import com.dinstone.focus.client.config.ConsumerConfig;
 import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
-import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.compress.Compressor;
@@ -42,134 +39,133 @@ import com.dinstone.focus.transport.ConnectorFactory;
 
 public class FocusClient implements ServiceConsumer {
 
-    private ReferenceBinding referenceBinding;
+	private ServiceLocater serivceLocater;
 
-    private ClientOptions clientOptions;
+	private ClientOptions clientOptions;
 
-    private ProxyFactory proxyFactory;
+	private Connector connector;
 
-    private Connector connector;
+	public FocusClient(ClientOptions clientOption) {
+		checkAndInit(clientOption);
+	}
 
-    public FocusClient(ClientOptions clientOption) {
-        checkAndInit(clientOption);
-    }
+	private void checkAndInit(ClientOptions clientOptions) {
+		if (clientOptions == null) {
+			throw new IllegalArgumentException("clientOptions is null");
+		}
+		this.clientOptions = clientOptions;
 
-    private void checkAndInit(ClientOptions clientOptions) {
-        if (clientOptions == null) {
-            throw new IllegalArgumentException("clientOptions is null");
-        }
-        this.clientOptions = clientOptions;
+		ConnectOptions connectOptions = clientOptions.getConnectOptions();
+		if (connectOptions == null) {
+			throw new FocusException("please set transport options for connector");
+		}
+		ServiceLoader<ConnectorFactory> cfLoader = ServiceLoader.load(ConnectorFactory.class);
+		for (ConnectorFactory connectorFactory : cfLoader) {
+			if (connectorFactory.appliable(connectOptions)) {
+				this.connector = connectorFactory.create(connectOptions);
+			}
+		}
+		if (this.connector == null) {
+			throw new FocusException("can't find a connector implement");
+		}
 
-        this.proxyFactory = new JdkProxyFactory();
+		// init router and load balancer
+		ClutchOptions clutchOptions = clientOptions.getClutchOptions();
+		LocaterFactory locateFactory = clientOptions.getLocaterFactory();
+		List<InetSocketAddress> connectAddresses = clientOptions.getConnectAddresses();
+		this.serivceLocater = locateFactory.createLocater(clutchOptions, connectAddresses);
+	}
 
-        ConnectOptions connectOptions = clientOptions.getConnectOptions();
-        if (connectOptions == null) {
-            throw new FocusException("please set transport options for connector");
-        }
-        ServiceLoader<ConnectorFactory> cfLoader = ServiceLoader.load(ConnectorFactory.class);
-        for (ConnectorFactory connectorFactory : cfLoader) {
-            if (connectorFactory.appliable(connectOptions)) {
-                this.connector = connectorFactory.create(connectOptions);
-            }
-        }
-        if (this.connector == null) {
-            throw new FocusException("can't find a connector implement");
-        }
+	public void destroy() {
+		connector.destroy();
+		serivceLocater.destroy();
+	}
 
-        // init reference binding
-        ClutchOptions clutchOptions = clientOptions.getClutchOptions();
-        InetSocketAddress consumerAddress = clientOptions.getConsumerAddress();
-        this.referenceBinding = new DefaultReferenceBinding(clutchOptions, consumerAddress);
-    }
+	@Override
+	public <T> T importing(Class<T> sic) {
+		return importing(sic, new ImportOptions(sic.getName()));
+	}
 
-    public void destroy() {
-        connector.destroy();
-        referenceBinding.destroy();
-    }
+	@Override
+	public <T> T importing(Class<T> sic, String application) {
+		return importing(sic, new ImportOptions(application, sic.getName()));
+	}
 
-    @Override
-    public <T> T importing(Class<T> sic) {
-        return importing(sic, new ImportOptions(sic.getName()));
-    }
+	@Override
+	public GenericService generic(String application, String service) {
+		return importing(GenericService.class, new ImportOptions(application, service));
+	}
 
-    @Override
-    public <T> T importing(Class<T> sic, String application) {
-        return importing(sic, new ImportOptions(application, sic.getName()));
-    }
+	@Override
+	public <T> T importing(Class<T> serviceClass, ImportOptions importOptions) {
+		String service = importOptions.getService();
+		if (service == null || service.isEmpty()) {
+			throw new IllegalArgumentException("serivce name is null");
+		}
 
-    @Override
-    public GenericService generic(String application, String service) {
-        return importing(GenericService.class, new ImportOptions(application, service));
-    }
+		ConsumerConfig serviceConfig = new ConsumerConfig();
+		serviceConfig.setConsumer(clientOptions.getApplication());
+		serviceConfig.setRetry(clientOptions.getConnectRetry());
+		serviceConfig.setProvider(importOptions.getApplication());
+		serviceConfig.setService(importOptions.getService());
+		serviceConfig.setTimeout(importOptions.getTimeout());
 
-    @Override
-    public <T> T importing(Class<T> serviceClass, ImportOptions importOptions) {
-        String service = importOptions.getService();
-        if (service == null || service.isEmpty()) {
-            throw new IllegalArgumentException("serivce name is null");
-        }
+		// handle
+		if (serviceClass.equals(GenericService.class)) {
+			importOptions.setSerializerType(FocusOptions.DEFAULT_SERIALIZER_TYPE);
+		} else {
+			// parse method info and set invoke config
+			serviceConfig.parseMethod(serviceClass.getMethods());
+			List<InvokeOptions> iol = importOptions.getInvokeOptions();
+			if (iol != null) {
+				for (InvokeOptions io : iol) {
+					MethodConfig mc = serviceConfig.getMethodConfig(io.getMethodName());
+					if (mc != null) {
+						mc.setInvokeTimeout(io.getInvokeTimeout());
+						mc.setInvokeRetry(io.getInvokeRetry());
+					}
+				}
+			}
+		}
 
-        ConsumerConfig serviceConfig = new ConsumerConfig();
-        serviceConfig.setConsumer(clientOptions.getApplication());
-        serviceConfig.setProvider(importOptions.getApplication());
-        serviceConfig.setService(importOptions.getService());
-        serviceConfig.setTimeout(importOptions.getTimeout());
-        serviceConfig.setRetry(importOptions.getRetry());
+		// init service protocol codec
+		protocolCodec(serviceConfig, clientOptions, importOptions);
 
-        // handle
-        if (serviceClass.equals(GenericService.class)) {
-            importOptions.setSerializerType(FocusOptions.DEFAULT_SERIALIZER_TYPE);
-        } else {
-            // parse method info and set invoke config
-            serviceConfig.parseMethod(serviceClass.getMethods());
-            List<InvokeOptions> iol = importOptions.getInvokeOptions();
-            if (iol != null) {
-                for (InvokeOptions io : iol) {
-                    MethodConfig mc = serviceConfig.getMethodConfig(io.getMethodName());
-                    if (mc != null) {
-                        mc.setInvokeTimeout(io.getInvokeTimeout());
-                        mc.setInvokeRetry(io.getInvokeRetry());
-                    }
-                }
-            }
-        }
+		// create invoke handler chain
+		serviceConfig.setHandler(createInvokeHandler(serviceConfig));
 
-        // init service protocol codec
-        protocolCodec(serviceConfig, clientOptions, importOptions);
+		// subscribe service provider
+		serivceLocater.subscribe(serviceConfig.getProvider());
 
-        // create invoke handler chain
-        serviceConfig.setHandler(createInvokeHandler(serviceConfig));
+		ProxyFactory proxyFactory = clientOptions.getProxyFactory();
+		return proxyFactory.create(serviceClass, serviceConfig);
+	}
 
-        referenceBinding.binding(serviceConfig);
+	private void protocolCodec(ConsumerConfig serviceConfig, ClientOptions clientOptions, ImportOptions importOptions) {
+		Serializer serializer = SerializerFactory.lookup(importOptions.getSerializerType());
+		if (serializer == null) {
+			serializer = SerializerFactory.lookup(clientOptions.getSerializerType());
+		}
+		if (serializer == null) {
+			throw new IllegalArgumentException("please configure the correct serializer");
+		}
+		serviceConfig.setSerializer(serializer);
 
-        return proxyFactory.create(serviceClass, serviceConfig);
-    }
+		Compressor compressor = CompressorFactory.lookup(importOptions.getCompressorType());
+		if (compressor == null) {
+			compressor = CompressorFactory.lookup(clientOptions.getCompressorType());
+		}
+		int compressThreshold = importOptions.getCompressThreshold();
+		if (compressThreshold <= 0) {
+			compressThreshold = clientOptions.getCompressThreshold();
+		}
+		serviceConfig.setCompressor(compressor);
+		serviceConfig.setCompressThreshold(compressThreshold);
+	}
 
-    private void protocolCodec(ConsumerConfig serviceConfig, ClientOptions clientOptions, ImportOptions importOptions) {
-        Serializer serializer = SerializerFactory.lookup(importOptions.getSerializerType());
-        if (serializer == null) {
-            serializer = SerializerFactory.lookup(clientOptions.getSerializerType());
-        }
-        if (serializer == null) {
-            throw new IllegalArgumentException("please configure the correct serializer");
-        }
-        serviceConfig.setSerializer(serializer);
-
-        Compressor compressor = CompressorFactory.lookup(importOptions.getCompressorType());
-        if (compressor == null) {
-            compressor = CompressorFactory.lookup(clientOptions.getCompressorType());
-        }
-        int compressThreshold = importOptions.getCompressThreshold();
-        if (compressThreshold <= 0) {
-            compressThreshold = clientOptions.getCompressThreshold();
-        }
-        serviceConfig.setCompressor(compressor);
-        serviceConfig.setCompressThreshold(compressThreshold);
-    }
-
-    private Handler createInvokeHandler(ServiceConfig serviceConfig) {
-        Handler remote = new RemoteInvokeHandler(serviceConfig, connector, referenceBinding, clientOptions);
-        return new ConsumerInvokeHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
-    }
+	private Handler createInvokeHandler(ServiceConfig serviceConfig) {
+		Handler remote = new RemoteInvokeHandler(connector, serviceConfig, serivceLocater);
+		return new ConsumerInvokeHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
+	}
 
 }

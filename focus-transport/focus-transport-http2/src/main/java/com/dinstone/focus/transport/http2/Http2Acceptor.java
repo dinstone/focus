@@ -20,7 +20,6 @@ import java.util.function.Function;
 
 import javax.net.ssl.SSLException;
 
-import com.dinstone.focus.binding.HandlerRegistry;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.transport.Acceptor;
 

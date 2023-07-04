@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.binding;
+package com.dinstone.focus.server.resolver;
+
+import java.util.List;
 
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.server.ServerOptions;
 
-public interface HandlerRegistry {
+public interface ServiceResolver {
 
-    void registry(ServiceConfig serviceConfig);
+	List<ServiceConfig> getServices();
 
-    ServiceConfig lookup(String serviceName);
+	void registry(ServiceConfig serviceConfig);
 
-    void publish();
+	ServiceConfig lookup(String serviceName);
 
-    void destroy();
+	void publish(ServerOptions serverOptions);
+
+	void destroy();
 
 }

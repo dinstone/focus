@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.server.binding;
+package com.dinstone.focus.server.resolver;
 
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-import com.dinstone.focus.binding.HandlerRegistry;
 import com.dinstone.focus.clutch.ClutchFactory;
 import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.clutch.ServiceInstance;
@@ -28,16 +29,13 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.server.ServerOptions;
 
-public class DefaultHandlerRegistry implements HandlerRegistry {
+public class DefaultServiceResolver implements ServiceResolver {
 
-	protected Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
+	private Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
-	protected ServiceRegistry serviceRegistry;
+	private ServiceRegistry serviceRegistry;
 
-	private ServerOptions serverOptions;
-
-	public DefaultHandlerRegistry(ServerOptions serverOptions) {
-		ClutchOptions clutchOptions = serverOptions.getClutchOptions();
+	public DefaultServiceResolver(ClutchOptions clutchOptions) {
 		if (clutchOptions != null) {
 			ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
 			for (ClutchFactory clutchFactory : serviceLoader) {
@@ -47,7 +45,11 @@ public class DefaultHandlerRegistry implements HandlerRegistry {
 				}
 			}
 		}
-		this.serverOptions = serverOptions;
+	}
+
+	@Override
+	public List<ServiceConfig> getServices() {
+		return serviceConfigMap.values().stream().collect(Collectors.toList());
 	}
 
 	@Override
@@ -65,14 +67,7 @@ public class DefaultHandlerRegistry implements HandlerRegistry {
 	}
 
 	@Override
-	public void destroy() {
-		if (serviceRegistry != null) {
-			serviceRegistry.destroy();
-		}
-	}
-
-	@Override
-	public void publish() {
+	public void publish(ServerOptions serverOptions) {
 		if (serviceRegistry == null) {
 			return;
 		}
@@ -97,6 +92,13 @@ public class DefaultHandlerRegistry implements HandlerRegistry {
 			serviceRegistry.register(instance);
 		} catch (Exception e) {
 			throw new FocusException("can't register application: " + app, e);
+		}
+	}
+
+	@Override
+	public void destroy() {
+		if (serviceRegistry != null) {
+			serviceRegistry.destroy();
 		}
 	}
 

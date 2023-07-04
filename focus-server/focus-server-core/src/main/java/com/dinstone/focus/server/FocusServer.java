@@ -16,9 +16,9 @@
 package com.dinstone.focus.server;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.ServiceLoader;
 
-import com.dinstone.focus.binding.HandlerRegistry;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.ServiceConfig;
@@ -26,10 +26,11 @@ import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
-import com.dinstone.focus.server.binding.DefaultHandlerRegistry;
 import com.dinstone.focus.server.config.ProviderConfig;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
+import com.dinstone.focus.server.resolver.DefaultServiceResolver;
+import com.dinstone.focus.server.resolver.ServiceResolver;
 import com.dinstone.focus.transport.AcceptOptions;
 import com.dinstone.focus.transport.Acceptor;
 import com.dinstone.focus.transport.AcceptorFactory;
@@ -42,9 +43,9 @@ public class FocusServer implements ServiceProvider {
 
 	private AcceptorFactory acceptorFactory;
 
-	private ServerOptions serverOptions;
+	private ServiceResolver serviceResolver;
 
-	private HandlerRegistry registry;
+	private ServerOptions serverOptions;
 
 	private Acceptor acceptor;
 
@@ -78,7 +79,7 @@ public class FocusServer implements ServiceProvider {
 		}
 
 		// create handler registry
-		this.registry = new DefaultHandlerRegistry(serverOptions);
+		this.serviceResolver = new DefaultServiceResolver(serverOptions.getClutchOptions());
 	}
 
 	public synchronized FocusServer start() {
@@ -86,10 +87,10 @@ public class FocusServer implements ServiceProvider {
 		try {
 			// startup acceptor
 			this.acceptor = acceptorFactory.create(serverOptions.getAcceptOptions());
-			this.acceptor.bind(listenAddress, serviceName -> registry.lookup(serviceName));
+			this.acceptor.bind(listenAddress, serviceName -> serviceResolver.lookup(serviceName));
 
 			// register application
-			this.registry.publish();
+			this.serviceResolver.publish(serverOptions);
 
 			LOG.info("focus server startup success on {}", listenAddress);
 		} catch (Exception e) {
@@ -101,8 +102,8 @@ public class FocusServer implements ServiceProvider {
 	}
 
 	public synchronized FocusServer stop() {
-		if (registry != null) {
-			registry.destroy();
+		if (serviceResolver != null) {
+			serviceResolver.destroy();
 		}
 		if (acceptor != null) {
 			acceptor.destroy();
@@ -114,6 +115,10 @@ public class FocusServer implements ServiceProvider {
 
 	public InetSocketAddress getListenAddress() {
 		return serverOptions.getListenAddress();
+	}
+	
+	public List<ServiceConfig> getServices() {
+		return serviceResolver.getServices();
 	}
 
 	@Override
@@ -149,7 +154,7 @@ public class FocusServer implements ServiceProvider {
 			// init service protocol codec
 			protocolCodec(serviceConfig, serverOptions, exportOptions);
 
-			registry.registry(serviceConfig);
+			serviceResolver.registry(serviceConfig);
 		} catch (Exception e) {
 			throw new FocusException("export service error", e);
 		}

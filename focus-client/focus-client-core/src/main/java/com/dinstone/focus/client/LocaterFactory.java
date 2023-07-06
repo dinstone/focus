@@ -15,13 +15,8 @@
  */
 package com.dinstone.focus.client;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import com.dinstone.focus.clutch.ClutchOptions;
-
 public interface LocaterFactory {
 
-	public ServiceLocater createLocater(ClutchOptions clutchOptions, List<InetSocketAddress> connectAddresses);
+	public ServiceLocater createLocater();
 
 }

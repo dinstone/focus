@@ -18,10 +18,11 @@ package com.dinstone.focus.client.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -55,14 +56,14 @@ class SpecialHandler implements InvocationHandler {
 		MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
 		if (methodConfig == null) {
 			methodConfig = new MethodConfig(method, parameter.getClass());
-			methodConfig.setInvokeTimeout(serviceConfig.getTimeout());
-			methodConfig.setInvokeRetry(serviceConfig.getRetry());
+			methodConfig.setTimeoutMillis(serviceConfig.getTimeoutMillis());
+			methodConfig.setTimeoutRetry(serviceConfig.getTimeoutRetry());
 			serviceConfig.addMethodConfig(methodConfig);
 		}
 
 		Call call = new Call(methodName, parameter);
 		call.setService(serviceConfig.getService());
-		call.setTimeout(serviceConfig.getTimeout());
+		call.setTimeout(serviceConfig.getTimeoutMillis());
 
 		// invoke
 		CompletableFuture<Reply> future = invokeHandler.handle(call);
@@ -71,7 +72,16 @@ class SpecialHandler implements InvocationHandler {
 		if (methodConfig.isAsyncInvoke()) {
 			return future.thenApply(reply -> reply.getResult());
 		} else {
-			return future.get(call.getTimeout(), TimeUnit.MILLISECONDS).getResult();
+			try {
+				return future.get().getResult();
+			} catch (ExecutionException e) {
+				Throwable cause = e.getCause();
+				if (cause instanceof FocusException) {
+					throw cause;
+				} else {
+					throw new FocusException("invoke error", cause);
+				}
+			}
 		}
 
 	}

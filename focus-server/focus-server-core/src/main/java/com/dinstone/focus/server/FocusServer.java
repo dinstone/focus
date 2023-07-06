@@ -143,7 +143,7 @@ public class FocusServer implements ServiceProvider {
 			serviceConfig.setProvider(serverOptions.getApplication());
 			serviceConfig.setService(service);
 			serviceConfig.setTarget(instance);
-			serviceConfig.setTimeout(exportOptions.getTimeout());
+			serviceConfig.setTimeoutMillis(exportOptions.getTimeout());
 
 			// create and set method configure
 			serviceConfig.parseMethod(clazz.getDeclaredMethods());

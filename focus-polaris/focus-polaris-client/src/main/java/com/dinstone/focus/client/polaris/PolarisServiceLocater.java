@@ -37,6 +37,8 @@ import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceRequest;
 
 public class PolarisServiceLocater implements ServiceLocater {
 
+	private static final String DEFAULT_NAMESPACE = "default";
+
 	private ConsumerAPI consumerAPI;
 
 	private RouterAPI routerAPI;
@@ -50,8 +52,8 @@ public class PolarisServiceLocater implements ServiceLocater {
 	@Override
 	public InetSocketAddress locate(Call call, InetSocketAddress selected) {
 		GetHealthyInstancesRequest request = new GetHealthyInstancesRequest();
-		request.setNamespace("default");
-		request.setService(call.getTarget());
+		request.setNamespace(DEFAULT_NAMESPACE);
+		request.setService(call.getProvider());
 		request.setTimeoutMs(1000);
 		InstancesResponse response = consumerAPI.getHealthyInstances(request);
 		ServiceInstances sis = response.getServiceInstances();
@@ -86,7 +88,7 @@ public class PolarisServiceLocater implements ServiceLocater {
 	@Override
 	public void subscribe(String serviceName) {
 		GetInstancesRequest request = new GetInstancesRequest();
-		request.setNamespace("default");
+		request.setNamespace(DEFAULT_NAMESPACE);
 		request.setService(serviceName);
 		request.setTimeoutMs(1000);
 		consumerAPI.asyncGetInstances(request);
@@ -95,6 +97,11 @@ public class PolarisServiceLocater implements ServiceLocater {
 	@Override
 	public void destroy() {
 		consumerAPI.destroy();
+	}
+
+	@Override
+	public void feedback(Call call, InetSocketAddress selected, boolean ok) {
+
 	}
 
 }

@@ -200,8 +200,8 @@ public final class FocusMessageProcessor extends MessageProcessor {
 		}
 
 		Call call = new Call();
-		call.setSource(headers.get(Call.SOURCE_KEY));
-		call.setTarget(headers.get(Call.TARGET_KEY));
+		call.setConsumer(headers.get(Call.CONSUMER_KEY));
+		call.setProvider(headers.get(Call.PROVIDER_KEY));
 		call.setService(headers.get(Call.SERVICE_KEY));
 		call.setMethod(headers.get(Call.METHOD_KEY));
 		call.setTimeout(request.getTimeout());

@@ -41,8 +41,8 @@ public class ConsumerInvokeHandler extends ChainHandler {
 		Context.pushContext();
 		Context.getContext();
 		try {
-			call.setSource(serviceConfig.getConsumer());
-			call.setTarget(serviceConfig.getProvider());
+			call.setConsumer(serviceConfig.getConsumer());
+			call.setProvider(serviceConfig.getProvider());
 			return invokeHandler.handle(call);
 		} finally {
 			Context.removeContext();

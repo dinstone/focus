@@ -25,55 +25,59 @@ import com.dinstone.focus.serialize.Serializer;
 
 public class ConsumerConfig extends ServiceConfig {
 
-    public void setService(String service) {
-        this.service = service;
-    }
+	public void setService(String service) {
+		this.service = service;
+	}
 
-    public void setConsumer(String consumer) {
-        this.consumer = consumer;
-    }
+	public void setConsumer(String consumer) {
+		this.consumer = consumer;
+	}
 
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
+	public void setTimeoutMillis(int timeoutMillis) {
+		this.timeoutMillis = timeoutMillis;
+	}
 
-    public void setRetry(int retry) {
-        this.retry = retry;
-    }
+	public void setTimeoutRetry(int timeoutRetry) {
+		this.timeoutRetry = timeoutRetry;
+	}
 
-    public void setTarget(Object target) {
-        this.target = target;
-    }
+	public void setConnectRetry(int connectRetry) {
+		this.connectRetry = connectRetry;
+	}
 
-    public void setHandler(Handler handler) {
-        this.handler = handler;
-    }
+	public void setTarget(Object target) {
+		this.target = target;
+	}
 
-    public void setSerializer(Serializer serializer) {
-        this.serializer = serializer;
-    }
+	public void setHandler(Handler handler) {
+		this.handler = handler;
+	}
 
-    public void setCompressor(Compressor compressor) {
-        this.compressor = compressor;
-    }
+	public void setSerializer(Serializer serializer) {
+		this.serializer = serializer;
+	}
 
-    public void setCompressThreshold(int compressThreshold) {
-        this.compressThreshold = compressThreshold;
-    }
+	public void setCompressor(Compressor compressor) {
+		this.compressor = compressor;
+	}
 
-    public void parseMethod(Method... methods) {
-        for (Method method : methods) {
-            MethodConfig methodConfig = createMethodConfig(method);
-            if (methodConfig != null) {
-                methodConfig.setInvokeTimeout(timeout);
-                methodConfig.setInvokeRetry(retry);
-                addMethodConfig(methodConfig);
-            }
-        }
-    }
+	public void setCompressThreshold(int compressThreshold) {
+		this.compressThreshold = compressThreshold;
+	}
+
+	public void parseMethod(Method... methods) {
+		for (Method method : methods) {
+			MethodConfig methodConfig = createMethodConfig(method);
+			if (methodConfig != null) {
+				methodConfig.setTimeoutMillis(timeoutMillis);
+				methodConfig.setTimeoutRetry(timeoutRetry);
+				addMethodConfig(methodConfig);
+			}
+		}
+	}
 
 }

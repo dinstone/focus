@@ -24,71 +24,71 @@ import com.dinstone.photon.Connector;
 
 public class PhotonConnectionFactory {
 
-    private final Connector connector;
+	private final Connector connector;
 
-    private final PhotonConnectOptions connectOptions;
+	private final PhotonConnectOptions connectOptions;
 
-    private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap;
+	private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap;
 
-    public PhotonConnectionFactory(PhotonConnectOptions connectOptions) {
-        this.connectOptions = connectOptions;
-        this.connector = new Connector(connectOptions);
-        this.connectionPoolMap = new ConcurrentHashMap<InetSocketAddress, ConnectionPool>();
-    }
+	public PhotonConnectionFactory(PhotonConnectOptions connectOptions) {
+		this.connectOptions = connectOptions;
+		this.connector = new Connector(connectOptions);
+		this.connectionPoolMap = new ConcurrentHashMap<>();
+	}
 
-    public Connection create(InetSocketAddress socketAddress) throws Exception {
-        ConnectionPool connectionPool = connectionPoolMap.get(socketAddress);
-        if (connectionPool == null) {
-            connectionPool = connectionPoolMap.computeIfAbsent(socketAddress, k -> new ConnectionPool(k));
-        }
-        return connectionPool.getConnection();
-    }
+	public Connection create(InetSocketAddress socketAddress) throws Exception {
+		ConnectionPool connectionPool = connectionPoolMap.get(socketAddress);
+		if (connectionPool == null) {
+			connectionPool = connectionPoolMap.computeIfAbsent(socketAddress, k -> new ConnectionPool(k));
+		}
+		return connectionPool.getConnection();
+	}
 
-    public void destroy() {
-        for (ConnectionPool connectionPool : connectionPoolMap.values()) {
-            if (connectionPool != null) {
-                connectionPool.destroy();
-            }
-        }
-        connectionPoolMap.clear();
-        connector.destroy();
-    }
+	public void destroy() {
+		for (ConnectionPool connectionPool : connectionPoolMap.values()) {
+			if (connectionPool != null) {
+				connectionPool.destroy();
+			}
+		}
+		connectionPoolMap.clear();
+		connector.destroy();
+	}
 
-    class ConnectionPool {
+	class ConnectionPool {
 
-        private final InetSocketAddress socketAddress;
+		private final InetSocketAddress socketAddress;
 
-        private Connection[] connections;
+		private Connection[] connections;
 
-        private int count;
+		private int count;
 
-        public ConnectionPool(InetSocketAddress socketAddress) {
-            this.socketAddress = socketAddress;
-            this.connections = new Connection[connectOptions.getConnectPoolSize()];
-        }
+		public ConnectionPool(InetSocketAddress socketAddress) {
+			this.socketAddress = socketAddress;
+			this.connections = new Connection[connectOptions.getConnectPoolSize()];
+		}
 
-        public synchronized Connection getConnection() throws Exception {
-            int index = count++ % connections.length;
-            Connection connection = connections[index];
-            if (connection == null || !connection.isActive()) {
-                if (connection != null) {
-                    connection.destroy();
-                }
+		public synchronized Connection getConnection() throws Exception {
+			int index = count++ % connections.length;
+			Connection connection = connections[index];
+			if (connection == null || !connection.isActive()) {
+				if (connection != null) {
+					connection.destroy();
+				}
 
-                connection = connector.connect(socketAddress);
-                connections[index] = connection;
-            }
-            return connection;
-        }
+				connection = connector.connect(socketAddress);
+				connections[index] = connection;
+			}
+			return connection;
+		}
 
-        public void destroy() {
-            for (Connection connection : connections) {
-                if (connection != null) {
-                    connection.destroy();
-                }
-            }
-        }
+		public void destroy() {
+			for (Connection connection : connections) {
+				if (connection != null) {
+					connection.destroy();
+				}
+			}
+		}
 
-    }
+	}
 
 }

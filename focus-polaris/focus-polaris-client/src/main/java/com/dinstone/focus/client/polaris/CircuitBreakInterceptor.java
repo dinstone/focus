@@ -33,54 +33,54 @@ import com.tencent.polaris.circuitbreak.factory.CircuitBreakAPIFactory;
 
 public class CircuitBreakInterceptor implements Interceptor {
 
-    private CircuitBreakAPI circuitBreak;
+	private CircuitBreakAPI circuitBreak;
 
-    public CircuitBreakInterceptor(String... addresses) {
-        circuitBreak = CircuitBreakAPIFactory.createCircuitBreakAPIByAddress(addresses);
-    }
+	public CircuitBreakInterceptor(String... addresses) {
+		circuitBreak = CircuitBreakAPIFactory.createCircuitBreakAPIByAddress(addresses);
+	}
 
-    @Override
-    public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
-        ServiceKey skey = new ServiceKey("default", call.getTarget());
-        RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
-        InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
+	@Override
+	public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
+		ServiceKey skey = new ServiceKey("default", call.getProvider());
+		RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
+		InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
 
-        invokeHandler.acquirePermission();
+		invokeHandler.acquirePermission();
 
-        long startTimeMillis = System.currentTimeMillis();
-        try {
-            CompletableFuture<Reply> future = handler.handle(call);
-            return future.whenComplete((reply, error) -> {
+		long startTimeMillis = System.currentTimeMillis();
+		try {
+			CompletableFuture<Reply> future = handler.handle(call);
+			return future.whenComplete((reply, error) -> {
 
-                long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
+				long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
 
-                InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
-                responseContext.setDuration(delayTimeMillis);
-                responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
+				InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
+				responseContext.setDuration(delayTimeMillis);
+				responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
 
-                if (error == null && reply.isError()) {
-                    InvokeException e = (InvokeException) reply.getData();
-                }
+				if (error == null && reply.isError()) {
+					InvokeException e = (InvokeException) reply.getData();
+				}
 
-                if (error == null) {
-                    responseContext.setResult(reply);
-                    invokeHandler.onSuccess(responseContext);
-                } else {
-                    responseContext.setError(error);
-                    invokeHandler.onError(responseContext);
-                }
-            });
-        } catch (Throwable e) {
-            long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
-            InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
-            responseContext.setDuration(delayTimeMillis);
-            responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
-            responseContext.setError(e);
-            invokeHandler.onError(responseContext);
+				if (error == null) {
+					responseContext.setResult(reply);
+					invokeHandler.onSuccess(responseContext);
+				} else {
+					responseContext.setError(error);
+					invokeHandler.onError(responseContext);
+				}
+			});
+		} catch (Throwable e) {
+			long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
+			InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
+			responseContext.setDuration(delayTimeMillis);
+			responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
+			responseContext.setError(e);
+			invokeHandler.onError(responseContext);
 
-            throw e;
-        }
+			throw e;
+		}
 
-    }
+	}
 
 }

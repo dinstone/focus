@@ -32,6 +32,8 @@ import com.dinstone.focus.serialize.Serializer;
  */
 public abstract class ServiceConfig {
 
+	private static final int DEFAULT_CONNECT_RETRY = 1;
+
 	protected Map<String, MethodConfig> methodConfigs = new ConcurrentHashMap<>();
 
 	protected String provider;
@@ -40,9 +42,11 @@ public abstract class ServiceConfig {
 
 	protected String service;
 
-	protected int timeout;
+	protected int timeoutMillis;
 
-	protected int retry;
+	protected int timeoutRetry;
+
+	protected int connectRetry;
 
 	protected Object target;
 
@@ -66,12 +70,16 @@ public abstract class ServiceConfig {
 		return consumer;
 	}
 
-	public int getTimeout() {
-		return timeout;
+	public int getTimeoutMillis() {
+		return timeoutMillis;
 	}
 
-	public int getRetry() {
-		return retry;
+	public int getConnectRetry() {
+		return connectRetry;
+	}
+
+	public int getTimeoutRetry() {
+		return timeoutRetry;
 	}
 
 	public Object getTarget() {

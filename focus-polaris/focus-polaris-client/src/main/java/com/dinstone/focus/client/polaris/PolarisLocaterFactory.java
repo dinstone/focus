@@ -15,12 +15,8 @@
  */
 package com.dinstone.focus.client.polaris;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-
 import com.dinstone.focus.client.LocaterFactory;
 import com.dinstone.focus.client.ServiceLocater;
-import com.dinstone.focus.clutch.ClutchOptions;
 
 /**
  * integrate polaris's router and load balance
@@ -37,7 +33,7 @@ public class PolarisLocaterFactory implements LocaterFactory {
 	}
 
 	@Override
-	public ServiceLocater createLocater(ClutchOptions clutchOptions, List<InetSocketAddress> connectAddresses) {
+	public ServiceLocater createLocater() {
 		return new PolarisServiceLocater(polarisAddress);
 	}
 

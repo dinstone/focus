@@ -19,17 +19,17 @@ import com.dinstone.focus.transport.ConnectOptions;
 
 public class PhotonConnectOptions extends com.dinstone.photon.ConnectOptions implements ConnectOptions {
 
-    private static final int DEFAULT_POOL_SIZE = 1;
+	private static final int DEFAULT_POOL_SIZE = 2;
 
-    private int connectPoolSize = DEFAULT_POOL_SIZE;
+	private int connectPoolSize = DEFAULT_POOL_SIZE;
 
-    public int getConnectPoolSize() {
-        return connectPoolSize;
-    }
+	public int getConnectPoolSize() {
+		return connectPoolSize;
+	}
 
-    public PhotonConnectOptions setConnectPoolSize(int connectPoolSize) {
-        this.connectPoolSize = connectPoolSize;
-        return this;
-    }
+	public PhotonConnectOptions setConnectPoolSize(int connectPoolSize) {
+		this.connectPoolSize = connectPoolSize;
+		return this;
+	}
 
 }

@@ -21,7 +21,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.dinstone.focus.FocusOptions;
-import com.dinstone.focus.client.locate.DefaultLocaterFactory;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.transport.ConnectOptions;
@@ -35,22 +34,28 @@ import com.dinstone.focus.utils.NetworkUtil;
  */
 public class ClientOptions extends FocusOptions<ClientOptions> {
 
-	private static final int DEFAULT_CONNECT_RETRY = 2;
+	private static final int DEFAULT_CONNECT_RETRY = 1;
+
+	private static final int DEFAULT_TIMEOUT_RETRY = 0;
+
+	private int connectRetry = DEFAULT_CONNECT_RETRY;
+	
+	private int timeoutRetry = DEFAULT_TIMEOUT_RETRY;
+	
 
 	private ProxyFactory proxyFactory = new JdkProxyFactory();
-
-	private LocaterFactory locaterFactory = new DefaultLocaterFactory();
 
 	private List<InetSocketAddress> connectAddresses = new LinkedList<>();
 
 	private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
 
-	private int connectRetry = DEFAULT_CONNECT_RETRY;
 
 	private InetSocketAddress consumerAddress;
 
-	public ClientOptions(String identity) {
-		super(identity);
+	private LocaterFactory locaterFactory;
+
+	public ClientOptions(String application) {
+		super(application);
 	}
 
 	public ConnectOptions getConnectOptions() {

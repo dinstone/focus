@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.client;
 
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -23,8 +22,8 @@ import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.client.config.ConsumerConfig;
 import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
+import com.dinstone.focus.client.locate.DefaultLocaterFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
-import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.MethodConfig;
@@ -70,10 +69,11 @@ public class FocusClient implements ServiceConsumer {
 		}
 
 		// init router and load balancer
-		ClutchOptions clutchOptions = clientOptions.getClutchOptions();
 		LocaterFactory locateFactory = clientOptions.getLocaterFactory();
-		List<InetSocketAddress> connectAddresses = clientOptions.getConnectAddresses();
-		this.serivceLocater = locateFactory.createLocater(clutchOptions, connectAddresses);
+		if (locateFactory == null) {
+			locateFactory = new DefaultLocaterFactory(clientOptions);
+		}
+		this.serivceLocater = locateFactory.createLocater();
 	}
 
 	public void destroy() {
@@ -105,10 +105,10 @@ public class FocusClient implements ServiceConsumer {
 
 		ConsumerConfig serviceConfig = new ConsumerConfig();
 		serviceConfig.setConsumer(clientOptions.getApplication());
-		serviceConfig.setRetry(clientOptions.getConnectRetry());
+		serviceConfig.setConnectRetry(clientOptions.getConnectRetry());
 		serviceConfig.setProvider(importOptions.getApplication());
 		serviceConfig.setService(importOptions.getService());
-		serviceConfig.setTimeout(importOptions.getTimeout());
+		serviceConfig.setTimeoutMillis(importOptions.getTimeout());
 
 		// handle
 		if (serviceClass.equals(GenericService.class)) {
@@ -121,8 +121,8 @@ public class FocusClient implements ServiceConsumer {
 				for (InvokeOptions io : iol) {
 					MethodConfig mc = serviceConfig.getMethodConfig(io.getMethodName());
 					if (mc != null) {
-						mc.setInvokeTimeout(io.getInvokeTimeout());
-						mc.setInvokeRetry(io.getInvokeRetry());
+						mc.setTimeoutMillis(io.getInvokeTimeout());
+						mc.setTimeoutRetry(io.getInvokeRetry());
 					}
 				}
 			}
@@ -164,7 +164,7 @@ public class FocusClient implements ServiceConsumer {
 	}
 
 	private Handler createInvokeHandler(ServiceConfig serviceConfig) {
-		Handler remote = new RemoteInvokeHandler(connector, serviceConfig, serivceLocater);
+		Handler remote = new RemoteInvokeHandler(serviceConfig, serivceLocater, connector);
 		return new ConsumerInvokeHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
 	}
 

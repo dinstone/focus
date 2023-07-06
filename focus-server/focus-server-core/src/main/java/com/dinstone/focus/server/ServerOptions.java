@@ -35,98 +35,98 @@ import com.dinstone.loghub.LoggerFactory;
  */
 public class ServerOptions extends FocusOptions<ServerOptions> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServerOptions.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ServerOptions.class);
 
-    private AcceptOptions acceptOptions = AcceptOptions.DEFAULT_ACCEPT_OPTIONS;
+	private AcceptOptions acceptOptions = AcceptOptions.DEFAULT_ACCEPT_OPTIONS;
 
-    private InetSocketAddress listenAddress;
+	private InetSocketAddress listenAddress;
 
-    public ServerOptions(String identity) {
-        super(identity);
-    }
+	public ServerOptions(String application) {
+		super(application);
+	}
 
-    public ServerOptions listen(InetSocketAddress socketAddress) {
-        if (socketAddress != null) {
-            this.listenAddress = socketAddress;
-        }
-        return this;
-    }
+	public ServerOptions listen(InetSocketAddress socketAddress) {
+		if (socketAddress != null) {
+			this.listenAddress = socketAddress;
+		}
+		return this;
+	}
 
-    public ServerOptions listen(int port) {
-        this.listenAddress = new InetSocketAddress(port);
-        return this;
-    }
+	public ServerOptions listen(int port) {
+		this.listenAddress = new InetSocketAddress(port);
+		return this;
+	}
 
-    public ServerOptions listen(String host, int port) {
-        try {
-            List<InetSocketAddress> resolveAddress = resolveAddress(host, port);
-            if (!resolveAddress.isEmpty()) {
-                listen(resolveAddress.get(0));
-            }
-        } catch (SocketException e) {
-            throw new RuntimeException("host is invalid", e);
-        }
-        return this;
-    }
+	public ServerOptions listen(String host, int port) {
+		try {
+			List<InetSocketAddress> resolveAddress = resolveAddress(host, port);
+			if (!resolveAddress.isEmpty()) {
+				listen(resolveAddress.get(0));
+			}
+		} catch (SocketException e) {
+			throw new RuntimeException("host is invalid", e);
+		}
+		return this;
+	}
 
-    public ServerOptions listen(String address) {
-        if (address == null || address.isEmpty()) {
-            throw new RuntimeException("address is empty");
-        }
+	public ServerOptions listen(String address) {
+		if (address == null || address.isEmpty()) {
+			throw new RuntimeException("address is empty");
+		}
 
-        InetSocketAddress socketAddress = parseSocketAddress(address);
-        if (socketAddress == null) {
-            throw new RuntimeException("address is invalid");
-        }
+		InetSocketAddress socketAddress = parseSocketAddress(address);
+		if (socketAddress == null) {
+			throw new RuntimeException("address is invalid");
+		}
 
-        return listen(socketAddress);
-    }
+		return listen(socketAddress);
+	}
 
-    public InetSocketAddress getListenAddress() {
-        return listenAddress;
-    }
+	public InetSocketAddress getListenAddress() {
+		return listenAddress;
+	}
 
-    private InetSocketAddress parseSocketAddress(String address) {
-        try {
-            String[] hpParts = address.split(":", 2);
-            if (hpParts.length == 2) {
-                List<InetSocketAddress> resolveAddress = resolveAddress(hpParts[0], Integer.parseInt(hpParts[1]));
-                if (!resolveAddress.isEmpty()) {
-                    return resolveAddress.get(0);
-                }
-            }
-        } catch (Exception e) {
-            LOG.warn("parse service address error", e);
-        }
+	private InetSocketAddress parseSocketAddress(String address) {
+		try {
+			String[] hpParts = address.split(":", 2);
+			if (hpParts.length == 2) {
+				List<InetSocketAddress> resolveAddress = resolveAddress(hpParts[0], Integer.parseInt(hpParts[1]));
+				if (!resolveAddress.isEmpty()) {
+					return resolveAddress.get(0);
+				}
+			}
+		} catch (Exception e) {
+			LOG.warn("parse service address error", e);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    private List<InetSocketAddress> resolveAddress(String host, int port) throws SocketException {
-        List<InetSocketAddress> addresses = new ArrayList<>();
-        if (host == null || "-".equals(host)) {
-            for (InetAddress inetAddress : NetworkUtil.getPrivateAddresses()) {
-                addresses.add(new InetSocketAddress(inetAddress, port));
-            }
-        } else if ("+".equals(host)) {
-            for (InetAddress inetAddress : NetworkUtil.getPublicAddresses()) {
-                addresses.add(new InetSocketAddress(inetAddress, port));
-            }
-        } else if ("*".equals(host)) {
-            addresses.add(new InetSocketAddress("0.0.0.0", port));
-        } else {
-            addresses.add(new InetSocketAddress(host, port));
-        }
-        return addresses;
-    }
+	private List<InetSocketAddress> resolveAddress(String host, int port) throws SocketException {
+		List<InetSocketAddress> addresses = new ArrayList<>();
+		if (host == null || "-".equals(host)) {
+			for (InetAddress inetAddress : NetworkUtil.getPrivateAddresses()) {
+				addresses.add(new InetSocketAddress(inetAddress, port));
+			}
+		} else if ("+".equals(host)) {
+			for (InetAddress inetAddress : NetworkUtil.getPublicAddresses()) {
+				addresses.add(new InetSocketAddress(inetAddress, port));
+			}
+		} else if ("*".equals(host)) {
+			addresses.add(new InetSocketAddress("0.0.0.0", port));
+		} else {
+			addresses.add(new InetSocketAddress(host, port));
+		}
+		return addresses;
+	}
 
-    public AcceptOptions getAcceptOptions() {
-        return acceptOptions;
-    }
+	public AcceptOptions getAcceptOptions() {
+		return acceptOptions;
+	}
 
-    public ServerOptions setAcceptOptions(AcceptOptions acceptOptions) {
-        this.acceptOptions = acceptOptions;
-        return this;
-    }
+	public ServerOptions setAcceptOptions(AcceptOptions acceptOptions) {
+		this.acceptOptions = acceptOptions;
+		return this;
+	}
 
 }

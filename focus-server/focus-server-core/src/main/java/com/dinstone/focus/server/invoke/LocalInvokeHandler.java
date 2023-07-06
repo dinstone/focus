@@ -43,7 +43,7 @@ public class LocalInvokeHandler implements Handler {
             Object result = methodConfig.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());
             if (methodConfig.isAsyncInvoke() && result instanceof Future) {
                 Future<?> future = (Future<?>) result;
-                int invokeTimeout = methodConfig.getInvokeTimeout();
+                int invokeTimeout = methodConfig.getTimeoutMillis();
                 result = future.get(invokeTimeout, TimeUnit.MILLISECONDS);
                 return CompletableFuture.completedFuture(new Reply(result));
             }

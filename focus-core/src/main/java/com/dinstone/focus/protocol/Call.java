@@ -25,136 +25,144 @@ import java.io.Serializable;
  */
 public class Call implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public static final String SOURCE_KEY = "call.source";
+	private static final String EMPTY_VALUE = "";
 
-    public static final String TARGET_KEY = "call.target";
+	public static final String CONSUMER_KEY = "call.consumer";
 
-    public static final String SERVICE_KEY = "call.service";
+	public static final String PROVIDER_KEY = "call.provider";
 
-    public static final String METHOD_KEY = "call.method";
+	public static final String SERVICE_KEY = "call.service";
 
-    public static final String TIMEOUT_KEY = "call.timeout";
+	public static final String METHOD_KEY = "call.method";
 
-    /**
-     * source application identity
-     */
-    private String source;
+	public static final String TIMEOUT_KEY = "call.timeout";
 
-    /**
-     * target application identity
-     */
-    private String target;
+	/**
+	 * source application identity
+	 */
+	private String consumer;
 
-    private String service;
+	/**
+	 * target application identity
+	 */
+	private String provider;
 
-    private String method;
+	private String service;
 
-    private int timeout;
+	private String method;
 
-    private Object parameter;
+	private int timeout;
 
-    private Attach attach = new Attach();
+	private Object parameter;
 
-    public Call() {
-        super();
-    }
+	private Attach attach = new Attach();
 
-    public Call(String method, Object parameter) {
-        this.method = method;
-        this.parameter = parameter;
-    }
+	public Call() {
+		super();
+	}
 
-    /**
-     * the method to get
-     *
-     * @return the method
-     *
-     * @see Call#method
-     */
-    public String getMethod() {
-        return method;
-    }
+	public Call(String method, Object parameter) {
+		this.method = method;
+		this.parameter = parameter;
+	}
 
-    /**
-     * the method to set
-     *
-     * @param method
-     *
-     * @see Call#method
-     */
-    public void setMethod(String method) {
-        this.method = method;
-    }
+	/**
+	 * the method to get
+	 *
+	 * @return the method
+	 *
+	 * @see Call#method
+	 */
+	public String getMethod() {
+		return method;
+	}
 
-    public String getService() {
-        return service;
-    }
+	/**
+	 * the method to set
+	 *
+	 * @param method
+	 *
+	 * @see Call#method
+	 */
+	public void setMethod(String method) {
+		this.method = method;
+	}
 
-    public void setService(String service) {
-        this.service = service;
-    }
+	public String getService() {
+		return service;
+	}
 
-    public String getSource() {
-        return source;
-    }
+	public void setService(String service) {
+		this.service = service;
+	}
 
-    public void setSource(String source) {
-        this.source = source;
-    }
+	public String getConsumer() {
+		if (consumer == null) {
+			return EMPTY_VALUE;
+		}
+		return consumer;
+	}
 
-    public String getTarget() {
-        return target;
-    }
+	public void setConsumer(String consumer) {
+		this.consumer = consumer;
+	}
 
-    public void setTarget(String target) {
-        this.target = target;
-    }
+	public String getProvider() {
+		if (provider == null) {
+			return EMPTY_VALUE;
+		}
+		return provider;
+	}
 
-    public int getTimeout() {
-        return timeout;
-    }
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
+	public int getTimeout() {
+		return timeout;
+	}
 
-    public Object getParameter() {
-        return parameter;
-    }
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
 
-    public void setParameter(Object parameter) {
-        this.parameter = parameter;
-    }
+	public Object getParameter() {
+		return parameter;
+	}
 
-    /**
-     * the attach to get
-     *
-     * @return
-     */
-    public Attach attach() {
-        return attach;
-    }
+	public void setParameter(Object parameter) {
+		this.parameter = parameter;
+	}
 
-    /**
-     * the attach to set
-     *
-     * @param other
-     *
-     * @return
-     */
-    public Call attach(Attach other) {
-        if (other != null) {
-            attach.putAll(other);
-        }
-        return this;
-    }
+	/**
+	 * the attach to get
+	 *
+	 * @return
+	 */
+	public Attach attach() {
+		return attach;
+	}
 
-    @Override
-    public String toString() {
-        return "Call [source=" + source + ", target=" + target + ", service=" + service + ", method=" + method
-                + ", timeout=" + timeout + ", parameter=" + parameter + ", attach=" + attach + "]";
-    }
+	/**
+	 * the attach to set
+	 *
+	 * @param other
+	 *
+	 * @return
+	 */
+	public Call attach(Attach other) {
+		if (other != null) {
+			attach.putAll(other);
+		}
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "Call [consumer=" + consumer + ", provider=" + provider + ", service=" + service + ", method=" + method
+				+ ", timeout=" + timeout + ", parameter=" + parameter + ", attach=" + attach + "]";
+	}
 
 }

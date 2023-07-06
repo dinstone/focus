@@ -29,129 +29,129 @@ import java.util.concurrent.Future;
  */
 public class MethodConfig {
 
-    private Method method;
+	private Method method;
 
-    private String methodName;
+	private String methodName;
 
-    private Class<?> paramType;
+	private Class<?> paramType;
 
-    private Class<?> returnType;
+	private Class<?> returnType;
 
-    private boolean asyncInvoke;
+	private boolean asyncInvoke;
 
-    private int invokeTimeout;
+	private int timeoutMillis;
 
-    private int invokeRetry;
+	private int timeoutRetry;
 
-    public MethodConfig(Method method, Class<?> paramType) {
-        this.method = method;
-        this.paramType = paramType;
-        this.methodName = method.getName();
+	public MethodConfig(Method method, Class<?> paramType) {
+		this.method = method;
+		this.paramType = paramType;
+		this.methodName = method.getName();
 
-        Type type = method.getGenericReturnType();
-        if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            Type rawType = parameterizedType.getRawType();
-            if (rawType.equals(CompletableFuture.class) || rawType.equals(Future.class)) {
-                returnType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                asyncInvoke = true;
-            } else {
-                returnType = method.getReturnType();
-            }
-        } else {
-            returnType = method.getReturnType();
-        }
-    }
+		Type type = method.getGenericReturnType();
+		if (type instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			Type rawType = parameterizedType.getRawType();
+			if (rawType.equals(CompletableFuture.class) || rawType.equals(Future.class)) {
+				returnType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+				asyncInvoke = true;
+			} else {
+				returnType = method.getReturnType();
+			}
+		} else {
+			returnType = method.getReturnType();
+		}
+	}
 
-    public MethodConfig(String methodName) {
-        this.methodName = methodName;
-    }
+	public MethodConfig(String methodName) {
+		this.methodName = methodName;
+	}
 
-    public Method getMethod() {
-        return method;
-    }
+	public Method getMethod() {
+		return method;
+	}
 
-    public Class<?> getDeclarClass() {
-        return method.getDeclaringClass();
-    }
+	public Class<?> getDeclarClass() {
+		return method.getDeclaringClass();
+	}
 
-    public Class<?>[] getExceptionTypes() {
-        return method.getExceptionTypes();
-    }
+	public Class<?>[] getExceptionTypes() {
+		return method.getExceptionTypes();
+	}
 
-    public String getMethodName() {
-        return methodName;
-    }
+	public String getMethodName() {
+		return methodName;
+	}
 
-    public void setParamType(Class<?> paramType) {
-        this.paramType = paramType;
-    }
+	public void setParamType(Class<?> paramType) {
+		this.paramType = paramType;
+	}
 
-    public void setReturnType(Class<?> returnType) {
-        this.returnType = returnType;
-    }
+	public void setReturnType(Class<?> returnType) {
+		this.returnType = returnType;
+	}
 
-    public Class<?> getParamType() {
-        return paramType;
-    }
+	public Class<?> getParamType() {
+		return paramType;
+	}
 
-    public Class<?> getReturnType() {
-        return returnType;
-    }
+	public Class<?> getReturnType() {
+		return returnType;
+	}
 
-    public boolean isAsyncInvoke() {
-        return asyncInvoke;
-    }
+	public boolean isAsyncInvoke() {
+		return asyncInvoke;
+	}
 
-    public void setAsyncInvoke(boolean asyncInvoke) {
-        this.asyncInvoke = asyncInvoke;
-    }
+	public void setAsyncInvoke(boolean asyncInvoke) {
+		this.asyncInvoke = asyncInvoke;
+	}
 
-    protected static String description(MethodConfig mi) {
-        StringBuilder desc = new StringBuilder();
-        desc.append(getTypeName(mi.getReturnType()) + " ");
-        desc.append(getTypeName(mi.getDeclarClass()) + ".");
-        desc.append(mi.getMethodName() + "(");
-        desc.append(getTypeName(mi.getParamType()));
-        desc.append(")");
-        return desc.toString();
-    }
+	protected static String description(MethodConfig mi) {
+		StringBuilder desc = new StringBuilder();
+		desc.append(getTypeName(mi.getReturnType()) + " ");
+		desc.append(getTypeName(mi.getDeclarClass()) + ".");
+		desc.append(mi.getMethodName() + "(");
+		desc.append(getTypeName(mi.getParamType()));
+		desc.append(")");
+		return desc.toString();
+	}
 
-    protected static String getTypeName(Class<?> type) {
-        if (type.isArray()) {
-            try {
-                Class<?> cl = type;
-                int dimensions = 0;
-                while (cl.isArray()) {
-                    dimensions++;
-                    cl = cl.getComponentType();
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append(cl.getName());
-                for (int i = 0; i < dimensions; i++) {
-                    sb.append("[]");
-                }
-                return sb.toString();
-            } catch (Throwable e) {
-            }
-        }
-        return type.getName();
-    }
+	protected static String getTypeName(Class<?> type) {
+		if (type.isArray()) {
+			try {
+				Class<?> cl = type;
+				int dimensions = 0;
+				while (cl.isArray()) {
+					dimensions++;
+					cl = cl.getComponentType();
+				}
+				StringBuilder sb = new StringBuilder();
+				sb.append(cl.getName());
+				for (int i = 0; i < dimensions; i++) {
+					sb.append("[]");
+				}
+				return sb.toString();
+			} catch (Throwable e) {
+			}
+		}
+		return type.getName();
+	}
 
-    public int getInvokeTimeout() {
-        return invokeTimeout;
-    }
+	public int getTimeoutMillis() {
+		return timeoutMillis;
+	}
 
-    public void setInvokeTimeout(int invokeTimeout) {
-        this.invokeTimeout = invokeTimeout;
-    }
+	public void setTimeoutMillis(int timeoutMillis) {
+		this.timeoutMillis = timeoutMillis;
+	}
 
-    public int getInvokeRetry() {
-        return invokeRetry;
-    }
+	public int getTimeoutRetry() {
+		return timeoutRetry;
+	}
 
-    public void setInvokeRetry(int invokeRetry) {
-        this.invokeRetry = invokeRetry;
-    }
+	public void setTimeoutRetry(int timeoutRetry) {
+		this.timeoutRetry = timeoutRetry;
+	}
 
 }

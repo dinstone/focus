@@ -49,7 +49,7 @@ class GenericHandler implements GenericService {
 
         Call call = new Call(methodName, parameter);
         call.setService(serviceConfig.getService());
-        call.setTimeout(methodConfig.getInvokeTimeout());
+        call.setTimeout(methodConfig.getTimeoutMillis());
 
         CompletableFuture<Reply> future = invokeHandler.handle(call);
 
@@ -69,7 +69,7 @@ class GenericHandler implements GenericService {
 
         Call call = new Call(methodName, parameter);
         call.setService(serviceConfig.getService());
-        call.setTimeout(methodConfig.getInvokeTimeout());
+        call.setTimeout(methodConfig.getTimeoutMillis());
 
         CompletableFuture<Reply> future = invokeHandler.handle(call);
 
@@ -83,7 +83,7 @@ class GenericHandler implements GenericService {
             methodConfig.setParamType(parameter.getClass());
             methodConfig.setReturnType(returnType);
             methodConfig.setAsyncInvoke(true);
-            methodConfig.setInvokeTimeout(serviceConfig.getTimeout());
+            methodConfig.setTimeoutMillis(serviceConfig.getTimeoutMillis());
             serviceConfig.addMethodConfig(methodConfig);
         }
         return methodConfig;

@@ -17,6 +17,6 @@ package com.dinstone.focus.client;
 
 public interface LocaterFactory {
 
-	public ServiceLocater createLocater();
+    public ServiceLocater createLocater();
 
 }

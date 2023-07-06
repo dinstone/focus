@@ -21,12 +21,12 @@ import com.dinstone.focus.protocol.Call;
 
 public interface ServiceLocater {
 
-	public InetSocketAddress locate(Call call, InetSocketAddress selected);
+    public InetSocketAddress locate(Call call, InetSocketAddress selected);
 
-	public void feedback(Call call, InetSocketAddress selected, boolean ok);
+    public void feedback(Call call, InetSocketAddress selected, boolean ok);
 
-	public void subscribe(String serviceName);
+    public void subscribe(String serviceName);
 
-	public void destroy();
+    public void destroy();
 
 }

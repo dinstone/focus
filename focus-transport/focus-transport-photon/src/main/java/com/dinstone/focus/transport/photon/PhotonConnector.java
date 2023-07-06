@@ -39,116 +39,116 @@ import io.netty.util.CharsetUtil;
 
 public class PhotonConnector implements Connector {
 
-	private static final AtomicInteger IDGENER = new AtomicInteger();
+    private static final AtomicInteger IDGENER = new AtomicInteger();
 
-	private final PhotonConnectionFactory factory;
+    private final PhotonConnectionFactory factory;
 
-	public PhotonConnector(PhotonConnectOptions connectOptions) {
-		if (connectOptions == null) {
-			throw new IllegalArgumentException("connectOptions is null");
-		}
-		this.factory = new PhotonConnectionFactory(connectOptions);
-	}
+    public PhotonConnector(PhotonConnectOptions connectOptions) {
+        if (connectOptions == null) {
+            throw new IllegalArgumentException("connectOptions is null");
+        }
+        this.factory = new PhotonConnectionFactory(connectOptions);
+    }
 
-	@Override
-	public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, InetSocketAddress socketAddress)
-			throws Exception {
-		// create connection
-		Connection connection = factory.create(socketAddress);
+    @Override
+    public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, InetSocketAddress socketAddress)
+            throws Exception {
+        // create connection
+        Connection connection = factory.create(socketAddress);
 
-		MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
-		// process request
-		Request request = encode(call, serviceConfig, methodConfig);
+        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
+        // process request
+        Request request = encode(call, serviceConfig, methodConfig);
 
-		return connection.sendRequest(request).thenApplyAsync((response) -> {
-			// process response
-			return decode(response, serviceConfig, methodConfig);
-		});
-	}
+        return connection.sendRequest(request).thenApplyAsync((response) -> {
+            // process response
+            return decode(response, serviceConfig, methodConfig);
+        });
+    }
 
-	private Reply decode(Response response, ServiceConfig serviceConfig, MethodConfig methodConfig) {
-		Reply reply = new Reply();
-		Headers headers = response.headers();
-		if (response.getStatus() == Status.SUCCESS) {
-			Object value;
-			byte[] content = response.getContent();
-			if (content == null || content.length == 0) {
-				value = null;
-			} else {
-				String compressorType = headers.get(Compressor.TYPE_KEY);
-				Compressor compressor = serviceConfig.getCompressor();
-				if (compressor != null && compressorType != null) {
-					try {
-						content = compressor.decode(content);
-					} catch (IOException e) {
-						throw new CodecException("compress decode error: " + methodConfig.getMethodName(), e);
-					}
-				}
+    private Reply decode(Response response, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+        Reply reply = new Reply();
+        Headers headers = response.headers();
+        if (response.getStatus() == Status.SUCCESS) {
+            Object value;
+            byte[] content = response.getContent();
+            if (content == null || content.length == 0) {
+                value = null;
+            } else {
+                String compressorType = headers.get(Compressor.TYPE_KEY);
+                Compressor compressor = serviceConfig.getCompressor();
+                if (compressor != null && compressorType != null) {
+                    try {
+                        content = compressor.decode(content);
+                    } catch (IOException e) {
+                        throw new CodecException("compress decode error: " + methodConfig.getMethodName(), e);
+                    }
+                }
 
-				try {
-					Serializer serializer = serviceConfig.getSerializer();
-					Class<?> contentType = methodConfig.getReturnType();
-					value = serializer.decode(content, contentType);
-				} catch (IOException e) {
-					throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
-				}
-			}
-			reply.value(value);
-		} else {
-			int code = headers.getInt(InvokeException.CODE_KEY, 0);
+                try {
+                    Serializer serializer = serviceConfig.getSerializer();
+                    Class<?> contentType = methodConfig.getReturnType();
+                    value = serializer.decode(content, contentType);
+                } catch (IOException e) {
+                    throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
+                }
+            }
+            reply.value(value);
+        } else {
+            int code = headers.getInt(InvokeException.CODE_KEY, 0);
 
-			InvokeException error;
-			byte[] encoded = response.getContent();
-			if (encoded == null || encoded.length == 0) {
-				error = new InvokeException(code, "unkown exception");
-			} else {
-				String message = new String(encoded, CharsetUtil.UTF_8);
-				error = new InvokeException(code, message);
-			}
-			reply.error(error);
-		}
-		reply.attach().putAll(headers);
-		return reply;
-	}
+            InvokeException error;
+            byte[] encoded = response.getContent();
+            if (encoded == null || encoded.length == 0) {
+                error = new InvokeException(code, "unkown exception");
+            } else {
+                String message = new String(encoded, CharsetUtil.UTF_8);
+                error = new InvokeException(code, message);
+            }
+            reply.error(error);
+        }
+        reply.attach().putAll(headers);
+        return reply;
+    }
 
-	private Request encode(Call call, ServiceConfig serviceConfig, MethodConfig methodConfig) {
-		byte[] content = null;
-		if (call.getParameter() != null) {
-			try {
-				Serializer serializer = serviceConfig.getSerializer();
-				content = serializer.encode(call.getParameter(), methodConfig.getParamType());
-				call.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
-			} catch (IOException e) {
-				throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
-			}
+    private Request encode(Call call, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+        byte[] content = null;
+        if (call.getParameter() != null) {
+            try {
+                Serializer serializer = serviceConfig.getSerializer();
+                content = serializer.encode(call.getParameter(), methodConfig.getParamType());
+                call.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
+            } catch (IOException e) {
+                throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
+            }
 
-			Compressor compressor = serviceConfig.getCompressor();
-			if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
-				try {
-					content = compressor.encode(content);
-					call.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
-				} catch (IOException e) {
-					throw new CodecException("compress encode error: " + methodConfig.getMethodName(), e);
-				}
-			}
-		}
+            Compressor compressor = serviceConfig.getCompressor();
+            if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
+                try {
+                    content = compressor.encode(content);
+                    call.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
+                } catch (IOException e) {
+                    throw new CodecException("compress encode error: " + methodConfig.getMethodName(), e);
+                }
+            }
+        }
 
-		Request request = new Request();
-		request.setMsgId(IDGENER.incrementAndGet());
-		Headers headers = request.headers();
-		headers.add(Call.CONSUMER_KEY, call.getConsumer());
-		headers.add(Call.PROVIDER_KEY, call.getProvider());
-		headers.add(Call.SERVICE_KEY, call.getService());
-		headers.add(Call.METHOD_KEY, call.getMethod());
-		request.setTimeout(call.getTimeout());
-		headers.setAll(call.attach());
-		request.setContent(content);
-		return request;
-	}
+        Request request = new Request();
+        request.setMsgId(IDGENER.incrementAndGet());
+        Headers headers = request.headers();
+        headers.add(Call.CONSUMER_KEY, call.getConsumer());
+        headers.add(Call.PROVIDER_KEY, call.getProvider());
+        headers.add(Call.SERVICE_KEY, call.getService());
+        headers.add(Call.METHOD_KEY, call.getMethod());
+        request.setTimeout(call.getTimeout());
+        headers.setAll(call.attach());
+        request.setContent(content);
+        return request;
+    }
 
-	@Override
-	public void destroy() {
-		factory.destroy();
-	}
+    @Override
+    public void destroy() {
+        factory.destroy();
+    }
 
 }

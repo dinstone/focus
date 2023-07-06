@@ -35,7 +35,7 @@ public class FocusReferenceFactoryBean implements FactoryBean<Object> {
             client = "defaultFocusClient";
         }
         FocusClient focusClient = beanFactory.getBean(client, FocusClient.class);
-        return focusClient.importing(type, new ImportOptions(group, service).setTimeout(timeout));
+        return focusClient.importing(type, new ImportOptions(group, service).setTimeoutMillis(timeout));
     }
 
     @Override

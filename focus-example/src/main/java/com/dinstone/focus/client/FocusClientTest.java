@@ -45,156 +45,158 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider;
 
 public class FocusClientTest {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FocusClientTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FocusClientTest.class);
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		LOG.info("init start");
+        LOG.info("init start");
 
-		Resource resource = Resource.getDefault()
-				.merge(Resource.create(Attributes.of(AttributeKey.stringKey("endpoint.name"), "focus.example.client")));
+        Resource resource = Resource.getDefault()
+                .merge(Resource.create(Attributes.of(AttributeKey.stringKey("endpoint.name"), "focus.example.client")));
 
-		SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
-				// .addSpanProcessor(BatchSpanProcessor.builder(ZipkinSpanExporter.builder().build()).build())
-				.setResource(resource).build();
+        SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
+                // .addSpanProcessor(BatchSpanProcessor.builder(ZipkinSpanExporter.builder().build()).build())
+                .setResource(resource).build();
 
-		OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
-				.setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
-				.buildAndRegisterGlobal();
-		Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
+        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+                .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+                .buildAndRegisterGlobal();
+        Interceptor tf = new TelemetryInterceptor(openTelemetry, Interceptor.Kind.CLIENT);
 
-		ClientOptions option = new ClientOptions("focus.example.client").connect("localhost", 3333).addInterceptor(tf);
-		// option.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
+        ClientOptions option = new ClientOptions("focus.example.client").connect("localhost", 3333).addInterceptor(tf);
+        // option.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE);
 
-		FocusClient client = new FocusClient(option);
+        FocusClient client = new FocusClient(option);
 
-		LOG.info("init end");
+        LOG.info("init end");
 
-		try {
-			UserService us = client.importing(UserService.class);
-			Page<User> ps = us.listUser(1);
-			System.out.println(ps);
+        try {
+            UserService us = client.importing(UserService.class);
+            Page<User> ps = us.listUser(1);
+            System.out.println(ps);
 
-			User u = us.getUser(10);
-			System.out.println(u);
+            User u = us.getUser(10);
+            System.out.println(u);
 
-			AuthenCheck ac = client.importing(AuthenCheck.class, new ImportOptions("AuthenService").setTimeout(20000));
-			asyncError(ac);
+            AuthenCheck ac = client.importing(AuthenCheck.class,
+                    new ImportOptions("AuthenService").setTimeoutMillis(20000));
+            asyncError(ac);
 
-			asyncExecute(ac, "AuthenCheck async hot: ");
-			asyncExecute(ac, "AuthenCheck async exe: ");
+            asyncExecute(ac, "AuthenCheck async hot: ");
+            asyncExecute(ac, "AuthenCheck async exe: ");
 
-//			DemoService ds = client.importing(DemoService.class);
-//			syncError(ds);
-//			conparal(ds);
-//			execute(ds, "DemoService sync hot: ");
-//			execute(ds, "DemoService sync exe: ");
-//
-//			OrderService oc = client.importing(OrderService.class, new ImportOptions(OrderService.class.getName())
-//					.setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE));
-//			executeOrderService(oc, "OrderService sync hot: ");
-//			executeOrderService(oc, "OrderService sync exe: ");
-//
-//			oc = client.importing(OrderService.class,
-//					new ImportOptions("OrderService").setSerializerType(JacksonSerializer.SERIALIZER_TYPE));
-//			executeOrderService(oc, "OrderService sync hot: ");
-//			executeOrderService(oc, "OrderService sync exe: ");
+            // DemoService ds = client.importing(DemoService.class);
+            // syncError(ds);
+            // conparal(ds);
+            // execute(ds, "DemoService sync hot: ");
+            // execute(ds, "DemoService sync exe: ");
+            //
+            // OrderService oc = client.importing(OrderService.class, new ImportOptions(OrderService.class.getName())
+            // .setSerializerType(ProtostuffSerializer.SERIALIZER_TYPE));
+            // executeOrderService(oc, "OrderService sync hot: ");
+            // executeOrderService(oc, "OrderService sync exe: ");
+            //
+            // oc = client.importing(OrderService.class,
+            // new ImportOptions("OrderService").setSerializerType(JacksonSerializer.SERIALIZER_TYPE));
+            // executeOrderService(oc, "OrderService sync hot: ");
+            // executeOrderService(oc, "OrderService sync exe: ");
 
-		} finally {
-			client.destroy();
-		}
+        } finally {
+            client.destroy();
+        }
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-	}
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+    }
 
-	private static void executeOrderService(OrderService oc, String tag) {
-		int c = 0;
-		long st = System.currentTimeMillis();
-		int loopCount = 100000;
-		while (c < loopCount) {
-			OrderRequest or = new OrderRequest();
-			or.setUid("u-" + c);
-			or.setPoi("p-" + c);
-			or.setSn("s-" + c);
-			oc.findOldOrder(or);
-			c++;
-		}
-		long et = System.currentTimeMillis() - st;
-		System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
-	}
+    private static void executeOrderService(OrderService oc, String tag) {
+        int c = 0;
+        long st = System.currentTimeMillis();
+        int loopCount = 100000;
+        while (c < loopCount) {
+            OrderRequest or = new OrderRequest();
+            or.setUid("u-" + c);
+            or.setPoi("p-" + c);
+            or.setSn("s-" + c);
+            oc.findOldOrder(or);
+            c++;
+        }
+        long et = System.currentTimeMillis() - st;
+        System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
+    }
 
-	private static void asyncExecute(AuthenCheck ac, String tag) throws InterruptedException {
-		int c = 0;
-		long st = System.currentTimeMillis();
-		int loopCount = 100000;
-		AtomicInteger ok = new AtomicInteger();
-		AtomicInteger ng = new AtomicInteger();
-		CountDownLatch cdl = new CountDownLatch(loopCount);
-		while (c < loopCount) {
-			ac.token("dinstoneo").whenComplete((r, e) -> {
-				if (e == null) {
-					ok.incrementAndGet();
-				} else {
-					ng.incrementAndGet();
-				}
-				cdl.countDown();
-			});
-			c++;
-		}
-		cdl.await();
-		long et = System.currentTimeMillis() - st;
-		System.out.println(tag + et + " ms, ok=" + ok.get() + ",ng=" + ng.get() +", "+ (loopCount * 1000 / et) + " tps");
-	}
+    private static void asyncExecute(AuthenCheck ac, String tag) throws InterruptedException {
+        int c = 0;
+        long st = System.currentTimeMillis();
+        int loopCount = 100000;
+        AtomicInteger ok = new AtomicInteger();
+        AtomicInteger ng = new AtomicInteger();
+        CountDownLatch cdl = new CountDownLatch(loopCount);
+        while (c < loopCount) {
+            ac.token("dinstoneo").whenComplete((r, e) -> {
+                if (e == null) {
+                    ok.incrementAndGet();
+                } else {
+                    ng.incrementAndGet();
+                }
+                cdl.countDown();
+            });
+            c++;
+        }
+        cdl.await();
+        long et = System.currentTimeMillis() - st;
+        System.out.println(
+                tag + et + " ms, ok=" + ok.get() + ",ng=" + ng.get() + ", " + (loopCount * 1000 / et) + " tps");
+    }
 
-	private static void syncError(final DemoService ds) {
-		try {
-			System.out.println("====================");
-			ds.hello("");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    private static void syncError(final DemoService ds) {
+        try {
+            System.out.println("====================");
+            ds.hello("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	private static void asyncError(AuthenCheck ac) {
-		try {
-			Future<Boolean> check2 = ac.check("dinstone");
-			CompletableFuture<String> future = ac.token("dinstone");
-			Future<Boolean> check1 = ac.check(null);
-			System.out.println("token 1 is " + future.get());
-			System.out.println("check 2 is " + check2.get());
-			System.out.println("check 1 is " + check1.get());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    private static void asyncError(AuthenCheck ac) {
+        try {
+            Future<Boolean> check2 = ac.check("dinstone");
+            CompletableFuture<String> future = ac.token("dinstone");
+            Future<Boolean> check1 = ac.check(null);
+            System.out.println("token 1 is " + future.get());
+            System.out.println("check 2 is " + check2.get());
+            System.out.println("check 1 is " + check1.get());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	private static void conparal(final DemoService ds) {
-		for (int i = 1; i < 3; i++) {
-			final int index = i;
-			Thread t = new Thread() {
-				@Override
-				public void run() {
-					execute(ds, "client-" + index + ": ");
-				}
-			};
-			t.setName("rpc-client-" + i);
-			t.start();
-		}
-	}
+    private static void conparal(final DemoService ds) {
+        for (int i = 1; i < 3; i++) {
+            final int index = i;
+            Thread t = new Thread() {
+                @Override
+                public void run() {
+                    execute(ds, "client-" + index + ": ");
+                }
+            };
+            t.setName("rpc-client-" + i);
+            t.start();
+        }
+    }
 
-	private static void execute(DemoService ds, String tag) {
-		int c = 0;
-		long st = System.currentTimeMillis();
-		int loopCount = 100000;
-		while (c < loopCount) {
-			ds.hello("dinstoneo");
-			c++;
-		}
-		long et = System.currentTimeMillis() - st;
-		System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
-	}
+    private static void execute(DemoService ds, String tag) {
+        int c = 0;
+        long st = System.currentTimeMillis();
+        int loopCount = 100000;
+        while (c < loopCount) {
+            ds.hello("dinstoneo");
+            c++;
+        }
+        long et = System.currentTimeMillis() - st;
+        System.out.println(tag + et + " ms, " + (loopCount * 1000 / et) + " tps");
+    }
 
 }

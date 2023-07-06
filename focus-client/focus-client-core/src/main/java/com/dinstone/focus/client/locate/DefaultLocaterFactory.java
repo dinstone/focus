@@ -22,18 +22,18 @@ import com.dinstone.focus.clutch.ClutchOptions;
 
 public class DefaultLocaterFactory implements LocaterFactory {
 
-	private ClientOptions clientOptions;
+    private ClientOptions clientOptions;
 
-	public DefaultLocaterFactory(ClientOptions clientOptions) {
-		this.clientOptions = clientOptions;
-	}
+    public DefaultLocaterFactory(ClientOptions clientOptions) {
+        this.clientOptions = clientOptions;
+    }
 
-	@Override
-	public ServiceLocater createLocater() {
-		ClutchOptions clutchOptions = clientOptions.getClutchOptions();
-		if (clutchOptions != null) {
-			return new DiscoveryServiceLocater(clutchOptions);
-		}
-		return new DirectLinkServiceLocater(clientOptions.getConnectAddresses());
-	}
+    @Override
+    public ServiceLocater createLocater() {
+        ClutchOptions clutchOptions = clientOptions.getClutchOptions();
+        if (clutchOptions != null) {
+            return new DiscoveryServiceLocater(clutchOptions);
+        }
+        return new DirectLinkServiceLocater(clientOptions.getConnectAddresses());
+    }
 }

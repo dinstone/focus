@@ -32,36 +32,36 @@ import com.tencent.polaris.ratelimit.factory.LimitAPIFactory;
 
 public class RateLimitInterceptor implements Interceptor {
 
-	private static final String DEFAULT_NAMESPACE = "default";
+    private static final String DEFAULT_NAMESPACE = "default";
 
-	private LimitAPI limit;
+    private LimitAPI limit;
 
-	public RateLimitInterceptor(String... addresses) {
-		Configuration configuration = ConfigAPIFactory.createConfigurationByAddress(addresses);
-		limit = LimitAPIFactory.createLimitAPIByConfig(configuration);
-	}
+    public RateLimitInterceptor(String... addresses) {
+        Configuration configuration = ConfigAPIFactory.createConfigurationByAddress(addresses);
+        limit = LimitAPIFactory.createLimitAPIByConfig(configuration);
+    }
 
-	@Override
-	public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
-		QuotaRequest quotaRequest = new QuotaRequest();
-		// 设置需要进行限流的服务信息：设置命名空间信息
-		quotaRequest.setNamespace(DEFAULT_NAMESPACE);
-		// 设置需要进行限流的服务信息：设置服务名称信息
-		quotaRequest.setService(call.getProvider());
-		// 设置本次被调用的方法信息
-		quotaRequest.setMethod(call.getMethod());
-		// 设置本次的请求标签
-		// quotaRequest.setArguments();
-		// 设置需要申请的请求配额数量
-		quotaRequest.setCount(1);
+    @Override
+    public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
+        QuotaRequest quotaRequest = new QuotaRequest();
+        // 设置需要进行限流的服务信息：设置命名空间信息
+        quotaRequest.setNamespace(DEFAULT_NAMESPACE);
+        // 设置需要进行限流的服务信息：设置服务名称信息
+        quotaRequest.setService(call.getProvider());
+        // 设置本次被调用的方法信息
+        quotaRequest.setMethod(call.getMethod());
+        // 设置本次的请求标签
+        // quotaRequest.setArguments();
+        // 设置需要申请的请求配额数量
+        quotaRequest.setCount(1);
 
-		QuotaResponse response = limit.getQuota(quotaRequest);
+        QuotaResponse response = limit.getQuota(quotaRequest);
 
-		if (response.getCode() == QuotaResultCode.QuotaResultOk) {
-			return handler.handle(call);
-		} else {
-			throw new InvokeException(501, "service is rate-limit");
-		}
-	}
+        if (response.getCode() == QuotaResultCode.QuotaResultOk) {
+            return handler.handle(call);
+        } else {
+            throw new InvokeException(501, "service is rate-limit");
+        }
+    }
 
 }

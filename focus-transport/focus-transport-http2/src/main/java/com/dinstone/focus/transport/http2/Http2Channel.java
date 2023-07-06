@@ -69,7 +69,7 @@ public class Http2Channel {
     public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig) {
         CompletableFuture<Reply> future = new CompletableFuture<>();
 
-        MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
+        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
         Http2StreamChannelBootstrap streamChannelBootstrap = new Http2StreamChannelBootstrap(channel);
         Http2StreamChannel streamChannel = streamChannelBootstrap.open().syncUninterruptibly().getNow();
         streamChannel.pipeline().addLast(new StreamChannelHandler(future, serviceConfig, methodConfig));

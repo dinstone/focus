@@ -25,68 +25,68 @@ import java.util.stream.Stream;
 
 public class FutureTest {
 
-	public static void main(String[] args) throws InterruptedException, ExecutionException {
-//        extracted();
-		
-		Executor executor = Executors.newCachedThreadPool();
-		CompletableFuture<Integer> result = Stream.of(1, 2)
-				.map(x -> CompletableFuture.supplyAsync(() -> compute(x), executor))
-				.reduce(CompletableFuture.completedFuture(0), (x, y) -> x.thenCombineAsync(y, Integer::sum, executor));
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        // extracted();
 
-		// 等待结果
-		try {
-			System.out.println("[" + Thread.currentThread().getName() + "]: 结果：" + result.get());
-		} catch (ExecutionException | InterruptedException e) {
-			System.err.println("任务执行异常");
-		}
-	}
+        Executor executor = Executors.newCachedThreadPool();
+        CompletableFuture<Integer> result = Stream.of(1, 2)
+                .map(x -> CompletableFuture.supplyAsync(() -> compute(x), executor))
+                .reduce(CompletableFuture.completedFuture(0), (x, y) -> x.thenCombineAsync(y, Integer::sum, executor));
 
-	private static Integer compute(Integer x) {
-		try {
-			System.out.println("[" + Thread.currentThread().getName() + "]: 任务开始执行: " + x);
-			Thread.sleep(1000);
-			System.out.println("[" + Thread.currentThread().getName() + "]: 任务完成执行: " + x);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return x;
-	}
+        // 等待结果
+        try {
+            System.out.println("[" + Thread.currentThread().getName() + "]: 结果：" + result.get());
+        } catch (ExecutionException | InterruptedException e) {
+            System.err.println("任务执行异常");
+        }
+    }
 
-	private static void time(Function<Void, Void> fn) {
-		fn.apply(null);
-	}
+    private static Integer compute(Integer x) {
+        try {
+            System.out.println("[" + Thread.currentThread().getName() + "]: 任务开始执行: " + x);
+            Thread.sleep(1000);
+            System.out.println("[" + Thread.currentThread().getName() + "]: 任务完成执行: " + x);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return x;
+    }
 
-	private static void extracted() throws InterruptedException, ExecutionException {
-		ExecutorService executorService = Executors.newCachedThreadPool();
-		CompletableFuture<String> f = new CompletableFuture<String>();
-		executorService.execute(() -> {
-			System.out.println("[" + Thread.currentThread().getName() + "] supplyAsync ");
-			f.complete("Hello");
-		});
+    private static void time(Function<Void, Void> fn) {
+        fn.apply(null);
+    }
 
-		// CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-		// System.out.println(Thread.currentThread().getName() + " supplyAsync ");
-		// return "Hello";
-		// });
+    private static void extracted() throws InterruptedException, ExecutionException {
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        CompletableFuture<String> f = new CompletableFuture<String>();
+        executorService.execute(() -> {
+            System.out.println("[" + Thread.currentThread().getName() + "] supplyAsync ");
+            f.complete("Hello");
+        });
 
-		// ...
-		CompletableFuture<String> future = f.whenComplete((v, e) -> {
-			System.out.println("[" + Thread.currentThread().getName() + "] whenComplete");
-			System.out.println(v);
-			System.out.println(e);
-		});
-		future = future.thenApply(s -> {
-			System.out.println("[" + Thread.currentThread().getName() + "] apply");
-			return s + " World";
-		});
-		System.out.println("get result : " + future.get());
+        // CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+        // System.out.println(Thread.currentThread().getName() + " supplyAsync ");
+        // return "Hello";
+        // });
 
-		future.thenAccept(s -> {
-			System.out.println("[" + Thread.currentThread().getName() + "] accept");
-			System.out.println("accept : " + s);
-		}).thenRun(() -> {
-			System.out.println("[" + Thread.currentThread().getName() + "] run");
-		});
-	}
+        // ...
+        CompletableFuture<String> future = f.whenComplete((v, e) -> {
+            System.out.println("[" + Thread.currentThread().getName() + "] whenComplete");
+            System.out.println(v);
+            System.out.println(e);
+        });
+        future = future.thenApply(s -> {
+            System.out.println("[" + Thread.currentThread().getName() + "] apply");
+            return s + " World";
+        });
+        System.out.println("get result : " + future.get());
+
+        future.thenAccept(s -> {
+            System.out.println("[" + Thread.currentThread().getName() + "] accept");
+            System.out.println("accept : " + s);
+        }).thenRun(() -> {
+            System.out.println("[" + Thread.currentThread().getName() + "] run");
+        });
+    }
 
 }

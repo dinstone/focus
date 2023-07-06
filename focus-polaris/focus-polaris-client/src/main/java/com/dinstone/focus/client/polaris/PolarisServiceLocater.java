@@ -37,71 +37,71 @@ import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceRequest;
 
 public class PolarisServiceLocater implements ServiceLocater {
 
-	private static final String DEFAULT_NAMESPACE = "default";
+    private static final String DEFAULT_NAMESPACE = "default";
 
-	private ConsumerAPI consumerAPI;
+    private ConsumerAPI consumerAPI;
 
-	private RouterAPI routerAPI;
+    private RouterAPI routerAPI;
 
-	public PolarisServiceLocater(String[] polarisAddress) {
-		Configuration config = ConfigAPIFactory.createConfigurationByAddress(polarisAddress);
-		consumerAPI = DiscoveryAPIFactory.createConsumerAPIByConfig(config);
-		routerAPI = RouterAPIFactory.createRouterAPIByConfig(config);
-	}
+    public PolarisServiceLocater(String[] polarisAddress) {
+        Configuration config = ConfigAPIFactory.createConfigurationByAddress(polarisAddress);
+        consumerAPI = DiscoveryAPIFactory.createConsumerAPIByConfig(config);
+        routerAPI = RouterAPIFactory.createRouterAPIByConfig(config);
+    }
 
-	@Override
-	public InetSocketAddress locate(Call call, InetSocketAddress selected) {
-		GetHealthyInstancesRequest request = new GetHealthyInstancesRequest();
-		request.setNamespace(DEFAULT_NAMESPACE);
-		request.setService(call.getProvider());
-		request.setTimeoutMs(1000);
-		InstancesResponse response = consumerAPI.getHealthyInstances(request);
-		ServiceInstances sis = response.getServiceInstances();
-		if (sis.getInstances().isEmpty()) {
-			return null;
-		}
+    @Override
+    public InetSocketAddress locate(Call call, InetSocketAddress selected) {
+        GetHealthyInstancesRequest request = new GetHealthyInstancesRequest();
+        request.setNamespace(DEFAULT_NAMESPACE);
+        request.setService(call.getProvider());
+        request.setTimeoutMs(1000);
+        InstancesResponse response = consumerAPI.getHealthyInstances(request);
+        ServiceInstances sis = response.getServiceInstances();
+        if (sis.getInstances().isEmpty()) {
+            return null;
+        }
 
-		List<Instance> instances = new ArrayList<>();
-		for (Instance instance : response.getInstances()) {
-			if (instance.getHost().equalsIgnoreCase(selected.getHostString())
-					&& instance.getPort() == selected.getPort()) {
-				continue;
-			}
-			instances.add(instance);
-		}
-		if (instances.isEmpty()) {
-			return null;
-		}
+        List<Instance> instances = new ArrayList<>();
+        for (Instance instance : response.getInstances()) {
+            if (instance.getHost().equalsIgnoreCase(selected.getHostString())
+                    && instance.getPort() == selected.getPort()) {
+                continue;
+            }
+            instances.add(instance);
+        }
+        if (instances.isEmpty()) {
+            return null;
+        }
 
-		ProcessLoadBalanceRequest lbRequest = new ProcessLoadBalanceRequest();
-		// 设置需要参与负载均衡的服务实例
-		lbRequest.setDstInstances(new DefaultServiceInstances(sis.getServiceKey(), instances));
-		// 设置负载均衡策略
-		// 当前支持的负载均衡策略如下
-		// - 权重随机负载均衡: weightedRandom
-		// - 权重一致性负载均衡: ringHash
-		lbRequest.setLbPolicy("weightedRandom");
-		Instance instance = routerAPI.processLoadBalance(lbRequest).getTargetInstance();
-		return new InetSocketAddress(instance.getHost(), instance.getPort());
-	}
+        ProcessLoadBalanceRequest lbRequest = new ProcessLoadBalanceRequest();
+        // 设置需要参与负载均衡的服务实例
+        lbRequest.setDstInstances(new DefaultServiceInstances(sis.getServiceKey(), instances));
+        // 设置负载均衡策略
+        // 当前支持的负载均衡策略如下
+        // - 权重随机负载均衡: weightedRandom
+        // - 权重一致性负载均衡: ringHash
+        lbRequest.setLbPolicy("weightedRandom");
+        Instance instance = routerAPI.processLoadBalance(lbRequest).getTargetInstance();
+        return new InetSocketAddress(instance.getHost(), instance.getPort());
+    }
 
-	@Override
-	public void subscribe(String serviceName) {
-		GetInstancesRequest request = new GetInstancesRequest();
-		request.setNamespace(DEFAULT_NAMESPACE);
-		request.setService(serviceName);
-		request.setTimeoutMs(1000);
-		consumerAPI.asyncGetInstances(request);
-	}
+    @Override
+    public void subscribe(String serviceName) {
+        GetInstancesRequest request = new GetInstancesRequest();
+        request.setNamespace(DEFAULT_NAMESPACE);
+        request.setService(serviceName);
+        request.setTimeoutMs(1000);
+        consumerAPI.asyncGetInstances(request);
+    }
 
-	@Override
-	public void destroy() {
-		consumerAPI.destroy();
-	}
+    @Override
+    public void destroy() {
+        consumerAPI.destroy();
+    }
 
-	@Override
-	public void feedback(Call call, InetSocketAddress selected, boolean ok) {
+    @Override
+    public void feedback(Call call, InetSocketAddress selected, boolean ok) {
 
-	}
+    }
 
 }

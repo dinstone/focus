@@ -17,9 +17,10 @@ package com.dinstone.focus.client.proxy;
 
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.client.GenericService;
+import com.dinstone.focus.client.config.ConsumerMethodConfig;
+import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.Handler;
@@ -28,11 +29,11 @@ import com.dinstone.focus.protocol.Reply;
 
 class GenericHandler implements GenericService {
 
-    private final ServiceConfig serviceConfig;
+    private final ConsumerServiceConfig serviceConfig;
     private final Handler invokeHandler;
 
     public GenericHandler(ServiceConfig serviceConfig) {
-        this.serviceConfig = serviceConfig;
+        this.serviceConfig = (ConsumerServiceConfig) serviceConfig;
         this.invokeHandler = serviceConfig.getHandler();
     }
 
@@ -53,7 +54,7 @@ class GenericHandler implements GenericService {
 
         CompletableFuture<Reply> future = invokeHandler.handle(call);
 
-        return (R) future.get(call.getTimeout(), TimeUnit.MILLISECONDS).getResult();
+        return (R) future.get().getResult();
     }
 
     @Override
@@ -77,13 +78,14 @@ class GenericHandler implements GenericService {
     }
 
     private <P, R> MethodConfig getMethodConfig(Class<R> returnType, String methodName, P parameter) {
-        MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
+        ConsumerMethodConfig methodConfig = (ConsumerMethodConfig) serviceConfig.lookup(methodName);
         if (methodConfig == null) {
-            methodConfig = new MethodConfig(methodName);
+            methodConfig = new ConsumerMethodConfig(methodName);
+            methodConfig.setTimeoutMillis(serviceConfig.getTimeoutMillis());
+            methodConfig.setTimeoutRetry(serviceConfig.getTimeoutRetry());
             methodConfig.setParamType(parameter.getClass());
             methodConfig.setReturnType(returnType);
             methodConfig.setAsyncInvoke(true);
-            methodConfig.setTimeoutMillis(serviceConfig.getTimeoutMillis());
             serviceConfig.addMethodConfig(methodConfig);
         }
         return methodConfig;

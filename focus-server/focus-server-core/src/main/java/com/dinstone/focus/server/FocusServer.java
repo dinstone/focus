@@ -26,7 +26,7 @@ import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
-import com.dinstone.focus.server.config.ProviderConfig;
+import com.dinstone.focus.server.config.ProviderServiceConfig;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
 import com.dinstone.focus.server.resolver.DefaultServiceResolver;
@@ -39,152 +39,153 @@ import com.dinstone.loghub.LoggerFactory;
 
 public class FocusServer implements ServiceProvider {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FocusServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FocusServer.class);
 
-	private AcceptorFactory acceptorFactory;
+    private AcceptorFactory acceptorFactory;
 
-	private ServiceResolver serviceResolver;
+    private ServiceResolver serviceResolver;
 
-	private ServerOptions serverOptions;
+    private ServerOptions serverOptions;
 
-	private Acceptor acceptor;
+    private Acceptor acceptor;
 
-	public FocusServer(ServerOptions serverOption) {
-		checkAndInit(serverOption);
-	}
+    public FocusServer(ServerOptions serverOption) {
+        checkAndInit(serverOption);
+    }
 
-	private void checkAndInit(ServerOptions serverOptions) {
-		if (serverOptions == null) {
-			throw new IllegalArgumentException("serverOption is null");
-		}
-		this.serverOptions = serverOptions;
+    private void checkAndInit(ServerOptions serverOptions) {
+        if (serverOptions == null) {
+            throw new IllegalArgumentException("serverOption is null");
+        }
+        this.serverOptions = serverOptions;
 
-		// check listen address
-		if (serverOptions.getListenAddress() == null) {
-			throw new IllegalArgumentException("listen address is null");
-		}
-		// check acceptor options and factory
-		AcceptOptions acceptOptions = serverOptions.getAcceptOptions();
-		if (acceptOptions == null) {
-			throw new IllegalArgumentException("accept options is null");
-		}
-		ServiceLoader<AcceptorFactory> cfLoader = ServiceLoader.load(AcceptorFactory.class);
-		for (AcceptorFactory acceptorFactory : cfLoader) {
-			if (acceptorFactory.appliable(acceptOptions)) {
-				this.acceptorFactory = acceptorFactory;
-			}
-		}
-		if (this.acceptorFactory == null) {
-			throw new FocusException("can't find a acceptor implement for " + acceptOptions);
-		}
+        // check listen address
+        if (serverOptions.getListenAddress() == null) {
+            throw new IllegalArgumentException("listen address is null");
+        }
+        // check acceptor options and factory
+        AcceptOptions acceptOptions = serverOptions.getAcceptOptions();
+        if (acceptOptions == null) {
+            throw new IllegalArgumentException("accept options is null");
+        }
+        ServiceLoader<AcceptorFactory> cfLoader = ServiceLoader.load(AcceptorFactory.class);
+        for (AcceptorFactory acceptorFactory : cfLoader) {
+            if (acceptorFactory.appliable(acceptOptions)) {
+                this.acceptorFactory = acceptorFactory;
+            }
+        }
+        if (this.acceptorFactory == null) {
+            throw new FocusException("can't find a acceptor implement for " + acceptOptions);
+        }
 
-		// create handler registry
-		this.serviceResolver = new DefaultServiceResolver(serverOptions.getClutchOptions());
-	}
+        // create handler registry
+        this.serviceResolver = new DefaultServiceResolver(serverOptions.getClutchOptions());
+    }
 
-	public synchronized FocusServer start() {
-		InetSocketAddress listenAddress = serverOptions.getListenAddress();
-		try {
-			// startup acceptor
-			this.acceptor = acceptorFactory.create(serverOptions.getAcceptOptions());
-			this.acceptor.bind(listenAddress, serviceName -> serviceResolver.lookup(serviceName));
+    public synchronized FocusServer start() {
+        InetSocketAddress listenAddress = serverOptions.getListenAddress();
+        try {
+            // startup acceptor
+            this.acceptor = acceptorFactory.create(serverOptions.getAcceptOptions());
+            this.acceptor.bind(listenAddress, serviceName -> serviceResolver.lookup(serviceName));
 
-			// register application
-			this.serviceResolver.publish(serverOptions);
+            // register application
+            this.serviceResolver.publish(serverOptions);
 
-			LOG.info("focus server startup success on {}", listenAddress);
-		} catch (Exception e) {
-			LOG.warn("focus server startup failure on {}", listenAddress, e);
-			throw new FocusException("start focus server error", e);
-		}
+            LOG.info("focus server startup success on {}", listenAddress);
+        } catch (Exception e) {
+            LOG.warn("focus server startup failure on {}", listenAddress, e);
+            throw new FocusException("start focus server error", e);
+        }
 
-		return this;
-	}
+        return this;
+    }
 
-	public synchronized FocusServer stop() {
-		if (serviceResolver != null) {
-			serviceResolver.destroy();
-		}
-		if (acceptor != null) {
-			acceptor.destroy();
-		}
+    public synchronized FocusServer stop() {
+        if (serviceResolver != null) {
+            serviceResolver.destroy();
+        }
+        if (acceptor != null) {
+            acceptor.destroy();
+        }
 
-		LOG.info("focus server shutdown on {}", serverOptions.getListenAddress());
-		return this;
-	}
+        LOG.info("focus server shutdown on {}", serverOptions.getListenAddress());
+        return this;
+    }
 
-	public InetSocketAddress getListenAddress() {
-		return serverOptions.getListenAddress();
-	}
-	
-	public List<ServiceConfig> getServices() {
-		return serviceResolver.getServices();
-	}
+    public InetSocketAddress getListenAddress() {
+        return serverOptions.getListenAddress();
+    }
 
-	@Override
-	public <T> void exporting(Class<T> clazz, T instance) {
-		exporting(clazz, instance, new ExportOptions(clazz.getName()));
-	}
+    public List<ServiceConfig> getServices() {
+        return serviceResolver.getServices();
+    }
 
-	@Override
-	public <T> void exporting(Class<T> clazz, T instance, String service) {
-		exporting(clazz, instance, new ExportOptions(service));
-	}
+    @Override
+    public <T> void exporting(Class<T> clazz, T instance) {
+        exporting(clazz, instance, new ExportOptions(clazz.getName()));
+    }
 
-	@Override
-	public <T> void exporting(Class<T> clazz, T instance, ExportOptions exportOptions) {
-		String service = exportOptions.getService();
-		if (service == null || service.isEmpty()) {
-			throw new IllegalArgumentException("serivce name is null");
-		}
+    @Override
+    public <T> void exporting(Class<T> clazz, T instance, String service) {
+        exporting(clazz, instance, new ExportOptions(service));
+    }
 
-		try {
-			ProviderConfig serviceConfig = new ProviderConfig();
-			serviceConfig.setProvider(serverOptions.getApplication());
-			serviceConfig.setService(service);
-			serviceConfig.setTarget(instance);
-			serviceConfig.setTimeoutMillis(exportOptions.getTimeout());
+    @Override
+    public <T> void exporting(Class<T> clazz, T instance, ExportOptions exportOptions) {
+        String service = exportOptions.getService();
+        if (service == null || service.isEmpty()) {
+            throw new IllegalArgumentException("serivce name is null");
+        }
 
-			// create and set method configure
-			serviceConfig.parseMethod(clazz.getDeclaredMethods());
+        try {
+            ProviderServiceConfig serviceConfig = new ProviderServiceConfig();
+            serviceConfig.setProvider(serverOptions.getApplication());
+            serviceConfig.setService(service);
+            serviceConfig.setTarget(instance);
+            serviceConfig.setTimeoutMillis(exportOptions.getTimeout());
 
-			// create invoke handler chain
-			serviceConfig.setHandler(createInvokeHandler(serviceConfig));
+            // create and set method configure
+            serviceConfig.parseMethod(clazz.getDeclaredMethods());
 
-			// init service protocol codec
-			protocolCodec(serviceConfig, serverOptions, exportOptions);
+            // create invoke handler chain
+            serviceConfig.setHandler(createInvokeHandler(serviceConfig));
 
-			serviceResolver.registry(serviceConfig);
-		} catch (Exception e) {
-			throw new FocusException("export service error", e);
-		}
-	}
+            // init service protocol codec
+            protocolCodec(serviceConfig, serverOptions, exportOptions);
 
-	private void protocolCodec(ProviderConfig serviceConfig, ServerOptions serverOptions, ExportOptions exportOptions) {
-		Serializer serializer = SerializerFactory.lookup(exportOptions.getSerializerType());
-		if (serializer == null) {
-			serializer = SerializerFactory.lookup(serverOptions.getSerializerType());
-		}
-		if (serializer == null) {
-			throw new IllegalArgumentException("serializer type is error");
-		}
-		serviceConfig.setSerializer(serializer);
+            serviceResolver.registry(serviceConfig);
+        } catch (Exception e) {
+            throw new FocusException("export service error", e);
+        }
+    }
 
-		Compressor compressor = CompressorFactory.lookup(exportOptions.getCompressorType());
-		if (compressor == null) {
-			compressor = CompressorFactory.lookup(serverOptions.getCompressorType());
-		}
-		int compressThreshold = exportOptions.getCompressThreshold();
-		if (compressThreshold <= 0) {
-			compressThreshold = serverOptions.getCompressThreshold();
-		}
-		serviceConfig.setCompressor(compressor);
-		serviceConfig.setCompressThreshold(compressThreshold);
-	}
+    private void protocolCodec(ProviderServiceConfig serviceConfig, ServerOptions serverOptions,
+            ExportOptions exportOptions) {
+        Serializer serializer = SerializerFactory.lookup(exportOptions.getSerializerType());
+        if (serializer == null) {
+            serializer = SerializerFactory.lookup(serverOptions.getSerializerType());
+        }
+        if (serializer == null) {
+            throw new IllegalArgumentException("serializer type is error");
+        }
+        serviceConfig.setSerializer(serializer);
 
-	private Handler createInvokeHandler(ServiceConfig serviceConfig) {
-		LocalInvokeHandler localHandler = new LocalInvokeHandler(serviceConfig);
-		return new ProviderInvokeHandler(serviceConfig, localHandler).addInterceptor(serverOptions.getInterceptors());
-	}
+        Compressor compressor = CompressorFactory.lookup(exportOptions.getCompressorType());
+        if (compressor == null) {
+            compressor = CompressorFactory.lookup(serverOptions.getCompressorType());
+        }
+        int compressThreshold = exportOptions.getCompressThreshold();
+        if (compressThreshold <= 0) {
+            compressThreshold = serverOptions.getCompressThreshold();
+        }
+        serviceConfig.setCompressor(compressor);
+        serviceConfig.setCompressThreshold(compressThreshold);
+    }
+
+    private Handler createInvokeHandler(ServiceConfig serviceConfig) {
+        LocalInvokeHandler localHandler = new LocalInvokeHandler(serviceConfig);
+        return new ProviderInvokeHandler(serviceConfig, localHandler).addInterceptor(serverOptions.getInterceptors());
+    }
 
 }

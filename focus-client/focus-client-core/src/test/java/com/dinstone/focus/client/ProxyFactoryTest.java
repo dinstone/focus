@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.junit.Test;
 
-import com.dinstone.focus.client.config.ConsumerConfig;
+import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
@@ -83,7 +83,7 @@ public class ProxyFactoryTest {
     }
 
     private HelloService proxyFactory() {
-        ConsumerConfig serviceConfig = new ConsumerConfig();
+        ConsumerServiceConfig serviceConfig = new ConsumerServiceConfig();
         serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
         serviceConfig.setHandler(new Handler() {
 

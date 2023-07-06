@@ -22,6 +22,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 
 import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.client.config.ConsumerServiceConfig;
+import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
@@ -31,82 +33,80 @@ import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements Handler {
 
-	private ServiceConfig serviceConfig;
+    private ConsumerServiceConfig serviceConfig;
 
-	private ServiceLocater locater;
+    private ServiceLocater locater;
 
-	private Connector connector;
+    private Connector connector;
 
-	private int connectRetry;
+    private int connectRetry;
 
-	private int timeoutRetry;
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocater locater, Connector connector) {
+        this.serviceConfig = (ConsumerServiceConfig) serviceConfig;
+        this.connector = connector;
+        this.locater = locater;
 
-	public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocater locater, Connector connector) {
-		this.serviceConfig = serviceConfig;
-		this.connector = connector;
-		this.locater = locater;
+        this.connectRetry = this.serviceConfig.getConnectRetry();
+    }
 
-		this.connectRetry = serviceConfig.getConnectRetry();
-		this.timeoutRetry = serviceConfig.getTimeoutRetry();
-	}
+    @Override
+    public CompletableFuture<Reply> handle(Call call) throws Exception {
+        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
+        return timeoutRetry(new CompletableFuture<>(), methodConfig.getTimeoutRetry(), call);
+    }
 
-	@Override
-	public CompletableFuture<Reply> handle(Call call) throws Exception {
-		return timeoutRetry(new CompletableFuture<>(), timeoutRetry, call);
-	}
+    private CompletableFuture<Reply> timeoutRetry(CompletableFuture<Reply> future, int remain, Call call)
+            throws Exception {
 
-	private CompletableFuture<Reply> timeoutRetry(CompletableFuture<Reply> future, int remain, Call call)
-			throws Exception {
+        connectRetry(call).thenApply(r -> future.complete(r)).exceptionally(e -> {
+            if (e instanceof CompletionException) {
+                e = e.getCause();
+            }
+            // check timeout exception to retry
+            if (e instanceof TimeoutException) {
+                if (remain <= 1) {
+                    future.completeExceptionally(e);
+                } else {
+                    try {
+                        timeoutRetry(future, remain - 1, call);
+                    } catch (Exception e1) {
+                        future.completeExceptionally(e);
+                    }
+                }
+            } else {
+                future.completeExceptionally(e);
+            }
 
-		connectRetry(call).thenApply(r -> future.complete(r)).exceptionally(e -> {
-			if (e instanceof CompletionException) {
-				e = e.getCause();
-			}
-			// check timeout exception to retry
-			if (e instanceof TimeoutException) {
-				if (remain <= 1) {
-					future.completeExceptionally(e);
-				} else {
-					try {
-						timeoutRetry(future, remain - 1, call);
-					} catch (Exception e1) {
-						future.completeExceptionally(e);
-					}
-				}
-			} else {
-				future.completeExceptionally(e);
-			}
+            return true;
+        });
 
-			return true;
-		});
+        return future;
+    }
 
-		return future;
-	}
+    private CompletableFuture<Reply> connectRetry(Call call) throws Exception {
+        InetSocketAddress selected = null;
+        // find an address
+        for (int i = 0; i < connectRetry; i++) {
+            selected = locater.locate(call, selected);
 
-	private CompletableFuture<Reply> connectRetry(Call call) throws Exception {
-		InetSocketAddress selected = null;
-		// find an address
-		for (int i = 0; i < connectRetry; i++) {
-			selected = locater.locate(call, selected);
+            // check
+            if (selected == null) {
+                break;
+            }
 
-			// check
-			if (selected == null) {
-				break;
-			}
+            try {
+                final InetSocketAddress address = selected;
+                return connector.send(call, serviceConfig, address).whenComplete((reply, error) -> {
+                    locater.feedback(call, address, error != null);
+                });
+            } catch (ConnectException e) {
+                // ignore and retry
+            } catch (Exception e) {
+                throw e;
+            }
+        }
 
-			try {
-				final InetSocketAddress address = selected;
-				return connector.send(call, serviceConfig, address).whenComplete((reply, error) -> {
-					locater.feedback(call, address, error != null);
-				});
-			} catch (ConnectException e) {
-				// ignore and retry
-			} catch (Exception e) {
-				throw e;
-			}
-		}
-
-		throw new FocusException("can't find a live service instance for " + call.getService());
-	}
+        throw new FocusException("can't find a live service instance for " + call.getService());
+    }
 
 }

@@ -27,18 +27,19 @@ import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.server.config.ProviderServiceConfig;
 
 public class LocalInvokeHandler implements Handler {
 
-    private ServiceConfig serviceConfig;
+    private ProviderServiceConfig serviceConfig;
 
     public LocalInvokeHandler(ServiceConfig serviceConfig) {
-        this.serviceConfig = serviceConfig;
+        this.serviceConfig = (ProviderServiceConfig) serviceConfig;
     }
 
     @Override
     public CompletableFuture<Reply> handle(Call call) throws Exception {
-        MethodConfig methodConfig = serviceConfig.getMethodConfig(call.getMethod());
+        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
         try {
             Object result = methodConfig.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());
             if (methodConfig.isAsyncInvoke() && result instanceof Future) {

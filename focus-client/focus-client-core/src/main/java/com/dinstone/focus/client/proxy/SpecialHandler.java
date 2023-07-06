@@ -29,61 +29,55 @@ import com.dinstone.focus.protocol.Reply;
 
 class SpecialHandler implements InvocationHandler {
 
-	private ServiceConfig serviceConfig;
-	private Handler invokeHandler;
+    private ServiceConfig serviceConfig;
+    private Handler invokeHandler;
 
-	public SpecialHandler(ServiceConfig serviceConfig) {
-		this.serviceConfig = serviceConfig;
-		this.invokeHandler = serviceConfig.getHandler();
-	}
+    public SpecialHandler(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
+        this.invokeHandler = serviceConfig.getHandler();
+    }
 
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		String methodName = method.getName();
-		if (methodName.equals("hashCode")) {
-			return Integer.valueOf(System.identityHashCode(proxy));
-		} else if (methodName.equals("equals")) {
-			return (proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);
-		} else if (methodName.equals("toString")) {
-			return proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode());
-		}
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        String methodName = method.getName();
+        if (methodName.equals("hashCode")) {
+            return Integer.valueOf(System.identityHashCode(proxy));
+        } else if (methodName.equals("equals")) {
+            return (proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);
+        } else if (methodName.equals("toString")) {
+            return proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode());
+        }
 
-		Object parameter = null;
-		if (args != null && args.length > 0) {
-			parameter = args[0];
-		}
+        Object parameter = null;
+        if (args != null && args.length > 0) {
+            parameter = args[0];
+        }
 
-		MethodConfig methodConfig = serviceConfig.getMethodConfig(methodName);
-		if (methodConfig == null) {
-			methodConfig = new MethodConfig(method, parameter.getClass());
-			methodConfig.setTimeoutMillis(serviceConfig.getTimeoutMillis());
-			methodConfig.setTimeoutRetry(serviceConfig.getTimeoutRetry());
-			serviceConfig.addMethodConfig(methodConfig);
-		}
+        MethodConfig methodConfig = serviceConfig.lookup(methodName);
 
-		Call call = new Call(methodName, parameter);
-		call.setService(serviceConfig.getService());
-		call.setTimeout(serviceConfig.getTimeoutMillis());
+        Call call = new Call(methodName, parameter);
+        call.setService(serviceConfig.getService());
+        call.setTimeout(methodConfig.getTimeoutMillis());
 
-		// invoke
-		CompletableFuture<Reply> future = invokeHandler.handle(call);
+        // invoke
+        CompletableFuture<Reply> future = invokeHandler.handle(call);
 
-		// reply handle
-		if (methodConfig.isAsyncInvoke()) {
-			return future.thenApply(reply -> reply.getResult());
-		} else {
-			try {
-				return future.get().getResult();
-			} catch (ExecutionException e) {
-				Throwable cause = e.getCause();
-				if (cause instanceof FocusException) {
-					throw cause;
-				} else {
-					throw new FocusException("invoke error", cause);
-				}
-			}
-		}
+        // reply handle
+        if (methodConfig.isAsyncInvoke()) {
+            return future.thenApply(reply -> reply.getResult());
+        } else {
+            try {
+                return future.get().getResult();
+            } catch (ExecutionException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof FocusException) {
+                    throw cause;
+                } else {
+                    throw new FocusException("invoke error", cause);
+                }
+            }
+        }
 
-	}
+    }
 
 }

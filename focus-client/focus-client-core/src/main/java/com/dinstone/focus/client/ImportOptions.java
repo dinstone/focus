@@ -25,85 +25,111 @@ import java.util.List;
  */
 public class ImportOptions {
 
-	public static final int DEFAULT_INVOKE_TIMEOUT = 3000;
+    public static final int DEFAULT_TIMEOUT_MILLIS = 3000;
 
-	private String application;
+    private static final int DEFAULT_CONNECT_RETRY = 1;
 
-	private String service;
+    private static final int DEFAULT_TIMEOUT_RETRY = 0;
 
-	private int timeout;
+    private String application;
 
-	private String serializerType;
+    private String service;
 
-	private String compressorType;
+    private int connectRetry;
 
-	private int compressThreshold;
+    private int timeoutRetry;
 
-	private List<InvokeOptions> invokeOptions;
+    private int timeoutMillis;
 
-	public ImportOptions(String service) {
-		this(null, service);
-	}
+    private String serializerType;
 
-	public ImportOptions(String application, String service) {
-		this.application = application;
-		this.service = service;
+    private String compressorType;
 
-		this.timeout = DEFAULT_INVOKE_TIMEOUT;
-	}
+    private int compressThreshold;
 
-	public String getService() {
-		return service;
-	}
+    private List<InvokeOptions> invokeOptions;
 
-	public String getApplication() {
-		return application;
-	}
+    public ImportOptions(String service) {
+        this(null, service);
+    }
 
-	public int getTimeout() {
-		return timeout;
-	}
+    public ImportOptions(String application, String service) {
+        this.application = application;
+        this.service = service;
 
-	public ImportOptions setTimeout(int timeout) {
-		if (timeout > 0) {
-			this.timeout = timeout;
-		}
-		return this;
-	}
+        this.timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
+        this.timeoutRetry = DEFAULT_TIMEOUT_RETRY;
+        this.connectRetry = DEFAULT_CONNECT_RETRY;
+    }
 
-	public String getSerializerType() {
-		return serializerType;
-	}
+    public String getService() {
+        return service;
+    }
 
-	public ImportOptions setSerializerType(String serializerType) {
-		this.serializerType = serializerType;
-		return this;
-	}
+    public String getApplication() {
+        return application;
+    }
 
-	public String getCompressorType() {
-		return compressorType;
-	}
+    public int getConnectRetry() {
+        return connectRetry;
+    }
 
-	public ImportOptions setCompressorType(String compressorType) {
-		this.compressorType = compressorType;
-		return this;
-	}
+    public void setConnectRetry(int connectRetry) {
+        this.connectRetry = connectRetry;
+    }
 
-	public List<InvokeOptions> getInvokeOptions() {
-		return invokeOptions;
-	}
+    public int getTimeoutRetry() {
+        return timeoutRetry;
+    }
 
-	public ImportOptions setInvokeOptions(List<InvokeOptions> invokeOptions) {
-		this.invokeOptions = invokeOptions;
-		return this;
-	}
+    public void setTimeoutRetry(int timeoutRetry) {
+        this.timeoutRetry = timeoutRetry;
+    }
 
-	public int getCompressThreshold() {
-		return compressThreshold;
-	}
+    public int getTimeoutMillis() {
+        return timeoutMillis;
+    }
 
-	public void setCompressThreshold(int compressThreshold) {
-		this.compressThreshold = compressThreshold;
-	}
+    public ImportOptions setTimeoutMillis(int timeoutMillis) {
+        if (timeoutMillis > 0) {
+            this.timeoutMillis = timeoutMillis;
+        }
+        return this;
+    }
+
+    public String getSerializerType() {
+        return serializerType;
+    }
+
+    public ImportOptions setSerializerType(String serializerType) {
+        this.serializerType = serializerType;
+        return this;
+    }
+
+    public String getCompressorType() {
+        return compressorType;
+    }
+
+    public ImportOptions setCompressorType(String compressorType) {
+        this.compressorType = compressorType;
+        return this;
+    }
+
+    public List<InvokeOptions> getInvokeOptions() {
+        return invokeOptions;
+    }
+
+    public ImportOptions setInvokeOptions(List<InvokeOptions> invokeOptions) {
+        this.invokeOptions = invokeOptions;
+        return this;
+    }
+
+    public int getCompressThreshold() {
+        return compressThreshold;
+    }
+
+    public void setCompressThreshold(int compressThreshold) {
+        this.compressThreshold = compressThreshold;
+    }
 
 }

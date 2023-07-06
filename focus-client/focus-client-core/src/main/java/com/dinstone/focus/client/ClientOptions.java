@@ -34,108 +34,89 @@ import com.dinstone.focus.utils.NetworkUtil;
  */
 public class ClientOptions extends FocusOptions<ClientOptions> {
 
-	private static final int DEFAULT_CONNECT_RETRY = 1;
+    private ProxyFactory proxyFactory = new JdkProxyFactory();
 
-	private static final int DEFAULT_TIMEOUT_RETRY = 0;
+    private List<InetSocketAddress> connectAddresses = new LinkedList<>();
 
-	private int connectRetry = DEFAULT_CONNECT_RETRY;
-	
-	private int timeoutRetry = DEFAULT_TIMEOUT_RETRY;
-	
+    private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
 
-	private ProxyFactory proxyFactory = new JdkProxyFactory();
+    private InetSocketAddress consumerAddress;
 
-	private List<InetSocketAddress> connectAddresses = new LinkedList<>();
+    private LocaterFactory locaterFactory;
 
-	private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
+    public ClientOptions(String application) {
+        super(application);
+    }
 
+    public ConnectOptions getConnectOptions() {
+        return connectOptions;
+    }
 
-	private InetSocketAddress consumerAddress;
+    public ClientOptions setConnectOptions(ConnectOptions connectOptions) {
+        this.connectOptions = connectOptions;
+        return this;
+    }
 
-	private LocaterFactory locaterFactory;
+    public ClientOptions connect(String addresses) {
+        if (addresses == null || addresses.length() == 0) {
+            return this;
+        }
 
-	public ClientOptions(String application) {
-		super(application);
-	}
+        String[] addressArrays = addresses.split(",");
+        for (String address : addressArrays) {
+            int pidx = address.lastIndexOf(':');
+            if (pidx > 0 && (pidx < address.length() - 1)) {
+                String host = address.substring(0, pidx);
+                int port = Integer.parseInt(address.substring(pidx + 1));
 
-	public ConnectOptions getConnectOptions() {
-		return connectOptions;
-	}
+                connectAddresses.add(new InetSocketAddress(host, port));
+            }
+        }
 
-	public ClientOptions setConnectOptions(ConnectOptions connectOptions) {
-		this.connectOptions = connectOptions;
-		return this;
-	}
+        return this;
+    }
 
-	public ClientOptions connect(String addresses) {
-		if (addresses == null || addresses.length() == 0) {
-			return this;
-		}
+    public ClientOptions connect(String host, int port) {
+        connectAddresses.add(new InetSocketAddress(host, port));
+        return this;
+    }
 
-		String[] addressArrays = addresses.split(",");
-		for (String address : addressArrays) {
-			int pidx = address.lastIndexOf(':');
-			if (pidx > 0 && (pidx < address.length() - 1)) {
-				String host = address.substring(0, pidx);
-				int port = Integer.parseInt(address.substring(pidx + 1));
+    public List<InetSocketAddress> getConnectAddresses() {
+        return connectAddresses;
+    }
 
-				connectAddresses.add(new InetSocketAddress(host, port));
-			}
-		}
+    public LocaterFactory getLocaterFactory() {
+        return locaterFactory;
+    }
 
-		return this;
-	}
+    public ClientOptions setLocaterFactory(LocaterFactory locaterFactory) {
+        this.locaterFactory = locaterFactory;
+        return this;
+    }
 
-	public ClientOptions connect(String host, int port) {
-		connectAddresses.add(new InetSocketAddress(host, port));
-		return this;
-	}
+    public InetSocketAddress getConsumerAddress() {
+        if (consumerAddress == null) {
+            try {
+                InetAddress addr = NetworkUtil.getPrivateAddresses().get(0);
+                consumerAddress = new InetSocketAddress(addr, 0);
+            } catch (Exception e) {
+                throw new RuntimeException("can't init consumer address", e);
+            }
+        }
+        return this.consumerAddress;
+    }
 
-	public List<InetSocketAddress> getConnectAddresses() {
-		return connectAddresses;
-	}
+    public ClientOptions consumerAddress(String host, int port) {
+        consumerAddress = new InetSocketAddress(host, port);
+        return this;
+    }
 
-	public LocaterFactory getLocaterFactory() {
-		return locaterFactory;
-	}
+    public ProxyFactory getProxyFactory() {
+        return proxyFactory;
+    }
 
-	public ClientOptions setLocaterFactory(LocaterFactory locaterFactory) {
-		this.locaterFactory = locaterFactory;
-		return this;
-	}
-
-	public InetSocketAddress getConsumerAddress() {
-		if (consumerAddress == null) {
-			try {
-				InetAddress addr = NetworkUtil.getPrivateAddresses().get(0);
-				consumerAddress = new InetSocketAddress(addr, 0);
-			} catch (Exception e) {
-				throw new RuntimeException("can't init consumer address", e);
-			}
-		}
-		return this.consumerAddress;
-	}
-
-	public ClientOptions consumerAddress(String host, int port) {
-		consumerAddress = new InetSocketAddress(host, port);
-		return this;
-	}
-
-	public int getConnectRetry() {
-		return connectRetry;
-	}
-
-	public ClientOptions setConnectRetry(int connectRetry) {
-		this.connectRetry = connectRetry;
-		return this;
-	}
-
-	public ProxyFactory getProxyFactory() {
-		return proxyFactory;
-	}
-
-	public void setProxyFactory(ProxyFactory proxyFactory) {
-		this.proxyFactory = proxyFactory;
-	}
+    public void setProxyFactory(ProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
 
 }

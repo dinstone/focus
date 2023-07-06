@@ -26,15 +26,15 @@ import com.dinstone.focus.client.ServiceLocater;
  */
 public class PolarisLocaterFactory implements LocaterFactory {
 
-	private String[] polarisAddress;
+    private String[] polarisAddress;
 
-	public PolarisLocaterFactory(String... addresses) {
-		this.polarisAddress = addresses;
-	}
+    public PolarisLocaterFactory(String... addresses) {
+        this.polarisAddress = addresses;
+    }
 
-	@Override
-	public ServiceLocater createLocater() {
-		return new PolarisServiceLocater(polarisAddress);
-	}
+    @Override
+    public ServiceLocater createLocater() {
+        return new PolarisServiceLocater(polarisAddress);
+    }
 
 }

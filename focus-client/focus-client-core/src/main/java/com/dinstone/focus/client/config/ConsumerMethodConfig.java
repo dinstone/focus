@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.transport.photon;
+package com.dinstone.focus.client.config;
 
-import com.dinstone.focus.transport.ConnectOptions;
+import java.lang.reflect.Method;
 
-public class PhotonConnectOptions extends com.dinstone.photon.ConnectOptions implements ConnectOptions {
+import com.dinstone.focus.config.AbstractMethodConfig;
 
-    private static final int DEFAULT_POOL_SIZE = 2;
+public class ConsumerMethodConfig extends AbstractMethodConfig {
 
-    private int connectPoolSize = DEFAULT_POOL_SIZE;
-
-    public int getConnectPoolSize() {
-        return connectPoolSize;
+    public ConsumerMethodConfig(Method method, Class<?> paramType) {
+        super(method, paramType);
     }
 
-    public PhotonConnectOptions setConnectPoolSize(int connectPoolSize) {
-        this.connectPoolSize = connectPoolSize;
-        return this;
+    public ConsumerMethodConfig(String methodName) {
+        super(methodName);
     }
 
 }

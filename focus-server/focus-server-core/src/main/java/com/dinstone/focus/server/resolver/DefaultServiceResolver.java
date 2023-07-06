@@ -31,75 +31,75 @@ import com.dinstone.focus.server.ServerOptions;
 
 public class DefaultServiceResolver implements ServiceResolver {
 
-	private Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
+    private Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
-	private ServiceRegistry serviceRegistry;
+    private ServiceRegistry serviceRegistry;
 
-	public DefaultServiceResolver(ClutchOptions clutchOptions) {
-		if (clutchOptions != null) {
-			ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
-			for (ClutchFactory clutchFactory : serviceLoader) {
-				if (clutchFactory.appliable(clutchOptions)) {
-					this.serviceRegistry = clutchFactory.createServiceRegistry(clutchOptions);
-					break;
-				}
-			}
-		}
-	}
+    public DefaultServiceResolver(ClutchOptions clutchOptions) {
+        if (clutchOptions != null) {
+            ServiceLoader<ClutchFactory> serviceLoader = ServiceLoader.load(ClutchFactory.class);
+            for (ClutchFactory clutchFactory : serviceLoader) {
+                if (clutchFactory.appliable(clutchOptions)) {
+                    this.serviceRegistry = clutchFactory.createServiceRegistry(clutchOptions);
+                    break;
+                }
+            }
+        }
+    }
 
-	@Override
-	public List<ServiceConfig> getServices() {
-		return serviceConfigMap.values().stream().collect(Collectors.toList());
-	}
+    @Override
+    public List<ServiceConfig> getServices() {
+        return serviceConfigMap.values().stream().collect(Collectors.toList());
+    }
 
-	@Override
-	public void registry(ServiceConfig serviceConfig) {
-		String serviceName = serviceConfig.getService();
-		if (serviceConfigMap.containsKey(serviceName)) {
-			throw new RuntimeException("multiple object registed with the service name : " + serviceName);
-		}
-		serviceConfigMap.putIfAbsent(serviceName, serviceConfig);
-	}
+    @Override
+    public void registry(ServiceConfig serviceConfig) {
+        String serviceName = serviceConfig.getService();
+        if (serviceConfigMap.containsKey(serviceName)) {
+            throw new RuntimeException("multiple object registed with the service name : " + serviceName);
+        }
+        serviceConfigMap.putIfAbsent(serviceName, serviceConfig);
+    }
 
-	@Override
-	public ServiceConfig lookup(String serviceName) {
-		return serviceConfigMap.get(serviceName);
-	}
+    @Override
+    public ServiceConfig lookup(String serviceName) {
+        return serviceConfigMap.get(serviceName);
+    }
 
-	@Override
-	public void publish(ServerOptions serverOptions) {
-		if (serviceRegistry == null) {
-			return;
-		}
+    @Override
+    public void publish(ServerOptions serverOptions) {
+        if (serviceRegistry == null) {
+            return;
+        }
 
-		String app = serverOptions.getApplication();
-		String host = serverOptions.getListenAddress().getHostString();
-		int port = serverOptions.getListenAddress().getPort();
+        String app = serverOptions.getApplication();
+        String host = serverOptions.getListenAddress().getHostString();
+        int port = serverOptions.getListenAddress().getPort();
 
-		StringBuilder code = new StringBuilder();
-		code.append(app).append("@");
-		code.append(host).append(":").append(port);
+        StringBuilder code = new StringBuilder();
+        code.append(app).append("@");
+        code.append(host).append(":").append(port);
 
-		ServiceInstance instance = new ServiceInstance();
-		instance.setInstanceCode(code.toString());
-		instance.setInstanceHost(host);
-		instance.setInstancePort(port);
-		instance.setServiceName(app);
-		instance.setRegistTime(System.currentTimeMillis());
-		instance.setMetadata(serverOptions.getMetadata());
+        ServiceInstance instance = new ServiceInstance();
+        instance.setInstanceCode(code.toString());
+        instance.setInstanceHost(host);
+        instance.setInstancePort(port);
+        instance.setServiceName(app);
+        instance.setRegistTime(System.currentTimeMillis());
+        instance.setMetadata(serverOptions.getMetadata());
 
-		try {
-			serviceRegistry.register(instance);
-		} catch (Exception e) {
-			throw new FocusException("can't register application: " + app, e);
-		}
-	}
+        try {
+            serviceRegistry.register(instance);
+        } catch (Exception e) {
+            throw new FocusException("can't register application: " + app, e);
+        }
+    }
 
-	@Override
-	public void destroy() {
-		if (serviceRegistry != null) {
-			serviceRegistry.destroy();
-		}
-	}
+    @Override
+    public void destroy() {
+        if (serviceRegistry != null) {
+            serviceRegistry.destroy();
+        }
+    }
 
 }

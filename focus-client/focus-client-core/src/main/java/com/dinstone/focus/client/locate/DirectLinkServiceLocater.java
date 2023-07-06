@@ -24,29 +24,29 @@ import com.dinstone.focus.protocol.Call;
 
 public class DirectLinkServiceLocater extends DefaultServiceLocater {
 
-	private List<InetSocketAddress> connectAddresses = new ArrayList<InetSocketAddress>();
+    private List<InetSocketAddress> connectAddresses = new ArrayList<InetSocketAddress>();
 
-	public DirectLinkServiceLocater(List<InetSocketAddress> connectAddresses) {
-		if (connectAddresses == null || connectAddresses.isEmpty()) {
-			throw new FocusException("connectAddresses is empty, please set connectAddresses");
-		}
-		this.connectAddresses.addAll(connectAddresses);
-	}
+    public DirectLinkServiceLocater(List<InetSocketAddress> connectAddresses) {
+        if (connectAddresses == null || connectAddresses.isEmpty()) {
+            throw new FocusException("connectAddresses is empty, please set connectAddresses");
+        }
+        this.connectAddresses.addAll(connectAddresses);
+    }
 
-	@Override
-	protected List<InetSocketAddress> routing(Call call, InetSocketAddress selected) {
-		if (selected == null) {
-			return connectAddresses;
-		}
+    @Override
+    protected List<InetSocketAddress> routing(Call call, InetSocketAddress selected) {
+        if (selected == null) {
+            return connectAddresses;
+        }
 
-		List<InetSocketAddress> addresses = new ArrayList<>();
-		for (InetSocketAddress address : connectAddresses) {
-			if (address.equals(selected)) {
-				continue;
-			}
-			addresses.add(address);
-		}
-		return addresses;
-	}
+        List<InetSocketAddress> addresses = new ArrayList<>();
+        for (InetSocketAddress address : connectAddresses) {
+            if (address.equals(selected)) {
+                continue;
+            }
+            addresses.add(address);
+        }
+        return addresses;
+    }
 
 }

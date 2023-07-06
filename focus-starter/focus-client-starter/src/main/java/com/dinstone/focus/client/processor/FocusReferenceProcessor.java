@@ -28,27 +28,27 @@ import com.dinstone.focus.client.annotation.FocusReference;
 
 public class FocusReferenceProcessor implements BeanPostProcessor, ApplicationContextAware {
 
-	private ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
-	@Override
-	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		ReflectionUtils.doWithFields(bean.getClass(), field -> {
-			FocusReference autowired = AnnotationUtils.getAnnotation(field, FocusReference.class);
-			if (autowired != null) {
-				FocusClient client = applicationContext.getBean(FocusClient.class);
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        ReflectionUtils.doWithFields(bean.getClass(), field -> {
+            FocusReference autowired = AnnotationUtils.getAnnotation(field, FocusReference.class);
+            if (autowired != null) {
+                FocusClient client = applicationContext.getBean(FocusClient.class);
 
-				ReflectionUtils.makeAccessible(field);
-				ReflectionUtils.setField(field, bean,
-						client.importing(field.getType(),
-								new ImportOptions(autowired.application(), autowired.service())
-										.setTimeout(autowired.timeout())));
-			}
-		});
-		return bean;
-	}
+                ReflectionUtils.makeAccessible(field);
+                ReflectionUtils.setField(field, bean,
+                        client.importing(field.getType(),
+                                new ImportOptions(autowired.application(), autowired.service())
+                                        .setTimeoutMillis(autowired.timeout())));
+            }
+        });
+        return bean;
+    }
 
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

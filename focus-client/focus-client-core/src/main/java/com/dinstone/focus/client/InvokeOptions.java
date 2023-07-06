@@ -25,9 +25,9 @@ public class InvokeOptions {
 
     private String methodName;
 
-    private int invokeTimeout;
+    private int timeoutMillis;
 
-    private int invokeRetry;
+    private int timeoutRetry;
 
     public String getMethodName() {
         return methodName;
@@ -37,26 +37,20 @@ public class InvokeOptions {
         this.methodName = methodName;
     }
 
-    public int getInvokeTimeout() {
-        return invokeTimeout;
+    public int getTimeoutMillis() {
+        return timeoutMillis;
     }
 
-    public void setInvokeTimeout(int invokeTimeout) {
-        this.invokeTimeout = invokeTimeout;
+    public void setTimeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
     }
 
-    public int getInvokeRetry() {
-        return invokeRetry;
+    public int getTimeoutRetry() {
+        return timeoutRetry;
     }
 
-    public void setInvokeRetry(int invokeRetry) {
-        this.invokeRetry = invokeRetry;
-    }
-
-    @Override
-    public String toString() {
-        return "InvokeOptions [methodName=" + methodName + ", invokeTimeout=" + invokeTimeout + ", invokeRetry="
-                + invokeRetry + "]";
+    public void setTimeoutRetry(int timeoutRetry) {
+        this.timeoutRetry = timeoutRetry;
     }
 
 }

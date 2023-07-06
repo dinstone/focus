@@ -79,7 +79,8 @@ public class Http2ClientTest {
             User u = us.getUser(10);
             System.out.println(u);
 
-            AuthenCheck ac = client.importing(AuthenCheck.class, new ImportOptions("AuthenService").setTimeout(2000));
+            AuthenCheck ac = client.importing(AuthenCheck.class,
+                    new ImportOptions("AuthenService").setTimeoutMillis(2000));
             asyncError(ac);
 
             asyncExecute(ac, "AuthenCheck async hot: ");

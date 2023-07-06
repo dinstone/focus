@@ -22,14 +22,14 @@ import com.dinstone.focus.server.ServerOptions;
 
 public interface ServiceResolver {
 
-	List<ServiceConfig> getServices();
+    List<ServiceConfig> getServices();
 
-	void registry(ServiceConfig serviceConfig);
+    void registry(ServiceConfig serviceConfig);
 
-	ServiceConfig lookup(String serviceName);
+    ServiceConfig lookup(String serviceName);
 
-	void publish(ServerOptions serverOptions);
+    void publish(ServerOptions serverOptions);
 
-	void destroy();
+    void destroy();
 
 }

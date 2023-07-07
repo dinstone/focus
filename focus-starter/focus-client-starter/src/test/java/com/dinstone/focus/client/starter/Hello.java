@@ -15,9 +15,9 @@
  */
 package com.dinstone.focus.client.starter;
 
-import com.dinstone.focus.client.annotation.FocusReference;
+import com.dinstone.focus.annotation.ServiceReference;
 
-@FocusReference(service = "HelloService")
+@ServiceReference(service = "HelloService")
 public interface Hello {
 
     String sayHi(String name);

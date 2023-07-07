@@ -22,8 +22,6 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
-import com.dinstone.focus.client.processor.FocusReferenceRegistrar;
-
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Import({ FocusClientConfiguration.class, FocusReferenceRegistrar.class })

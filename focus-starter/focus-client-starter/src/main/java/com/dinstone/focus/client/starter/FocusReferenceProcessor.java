@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.processor;
+package com.dinstone.focus.client.starter;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -22,9 +22,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
+import com.dinstone.focus.annotation.ServiceReference;
 import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ImportOptions;
-import com.dinstone.focus.client.annotation.FocusReference;
 
 public class FocusReferenceProcessor implements BeanPostProcessor, ApplicationContextAware {
 
@@ -33,7 +33,7 @@ public class FocusReferenceProcessor implements BeanPostProcessor, ApplicationCo
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         ReflectionUtils.doWithFields(bean.getClass(), field -> {
-            FocusReference autowired = AnnotationUtils.getAnnotation(field, FocusReference.class);
+            ServiceReference autowired = AnnotationUtils.getAnnotation(field, ServiceReference.class);
             if (autowired != null) {
                 FocusClient client = applicationContext.getBean(FocusClient.class);
 
@@ -41,7 +41,7 @@ public class FocusReferenceProcessor implements BeanPostProcessor, ApplicationCo
                 ReflectionUtils.setField(field, bean,
                         client.importing(field.getType(),
                                 new ImportOptions(autowired.application(), autowired.service())
-                                        .setTimeoutMillis(autowired.timeout())));
+                                        .setTimeoutMillis(autowired.timeoutMillis())));
             }
         });
         return bean;

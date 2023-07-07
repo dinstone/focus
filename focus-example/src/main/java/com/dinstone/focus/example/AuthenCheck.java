@@ -18,9 +18,9 @@ package com.dinstone.focus.example;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import com.dinstone.focus.client.annotation.FocusReference;
+import com.dinstone.focus.annotation.ServiceReference;
 
-@FocusReference(service = "AuthenService")
+@ServiceReference(service = "AuthenService")
 public interface AuthenCheck {
 
     public Future<Boolean> check(String name);

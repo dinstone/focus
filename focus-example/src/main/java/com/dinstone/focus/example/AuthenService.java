@@ -17,28 +17,28 @@ package com.dinstone.focus.example;
 
 import org.springframework.stereotype.Component;
 
-import com.dinstone.focus.server.annotation.FocusService;
+import com.dinstone.focus.annotation.ServiceDefination;
 
 @Component
-@FocusService(service = "AuthenService")
+@ServiceDefination(service = "AuthenService")
 public class AuthenService {
 
-    public boolean check(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("name is empty");
-        }
-        return false;
-    }
+	public boolean check(String name) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("name is empty");
+		}
+		return false;
+	}
 
-    public boolean authen(String name) {
-        if ("dinstone".equals(name)) {
-            return true;
-        }
-        return false;
-    }
+	public boolean authen(String name) {
+		if ("dinstone".equals(name)) {
+			return true;
+		}
+		return false;
+	}
 
-    public String token(String name) {
-        return "token-" + name;
-    }
+	public String token(String name) {
+		return "token-" + name;
+	}
 
 }

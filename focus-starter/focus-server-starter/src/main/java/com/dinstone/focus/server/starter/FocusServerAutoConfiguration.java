@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Configuration;
 
 import com.dinstone.focus.server.FocusServer;
 import com.dinstone.focus.server.ServerOptions;
-import com.dinstone.focus.server.processor.FocusServiceProcessor;
 
 @Configuration
 @ConditionalOnBean(FocusServerConfiguration.Marker.class)

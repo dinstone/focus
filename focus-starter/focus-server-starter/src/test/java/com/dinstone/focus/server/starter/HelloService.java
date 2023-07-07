@@ -17,13 +17,13 @@ package com.dinstone.focus.server.starter;
 
 import org.springframework.stereotype.Service;
 
-import com.dinstone.focus.server.annotation.FocusService;
+import com.dinstone.focus.annotation.ServiceDefination;
 
 @Service
-@FocusService(service = "HelloService")
+@ServiceDefination(service = "HelloService")
 public class HelloService {
 
-    public String sayHi(String name) {
-        return "hi," + name;
-    }
+	public String sayHi(String name) {
+		return "hi," + name;
+	}
 }

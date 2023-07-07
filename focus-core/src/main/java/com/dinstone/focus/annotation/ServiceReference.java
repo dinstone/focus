@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.annotation;
+package com.dinstone.focus.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,11 +24,16 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface FocusReference {
+public @interface ServiceReference {
 
-    String application() default "";
+	String application() default "";
 
-    String service() default "";
+	String service() default "";
 
-    int timeout() default 0;
+	int timeoutMillis() default 1000;
+
+	int timeoutRetry() default 0;
+
+	int connectRetry() default 2;
+
 }

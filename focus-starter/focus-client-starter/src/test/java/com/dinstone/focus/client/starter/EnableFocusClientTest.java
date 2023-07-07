@@ -22,8 +22,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ClientOptions;
+import com.dinstone.focus.client.FocusClient;
 
 @SpringBootApplication
 @EnableFocusClient

@@ -38,7 +38,7 @@ import com.dinstone.focus.transport.ConnectorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
-public class FocusClient implements ServiceConsumer {
+public class FocusClient implements ServiceImporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusClient.class);
 

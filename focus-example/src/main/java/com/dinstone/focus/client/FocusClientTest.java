@@ -28,8 +28,6 @@ import com.dinstone.focus.example.Page;
 import com.dinstone.focus.example.User;
 import com.dinstone.focus.example.UserService;
 import com.dinstone.focus.invoke.Interceptor;
-import com.dinstone.focus.serialze.json.JacksonSerializer;
-import com.dinstone.focus.serialze.protostuff.ProtostuffSerializer;
 import com.dinstone.focus.telemetry.TelemetryInterceptor;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;

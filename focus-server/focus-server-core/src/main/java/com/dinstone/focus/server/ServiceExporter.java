@@ -15,7 +15,7 @@
  */
 package com.dinstone.focus.server;
 
-public interface ServiceProvider {
+public interface ServiceExporter {
 
     public abstract <T> void exporting(Class<T> clazz, T instance);
 

@@ -42,112 +42,112 @@ import com.dinstone.focus.annotation.ServiceReference;
 import com.dinstone.focus.client.ImportOptions;
 
 public class FocusReferenceRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
-	private ResourceLoader resourceLoader;
-	private Environment environment;
+    private ResourceLoader resourceLoader;
+    private Environment environment;
 
-	@Override
-	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 
-		LinkedHashSet<BeanDefinition> candidateComponents = new LinkedHashSet<>();
-		// find bean definition
-		ClassPathScanningCandidateComponentProvider scanner = getScanner();
-		scanner.setResourceLoader(this.resourceLoader);
-		scanner.addIncludeFilter(new AnnotationTypeFilter(ServiceReference.class));
-		Set<String> basePackages = getBasePackages(metadata);
-		for (String basePackage : basePackages) {
-			candidateComponents.addAll(scanner.findCandidateComponents(basePackage));
-		}
+        LinkedHashSet<BeanDefinition> candidateComponents = new LinkedHashSet<>();
+        // find bean definition
+        ClassPathScanningCandidateComponentProvider scanner = getScanner();
+        scanner.setResourceLoader(this.resourceLoader);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(ServiceReference.class));
+        Set<String> basePackages = getBasePackages(metadata);
+        for (String basePackage : basePackages) {
+            candidateComponents.addAll(scanner.findCandidateComponents(basePackage));
+        }
 
-		// parse bean definition
-		for (BeanDefinition candidateComponent : candidateComponents) {
-			if (candidateComponent instanceof AnnotatedBeanDefinition) {
-				// verify annotated class is an interface
-				AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
-				AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
-				Assert.isTrue(annotationMetadata.isInterface(),
-						"@FocusReference can only be specified on an interface");
+        // parse bean definition
+        for (BeanDefinition candidateComponent : candidateComponents) {
+            if (candidateComponent instanceof AnnotatedBeanDefinition) {
+                // verify annotated class is an interface
+                AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
+                AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
+                Assert.isTrue(annotationMetadata.isInterface(),
+                        "@FocusReference can only be specified on an interface");
 
-				Map<String, Object> attributes = annotationMetadata
-						.getAnnotationAttributes(ServiceReference.class.getCanonicalName());
+                Map<String, Object> attributes = annotationMetadata
+                        .getAnnotationAttributes(ServiceReference.class.getCanonicalName());
 
-				registerFocusReference(registry, annotationMetadata, attributes);
-			}
-		}
+                registerFocusReference(registry, annotationMetadata, attributes);
+            }
+        }
 
-	}
+    }
 
-	private void registerFocusReference(BeanDefinitionRegistry registry, AnnotationMetadata annotationMetadata,
-			Map<String, Object> attributes) {
-		String className = annotationMetadata.getClassName();
-		Class<?> clazz = ClassUtils.resolveClassName(className, null);
+    private void registerFocusReference(BeanDefinitionRegistry registry, AnnotationMetadata annotationMetadata,
+            Map<String, Object> attributes) {
+        String className = annotationMetadata.getClassName();
+        Class<?> clazz = ClassUtils.resolveClassName(className, null);
 
-		ImportOptions options = new ImportOptions((String) attributes.get("application"),
-				(String) attributes.get("service"));
-		if (attributes.get("timeoutMillis") != null) {
-			options.setTimeoutMillis(Integer.parseInt(attributes.get("timeoutMillis").toString()));
-		}
-		if (attributes.get("timeoutRetry") != null) {
-			options.setTimeoutRetry(Integer.parseInt(attributes.get("timeoutRetry").toString()));
-		}
-		if (attributes.get("connectRetry") != null) {
-			options.setConnectRetry(Integer.parseInt(attributes.get("connectRetry").toString()));
-		}
+        ImportOptions options = new ImportOptions((String) attributes.get("application"),
+                (String) attributes.get("service"));
+        if (attributes.get("timeoutMillis") != null) {
+            options.setTimeoutMillis(Integer.parseInt(attributes.get("timeoutMillis").toString()));
+        }
+        if (attributes.get("timeoutRetry") != null) {
+            options.setTimeoutRetry(Integer.parseInt(attributes.get("timeoutRetry").toString()));
+        }
+        if (attributes.get("connectRetry") != null) {
+            options.setConnectRetry(Integer.parseInt(attributes.get("connectRetry").toString()));
+        }
 
-		FocusReferenceFactoryBean factoryBean = new FocusReferenceFactoryBean();
-		factoryBean.setType(clazz);
-		factoryBean.setOptions(options);
-		factoryBean.setBeanFactory((BeanFactory) registry);
+        FocusReferenceFactoryBean factoryBean = new FocusReferenceFactoryBean();
+        factoryBean.setType(clazz);
+        factoryBean.setOptions(options);
+        factoryBean.setBeanFactory((BeanFactory) registry);
 
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
-		GenericBeanDefinition beanDefinition = (GenericBeanDefinition) builder.getBeanDefinition();
-		beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-		beanDefinition.setInstanceSupplier(() -> {
-			return factoryBean.getObject();
-		});
-		beanDefinition.setFactoryBeanName(factoryBean.getClass().getSimpleName());
-		beanDefinition.setLazyInit(true);
-		beanDefinition.setPrimary(true);
-		registry.registerBeanDefinition(className, beanDefinition);
-	}
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
+        GenericBeanDefinition beanDefinition = (GenericBeanDefinition) builder.getBeanDefinition();
+        beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
+        beanDefinition.setInstanceSupplier(() -> {
+            return factoryBean.getObject();
+        });
+        beanDefinition.setFactoryBeanName(factoryBean.getClass().getSimpleName());
+        beanDefinition.setLazyInit(true);
+        beanDefinition.setPrimary(true);
+        registry.registerBeanDefinition(className, beanDefinition);
+    }
 
-	protected Set<String> getBasePackages(AnnotationMetadata metadata) {
-		Map<String, Object> attributes = metadata.getAnnotationAttributes(EnableFocusClient.class.getCanonicalName());
+    protected Set<String> getBasePackages(AnnotationMetadata metadata) {
+        Map<String, Object> attributes = metadata.getAnnotationAttributes(EnableFocusClient.class.getCanonicalName());
 
-		Set<String> basePackages = new HashSet<>();
-		for (String pkg : (String[]) attributes.get("value")) {
-			if (StringUtils.hasText(pkg)) {
-				basePackages.add(pkg);
-			}
-		}
-		if (basePackages.isEmpty()) {
-			basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
-		}
-		return basePackages;
-	}
+        Set<String> basePackages = new HashSet<>();
+        for (String pkg : (String[]) attributes.get("value")) {
+            if (StringUtils.hasText(pkg)) {
+                basePackages.add(pkg);
+            }
+        }
+        if (basePackages.isEmpty()) {
+            basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
+        }
+        return basePackages;
+    }
 
-	protected ClassPathScanningCandidateComponentProvider getScanner() {
-		return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
-			@Override
-			protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-				boolean isCandidate = false;
-				if (beanDefinition.getMetadata().isIndependent()) {
-					if (!beanDefinition.getMetadata().isAnnotation()) {
-						isCandidate = true;
-					}
-				}
-				return isCandidate;
-			}
-		};
-	}
+    protected ClassPathScanningCandidateComponentProvider getScanner() {
+        return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
+            @Override
+            protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+                boolean isCandidate = false;
+                if (beanDefinition.getMetadata().isIndependent()) {
+                    if (!beanDefinition.getMetadata().isAnnotation()) {
+                        isCandidate = true;
+                    }
+                }
+                return isCandidate;
+            }
+        };
+    }
 
-	@Override
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-	}
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
 
-	@Override
-	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourceLoader = resourceLoader;
-	}
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 
 }

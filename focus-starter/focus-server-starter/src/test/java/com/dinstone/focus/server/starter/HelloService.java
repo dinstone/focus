@@ -23,7 +23,7 @@ import com.dinstone.focus.annotation.ServiceDefination;
 @ServiceDefination(service = "HelloService")
 public class HelloService {
 
-	public String sayHi(String name) {
-		return "hi," + name;
-	}
+    public String sayHi(String name) {
+        return "hi," + name;
+    }
 }

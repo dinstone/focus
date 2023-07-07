@@ -1,27 +1,32 @@
-# Focus
+# Overview
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/dinstone/focus/blob/master/LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/com.dinstone.focus/focus-parent.svg?label=Maven%20Central)](https://search.maven.org/search?q=com.dinstone.focus)
 
-# Overview
 **Focus** is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.
 
 # Features
+
 ## Design Idea
+
 * Modular client and server APIs, scalable system architecture, and framework core less than 1 MB in size.
 * Support a variety of serialization protocol at the same time - Jackson、Protobuff、Protostuff
 * Layered architecture, including API layer, Proxy layer, Invoke layer, Protocol layer, Transport layer
 * Pluggable service discovery - registry with [Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch) for Zookeeper, Consul, Nacos
 
 ## Ease of use
+
 * Out of the box client-side and server-side API
 * Spring boot starter integration friendly
 * Support synchronous, asynchronous and generalized calls
 
 ## Performance
+
 * Efficient custom protocol ([Photon](https://github.com/dinstone/photon) message exchange protocol and Focus RPC protocol)
 * High-performance NIO socket framework support - Netty4
 
 # Quick Start
+
 The quick start gives a basic example of running client and server on the same machine. For more advanced examples, please refer to the example project : [focus-example](https://github.com/dinstone/focus/tree/master/focus-example). For the detailed information about using and developing Focus, please jump to [Documents](#documents).
 
 > The minimum requirements to run the quick start are:
@@ -30,26 +35,29 @@ The quick start gives a basic example of running client and server on the same m
 > - A java-based project management software like [Maven][maven] or [Gradle][gradle]
 
 ## Synchronous calls
+
 1. create maven project focus-quickstart and add dependencies to pom.
+
 ```xml
 <dependency>
 	<groupId>com.dinstone.focus</groupId>
 	<artifactId>focus-server-photon</artifactId>
-	<version>0.9.8</version>
+	<version>0.9.9</version>
 </dependency>
 <dependency>
 	<groupId>com.dinstone.focus</groupId>
 	<artifactId>focus-client-photon</artifactId>
-	<version>0.9.8</version>
+	<version>0.9.9</version>
 </dependency>
 <dependency>
 	<groupId>com.dinstone.focus</groupId>
 	<artifactId>focus-serialize-json</artifactId>
-	<version>0.9.8</version>
+	<version>0.9.9</version>
 </dependency>
 ```
 
 2. create FooService interface.
+
 ```java
 package focus.quickstart;
 
@@ -62,6 +70,7 @@ public interface FooService {
 ```
 
 3. create FooService implement.
+
 ```java
 package focus.quickstart.server;
 
@@ -80,6 +89,7 @@ public class FooServiceImpl implements FooService {
 ```
 
 4. create focus server and exporting service.
+
 ```java
 package focus.quickstart.server;
 
@@ -119,6 +129,7 @@ public class FocusServerBootstrap {
 ```
 
 5. create focus client to importing service and invoke RPC.
+
 ```java
 package focus.quickstart.client;
 
@@ -147,7 +158,9 @@ public class FocusClientBootstrap {
 ```
 
 ## Asynchronous calls
+
 1. another way to call RPC asynchronously is to create an asynchronous interface class.
+
 ```java
 package focus.quickstart.client;
 
@@ -159,6 +172,7 @@ public interface FooAsyncService {
 ```
 
 2. create focus client to importing service and async invoke RPC.
+
 ```java
 package focus.quickstart.client;
 
@@ -187,9 +201,11 @@ public class FocusClientAsyncCallBootstrap {
 ```
 
 ## Generic calls
+
 1. the generalized call does not need to build the client interface class
 
 2. create focus client to importing GenericService and sync/async invoke RPC.
+
 ```java
 package focus.quickstart.client;
 
@@ -221,8 +237,10 @@ public class FocusClientGenericCallBootstrap {
 ```
 
 # Documents
+
 - [Wiki](https://github.com/dinstone/focus/wiki)
 - [Wiki(中文)](https://github.com/dinstone/focus/wiki/home_zh)
 
 # License
+
 Focus is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).

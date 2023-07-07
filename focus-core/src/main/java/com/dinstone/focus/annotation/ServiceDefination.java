@@ -26,8 +26,8 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ServiceDefination {
 
-	String service() default "";
+    String service() default "";
 
-	int timeout() default 0;
+    int timeout() default 0;
 
 }

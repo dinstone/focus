@@ -17,12 +17,12 @@ package com.dinstone.focus.client;
 
 public interface ServiceImporter {
 
-	public abstract <T> T importing(Class<T> sic);
+    public abstract <T> T importing(Class<T> sic);
 
-	public abstract <T> T importing(Class<T> sic, String application);
+    public abstract <T> T importing(Class<T> sic, String application);
 
-	public abstract <T> T importing(Class<T> sic, ImportOptions importOptions);
+    public abstract <T> T importing(Class<T> sic, ImportOptions importOptions);
 
-	public abstract GenericService generic(String application, String service);
+    public abstract GenericService generic(String application, String service);
 
 }

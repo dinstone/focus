@@ -106,7 +106,7 @@ public class RemoteInvokeHandler implements Handler {
             }
         }
 
-        throw new FocusException("can't find a live service instance for " + call.getService());
+        throw new FocusException(connectRetry + " retry can't find a live service instance for " + call.getService());
     }
 
 }

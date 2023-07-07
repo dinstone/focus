@@ -23,19 +23,12 @@ import com.dinstone.focus.client.ImportOptions;
 
 public class FocusReferenceFactoryBean implements FactoryBean<Object> {
     private BeanFactory beanFactory;
+    private ImportOptions options;
     private Class<?> type;
-    private String client;
-    private String service;
-    private String group;
-    private int timeout;
 
     @Override
     public Object getObject() {
-        if (client != null || client.isEmpty()) {
-            client = "defaultFocusClient";
-        }
-        FocusClient focusClient = beanFactory.getBean(client, FocusClient.class);
-        return focusClient.importing(type, new ImportOptions(group, service).setTimeoutMillis(timeout));
+        return beanFactory.getBean(FocusClient.class).importing(type, options);
     }
 
     @Override
@@ -52,23 +45,12 @@ public class FocusReferenceFactoryBean implements FactoryBean<Object> {
         this.type = type;
     }
 
-    public void setClient(String client) {
-        this.client = client;
-    }
-
-    public void setService(String service) {
-        this.service = service;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public void setOptions(ImportOptions options) {
+        this.options = options;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
+
 }

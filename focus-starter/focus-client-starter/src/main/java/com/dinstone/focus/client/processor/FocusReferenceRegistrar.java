@@ -20,9 +20,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
@@ -38,6 +38,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
+import com.dinstone.focus.client.ImportOptions;
 import com.dinstone.focus.client.annotation.FocusReference;
 import com.dinstone.focus.client.starter.EnableFocusClient;
 
@@ -80,16 +81,23 @@ public class FocusReferenceRegistrar implements ImportBeanDefinitionRegistrar, R
             Map<String, Object> attributes) {
         String className = annotationMetadata.getClassName();
         Class<?> clazz = ClassUtils.resolveClassName(className, null);
-        ConfigurableBeanFactory beanFactory = registry instanceof ConfigurableBeanFactory
-                ? (ConfigurableBeanFactory) registry : null;
+
+        ImportOptions options = new ImportOptions((String) attributes.get("application"),
+                (String) attributes.get("service"));
+        if (attributes.get("timeoutMillis") != null) {
+            options.setTimeoutMillis(Integer.parseInt(attributes.get("timeoutMillis").toString()));
+        }
+        if (attributes.get("timeoutRetry") != null) {
+            options.setTimeoutRetry(Integer.parseInt(attributes.get("timeoutRetry").toString()));
+        }
+        if (attributes.get("connectRetry") != null) {
+            options.setConnectRetry(Integer.parseInt(attributes.get("connectRetry").toString()));
+        }
 
         FocusReferenceFactoryBean factoryBean = new FocusReferenceFactoryBean();
         factoryBean.setType(clazz);
-        factoryBean.setBeanFactory(beanFactory);
-        factoryBean.setClient((String) attributes.get("client"));
-        factoryBean.setGroup((String) attributes.get("group"));
-        factoryBean.setService((String) attributes.get("service"));
-        factoryBean.setTimeout((int) attributes.getOrDefault("timeoute", 0));
+        factoryBean.setOptions(options);
+        factoryBean.setBeanFactory((BeanFactory) registry);
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
         GenericBeanDefinition beanDefinition = (GenericBeanDefinition) builder.getBeanDefinition();

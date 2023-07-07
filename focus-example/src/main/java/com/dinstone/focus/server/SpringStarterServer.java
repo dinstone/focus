@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.dinstone.focus.server.starter.EnableFocusServer;
-import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 
 @Configurable
 @EnableFocusServer
@@ -40,10 +39,10 @@ public class SpringStarterServer {
         c.close();
     }
 
-    @Bean(destroyMethod = "stop")
+    @Bean
     @ConditionalOnMissingBean
-    FocusServer defaultFocusServer() {
-        return new FocusServer(
-                new ServerOptions("focus.example").listen(2222).setAcceptOptions(new PhotonAcceptOptions())).start();
+    public ServerOptions focusServerOptions() {
+        return new ServerOptions("focus.example").listen(2222);
     }
+
 }

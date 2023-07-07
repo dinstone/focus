@@ -27,8 +27,6 @@ import com.dinstone.focus.invoke.Interceptor;
 @SuppressWarnings("unchecked")
 public class FocusOptions<T extends FocusOptions<T>> {
 
-    public static final String DEFAULT_NAMESPACE = "default";
-
     public static final String DEFAULT_SERIALIZER_TYPE = "json";
 
     private static final int DEFAULT_COMPRESS_THRESHOLD = 10240;

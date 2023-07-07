@@ -61,10 +61,10 @@ public class CommonFocusServerTest {
         try {
             LOG.info("server start");
             server.start();
+            server.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        server.start();
         try {
             System.in.read();
         } catch (IOException e) {

@@ -58,7 +58,7 @@ public class ZkFocusClientTest {
     private static void execute(DemoService ds, String tag) {
         int c = 0;
         long st = System.currentTimeMillis();
-        int loopCount = 200000;
+        int loopCount = 100000;
         while (c < loopCount) {
             ds.hello("dinstoneo");
             c++;

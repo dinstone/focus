@@ -74,16 +74,18 @@ public class ImportOptions {
         return connectRetry;
     }
 
-    public void setConnectRetry(int connectRetry) {
+    public ImportOptions setConnectRetry(int connectRetry) {
         this.connectRetry = connectRetry;
+        return this;
     }
 
     public int getTimeoutRetry() {
         return timeoutRetry;
     }
 
-    public void setTimeoutRetry(int timeoutRetry) {
+    public ImportOptions setTimeoutRetry(int timeoutRetry) {
         this.timeoutRetry = timeoutRetry;
+        return this;
     }
 
     public int getTimeoutMillis() {

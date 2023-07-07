@@ -85,8 +85,11 @@ public class FocusServer implements ServiceProvider {
     public synchronized FocusServer start() {
         InetSocketAddress listenAddress = serverOptions.getListenAddress();
         try {
+            if (this.acceptor == null) {
+                this.acceptor = acceptorFactory.create(serverOptions.getAcceptOptions());
+            }
+
             // startup acceptor
-            this.acceptor = acceptorFactory.create(serverOptions.getAcceptOptions());
             this.acceptor.bind(listenAddress, serviceName -> serviceResolver.lookup(serviceName));
 
             // register application
@@ -109,7 +112,7 @@ public class FocusServer implements ServiceProvider {
             acceptor.destroy();
         }
 
-        LOG.info("focus server shutdown on {}", serverOptions.getListenAddress());
+        LOG.info("focus server shutdown success on {}", serverOptions.getListenAddress());
         return this;
     }
 
@@ -140,10 +143,9 @@ public class FocusServer implements ServiceProvider {
 
         try {
             ProviderServiceConfig serviceConfig = new ProviderServiceConfig();
-            serviceConfig.setProvider(serverOptions.getApplication());
             serviceConfig.setService(service);
             serviceConfig.setTarget(instance);
-            serviceConfig.setTimeoutMillis(exportOptions.getTimeout());
+            serviceConfig.setProvider(serverOptions.getApplication());
 
             // create and set method configure
             serviceConfig.parseMethod(clazz.getDeclaredMethods());

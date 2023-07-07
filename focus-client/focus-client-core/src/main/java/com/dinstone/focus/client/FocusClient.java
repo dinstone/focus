@@ -35,8 +35,12 @@ import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.transport.ConnectOptions;
 import com.dinstone.focus.transport.Connector;
 import com.dinstone.focus.transport.ConnectorFactory;
+import com.dinstone.loghub.Logger;
+import com.dinstone.loghub.LoggerFactory;
 
 public class FocusClient implements ServiceConsumer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FocusClient.class);
 
     private ServiceLocater serivceLocater;
 
@@ -69,11 +73,13 @@ public class FocusClient implements ServiceConsumer {
         }
 
         // init router and load balancer
-        LocaterFactory locateFactory = clientOptions.getLocaterFactory();
-        if (locateFactory == null) {
-            locateFactory = new DefaultLocaterFactory(clientOptions);
+        LocaterFactory locaterFactory = clientOptions.getLocaterFactory();
+        if (locaterFactory == null) {
+            locaterFactory = new DefaultLocaterFactory(clientOptions);
         }
-        this.serivceLocater = locateFactory.createLocater();
+        this.serivceLocater = locaterFactory.createLocater();
+
+        LOG.info("focus client created for [{}]", clientOptions.getApplication());
     }
 
     public void destroy() {

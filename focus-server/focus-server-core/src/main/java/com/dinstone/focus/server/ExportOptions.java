@@ -23,13 +23,7 @@ package com.dinstone.focus.server;
  */
 public class ExportOptions {
 
-    private static final int DEFAULT_INVOKE_TIMEOUT = 3000;
-
     private String service;
-
-    private String group;
-
-    private int timeout;
 
     private String serializerType;
 
@@ -39,24 +33,10 @@ public class ExportOptions {
 
     public ExportOptions(String service) {
         this.service = service;
-        this.timeout = DEFAULT_INVOKE_TIMEOUT;
     }
 
     public String getService() {
         return service;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public int getTimeout() {
-        return timeout;
-    }
-
-    public ExportOptions setTimeout(int timeout) {
-        this.timeout = timeout;
-        return this;
     }
 
     public String getSerializerType() {

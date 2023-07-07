@@ -30,7 +30,5 @@ public @interface FocusReference {
 
     String service() default "";
 
-    String group() default "";
-
     int timeout() default 0;
 }

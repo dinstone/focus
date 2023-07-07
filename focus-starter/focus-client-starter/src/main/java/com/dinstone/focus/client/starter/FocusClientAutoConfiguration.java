@@ -16,10 +16,20 @@
 package com.dinstone.focus.client.starter;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.dinstone.focus.client.ClientOptions;
+import com.dinstone.focus.client.FocusClient;
 
 @Configuration
 @ConditionalOnBean(FocusClientConfiguration.Marker.class)
 public class FocusClientAutoConfiguration {
 
+    @Bean(destroyMethod = "destroy")
+    @ConditionalOnMissingBean
+    FocusClient defaultFocusClient(ClientOptions clientOptions) {
+        return new FocusClient(clientOptions);
+    }
 }

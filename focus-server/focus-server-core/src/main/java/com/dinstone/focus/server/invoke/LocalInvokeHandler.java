@@ -31,32 +31,33 @@ import com.dinstone.focus.server.config.ProviderServiceConfig;
 
 public class LocalInvokeHandler implements Handler {
 
-    private ProviderServiceConfig serviceConfig;
+	private ProviderServiceConfig serviceConfig;
 
-    public LocalInvokeHandler(ServiceConfig serviceConfig) {
-        this.serviceConfig = (ProviderServiceConfig) serviceConfig;
-    }
+	public LocalInvokeHandler(ServiceConfig serviceConfig) {
+		this.serviceConfig = (ProviderServiceConfig) serviceConfig;
+	}
 
-    @Override
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
-        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
-        try {
-            Object result = methodConfig.getMethod().invoke(serviceConfig.getTarget(), call.getParameter());
-            if (methodConfig.isAsyncInvoke() && result instanceof Future) {
-                Future<?> future = (Future<?>) result;
-                int invokeTimeout = methodConfig.getTimeoutMillis();
-                result = future.get(invokeTimeout, TimeUnit.MILLISECONDS);
-                return CompletableFuture.completedFuture(new Reply(result));
-            }
-            return CompletableFuture.completedFuture(new Reply(result));
-        } catch (InvocationTargetException e) {
-            Throwable te = e.getTargetException();
-            if (te instanceof UndeclaredThrowableException) {
-                throw new InvokeException(302, te);
-            } else {
-                throw new InvokeException(301, te);
-            }
-        }
-    }
+	@Override
+	public CompletableFuture<Reply> handle(Call call) throws Exception {
+		MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
+		try {
+			Object parameter = call.getParameter();
+			Object target = serviceConfig.getTarget();
+			Object result = methodConfig.getMethod().invoke(target, parameter);
+			if (methodConfig.isAsyncInvoke() && result instanceof Future) {
+				Future<?> future = (Future<?>) result;
+				int invokeTimeout = call.getTimeout();
+				result = future.get(invokeTimeout, TimeUnit.MILLISECONDS);
+			}
+			return CompletableFuture.completedFuture(new Reply(result));
+		} catch (InvocationTargetException e) {
+			Throwable te = e.getTargetException();
+			if (te instanceof UndeclaredThrowableException) {
+				throw new InvokeException(302, te);
+			} else {
+				throw new InvokeException(301, te);
+			}
+		}
+	}
 
 }

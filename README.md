@@ -32,7 +32,7 @@ The quick start gives a basic example of running client and server on the same m
 > The minimum requirements to run the quick start are:
 >
 > - JDK 1.8 or above
-> - A java-based project management software like [Maven][maven] or [Gradle][gradle]
+> - A java-based project management software like [Maven](maven) or [Gradle](gradle)
 
 ## Synchronous calls
 
@@ -40,19 +40,21 @@ The quick start gives a basic example of running client and server on the same m
 
 ```xml
 <dependency>
-	<groupId>com.dinstone.focus</groupId>
-	<artifactId>focus-server-photon</artifactId>
-	<version>0.9.9</version>
+    <groupId>com.dinstone.focus</groupId>
+    <artifactId>focus-server-photon</artifactId>
+    <version>0.9.9</version>
+    <type>pom</type>
 </dependency>
 <dependency>
-	<groupId>com.dinstone.focus</groupId>
-	<artifactId>focus-client-photon</artifactId>
-	<version>0.9.9</version>
+    <groupId>com.dinstone.focus</groupId>
+    <artifactId>focus-client-photon</artifactId>
+    <version>0.9.9</version>
+    <type>pom</type>
 </dependency>
 <dependency>
-	<groupId>com.dinstone.focus</groupId>
-	<artifactId>focus-serialize-json</artifactId>
-	<version>0.9.9</version>
+    <groupId>com.dinstone.focus</groupId>
+    <artifactId>focus-serialize-json</artifactId>
+    <version>0.9.9</version>
 </dependency>
 ```
 
@@ -107,22 +109,21 @@ public class FocusServerBootstrap {
     private static final Logger LOG = LoggerFactory.getLogger(FocusServerBootstrap.class);
 
     public static void main(String[] args) {
-        ServerOptions serverOptions = new ServerOptions().listen("localhost", 3333)
-                .setEndpoint("focus.quickstart.server");
-        FocusServer server = new FocusServer(serverOptions);
+		ServerOptions serverOptions = new ServerOptions("focus.quickstart.server").listen("localhost", 3333);
+		FocusServer server = new FocusServer(serverOptions);
 
-        // exporting service
-        server.exporting(FooService.class, new FooServiceImpl());
+		// exporting service
+		server.exporting(FooService.class, new FooServiceImpl());
 
-        // server.start();
-        LOG.info("server start");
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        server.destroy();
-        LOG.info("server stop");
+		server.start();
+		LOG.info("server start");
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		server.stop();
+		LOG.info("server stop");
     }
 
 }
@@ -140,26 +141,26 @@ import focus.quickstart.FooService;
 
 public class FocusClientBootstrap {
 
-    public static void main(String[] args) throws Exception {
-        ClientOptions option = new ClientOptions().setEndpoint("focus.quickstart.client").connect("localhost", 3333);
-        FocusClient client = new FocusClient(option);
-        try {
-            FooService fooService = client.importing(FooService.class);
-            String reply = fooService.hello("dinstone");
-            System.out.println(reply);
+	public static void main(String[] args) throws Exception {
+		ClientOptions option = new ClientOptions("focus.quickstart.client").connect("localhost", 3333);
+		FocusClient client = new FocusClient(option);
+		try {
+			FooService fooService = client.importing(FooService.class);
+			String reply = fooService.hello("dinstone");
+			System.out.println(reply);
 
-            CompletableFuture<String> rf = fooService.async("dinstone");
-            System.out.println(rf.get());
-        } finally {
-            client.destroy();
-        }
-    }
+			CompletableFuture<String> rf = fooService.async("dinstone");
+			System.out.println(rf.get());
+		} finally {
+			client.destroy();
+		}
+	}
 }
 ```
 
 ## Asynchronous calls
 
-1. another way to call RPC asynchronously is to create an asynchronous interface class.
+1. another way to call RPC asynchronously is to create an asynchronous interface class in client side.
 
 ```java
 package focus.quickstart.client;
@@ -184,18 +185,18 @@ import com.dinstone.focus.client.ImportOptions;
 
 public class FocusClientAsyncCallBootstrap {
 
-    public static void main(String[] args) throws Exception {
-        ClientOptions option = new ClientOptions().setEndpoint("focus.quickstart.client").connect("localhost", 3333);
-        FocusClient client = new FocusClient(option);
-        try {
-            ImportOptions importOptions = new ImportOptions("focus.quickstart.FooService");
-            FooAsyncService fooService = client.importing(FooAsyncService.class, importOptions);
-            CompletableFuture<String> replyFuture = fooService.hello("dinstone");
-            System.out.println(replyFuture.get());
-        } finally {
-            client.destroy();
-        }
-    }
+	public static void main(String[] args) throws Exception {
+		ClientOptions option = new ClientOptions("focus.quickstart.client").connect("localhost", 3333);
+		FocusClient client = new FocusClient(option);
+		try {
+			ImportOptions importOptions = new ImportOptions("focus.quickstart.api.FooService");
+			FooAsyncService fooService = client.importing(FooAsyncService.class, importOptions);
+			CompletableFuture<String> replyFuture = fooService.hello("dinstone");
+			System.out.println(replyFuture.get());
+		} finally {
+			client.destroy();
+		}
+	}
 
 }
 ```
@@ -217,21 +218,22 @@ import com.dinstone.focus.client.GenericService;
 
 public class FocusClientGenericCallBootstrap {
 
-    public static void main(String[] args) throws Exception {
-        ClientOptions option = new ClientOptions().setEndpoint("focus.quickstart.client").connect("localhost", 3333);
-        FocusClient client = new FocusClient(option);
-        try {
-            GenericService genericService = client.generic("focus.quickstart.FooService", null, 3000);
+	public static void main(String[] args) throws Exception {
+		ClientOptions option = new ClientOptions("focus.quickstart.client").connect("localhost", 3333);
+		FocusClient client = new FocusClient(option);
+		try {
+			GenericService genericService = client.generic("focus.quickstart.server",
+					"focus.quickstart.api.FooService");
 
-            String reply = genericService.sync(String.class, "hello", "dinstone");
-            System.out.println("sync call reply : " + reply);
+			String reply = genericService.sync(String.class, "hello", "dinstone");
+			System.out.println("sync call reply : " + reply);
 
-            CompletableFuture<String> replyFuture = genericService.async(String.class, "hello", "dinstone");
-            System.out.println("async call reply : " + replyFuture.get());
-        } finally {
-            client.destroy();
-        }
-    }
+			CompletableFuture<String> replyFuture = genericService.async(String.class, "hello", "dinstone");
+			System.out.println("async call reply : " + replyFuture.get());
+		} finally {
+			client.destroy();
+		}
+	}
 
 }
 ```

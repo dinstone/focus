@@ -143,9 +143,8 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
     public String toString() {
         return "ServiceConfig [service=" + service + ", provider=" + provider + ", consumer=" + consumer
                 + ", timeoutMillis=" + timeoutMillis + ", timeoutRetry=" + timeoutRetry + ", connectRetry="
-                + connectRetry + ", target=" + target + ", handler=" + handler + ", serializer=" + serializer
-                + ", compressor=" + compressor + ", compressThreshold=" + compressThreshold + ", methodConfigs="
-                + methodConfigs + "]";
+                + connectRetry + ", serializer=" + serializer + ", compressor=" + compressor + ", compressThreshold="
+                + compressThreshold + "]";
     }
 
 }

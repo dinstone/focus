@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
 import com.dinstone.focus.annotation.ServiceReference;
 import com.dinstone.focus.client.ImportOptions;
 
-public class FocusReferenceRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
+public class ServiceReferenceRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
     private ResourceLoader resourceLoader;
     private Environment environment;
 
@@ -70,13 +70,13 @@ public class FocusReferenceRegistrar implements ImportBeanDefinitionRegistrar, R
                 Map<String, Object> attributes = annotationMetadata
                         .getAnnotationAttributes(ServiceReference.class.getCanonicalName());
 
-                registerFocusReference(registry, annotationMetadata, attributes);
+                registerServiceReference(registry, annotationMetadata, attributes);
             }
         }
 
     }
 
-    private void registerFocusReference(BeanDefinitionRegistry registry, AnnotationMetadata annotationMetadata,
+    private void registerServiceReference(BeanDefinitionRegistry registry, AnnotationMetadata annotationMetadata,
             Map<String, Object> attributes) {
         String className = annotationMetadata.getClassName();
         Class<?> clazz = ClassUtils.resolveClassName(className, null);
@@ -93,7 +93,7 @@ public class FocusReferenceRegistrar implements ImportBeanDefinitionRegistrar, R
             options.setConnectRetry(Integer.parseInt(attributes.get("connectRetry").toString()));
         }
 
-        FocusReferenceFactoryBean factoryBean = new FocusReferenceFactoryBean();
+        ServiceReferenceFactoryBean factoryBean = new ServiceReferenceFactoryBean();
         factoryBean.setType(clazz);
         factoryBean.setOptions(options);
         factoryBean.setBeanFactory((BeanFactory) registry);

@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.server.starter;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -30,13 +29,10 @@ import com.dinstone.focus.server.ServerOptions;
 @ConditionalOnBean(FocusServerConfiguration.Marker.class)
 public class FocusServerAutoConfiguration implements ApplicationListener<ApplicationStartedEvent> {
 
-    @Value("spring.application.name")
-    private String appName;
-
     @Bean
     @ConditionalOnMissingBean
-    public FocusServiceProcessor serviceAnnotationProcessor() {
-        return new FocusServiceProcessor();
+    public ServiceDefinitionProcessor serviceDefinitionProcessor() {
+        return new ServiceDefinitionProcessor();
     }
 
     @Bean(destroyMethod = "stop")

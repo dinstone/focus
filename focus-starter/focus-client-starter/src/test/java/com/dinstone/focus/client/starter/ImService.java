@@ -18,11 +18,16 @@ package com.dinstone.focus.client.starter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dinstone.focus.annotation.ServiceReference;
+
 @Service
 public class ImService {
 
     @Autowired
     Hello hi;
+
+    @ServiceReference(service = "HelloService")
+    Hello hello;
 
     public String sayHi(String string) {
         return hi.sayHi(string);

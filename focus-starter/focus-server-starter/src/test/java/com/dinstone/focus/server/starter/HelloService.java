@@ -17,10 +17,10 @@ package com.dinstone.focus.server.starter;
 
 import org.springframework.stereotype.Service;
 
-import com.dinstone.focus.annotation.ServiceDefination;
+import com.dinstone.focus.annotation.ServiceDefinition;
 
 @Service
-@ServiceDefination(service = "HelloService")
+@ServiceDefinition(service = "HelloService")
 public class HelloService {
 
     public String sayHi(String name) {

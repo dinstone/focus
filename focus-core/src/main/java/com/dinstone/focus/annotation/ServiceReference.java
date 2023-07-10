@@ -21,9 +21,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Target({ ElementType.TYPE, ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ServiceReference {
 
     String application() default "";

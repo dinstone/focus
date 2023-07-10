@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Import;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Import({ FocusClientConfiguration.class, FocusReferenceRegistrar.class })
+@Import({ FocusClientConfiguration.class, ServiceReferenceRegistrar.class })
 public @interface EnableFocusClient {
 
     /**

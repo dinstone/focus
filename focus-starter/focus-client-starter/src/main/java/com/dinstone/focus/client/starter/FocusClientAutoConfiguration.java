@@ -32,4 +32,10 @@ public class FocusClientAutoConfiguration {
     FocusClient defaultFocusClient(ClientOptions clientOptions) {
         return new FocusClient(clientOptions);
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ServiceReferenceProcessor serviceReferenceProcessor() {
+        return new ServiceReferenceProcessor();
+    }
 }

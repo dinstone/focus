@@ -26,22 +26,27 @@ import com.dinstone.focus.annotation.ServiceReference;
 import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ImportOptions;
 
-public class FocusReferenceProcessor implements BeanPostProcessor, ApplicationContextAware {
+public class ServiceReferenceProcessor implements BeanPostProcessor, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         ReflectionUtils.doWithFields(bean.getClass(), field -> {
-            ServiceReference autowired = AnnotationUtils.getAnnotation(field, ServiceReference.class);
-            if (autowired != null) {
-                FocusClient client = applicationContext.getBean(FocusClient.class);
+            ServiceReference reference = AnnotationUtils.getAnnotation(field, ServiceReference.class);
+            if (reference != null) {
+                String service = reference.service();
+                if (service.isEmpty()) {
+                    service = field.getType().getName();
+                }
+
+                ImportOptions importOptions = new ImportOptions(reference.application(), service)
+                        .setTimeoutMillis(reference.timeoutMillis()).setTimeoutRetry(reference.timeoutRetry())
+                        .setConnectRetry(reference.connectRetry());
 
                 ReflectionUtils.makeAccessible(field);
-                ReflectionUtils.setField(field, bean,
-                        client.importing(field.getType(),
-                                new ImportOptions(autowired.application(), autowired.service())
-                                        .setTimeoutMillis(autowired.timeoutMillis())));
+                FocusClient client = applicationContext.getBean(FocusClient.class);
+                ReflectionUtils.setField(field, bean, client.importing(field.getType(), importOptions));
             }
         });
         return bean;

@@ -17,10 +17,10 @@ package com.dinstone.focus.example;
 
 import org.springframework.stereotype.Component;
 
-import com.dinstone.focus.annotation.ServiceDefination;
+import com.dinstone.focus.annotation.ServiceDefinition;
 
 @Component
-@ServiceDefination(service = "AuthenService")
+@ServiceDefinition(service = "AuthenService")
 public class AuthenService {
 
     public boolean check(String name) {

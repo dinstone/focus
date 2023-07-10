@@ -85,6 +85,7 @@ public class FocusClient implements ServiceImporter {
     public void destroy() {
         connector.destroy();
         serivceLocater.destroy();
+        LOG.info("focus client destroy for [{}]", clientOptions.getApplication());
     }
 
     @Override
@@ -104,6 +105,10 @@ public class FocusClient implements ServiceImporter {
 
     @Override
     public <T> T importing(Class<T> serviceClass, ImportOptions importOptions) {
+        if (serviceClass == null || !serviceClass.isInterface()) {
+            throw new IllegalArgumentException("service class is not Interface");
+        }
+
         String service = importOptions.getService();
         if (service == null || service.isEmpty()) {
             throw new IllegalArgumentException("serivce name is null");
@@ -145,6 +150,8 @@ public class FocusClient implements ServiceImporter {
 
         // subscribe service provider
         serivceLocater.subscribe(serviceConfig.getProvider());
+
+        LOG.info("importing {}", serviceConfig);
 
         ProxyFactory proxyFactory = clientOptions.getProxyFactory();
         return proxyFactory.create(serviceClass, serviceConfig);

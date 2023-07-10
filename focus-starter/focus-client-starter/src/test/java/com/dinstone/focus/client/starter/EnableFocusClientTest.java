@@ -23,7 +23,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.dinstone.focus.client.ClientOptions;
-import com.dinstone.focus.client.FocusClient;
 
 @SpringBootApplication
 @EnableFocusClient
@@ -40,9 +39,9 @@ class EnableFocusClientTest {
         c.close();
     }
 
-    @Bean(destroyMethod = "destroy")
+    @Bean
     @ConditionalOnMissingBean
-    FocusClient defaultFocusClient() {
-        return new FocusClient(new ClientOptions("demo.client").connect("127.0.0.1", 2222));
+    ClientOptions clientOptions() {
+        return new ClientOptions("demo.client").connect("127.0.0.1", 2222);
     }
 }

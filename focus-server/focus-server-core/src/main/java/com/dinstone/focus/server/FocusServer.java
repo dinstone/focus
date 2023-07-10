@@ -80,6 +80,8 @@ public class FocusServer implements ServiceExporter {
 
         // create handler registry
         this.serviceResolver = new DefaultServiceResolver(serverOptions.getClutchOptions());
+
+        LOG.info("focus server created for [{}]", serverOptions.getApplication());
     }
 
     public synchronized FocusServer start() {
@@ -95,9 +97,9 @@ public class FocusServer implements ServiceExporter {
             // register application
             this.serviceResolver.publish(serverOptions);
 
-            LOG.info("focus server startup success on {}", listenAddress);
+            LOG.info("focus server starting success on {}", listenAddress);
         } catch (Exception e) {
-            LOG.warn("focus server startup failure on {}", listenAddress, e);
+            LOG.warn("focus server starting failure on {}", listenAddress, e);
             throw new FocusException("start focus server error", e);
         }
 
@@ -105,6 +107,8 @@ public class FocusServer implements ServiceExporter {
     }
 
     public synchronized FocusServer stop() {
+        LOG.info("focus server stopping success on {}", serverOptions.getListenAddress());
+
         if (serviceResolver != null) {
             serviceResolver.destroy();
         }
@@ -112,7 +116,7 @@ public class FocusServer implements ServiceExporter {
             acceptor.destroy();
         }
 
-        LOG.info("focus server shutdown success on {}", serverOptions.getListenAddress());
+        LOG.info("focus server destroy for [{}]", serverOptions.getApplication());
         return this;
     }
 
@@ -157,6 +161,8 @@ public class FocusServer implements ServiceExporter {
             protocolCodec(serviceConfig, serverOptions, exportOptions);
 
             serviceResolver.registry(serviceConfig);
+
+            LOG.info("exporting {}", serviceConfig);
         } catch (Exception e) {
             throw new FocusException("export service error", e);
         }

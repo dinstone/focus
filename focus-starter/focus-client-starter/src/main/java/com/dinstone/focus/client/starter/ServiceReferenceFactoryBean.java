@@ -21,7 +21,7 @@ import org.springframework.beans.factory.FactoryBean;
 import com.dinstone.focus.client.FocusClient;
 import com.dinstone.focus.client.ImportOptions;
 
-public class FocusReferenceFactoryBean implements FactoryBean<Object> {
+public class ServiceReferenceFactoryBean implements FactoryBean<Object> {
     private BeanFactory beanFactory;
     private ImportOptions options;
     private Class<?> type;

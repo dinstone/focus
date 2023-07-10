@@ -21,13 +21,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Documented
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface ServiceDefination {
+public @interface ServiceDefinition {
 
     String service() default "";
-
-    int timeout() default 0;
 
 }

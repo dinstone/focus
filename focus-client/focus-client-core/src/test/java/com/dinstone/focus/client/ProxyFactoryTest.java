@@ -30,117 +30,117 @@ import com.dinstone.focus.protocol.Reply;
 
 public class ProxyFactoryTest {
 
-    @Test
-    public void test() throws Exception {
-        // HelloService h = proxyFactory();
+	@Test
+	public void test() throws Exception {
+		// HelloService h = proxyFactory();
 
-        HelloService h = jdkProxy();
+		HelloService h = jdkProxy();
 
-        for (Method m : HelloService.class.getDeclaredMethods()) {
-            System.out.println(m.getName() + " : " + m.getDeclaringClass().getName());
-            // m.setAccessible(true);
-            //
-            // long s = System.currentTimeMillis();
-            //
-            // for (int i = 0; i < 100000000; i++) {
-            // m.invoke(h, "hhhhhh");
-            // }
-            //
-            // long e = System.currentTimeMillis();
-            // System.out.println((e - s) + "ms");
+		for (Method m : HelloService.class.getDeclaredMethods()) {
+			System.out.println(m.getName() + " : " + m.getDeclaringClass().getName());
+			// m.setAccessible(true);
+			//
+			// long s = System.currentTimeMillis();
+			//
+			// for (int i = 0; i < 100000000; i++) {
+			// m.invoke(h, "hhhhhh");
+			// }
+			//
+			// long e = System.currentTimeMillis();
+			// System.out.println((e - s) + "ms");
 
-        }
+		}
 
-        h.hi(null);
-        h.hi("hahh");
-        h.hi("");
+		h.hi(null);
+		h.hi("hahh");
+		h.hi("");
 
-        h.say();
+		h.say();
 
-        h.vfn();
+		h.vfn();
 
-        DefaultHelloService dh = new DefaultHelloService();
-        long s = System.currentTimeMillis();
-        for (int i = 0; i < 100000000; i++) {
-            dh.hi("hhhhhh");
-        }
-        long e = System.currentTimeMillis();
-        System.out.println((e - s) + "ms");
-    }
+		DefaultHelloService dh = new DefaultHelloService();
+		long s = System.currentTimeMillis();
+		for (int i = 0; i < 100000000; i++) {
+			dh.hi("hhhhhh");
+		}
+		long e = System.currentTimeMillis();
+		System.out.println((e - s) + "ms");
+	}
 
-    @Test
-    public void test2() throws Exception {
-        HelloService h = proxyFactory();
+	@Test
+	public void test2() throws Exception {
+		HelloService h = proxyFactory();
 
-        h.hi(null);
-        h.hi("hahh");
-        h.hi("");
+		h.hi(null);
+		h.hi("hahh");
+		h.hi("");
 
-        h.say();
+		h.say();
 
-        h.vfn();
+		h.vfn();
 
-    }
+	}
 
-    private HelloService proxyFactory() {
-        ConsumerServiceConfig serviceConfig = new ConsumerServiceConfig();
-        serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
-        serviceConfig.setHandler(new Handler() {
+	private HelloService proxyFactory() {
+		ConsumerServiceConfig serviceConfig = new ConsumerServiceConfig();
+		serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
+		serviceConfig.setHandler(new Handler() {
 
-            private Reply reply = new Reply();
+			private Reply reply = new Reply(null);
 
-            @Override
-            public CompletableFuture<Reply> handle(Call call) throws Exception {
-                return CompletableFuture.completedFuture(reply);
-            }
-        });
-        return new JdkProxyFactory().create(HelloService.class, serviceConfig);
-    }
+			@Override
+			public CompletableFuture<Reply> handle(Call call) throws Exception {
+				return CompletableFuture.completedFuture(reply);
+			}
+		});
+		return new JdkProxyFactory().create(HelloService.class, serviceConfig);
+	}
 
-    private HelloService jdkProxy() {
-        return (HelloService) Proxy.newProxyInstance(HelloService.class.getClassLoader(),
-                new Class[] { HelloService.class }, new InvocationHandler() {
+	private HelloService jdkProxy() {
+		return (HelloService) Proxy.newProxyInstance(HelloService.class.getClassLoader(),
+				new Class[] { HelloService.class }, new InvocationHandler() {
 
-                    @Override
-                    public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
+					@Override
+					public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
 
-                        System.out.println(m.getName() + ", ParameterTypes = " + m.getParameterTypes().length
-                                + ", returnType = " + m.getReturnType());
+						System.out.println(m.getName() + ", ParameterTypes = " + m.getParameterTypes().length
+								+ ", returnType = " + m.getReturnType());
 
-                        System.out.println("args.length  = " + (args == null ? -1 : args.length) + ", args = "
-                                + (args == null ? "" : "'" + args[0] + "'"));
+						System.out.println("args.length  = " + (args == null ? -1 : args.length) + ", args = "
+								+ (args == null ? "" : "'" + args[0] + "'"));
 
-                        return null;
-                    }
-                });
-    }
+						return null;
+					}
+				});
+	}
 
-    public static interface HelloService {
-        String hi(String name);
+	public static interface HelloService {
+		String hi(String name);
 
-        String say();
+		String say();
 
-        void vfn();
-    }
+		void vfn();
+	}
 
-    public static class DefaultHelloService implements HelloService {
+	public static class DefaultHelloService implements HelloService {
 
-        @Override
-        public String hi(String name) {
-            return null;
-        }
+		@Override
+		public String hi(String name) {
+			return null;
+		}
 
-        @Override
-        public String say() {
-            // TODO Auto-generated method stub
-            return null;
-        }
+		@Override
+		public String say() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
-        @Override
-        public void vfn() {
-            // TODO Auto-generated method stub
+		@Override
+		public void vfn() {
+			// TODO Auto-generated method stub
 
-        }
-    }
+		}
+	}
 
 }

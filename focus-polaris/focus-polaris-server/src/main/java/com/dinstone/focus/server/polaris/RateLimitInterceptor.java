@@ -17,6 +17,7 @@ package com.dinstone.focus.server.polaris;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
@@ -60,7 +61,7 @@ public class RateLimitInterceptor implements Interceptor {
         if (response.getCode() == QuotaResultCode.QuotaResultOk) {
             return handler.handle(call);
         } else {
-            throw new InvokeException(501, "service is rate-limit");
+            throw new InvokeException(ErrorCode.INVOKE_ERROR, "service is rate-limit");
         }
     }
 

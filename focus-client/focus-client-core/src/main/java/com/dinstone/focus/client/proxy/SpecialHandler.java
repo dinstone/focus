@@ -55,8 +55,7 @@ class SpecialHandler implements InvocationHandler {
 
         MethodConfig methodConfig = serviceConfig.lookup(methodName);
 
-        Call call = new Call(methodName, parameter);
-        call.setService(serviceConfig.getService());
+        Call call = new Call(serviceConfig.getService(), methodName, parameter);
         call.setTimeout(methodConfig.getTimeoutMillis());
 
         // invoke

@@ -48,8 +48,7 @@ class GenericHandler implements GenericService {
     public <R, P> R sync(Class<R> returnType, String methodName, P parameter) throws Exception {
         MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
-        Call call = new Call(methodName, parameter);
-        call.setService(serviceConfig.getService());
+        Call call = new Call(serviceConfig.getService(), methodName, parameter);
         call.setTimeout(methodConfig.getTimeoutMillis());
 
         CompletableFuture<Reply> future = invokeHandler.handle(call);
@@ -68,8 +67,7 @@ class GenericHandler implements GenericService {
     public <R, P> CompletableFuture<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
         MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
-        Call call = new Call(methodName, parameter);
-        call.setService(serviceConfig.getService());
+        Call call = new Call(serviceConfig.getService(), methodName, parameter);
         call.setTimeout(methodConfig.getTimeoutMillis());
 
         CompletableFuture<Reply> future = invokeHandler.handle(call);

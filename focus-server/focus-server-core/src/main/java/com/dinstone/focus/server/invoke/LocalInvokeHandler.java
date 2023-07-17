@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
@@ -54,14 +55,18 @@ public class LocalInvokeHandler implements Handler {
 			Throwable te = e.getTargetException();
 			if (te instanceof UndeclaredThrowableException) {
 				// undeclared checked exception
-				throw new InvokeException(302, te.getCause());
+				throw new InvokeException(ErrorCode.UNDECLARED_ERROR, te.getCause());
 			} else if (te instanceof RuntimeException) {
 				// runtime exception
-				throw new InvokeException(303, te);
+				throw new InvokeException(ErrorCode.RUNTIME_ERROR, te);
 			} else {
 				// declared checked exception
-				throw new InvokeException(301, te);
+				throw new InvokeException(ErrorCode.DECLARED_ERROR, te);
 			}
+		} catch (IllegalArgumentException e) {
+			throw new InvokeException(ErrorCode.PARAM_ERROR, e);
+		} catch (IllegalAccessException e) {
+			throw new InvokeException(ErrorCode.ACCESS_ERROR, e);
 		}
 	}
 

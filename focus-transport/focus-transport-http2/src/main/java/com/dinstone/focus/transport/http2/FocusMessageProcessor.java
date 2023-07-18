@@ -44,170 +44,168 @@ import io.netty.util.CharsetUtil;
 
 public final class FocusMessageProcessor {
 
-	private final Function<String, ServiceConfig> serviceConfigMap;
-	private final ExecutorSelector executorSelector;
+    private final Function<String, ServiceConfig> serviceConfigMap;
+    private final ExecutorSelector executorSelector;
 
-	public FocusMessageProcessor(Function<String, ServiceConfig> serviceConfigMap, ExecutorSelector executorSelector) {
-		this.serviceConfigMap = serviceConfigMap;
-		this.executorSelector = executorSelector;
-	}
+    public FocusMessageProcessor(Function<String, ServiceConfig> serviceConfigMap, ExecutorSelector executorSelector) {
+        this.serviceConfigMap = serviceConfigMap;
+        this.executorSelector = executorSelector;
+    }
 
-	private void invoke(Channel channel, Http2HeadersFrame headersFrame, Http2DataFrame dataFrame) {
-		InvokeException exception = null;
-		try {
-			Http2Headers headers = headersFrame.headers();
-			// check service
-			String service = headers.get(Call.SERVICE_KEY).toString();
-			ServiceConfig serviceConfig = serviceConfigMap.apply(service);
-			if (serviceConfig == null) {
-				throw new NoSuchMethodException("unkown service: " + service);
-			}
+    private void invoke(Channel channel, Http2HeadersFrame headersFrame, Http2DataFrame dataFrame) {
+        InvokeException exception = null;
+        try {
+            Http2Headers headers = headersFrame.headers();
+            // check service
+            String service = headers.get(Call.SERVICE_KEY).toString();
+            ServiceConfig serviceConfig = serviceConfigMap.apply(service);
+            if (serviceConfig == null) {
+                throw new InvokeException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
+            }
 
-			// check method
-			String methodName = headers.get(Call.METHOD_KEY).toString();
-			MethodConfig methodConfig = serviceConfig.lookup(methodName);
-			if (methodConfig == null) {
-				throw new NoSuchMethodException("unkown method: " + service + "/" + methodName);
-			}
+            // check method
+            String methodName = headers.get(Call.METHOD_KEY).toString();
+            MethodConfig methodConfig = serviceConfig.lookup(methodName);
+            if (methodConfig == null) {
+                throw new InvokeException(ErrorCode.METHOD_ERROR, "unkown method: " + service + "/" + methodName);
+            }
 
-			// decode call from request
-			ByteBuf dataBuf = dataFrame == null ? null : dataFrame.content();
-			Call call = decode(headers, dataBuf, serviceConfig, methodConfig);
+            // decode call from request
+            ByteBuf dataBuf = dataFrame == null ? null : dataFrame.content();
+            Call call = decode(headers, dataBuf, serviceConfig, methodConfig);
 
-			// invoke call
-			CompletableFuture<Reply> replyFuture = serviceConfig.getHandler().handle(call);
-			replyFuture.whenComplete((reply, error) -> {
-				if (error != null) {
-					errorHandle(channel, error);
-				} else {
-					byte[] content = null;
-					if (reply.getData() != null) {
-						try {
-							Serializer serializer = serviceConfig.getSerializer();
-							content = serializer.encode(reply.getData(), methodConfig.getReturnType());
-							reply.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
-						} catch (IOException e) {
-							throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
-						}
+            // invoke call
+            CompletableFuture<Reply> replyFuture = serviceConfig.getHandler().handle(call);
+            replyFuture.whenComplete((reply, error) -> {
+                if (error != null) {
+                    errorHandle(channel, error);
+                } else {
+                    byte[] content = null;
+                    if (reply.getData() != null) {
+                        try {
+                            Serializer serializer = serviceConfig.getSerializer();
+                            content = serializer.encode(reply.getData(), methodConfig.getReturnType());
+                            reply.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
+                        } catch (IOException e) {
+                            throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
+                        }
 
-						Compressor compressor = serviceConfig.getCompressor();
-						if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
-							try {
-								content = compressor.encode(content);
-								reply.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
-							} catch (IOException e) {
-								throw new CodecException("compress encode error: " + methodConfig.getMethodName(), e);
-							}
-						}
-					}
+                        Compressor compressor = serviceConfig.getCompressor();
+                        if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
+                            try {
+                                content = compressor.encode(content);
+                                reply.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
+                            } catch (IOException e) {
+                                throw new CodecException("compress encode error: " + methodConfig.getMethodName(), e);
+                            }
+                        }
+                    }
 
-					DefaultHttp2Headers h = new DefaultHttp2Headers();
-					h.status(HttpResponseStatus.OK.codeAsText());
-					if (content == null) {
-						channel.writeAndFlush(new DefaultHttp2HeadersFrame(h, true));
-					} else {
-						channel.write(new DefaultHttp2HeadersFrame(h, false));
-						ByteBuf bb = channel.alloc().ioBuffer(content.length).writeBytes(content);
-						channel.writeAndFlush(new DefaultHttp2DataFrame(bb, true));
-					}
-				}
-			});
+                    DefaultHttp2Headers h = new DefaultHttp2Headers();
+                    h.status(HttpResponseStatus.OK.codeAsText());
+                    if (content == null) {
+                        channel.writeAndFlush(new DefaultHttp2HeadersFrame(h, true));
+                    } else {
+                        channel.write(new DefaultHttp2HeadersFrame(h, false));
+                        ByteBuf bb = channel.alloc().ioBuffer(content.length).writeBytes(content);
+                        channel.writeAndFlush(new DefaultHttp2DataFrame(bb, true));
+                    }
+                }
+            });
 
-			return;
-		} catch (InvokeException e) {
-			exception = e;
-		} catch (CodecException e) {
-			exception = new InvokeException(ErrorCode.CODEC_ERROR, e);
-		} catch (NoSuchMethodException e) {
-			exception = new InvokeException(ErrorCode.METHOD_ERROR, e);
-		} catch (Throwable e) {
-			exception = new InvokeException(ErrorCode.INVOKE_ERROR, e);
-		}
+            return;
+        } catch (InvokeException e) {
+            exception = e;
+        } catch (CodecException e) {
+            exception = new InvokeException(ErrorCode.CODEC_ERROR, e);
+        } catch (Throwable e) {
+            exception = new InvokeException(ErrorCode.INVOKE_ERROR, e);
+        }
 
-		if (exception != null) {
-			errorHandle(channel, exception);
-		}
-	}
+        if (exception != null) {
+            errorHandle(channel, exception);
+        }
+    }
 
-	private void errorHandle(Channel channel, Throwable error) {
-		InvokeException exception;
-		if (error instanceof InvokeException) {
-			exception = (InvokeException) error;
-		} else {
-			exception = new InvokeException(ErrorCode.INVOKE_ERROR, error);
-		}
-		// send response with exception
-		DefaultHttp2Headers headers = new DefaultHttp2Headers();
-		headers.status(HttpResponseStatus.INTERNAL_SERVER_ERROR.codeAsText());
-		headers.setInt(InvokeException.CODE_KEY, exception.getCode().value());
+    private void errorHandle(Channel channel, Throwable error) {
+        InvokeException exception;
+        if (error instanceof InvokeException) {
+            exception = (InvokeException) error;
+        } else {
+            exception = new InvokeException(ErrorCode.INVOKE_ERROR, error);
+        }
+        // send response with exception
+        DefaultHttp2Headers headers = new DefaultHttp2Headers();
+        headers.status(HttpResponseStatus.INTERNAL_SERVER_ERROR.codeAsText());
+        headers.setInt(InvokeException.CODE_KEY, exception.getCode().value());
 
-		String message = exception.getMessage();
-		if (message == null) {
-			channel.write(new DefaultHttp2HeadersFrame(headers, true));
-		} else {
-			ByteBuf ioBuffer = channel.alloc().ioBuffer();
-			ByteBuf buf = ioBuffer.writeBytes(message.getBytes(CharsetUtil.UTF_8));
-			channel.write(new DefaultHttp2HeadersFrame(headers, false));
-			channel.writeAndFlush(new DefaultHttp2DataFrame(buf, true));
-		}
+        String message = exception.getMessage();
+        if (message == null) {
+            channel.write(new DefaultHttp2HeadersFrame(headers, true));
+        } else {
+            ByteBuf ioBuffer = channel.alloc().ioBuffer();
+            ByteBuf buf = ioBuffer.writeBytes(message.getBytes(CharsetUtil.UTF_8));
+            channel.write(new DefaultHttp2HeadersFrame(headers, false));
+            channel.writeAndFlush(new DefaultHttp2DataFrame(buf, true));
+        }
 
-	}
+    }
 
-	private Call decode(Http2Headers headers, ByteBuf bbc, ServiceConfig serviceConfig, MethodConfig methodConfig) {
-		Object value;
-		if (bbc == null) {
-			value = null;
-		} else {
-			byte[] content = new byte[bbc.readableBytes()];
-			bbc.readBytes(content);
+    private Call decode(Http2Headers headers, ByteBuf bbc, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+        Object value;
+        if (bbc == null) {
+            value = null;
+        } else {
+            byte[] content = new byte[bbc.readableBytes()];
+            bbc.readBytes(content);
 
-			CharSequence compressorType = headers.get(Compressor.TYPE_KEY);
-			Compressor compressor = serviceConfig.getCompressor();
-			if (compressor != null && compressorType != null) {
-				try {
-					content = compressor.decode(content);
-				} catch (IOException e) {
-					throw new CodecException("compress decode error: " + methodConfig.getMethodName(), e);
-				}
-			}
+            CharSequence compressorType = headers.get(Compressor.TYPE_KEY);
+            Compressor compressor = serviceConfig.getCompressor();
+            if (compressor != null && compressorType != null) {
+                try {
+                    content = compressor.decode(content);
+                } catch (IOException e) {
+                    throw new CodecException("compress decode error: " + methodConfig.getMethodName(), e);
+                }
+            }
 
-			try {
-				Serializer serializer = serviceConfig.getSerializer();
-				Class<?> contentType = methodConfig.getParamType();
-				value = serializer.decode(content, contentType);
-			} catch (IOException e) {
-				throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
-			}
-		}
+            try {
+                Serializer serializer = serviceConfig.getSerializer();
+                Class<?> contentType = methodConfig.getParamType();
+                value = serializer.decode(content, contentType);
+            } catch (IOException e) {
+                throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
+            }
+        }
 
-		String service = headers.get(Call.SERVICE_KEY).toString();
-		String method = headers.get(Call.METHOD_KEY).toString();
-		Call call = new Call(service, method, value);
-		call.setConsumer(headers.get(Call.CONSUMER_KEY, "").toString());
-		call.setProvider(headers.get(Call.PROVIDER_KEY, "").toString());
-		call.setTimeout(headers.getIntAndRemove(Call.TIMEOUT_KEY));
-		headers.forEach(e -> call.attach().put(e.getKey().toString(), e.getValue().toString()));
-		return call;
-	}
+        String service = headers.get(Call.SERVICE_KEY).toString();
+        String method = headers.get(Call.METHOD_KEY).toString();
+        Call call = new Call(service, method, value);
+        call.setConsumer(headers.get(Call.CONSUMER_KEY, "").toString());
+        call.setProvider(headers.get(Call.PROVIDER_KEY, "").toString());
+        call.setTimeout(headers.getIntAndRemove(Call.TIMEOUT_KEY));
+        headers.forEach(e -> call.attach().put(e.getKey().toString(), e.getValue().toString()));
+        return call;
+    }
 
-	public void process(Channel channel, Http2HeadersFrame headersFrame, Http2DataFrame dataFrame) {
-		Executor executor = null;
-		if (executorSelector != null) {
-			Http2Headers headers = headersFrame.headers();
-			String s = headers.get(Call.SERVICE_KEY).toString();
-			String m = headers.get(Call.METHOD_KEY).toString();
-			executor = executorSelector.select(s, m);
-		}
-		if (executor != null) {
-			executor.execute(new Runnable() {
+    public void process(Channel channel, Http2HeadersFrame headersFrame, Http2DataFrame dataFrame) {
+        Executor executor = null;
+        if (executorSelector != null) {
+            Http2Headers headers = headersFrame.headers();
+            String s = headers.get(Call.SERVICE_KEY).toString();
+            String m = headers.get(Call.METHOD_KEY).toString();
+            executor = executorSelector.select(s, m);
+        }
+        if (executor != null) {
+            executor.execute(new Runnable() {
 
-				@Override
-				public void run() {
-					invoke(channel, headersFrame, dataFrame);
-				}
-			});
-		} else {
-			invoke(channel, headersFrame, dataFrame);
-		}
-	}
+                @Override
+                public void run() {
+                    invoke(channel, headersFrame, dataFrame);
+                }
+            });
+        } else {
+            invoke(channel, headersFrame, dataFrame);
+        }
+    }
 }

@@ -25,115 +25,115 @@ import java.io.Serializable;
  */
 public class Call implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final String EMPTY_VALUE = "";
+    private static final String EMPTY_VALUE = "";
 
-	public static final String CONSUMER_KEY = "call.consumer";
+    public static final String CONSUMER_KEY = "call.consumer";
 
-	public static final String PROVIDER_KEY = "call.provider";
+    public static final String PROVIDER_KEY = "call.provider";
 
-	public static final String SERVICE_KEY = "call.service";
+    public static final String SERVICE_KEY = "call.service";
 
-	public static final String METHOD_KEY = "call.method";
+    public static final String METHOD_KEY = "call.method";
 
-	public static final String TIMEOUT_KEY = "call.timeout";
+    public static final String TIMEOUT_KEY = "call.timeout";
 
-	/**
-	 * source application identity
-	 */
-	private String consumer;
+    /**
+     * source application identity
+     */
+    private String consumer;
 
-	/**
-	 * target application identity
-	 */
-	private String provider;
+    /**
+     * target application identity
+     */
+    private String provider;
 
-	private String service;
+    private String service;
 
-	private String method;
+    private String method;
 
-	private int timeout;
+    private int timeout;
 
-	private Object parameter;
+    private Object parameter;
 
-	private Attach attach = new Attach();
+    private Attach attach = new Attach();
 
-	public Call(String service, String method, Object parameter) {
-		this.service = service;
-		this.method = method;
-		this.parameter = parameter;
-	}
+    public Call(String service, String method, Object parameter) {
+        this.service = service;
+        this.method = method;
+        this.parameter = parameter;
+    }
 
-	public String getService() {
-		return service;
-	}
+    public String getService() {
+        return service;
+    }
 
-	public String getMethod() {
-		return method;
-	}
+    public String getMethod() {
+        return method;
+    }
 
-	public Object getParameter() {
-		return parameter;
-	}
+    public Object getParameter() {
+        return parameter;
+    }
 
-	public String getConsumer() {
-		if (consumer == null) {
-			return EMPTY_VALUE;
-		}
-		return consumer;
-	}
+    public String getConsumer() {
+        if (consumer == null) {
+            return EMPTY_VALUE;
+        }
+        return consumer;
+    }
 
-	public void setConsumer(String consumer) {
-		this.consumer = consumer;
-	}
+    public void setConsumer(String consumer) {
+        this.consumer = consumer;
+    }
 
-	public String getProvider() {
-		if (provider == null) {
-			return EMPTY_VALUE;
-		}
-		return provider;
-	}
+    public String getProvider() {
+        if (provider == null) {
+            return EMPTY_VALUE;
+        }
+        return provider;
+    }
 
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
 
-	public int getTimeout() {
-		return timeout;
-	}
+    public int getTimeout() {
+        return timeout;
+    }
 
-	public void setTimeout(int timeout) {
-		this.timeout = timeout;
-	}
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 
-	/**
-	 * the attach to get
-	 *
-	 * @return
-	 */
-	public Attach attach() {
-		return attach;
-	}
+    /**
+     * the attach to get
+     *
+     * @return
+     */
+    public Attach attach() {
+        return attach;
+    }
 
-	/**
-	 * the attach to set
-	 *
-	 * @param other
-	 *
-	 * @return
-	 */
-	public Call attach(Attach other) {
-		if (other != null) {
-			attach.putAll(other);
-		}
-		return this;
-	}
+    /**
+     * the attach to set
+     *
+     * @param other
+     *
+     * @return
+     */
+    public Call attach(Attach other) {
+        if (other != null) {
+            attach.putAll(other);
+        }
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		return "Call [consumer=" + consumer + ", provider=" + provider + ", service=" + service + ", method=" + method
-				+ ", timeout=" + timeout + ", parameter=" + parameter + ", attach=" + attach + "]";
-	}
+    @Override
+    public String toString() {
+        return "Call [consumer=" + consumer + ", provider=" + provider + ", service=" + service + ", method=" + method
+                + ", timeout=" + timeout + ", parameter=" + parameter + ", attach=" + attach + "]";
+    }
 
 }

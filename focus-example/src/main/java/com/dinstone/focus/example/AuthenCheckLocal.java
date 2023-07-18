@@ -23,22 +23,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenCheckLocal implements AuthenCheck {
 
-	@Override
-	public Future<Boolean> check(String name) {
-		return CompletableFuture.completedFuture(true);
-	}
+    @Override
+    public Future<Boolean> check(String name) {
+        return CompletableFuture.completedFuture(true);
+    }
 
-	@Override
-	public CompletableFuture<String> token(String name) {
-		return CompletableFuture.completedFuture("local : " + name);
-	}
+    @Override
+    public CompletableFuture<String> token(String name) {
+        return CompletableFuture.completedFuture("local : " + name);
+    }
 
-	@Override
-	public boolean authen(String name) {
-		if (name.equals("dinstone")) {
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean authen(String name) {
+        if (name.equals("dinstone")) {
+            return true;
+        }
+        return false;
+    }
 
 }

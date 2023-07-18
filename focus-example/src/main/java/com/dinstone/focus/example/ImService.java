@@ -25,17 +25,17 @@ import com.dinstone.focus.annotation.ServiceReference;
 @Service
 public class ImService {
 
-	@Autowired
-	AuthenCheck check;
+    @Autowired
+    AuthenCheck check;
 
-	@ServiceReference(service = "AuthenService")
-	AuthenCheck check2;
+    @ServiceReference(service = "AuthenService")
+    AuthenCheck check2;
 
-	public String sayHi(String string) throws Exception {
-		Future<Boolean> cf = check.check(string);
-		boolean ar = check.authen("dinstone");
-		boolean ar2 = check.authen("focus");
-		return "check result " + cf.get() + ", authen result " + (ar && ar2);
-	}
+    public String sayHi(String string) throws Exception {
+        Future<Boolean> cf = check.check(string);
+        boolean ar = check.authen("dinstone");
+        boolean ar2 = check.authen("focus");
+        return "check result " + cf.get() + ", authen result " + (ar && ar2);
+    }
 
 }

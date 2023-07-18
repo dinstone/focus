@@ -32,42 +32,42 @@ import com.dinstone.focus.server.config.ProviderServiceConfig;
 
 public class LocalInvokeHandler implements Handler {
 
-	private ProviderServiceConfig serviceConfig;
+    private ProviderServiceConfig serviceConfig;
 
-	public LocalInvokeHandler(ServiceConfig serviceConfig) {
-		this.serviceConfig = (ProviderServiceConfig) serviceConfig;
-	}
+    public LocalInvokeHandler(ServiceConfig serviceConfig) {
+        this.serviceConfig = (ProviderServiceConfig) serviceConfig;
+    }
 
-	@Override
-	public CompletableFuture<Reply> handle(Call call) throws Exception {
-		MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
-		try {
-			Object parameter = call.getParameter();
-			Object target = serviceConfig.getTarget();
-			Object result = methodConfig.getMethod().invoke(target, parameter);
-			if (methodConfig.isAsyncInvoke() && result instanceof Future) {
-				Future<?> future = (Future<?>) result;
-				int invokeTimeout = call.getTimeout();
-				result = future.get(invokeTimeout, TimeUnit.MILLISECONDS);
-			}
-			return CompletableFuture.completedFuture(new Reply(result));
-		} catch (InvocationTargetException e) {
-			Throwable te = e.getTargetException();
-			if (te instanceof UndeclaredThrowableException) {
-				// undeclared checked exception
-				throw new InvokeException(ErrorCode.UNDECLARED_ERROR, te.getCause());
-			} else if (te instanceof RuntimeException) {
-				// runtime exception
-				throw new InvokeException(ErrorCode.RUNTIME_ERROR, te);
-			} else {
-				// declared checked exception
-				throw new InvokeException(ErrorCode.DECLARED_ERROR, te);
-			}
-		} catch (IllegalArgumentException e) {
-			throw new InvokeException(ErrorCode.PARAM_ERROR, e);
-		} catch (IllegalAccessException e) {
-			throw new InvokeException(ErrorCode.ACCESS_ERROR, e);
-		}
-	}
+    @Override
+    public CompletableFuture<Reply> handle(Call call) throws Exception {
+        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
+        try {
+            Object parameter = call.getParameter();
+            Object target = serviceConfig.getTarget();
+            Object result = methodConfig.getMethod().invoke(target, parameter);
+            if (methodConfig.isAsyncInvoke() && result instanceof Future) {
+                Future<?> future = (Future<?>) result;
+                int invokeTimeout = call.getTimeout();
+                result = future.get(invokeTimeout, TimeUnit.MILLISECONDS);
+            }
+            return CompletableFuture.completedFuture(new Reply(result));
+        } catch (InvocationTargetException e) {
+            Throwable te = e.getTargetException();
+            if (te instanceof UndeclaredThrowableException) {
+                // undeclared checked exception
+                throw new InvokeException(ErrorCode.UNDECLARED_ERROR, te.getCause());
+            } else if (te instanceof RuntimeException) {
+                // runtime exception
+                throw new InvokeException(ErrorCode.RUNTIME_ERROR, te);
+            } else {
+                // declared checked exception
+                throw new InvokeException(ErrorCode.DECLARED_ERROR, te);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new InvokeException(ErrorCode.PARAM_ERROR, e);
+        } catch (IllegalAccessException e) {
+            throw new InvokeException(ErrorCode.ACCESS_ERROR, e);
+        }
+    }
 
 }

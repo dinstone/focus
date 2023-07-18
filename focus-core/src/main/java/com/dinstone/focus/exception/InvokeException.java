@@ -22,46 +22,46 @@ package com.dinstone.focus.exception;
  *
  */
 public class InvokeException extends FocusException {
-	/**  */
-	private static final long serialVersionUID = 1L;
+    /**  */
+    private static final long serialVersionUID = 1L;
 
-	public static final String CODE_KEY = "error.code";
+    public static final String CODE_KEY = "error.code";
 
-	private ErrorCode code;
+    private ErrorCode code;
 
-	public InvokeException(ErrorCode code, String message) {
-		super(message);
-		this.code = code;
-	}
+    public InvokeException(ErrorCode code, String message) {
+        super(message);
+        this.code = code;
+    }
 
-	public InvokeException(ErrorCode code, Throwable cause) {
-		super(cause.getMessage(), cause, false, false);
-		this.code = code;
-	}
+    public InvokeException(ErrorCode code, Throwable cause) {
+        super(cause.getMessage(), cause, false, false);
+        this.code = code;
+    }
 
-	/**
-	 * the code to get
-	 *
-	 * @return the code
-	 *
-	 * @see FocusException#code
-	 */
-	public ErrorCode getCode() {
-		return code;
-	}
+    /**
+     * the code to get
+     *
+     * @return the code
+     *
+     * @see FocusException#code
+     */
+    public ErrorCode getCode() {
+        return code;
+    }
 
-	@Override
-	public String getMessage() {
-		String msg = super.getMessage();
-		if (msg != null) {
-			return msg;
-		}
-		return ExceptionUtil.getMessage(getCause());
-	}
+    @Override
+    public String getMessage() {
+        String msg = super.getMessage();
+        if (msg != null) {
+            return msg;
+        }
+        return ExceptionUtil.getMessage(getCause());
+    }
 
-	@Override
-	public String toString() {
-		return "(" + code + ") " + getMessage();
-	}
+    @Override
+    public String toString() {
+        return "(" + code + ") " + getMessage();
+    }
 
 }

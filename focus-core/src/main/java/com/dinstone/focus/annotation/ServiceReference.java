@@ -26,14 +26,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ServiceReference {
 
-	String application() default "";
+    String application() default "";
 
-	String service() default "";
+    String service() default "";
 
-	int timeoutMillis() default 1000;
+    int timeoutMillis() default 1000;
 
-	int timeoutRetry() default 0;
+    int timeoutRetry() default 0;
 
-	int connectRetry() default 1;
+    int connectRetry() default 1;
 
 }

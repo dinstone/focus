@@ -17,55 +17,38 @@ package com.dinstone.focus.client.config;
 
 import java.lang.reflect.Method;
 
-import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.AbstractServiceConfig;
-import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.serialize.Serializer;
 
 public class ConsumerServiceConfig extends AbstractServiceConfig {
 
-    public void setService(String service) {
-        this.service = service;
-    }
+    protected int timeoutMillis;
 
-    public void setConsumer(String consumer) {
-        this.consumer = consumer;
-    }
+    protected int timeoutRetry;
 
-    public void setProvider(String provider) {
-        this.provider = provider;
+    protected int connectRetry;
+
+    public int getTimeoutMillis() {
+        return timeoutMillis;
     }
 
     public void setTimeoutMillis(int timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
 
+    public int getTimeoutRetry() {
+        return timeoutRetry;
+    }
+
     public void setTimeoutRetry(int timeoutRetry) {
         this.timeoutRetry = timeoutRetry;
     }
 
+    public int getConnectRetry() {
+        return connectRetry;
+    }
+
     public void setConnectRetry(int connectRetry) {
         this.connectRetry = connectRetry;
-    }
-
-    public void setTarget(Object target) {
-        this.target = target;
-    }
-
-    public void setHandler(Handler handler) {
-        this.handler = handler;
-    }
-
-    public void setSerializer(Serializer serializer) {
-        this.serializer = serializer;
-    }
-
-    public void setCompressor(Compressor compressor) {
-        this.compressor = compressor;
-    }
-
-    public void setCompressThreshold(int compressThreshold) {
-        this.compressThreshold = compressThreshold;
     }
 
     public void parseMethod(Method... methods) {
@@ -77,6 +60,14 @@ public class ConsumerServiceConfig extends AbstractServiceConfig {
                 addMethodConfig(methodConfig);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ConsumerServiceConfig [methodConfigs=" + methodConfigs + ", provider=" + provider + ", consumer="
+                + consumer + ", service=" + service + ", handler=" + handler + ", serializer=" + serializer
+                + ", compressor=" + compressor + ", compressThreshold=" + compressThreshold + ", timeoutMillis="
+                + timeoutMillis + ", timeoutRetry=" + timeoutRetry + ", connectRetry=" + connectRetry + "]";
     }
 
 }

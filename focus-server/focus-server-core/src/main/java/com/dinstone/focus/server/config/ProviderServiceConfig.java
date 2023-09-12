@@ -17,56 +17,19 @@ package com.dinstone.focus.server.config;
 
 import java.lang.reflect.Method;
 
-import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.AbstractServiceConfig;
 import com.dinstone.focus.config.MethodConfig;
-import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.serialize.Serializer;
 
 public class ProviderServiceConfig extends AbstractServiceConfig {
 
-    public void setService(String service) {
-        this.service = service;
-    }
+    protected Object target;
 
-    public void setConsumer(String consumer) {
-        this.consumer = consumer;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
-
-    public void setTimeoutMillis(int timeoutMillis) {
-        this.timeoutMillis = timeoutMillis;
-    }
-
-    public void setTimeoutRetry(int timeoutRetry) {
-        this.timeoutRetry = timeoutRetry;
-    }
-
-    public void setConnectRetry(int connectRetry) {
-        this.connectRetry = connectRetry;
+    public Object getTarget() {
+        return target;
     }
 
     public void setTarget(Object target) {
         this.target = target;
-    }
-
-    public void setHandler(Handler handler) {
-        this.handler = handler;
-    }
-
-    public void setSerializer(Serializer serializer) {
-        this.serializer = serializer;
-    }
-
-    public void setCompressor(Compressor compressor) {
-        this.compressor = compressor;
-    }
-
-    public void setCompressThreshold(int compressThreshold) {
-        this.compressThreshold = compressThreshold;
     }
 
     public void parseMethod(Method... methods) {
@@ -76,6 +39,14 @@ public class ProviderServiceConfig extends AbstractServiceConfig {
                 addMethodConfig(methodConfig);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ProviderServiceConfig [methodConfigs=" + methodConfigs + ", provider=" + provider + ", consumer="
+                + consumer + ", service=" + service + ", handler=" + handler + ", serializer=" + serializer
+                + ", compressor=" + compressor + ", compressThreshold=" + compressThreshold + ", target=" + target
+                + "]";
     }
 
 }

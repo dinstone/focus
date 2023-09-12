@@ -26,35 +26,35 @@ import com.dinstone.focus.server.FocusServer;
 
 public class ServiceDefinitionProcessor implements BeanPostProcessor, ApplicationContextAware {
 
-	private ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		ServiceDefinition defination = bean.getClass().getAnnotation(ServiceDefinition.class);
-		if (defination != null) {
-			Class<Object> clazz = (Class<Object>) bean.getClass();
-			Class<Object>[] ifs = (Class<Object>[]) clazz.getInterfaces();
-			if (ifs != null && ifs.length > 0) {
-				clazz = ifs[0];
-			}
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        ServiceDefinition defination = bean.getClass().getAnnotation(ServiceDefinition.class);
+        if (defination != null) {
+            Class<Object> clazz = (Class<Object>) bean.getClass();
+            Class<Object>[] ifs = (Class<Object>[]) clazz.getInterfaces();
+            if (ifs != null && ifs.length > 0) {
+                clazz = ifs[0];
+            }
 
-			String service = defination.service();
-			if (service.isEmpty()) {
-				service = clazz.getName();
-			}
+            String service = defination.service();
+            if (service.isEmpty()) {
+                service = clazz.getName();
+            }
 
-			ExportOptions exportOptions = new ExportOptions(service);
-			if (!defination.serializer().isEmpty()) {
-				exportOptions.setSerializerType(defination.serializer());
-			}
-			applicationContext.getBean(FocusServer.class).exporting(clazz, bean, exportOptions);
-		}
-		return bean;
-	}
+            ExportOptions exportOptions = new ExportOptions(service);
+            if (!defination.serializer().isEmpty()) {
+                exportOptions.setSerializerType(defination.serializer());
+            }
+            applicationContext.getBean(FocusServer.class).exporting(clazz, bean, exportOptions);
+        }
+        return bean;
+    }
 
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

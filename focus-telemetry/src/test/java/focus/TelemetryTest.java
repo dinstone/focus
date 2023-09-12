@@ -31,60 +31,60 @@ import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 
 public class TelemetryTest {
 
-	private static Tracer tracer;
+    private static Tracer tracer;
 
-	public static void main(String[] args) {
-		OpenTelemetry openTelemetry = getOpenTelemetry();
+    public static void main(String[] args) {
+        OpenTelemetry openTelemetry = getOpenTelemetry();
 
-		tracer = openTelemetry.getTracer("telemetry-test-service", "1.0.0");
+        tracer = openTelemetry.getTracer("telemetry-test-service", "1.0.0");
 
-		Span span = tracer.spanBuilder("main").startSpan();
-		// Make the span the current span
-		try (Scope ss = span.makeCurrent()) {
-			// In this scope, the span is the current/active span
-			span.addEvent("parentTwo start");
-			parentTwo();
-			span.addEvent("parentTwo end");
-		} finally {
-			span.end();
-		}
+        Span span = tracer.spanBuilder("main").startSpan();
+        // Make the span the current span
+        try (Scope ss = span.makeCurrent()) {
+            // In this scope, the span is the current/active span
+            span.addEvent("parentTwo start");
+            parentTwo();
+            span.addEvent("parentTwo end");
+        } finally {
+            span.end();
+        }
 
-		System.out.println("over");
-	}
+        System.out.println("over");
+    }
 
-	static void parentTwo() {
-		Span parentSpan = tracer.spanBuilder("parent").startSpan();
-		try (Scope scope = parentSpan.makeCurrent()) {
-			parentSpan.setAttribute("local", true);
-			parentSpan.setAttribute("method", "childTwo");
+    static void parentTwo() {
+        Span parentSpan = tracer.spanBuilder("parent").startSpan();
+        try (Scope scope = parentSpan.makeCurrent()) {
+            parentSpan.setAttribute("local", true);
+            parentSpan.setAttribute("method", "childTwo");
 
-			childTwo();
-		} finally {
-			parentSpan.end();
-		}
-	}
+            childTwo();
+        } finally {
+            parentSpan.end();
+        }
+    }
 
-	static void childTwo() {
-		Span childSpan = tracer.spanBuilder("child").startSpan();
-		try (Scope scope = childSpan.makeCurrent()) {
-			// do stuff
-		} finally {
-			childSpan.end();
-		}
-	}
+    static void childTwo() {
+        Span childSpan = tracer.spanBuilder("child").startSpan();
+        try (Scope scope = childSpan.makeCurrent()) {
+            // do stuff
+        } finally {
+            childSpan.end();
+        }
+    }
 
-	private static OpenTelemetry getOpenTelemetry() {
-		Resource resource = Resource.getDefault()
-				.merge(Resource.create(Attributes.of(AttributeKey.stringKey("service.name"), "logical-service-name")));
+    private static OpenTelemetry getOpenTelemetry() {
+        Resource resource = Resource.getDefault()
+                .merge(Resource.create(Attributes.of(AttributeKey.stringKey("service.name"), "logical-service-name")));
 
-		SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
-				.addSpanProcessor(BatchSpanProcessor.builder(LoggingSpanExporter.create()).build())
-				.setResource(resource).build();
+        SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
+                .addSpanProcessor(BatchSpanProcessor.builder(LoggingSpanExporter.create()).build())
+                .setResource(resource).build();
 
-		OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
-				.setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
-				.buildAndRegisterGlobal();
-		return openTelemetry;
-	}
+        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+                .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+                .buildAndRegisterGlobal();
+        return openTelemetry;
+    }
 
 }

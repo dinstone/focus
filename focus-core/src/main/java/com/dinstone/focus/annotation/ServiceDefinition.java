@@ -26,8 +26,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ServiceDefinition {
 
-	String service() default "";
+    String service() default "";
 
-	String serializer() default "";
+    String serializer() default "";
 
 }

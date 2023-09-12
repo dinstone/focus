@@ -35,14 +35,6 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
 
     protected String service;
 
-    protected int timeoutMillis;
-
-    protected int timeoutRetry;
-
-    protected int connectRetry;
-
-    protected Object target;
-
     protected Handler handler;
 
     protected Serializer serializer;
@@ -50,6 +42,34 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
     protected Compressor compressor;
 
     protected int compressThreshold;
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public void setConsumer(String consumer) {
+        this.consumer = consumer;
+    }
+
+    public void setService(String service) {
+        this.service = service;
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
+    }
+
+    public void setCompressor(Compressor compressor) {
+        this.compressor = compressor;
+    }
+
+    public void setCompressThreshold(int compressThreshold) {
+        this.compressThreshold = compressThreshold;
+    }
 
     @Override
     public String getService() {
@@ -64,27 +84,6 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
     @Override
     public String getConsumer() {
         return consumer;
-    }
-
-    public int getTimeoutMillis() {
-        return timeoutMillis;
-    }
-
-    public int getConnectRetry() {
-        return connectRetry;
-    }
-
-    public int getTimeoutRetry() {
-        return timeoutRetry;
-    }
-
-    /**
-     * server side
-     * 
-     * @return
-     */
-    public Object getTarget() {
-        return target;
     }
 
     @Override
@@ -137,14 +136,6 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
             paramType = method.getParameterTypes()[0];
         }
         return creater.apply(method, paramType);
-    }
-
-    @Override
-    public String toString() {
-        return "ServiceConfig [service=" + service + ", provider=" + provider + ", consumer=" + consumer
-                + ", timeoutMillis=" + timeoutMillis + ", timeoutRetry=" + timeoutRetry + ", connectRetry="
-                + connectRetry + ", serializer=" + serializer + ", compressor=" + compressor + ", compressThreshold="
-                + compressThreshold + "]";
     }
 
 }

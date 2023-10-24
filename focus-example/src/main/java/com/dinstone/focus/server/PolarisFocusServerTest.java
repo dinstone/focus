@@ -46,7 +46,7 @@ public class PolarisFocusServerTest {
             e.printStackTrace();
         }
 
-        server.stop();
+        server.close();
         LOG.info("server stop");
     }
 

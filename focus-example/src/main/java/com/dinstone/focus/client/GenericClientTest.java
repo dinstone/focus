@@ -43,7 +43,7 @@ public class GenericClientTest {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            client.destroy();
+            client.close();
         }
 
     }

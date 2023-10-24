@@ -38,7 +38,7 @@ import com.dinstone.focus.transport.ConnectorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
-public class FocusClient implements ServiceImporter {
+public class FocusClient implements ServiceImporter, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusClient.class);
 
@@ -82,10 +82,11 @@ public class FocusClient implements ServiceImporter {
         LOG.info("focus client created for [{}]", clientOptions.getApplication());
     }
 
-    public void destroy() {
+    @Override
+    public void close() {
         connector.destroy();
         serivceLocater.destroy();
-        LOG.info("focus client destroy for [{}]", clientOptions.getApplication());
+        LOG.info("focus client closed for [{}]", clientOptions.getApplication());
     }
 
     @Override

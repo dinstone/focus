@@ -55,7 +55,7 @@ public class PolarisFocusClientTest {
             e.printStackTrace();
         }
 
-        client.destroy();
+        client.close();
     }
 
     private static void execute(DemoService ds, String tag) {

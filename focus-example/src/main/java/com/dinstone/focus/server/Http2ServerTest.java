@@ -83,7 +83,7 @@ public class Http2ServerTest {
             e.printStackTrace();
         }
 
-        server.stop();
+        server.close();
         LOG.info("server stop");
     }
 

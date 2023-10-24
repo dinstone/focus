@@ -37,7 +37,7 @@ import com.dinstone.focus.transport.AcceptorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
-public class FocusServer implements ServiceExporter {
+public class FocusServer implements ServiceExporter, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusServer.class);
 
@@ -97,17 +97,18 @@ public class FocusServer implements ServiceExporter {
             // register application
             this.serviceResolver.publish(serverOptions);
 
-            LOG.info("focus server starting success on {}", listenAddress);
+            LOG.info("focus server starting on {}", listenAddress);
         } catch (Exception e) {
-            LOG.warn("focus server starting failure on {}", listenAddress, e);
+            LOG.warn("focus server starting on {}", listenAddress, e);
             throw new FocusException("start focus server error", e);
         }
 
         return this;
     }
 
-    public synchronized FocusServer stop() {
-        LOG.info("focus server stopping success on {}", serverOptions.getListenAddress());
+    @Override
+    public synchronized void close() {
+        LOG.info("focus server stopping on {}", serverOptions.getListenAddress());
 
         if (serviceResolver != null) {
             serviceResolver.destroy();
@@ -116,8 +117,7 @@ public class FocusServer implements ServiceExporter {
             acceptor.destroy();
         }
 
-        LOG.info("focus server destroy for [{}]", serverOptions.getApplication());
-        return this;
+        LOG.info("focus server closed for [{}]", serverOptions.getApplication());
     }
 
     public InetSocketAddress getListenAddress() {

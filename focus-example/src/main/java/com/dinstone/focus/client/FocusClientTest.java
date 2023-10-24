@@ -100,7 +100,7 @@ public class FocusClientTest {
             // executeOrderService(oc, "OrderService sync exe: ");
 
         } finally {
-            client.destroy();
+            client.close();
         }
 
         try {

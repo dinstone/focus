@@ -67,7 +67,7 @@ public class UserServiceClient {
             e.printStackTrace();
         }
 
-        client.destroy();
+        client.close();
     }
 
     private static OpenTelemetry getTelemetry(String serviceName) {

@@ -103,7 +103,7 @@ public class Http2ClientTest {
             executeOrderService(oc, "OrderService sync exe: ");
 
         } finally {
-            client.destroy();
+            client.close();
         }
 
         try {

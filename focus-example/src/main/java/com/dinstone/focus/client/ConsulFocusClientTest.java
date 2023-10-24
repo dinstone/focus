@@ -51,7 +51,7 @@ public class ConsulFocusClientTest {
             e.printStackTrace();
         }
 
-        client.destroy();
+        client.close();
     }
 
     private static void execute(DemoService ds, String tag) {

@@ -58,7 +58,7 @@ public class OrderServiceServer {
             e.printStackTrace();
         }
 
-        sss.stop();
+        sss.close();
         LOG.info("server stop");
     }
 

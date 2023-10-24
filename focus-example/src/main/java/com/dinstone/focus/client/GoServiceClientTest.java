@@ -40,7 +40,7 @@ public class GoServiceClientTest {
 
         try {
             demoService(client);
-            client.destroy();
+            client.close();
 
             option = new ClientOptions("focus.example.client").connect("localhost", 8010)
                     .setConnectOptions(new PhotonConnectOptions());
@@ -49,7 +49,7 @@ public class GoServiceClientTest {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            client.destroy();
+            client.close();
         }
 
     }

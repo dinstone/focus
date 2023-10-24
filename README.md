@@ -5,14 +5,26 @@
 
 **Focus** is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.
 
+[Focus](https://github.com/dinstone/focus) 是下一代跨语言、轻量级RPC框架。旨在帮助程序员快速的开发微服务应用程序，简化多运行环境下的RPC编程，可以很轻松的实现云端编程和移动端编程。
+
 # Features
+
+* 跨语言支持。同时支持多种串行化协议：Jackson和Protobuff。
+* 模块化API。模块化的客户端和服务端API，可扩展的系统架构核心小于1 MB。
+* 分层架构。合理严谨的分层（包括API层、代理层、调用层、协议层、传输层）使得依赖最小化、可控，适用于更多运行环境。
+* 可插拔的服务发现机制。使用[Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch)支持 Zookeeper，Consul，Nacos等参见注册中心。
+* 可插拔的调用拦截机制。可实现Logging、Tracing、Metrics、限流、熔断等服务安全、可观测性、服务治理功能。
+* 支持同步调用、异步调用、泛化调用。满足各种场景下的不同诉求。
+* 高效的自定义协议。二进制消息交换协议[Photon](https://github.com/dinstone/photon)和[Focus](https://github.com/dinstone/focus)的RPC协议。
+* 不同级别的服务控制。全局级别、服务级别的序列化、压缩、超时、重试设置，方法级别的超时、重试设置。
+* Spring boot 集成支持友好。简化Spring应用的集成、开发难度。
 
 ## Design Idea
 
 * Modular client and server APIs, scalable system architecture, and framework core less than 1 MB in size.
 * Support a variety of serialization protocol at the same time - Jackson、Protobuff、Protostuff
 * Layered architecture, including API layer, Proxy layer, Invoke layer, Protocol layer, Transport layer
-* Pluggable service discovery - registry with [Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch) for Zookeeper, Consul, Nacos
+* Pluggable invoke interception mechanism, that facilitates extensions such as service security, observability, and service governance.
 
 ## Ease of use
 
@@ -42,19 +54,19 @@ The quick start gives a basic example of running client and server on the same m
 <dependency>
     <groupId>com.dinstone.focus</groupId>
     <artifactId>focus-server-photon</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <type>pom</type>
 </dependency>
 <dependency>
     <groupId>com.dinstone.focus</groupId>
     <artifactId>focus-client-photon</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <type>pom</type>
 </dependency>
 <dependency>
     <groupId>com.dinstone.focus</groupId>
     <artifactId>focus-serialize-json</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -122,7 +134,7 @@ public class FocusServerBootstrap {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		server.stop();
+		server.close();
 		LOG.info("server stop");
     }
 
@@ -152,7 +164,7 @@ public class FocusClientBootstrap {
 			CompletableFuture<String> rf = fooService.async("dinstone");
 			System.out.println(rf.get());
 		} finally {
-			client.destroy();
+			client.close();
 		}
 	}
 }
@@ -194,7 +206,7 @@ public class FocusClientAsyncCallBootstrap {
 			CompletableFuture<String> replyFuture = fooService.hello("dinstone");
 			System.out.println(replyFuture.get());
 		} finally {
-			client.destroy();
+			client.close();
 		}
 	}
 
@@ -231,7 +243,7 @@ public class FocusClientGenericCallBootstrap {
 			CompletableFuture<String> replyFuture = genericService.async(String.class, "hello", "dinstone");
 			System.out.println("async call reply : " + replyFuture.get());
 		} finally {
-			client.destroy();
+			client.close();
 		}
 	}
 

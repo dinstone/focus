@@ -52,7 +52,7 @@ public class UserServiceServer {
             e.printStackTrace();
         }
 
-        uss.stop();
+        uss.close();
         LOG.info("server stop");
     }
 

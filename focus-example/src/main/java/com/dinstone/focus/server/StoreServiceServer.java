@@ -57,7 +57,7 @@ public class StoreServiceServer {
             e.printStackTrace();
         }
 
-        sss.stop();
+        sss.close();
         LOG.info("server stop");
     }
 

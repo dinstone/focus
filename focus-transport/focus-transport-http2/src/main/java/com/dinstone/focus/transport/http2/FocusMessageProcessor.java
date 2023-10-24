@@ -44,11 +44,11 @@ import io.netty.util.CharsetUtil;
 
 public final class FocusMessageProcessor {
 
-    private final Function<String, ServiceConfig> serviceConfigMap;
+    private final Function<String, ServiceConfig> serviceLookupper;
     private final ExecutorSelector executorSelector;
 
-    public FocusMessageProcessor(Function<String, ServiceConfig> serviceConfigMap, ExecutorSelector executorSelector) {
-        this.serviceConfigMap = serviceConfigMap;
+    public FocusMessageProcessor(Function<String, ServiceConfig> serviceLookupper, ExecutorSelector executorSelector) {
+        this.serviceLookupper = serviceLookupper;
         this.executorSelector = executorSelector;
     }
 
@@ -58,7 +58,7 @@ public final class FocusMessageProcessor {
             Http2Headers headers = headersFrame.headers();
             // check service
             String service = headers.get(Call.SERVICE_KEY).toString();
-            ServiceConfig serviceConfig = serviceConfigMap.apply(service);
+            ServiceConfig serviceConfig = serviceLookupper.apply(service);
             if (serviceConfig == null) {
                 throw new InvokeException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
             }

@@ -116,8 +116,9 @@ public class Http2Acceptor implements Acceptor {
     }
 
     @Override
-    public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> lookup) throws Exception {
-        messageProcessor = new FocusMessageProcessor(lookup, acceptOptions.getExecutorSelector());
+    public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceLookupper)
+            throws Exception {
+        messageProcessor = new FocusMessageProcessor(serviceLookupper, acceptOptions.getExecutorSelector());
         bootstrap.bind(serviceAddress).sync().channel();
     }
 

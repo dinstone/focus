@@ -32,6 +32,8 @@ import com.tencent.polaris.circuitbreak.factory.CircuitBreakAPIFactory;
 
 public class CircuitBreakInterceptor implements Interceptor {
 
+    private static final String DEFAULT_NAMESPACE = "default";
+
     private CircuitBreakAPI circuitBreak;
 
     public CircuitBreakInterceptor(String... addresses) {
@@ -40,7 +42,7 @@ public class CircuitBreakInterceptor implements Interceptor {
 
     @Override
     public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
-        ServiceKey skey = new ServiceKey("default", call.getProvider());
+        ServiceKey skey = new ServiceKey(DEFAULT_NAMESPACE, call.getProvider());
         RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
         InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
 
@@ -65,7 +67,7 @@ public class CircuitBreakInterceptor implements Interceptor {
                         responseContext.setError((Exception) reply.getData());
                         invokeHandler.onError(responseContext);
                     } else {
-                        responseContext.setResult(reply);
+                        responseContext.setResult(reply.getData());
                         invokeHandler.onSuccess(responseContext);
                     }
                 }

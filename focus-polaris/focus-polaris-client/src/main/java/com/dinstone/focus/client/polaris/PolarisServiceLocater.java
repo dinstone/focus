@@ -16,7 +16,7 @@
 package com.dinstone.focus.client.polaris;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.dinstone.focus.client.ServiceLocater;
@@ -61,9 +61,9 @@ public class PolarisServiceLocater implements ServiceLocater {
             return null;
         }
 
-        List<Instance> instances = new ArrayList<>();
+        List<Instance> instances = new LinkedList<>();
         for (Instance instance : response.getInstances()) {
-            if (instance.getHost().equalsIgnoreCase(selected.getHostString())
+            if (selected != null && instance.getHost().equalsIgnoreCase(selected.getHostString())
                     && instance.getPort() == selected.getPort()) {
                 continue;
             }

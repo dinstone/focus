@@ -30,10 +30,10 @@ public class PolarisFocusClientTest {
 
         LOG.info("init start");
 
-        PolarisClutchOptions clutchOptions = new PolarisClutchOptions().addAddresses("192.168.1.120:8091");
+        final String pa = "119.91.66.223:8091";// "192.168.1.120:8091";
+        PolarisClutchOptions clutchOptions = new PolarisClutchOptions().addAddresses(pa);
         ClientOptions option = new ClientOptions("com.rpc.demo.client").setClutchOptions(clutchOptions)
-                .setLocaterFactory(new PolarisLocaterFactory("192.168.1.120:8091"))
-                .addInterceptor(new CircuitBreakInterceptor("192.168.1.120:8091"));
+                .setLocaterFactory(new PolarisLocaterFactory(pa)).addInterceptor(new CircuitBreakInterceptor(pa));
 
         FocusClient client = new FocusClient(option);
         DemoService ds = client.importing(DemoService.class, "com.rpc.demo.server");

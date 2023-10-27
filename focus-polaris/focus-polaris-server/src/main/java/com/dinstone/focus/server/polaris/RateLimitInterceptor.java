@@ -24,6 +24,7 @@ import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.tencent.polaris.api.config.Configuration;
+import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.ratelimit.api.core.LimitAPI;
 import com.tencent.polaris.ratelimit.api.rpc.QuotaRequest;
@@ -39,7 +40,8 @@ public class RateLimitInterceptor implements Interceptor {
 
     public RateLimitInterceptor(String... addresses) {
         Configuration configuration = ConfigAPIFactory.createConfigurationByAddress(addresses);
-        limit = LimitAPIFactory.createLimitAPIByConfig(configuration);
+        SDKContext context = SDKContext.initContextByConfig(configuration);
+        limit = LimitAPIFactory.createLimitAPIByContext(context);
     }
 
     @Override

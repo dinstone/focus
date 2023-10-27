@@ -27,7 +27,7 @@ import com.dinstone.focus.client.FocusClient;
 @ConditionalOnBean(FocusClientConfiguration.Marker.class)
 public class FocusClientAutoConfiguration {
 
-    @Bean(destroyMethod = "destroy")
+    @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     FocusClient defaultFocusClient(ClientOptions clientOptions) {
         return new FocusClient(clientOptions);

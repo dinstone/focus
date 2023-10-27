@@ -43,10 +43,9 @@ public class ProviderServiceConfig extends AbstractServiceConfig {
 
     @Override
     public String toString() {
-        return "ProviderServiceConfig [methodConfigs=" + methodConfigs + ", provider=" + provider + ", consumer="
-                + consumer + ", service=" + service + ", handler=" + handler + ", serializer=" + serializer
-                + ", compressor=" + compressor + ", compressThreshold=" + compressThreshold + ", target=" + target
-                + "]";
+        return "ProviderServiceConfig [service=" + service + ", provider=" + provider + ", serializer=" + serializer
+                + ", compressor=" + compressor + ", compressThreshold=" + compressThreshold + ", methodConfigs="
+                + methodConfigs + ", target=" + target + "]";
     }
 
 }

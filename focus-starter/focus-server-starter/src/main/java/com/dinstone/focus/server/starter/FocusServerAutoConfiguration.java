@@ -35,7 +35,7 @@ public class FocusServerAutoConfiguration implements ApplicationListener<Applica
         return new ServiceDefinitionProcessor();
     }
 
-    @Bean(destroyMethod = "stop")
+    @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     FocusServer defaultFocusServer(ServerOptions serverOptions) {
         return new FocusServer(serverOptions);

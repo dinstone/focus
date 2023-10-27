@@ -23,15 +23,22 @@ import com.dinstone.focus.annotation.ServiceDefinition;
 @ServiceDefinition(service = "AuthenService")
 public class AuthenService {
 
-    public boolean check(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("name is empty");
+    public String login(Account account) {
+        if ("dinstone".equals(account.getUsername()) && "123456".endsWith(account.getPassword())) {
+            return token(account.getUsername());
+        }
+        throw new IllegalArgumentException("username or password is error");
+    }
+
+    public boolean check(String username) {
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("username is empty");
         }
         return false;
     }
 
-    public boolean authen(String name) {
-        if ("dinstone".equals(name)) {
+    public boolean authen(String token) {
+        if ("token-dinstone".equals(token)) {
             return true;
         }
         return false;

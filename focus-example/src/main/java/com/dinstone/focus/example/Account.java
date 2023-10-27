@@ -15,19 +15,34 @@
  */
 package com.dinstone.focus.example;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
+public class Account {
 
-import com.dinstone.focus.annotation.ServiceReference;
+    private String username;
 
-@ServiceReference(service = "AuthenService")
-public interface AuthenCheck {
+    private String password;
 
-    public String login(Account account);
+    public Account() {
+    }
 
-    public Future<Boolean> check(String name);
+    public Account(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
-    public CompletableFuture<String> token(String name);
+    public String getUsername() {
+        return username;
+    }
 
-    public boolean authen(String name);
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
 }

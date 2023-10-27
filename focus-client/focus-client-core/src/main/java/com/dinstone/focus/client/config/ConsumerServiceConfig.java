@@ -64,10 +64,10 @@ public class ConsumerServiceConfig extends AbstractServiceConfig {
 
     @Override
     public String toString() {
-        return "ConsumerServiceConfig [methodConfigs=" + methodConfigs + ", provider=" + provider + ", consumer="
-                + consumer + ", service=" + service + ", handler=" + handler + ", serializer=" + serializer
-                + ", compressor=" + compressor + ", compressThreshold=" + compressThreshold + ", timeoutMillis="
-                + timeoutMillis + ", timeoutRetry=" + timeoutRetry + ", connectRetry=" + connectRetry + "]";
+        return "ConsumerServiceConfig [service=" + service + ", provider=" + provider + ", consumer=" + consumer
+                + ", serializer=" + serializer + ", compressor=" + compressor + ", compressThreshold="
+                + compressThreshold + ", methodConfigs=" + methodConfigs + ", timeoutMillis=" + timeoutMillis
+                + ", timeoutRetry=" + timeoutRetry + ", connectRetry=" + connectRetry + "]";
     }
 
 }

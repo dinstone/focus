@@ -41,4 +41,9 @@ public class AuthenCheckLocal implements AuthenCheck {
         return false;
     }
 
+    @Override
+    public String login(Account account) {
+        return "local-token-" + account.getUsername();
+    }
+
 }

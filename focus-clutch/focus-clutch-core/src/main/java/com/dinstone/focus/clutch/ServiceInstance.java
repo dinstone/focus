@@ -32,7 +32,7 @@ public class ServiceInstance implements Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private static final String DEFAULT_NAMESPACE = "default";
+    public static final String DEFAULT_NAMESPACE = "default";
 
     private Map<String, String> metadata = new LinkedHashMap<>();
 

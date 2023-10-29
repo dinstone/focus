@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.clutch.polaris;
 
+import java.util.Map;
+
 import com.dinstone.focus.clutch.ServiceInstance;
 import com.dinstone.focus.clutch.ServiceRegistry;
 import com.tencent.polaris.api.core.ProviderAPI;
@@ -43,27 +45,41 @@ public class PolarisServiceRegistry implements ServiceRegistry {
         request.setHost(service.getInstanceHost());
         // 设置实例的端口信息
         request.setPort(service.getInstancePort());
+
+        Map<String, String> metadata = service.getMetadata();
+        request.setMetadata(metadata);
         // 可选，资源访问Token，即用户/用户组访问凭据，仅当服务端开启客户端鉴权时才需配置
-        request.setToken(service.getMetadata().get("token"));
+        request.setToken(metadata.get("token"));
         // 设置实例版本
-        request.setVersion("1.0.0");
+        request.setVersion(metadata.get("version"));
         // 设置实例权重
-        request.setWeight(100);
+        String w = metadata.get("weight");
+        request.setWeight(parseInt(w, 100));
         // 设置实例的标签
-        request.setMetadata(service.getMetadata());
         // 设置实例地理位置 zone 信息
-        request.setZone("unkown");
+        request.setZone(metadata.get("zone"));
         // 设置实例地理位置 region 信息
-        request.setRegion("unkown");
+        request.setRegion(metadata.get("region"));
         // 设置实例地理位置 campus 信息
-        request.setCampus("unkown");
+        request.setCampus(metadata.get("campus"));
+
         // 设置心跳健康检查ttl，单位为s，不填默认为5s，TTL的取值范围为 (0s, 60s]
         // 开启了心跳健康检查，客户端必须以TTL间隔上报心跳
         // 健康检查服务器3个TTL未受到心跳则将实例置为不健康
-        request.setTtl(3);
+        // request.setTtl(3);
 
         InstanceRegisterResponse response = providerAPI.registerInstance(request);
         service.setInstanceCode(response.getInstanceId());
+    }
+
+    private int parseInt(final String w, int d) {
+        if (w != null && !w.isEmpty()) {
+            try {
+                return Integer.parseInt(w);
+            } catch (Exception e) {
+            }
+        }
+        return d;
     }
 
     @Override

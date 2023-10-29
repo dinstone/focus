@@ -85,6 +85,7 @@ public class DefaultServiceResolver implements ServiceResolver {
         instance.setInstanceHost(host);
         instance.setInstancePort(port);
         instance.setServiceName(app);
+        instance.setServiceType("focus/photon");
         instance.setRegistTime(System.currentTimeMillis());
         instance.setMetadata(serverOptions.getMetadata());
 

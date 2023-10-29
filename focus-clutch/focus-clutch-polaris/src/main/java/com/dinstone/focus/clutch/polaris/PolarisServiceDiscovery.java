@@ -15,9 +15,9 @@
  */
 package com.dinstone.focus.clutch.polaris;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 
 import com.dinstone.focus.clutch.ServiceDiscovery;
 import com.dinstone.focus.clutch.ServiceInstance;
@@ -47,7 +47,11 @@ public class PolarisServiceDiscovery implements ServiceDiscovery {
 
     @Override
     public void subscribe(String serviceName) throws Exception {
+        if (serviceName == null || serviceName.isEmpty()) {
+            return;
+        }
 
+        findInstances(serviceName);
     }
 
     @Override
@@ -56,18 +60,9 @@ public class PolarisServiceDiscovery implements ServiceDiscovery {
             return Collections.emptyList();
         }
 
-        GetInstancesRequest request = new GetInstancesRequest();
-        // 设置服务命名空间
-        request.setNamespace("default");
-        // 设置服务名称
-        request.setService(serviceName);
-        // 设置超时时间
-        request.setTimeoutMs(1000);
+        InstancesResponse response = findInstances(serviceName);
 
-        // 调用 ConsumerAPI 执行该请求
-        Collection<ServiceInstance> silist = new ArrayList<>();
-
-        InstancesResponse response = consumerAPI.getInstances(request);
+        Collection<ServiceInstance> silist = new LinkedList<>();
         for (Instance instance : response.getInstances()) {
             ServiceInstance si = new ServiceInstance();
             si.setNamespace(instance.getNamespace());
@@ -79,8 +74,20 @@ public class PolarisServiceDiscovery implements ServiceDiscovery {
             si.setMetadata(instance.getMetadata());
             silist.add(si);
         }
-
         return silist;
+    }
+
+    private InstancesResponse findInstances(String serviceName) {
+        GetInstancesRequest request = new GetInstancesRequest();
+        // 设置服务命名空间
+        request.setNamespace(ServiceInstance.DEFAULT_NAMESPACE);
+        // 设置服务名称
+        request.setService(serviceName);
+        // 设置超时时间
+        request.setTimeoutMs(1000);
+
+        // 调用 ConsumerAPI 执行该请求
+        return consumerAPI.getInstances(request);
     }
 
 }

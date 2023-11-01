@@ -55,10 +55,10 @@ public class PolarisFocusClientTest {
         }
 
         try {
-			Thread.sleep(20000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         client.close();
     }
 

@@ -21,12 +21,12 @@ import com.dinstone.focus.protocol.Reply;
 
 public interface ServiceLocater {
 
-	public ServiceInstance locate(Call call, ServiceInstance selected);
+    public ServiceInstance locate(Call call, ServiceInstance selected);
 
-	public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay);
+    public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay);
 
-	public void subscribe(String serviceName);
+    public void subscribe(String serviceName);
 
-	public void destroy();
+    public void destroy();
 
 }

@@ -43,23 +43,23 @@ public class RateLimitInterceptor implements Interceptor {
     private LimitAPI limitAPI;
 
     public RateLimitInterceptor(String... addresses) {
-    	ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory
-				.defaultConfig(ConfigProvider.DEFAULT_CONFIG);
+        ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory
+                .defaultConfig(ConfigProvider.DEFAULT_CONFIG);
 
-		final GlobalConfigImpl globalConfig = configuration.getGlobal();
+        final GlobalConfigImpl globalConfig = configuration.getGlobal();
 
-		globalConfig.getStatReporter().setEnable(true);
+        globalConfig.getStatReporter().setEnable(true);
 
-		PrometheusHandlerConfig prometheusHandlerConfig = globalConfig.getStatReporter()
-				.getPluginConfig("prometheus", PrometheusHandlerConfig.class);
-		prometheusHandlerConfig.setType("push");
-		prometheusHandlerConfig.setAddress("119.91.66.223:9091");
-		prometheusHandlerConfig.setPushInterval(10 * 1000L);
-		globalConfig.getStatReporter().setPluginConfig("prometheus", prometheusHandlerConfig);
+        PrometheusHandlerConfig prometheusHandlerConfig = globalConfig.getStatReporter().getPluginConfig("prometheus",
+                PrometheusHandlerConfig.class);
+        prometheusHandlerConfig.setType("push");
+        prometheusHandlerConfig.setAddress("119.91.66.223:9091");
+        prometheusHandlerConfig.setPushInterval(10 * 1000L);
+        globalConfig.getStatReporter().setPluginConfig("prometheus", prometheusHandlerConfig);
 
-		ServerConnectorConfigImpl serverConnector = globalConfig.getServerConnector();
-		serverConnector.setAddresses(Arrays.asList(addresses));
-		
+        ServerConnectorConfigImpl serverConnector = globalConfig.getServerConnector();
+        serverConnector.setAddresses(Arrays.asList(addresses));
+
         limitAPI = LimitAPIFactory.createLimitAPIByConfig(configuration);
     }
 

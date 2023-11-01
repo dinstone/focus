@@ -11,5 +11,6 @@
 		<module>focus-client-core</module>
 		<module>focus-client-photon</module>
 		<module>focus-client-http2</module>
+		<module>focus-client-polaris</module>
 	</modules>
 </project>

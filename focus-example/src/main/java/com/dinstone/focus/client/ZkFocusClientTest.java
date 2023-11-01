@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.clutch.zookeeper.ZookeeperClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
@@ -29,8 +28,9 @@ public class ZkFocusClientTest {
 
         LOG.info("init start");
 
-        ClientOptions option = new ClientOptions("com.rpc.demo.client").setConnectOptions(new PhotonConnectOptions())
-                .setClutchOptions(new ZookeeperClutchOptions().setZookeeperNodes("192.168.1.120:2181"));
+        ClientOptions option = new ClientOptions("com.rpc.demo.client").setConnectOptions(new PhotonConnectOptions());
+        // .setClutchOptions(new
+        // ZookeeperClutchOptions().setZookeeperNodes("192.168.1.120:2181"));
 
         FocusClient client = new FocusClient(option);
         DemoService ds = client.importing(DemoService.class, "com.rpc.demo.server");

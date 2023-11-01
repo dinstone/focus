@@ -144,12 +144,12 @@
         </dependency>
         <dependency>
             <groupId>com.dinstone.focus</groupId>
-            <artifactId>focus-polaris-client</artifactId>
+            <artifactId>focus-client-polaris</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.dinstone.focus</groupId>
-            <artifactId>focus-polaris-server</artifactId>
+            <artifactId>focus-server-polaris</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

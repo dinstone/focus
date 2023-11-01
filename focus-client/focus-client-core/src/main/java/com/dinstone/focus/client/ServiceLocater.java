@@ -15,18 +15,18 @@
  */
 package com.dinstone.focus.client;
 
-import java.net.InetSocketAddress;
-
+import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
 public interface ServiceLocater {
 
-    public InetSocketAddress locate(Call call, InetSocketAddress selected);
+	public ServiceInstance locate(Call call, ServiceInstance selected);
 
-    public void feedback(Call call, InetSocketAddress selected, boolean ok);
+	public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay);
 
-    public void subscribe(String serviceName);
+	public void subscribe(String serviceName);
 
-    public void destroy();
+	public void destroy();
 
 }

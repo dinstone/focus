@@ -31,8 +31,8 @@ public class ConsulFocusServerTest {
     public static void main(String[] args) {
         ClutchOptions registryConfig = new ConsulClutchOptions().setAgentHost("192.168.1.120").setAgentPort(8500);
         // setting registry config
-        ServerOptions serverOptions = new ServerOptions("com.rpc.demo.server").setClutchOptions(registryConfig)
-                .listen("-", 3333).setAcceptOptions(new PhotonAcceptOptions());
+        ServerOptions serverOptions = new ServerOptions("com.rpc.demo.server").listen("-", 3333)
+                .setAcceptOptions(new PhotonAcceptOptions());
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());
         server.start();

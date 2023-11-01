@@ -16,37 +16,35 @@
 package com.dinstone.focus.client.locate;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.naming.DefaultInstance;
+import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.protocol.Call;
 
-public class DirectLinkServiceLocater extends DefaultServiceLocater {
+public class DirectLinkServiceLocater extends AbstractServiceLocater {
 
-    private List<InetSocketAddress> connectAddresses = new ArrayList<InetSocketAddress>();
+	private List<ServiceInstance> instances = new LinkedList<ServiceInstance>();
 
-    public DirectLinkServiceLocater(List<InetSocketAddress> connectAddresses) {
-        if (connectAddresses == null || connectAddresses.isEmpty()) {
-            throw new FocusException("connectAddresses is empty, please set connectAddresses");
-        }
-        this.connectAddresses.addAll(connectAddresses);
-    }
+	public DirectLinkServiceLocater(List<InetSocketAddress> connectAddresses) {
+		if (connectAddresses == null || connectAddresses.isEmpty()) {
+			throw new FocusException("connectAddresses is empty, please set connectAddresses");
+		}
+		for (InetSocketAddress inetSocketAddress : connectAddresses) {
+			this.instances.add(new DefaultInstance(inetSocketAddress));
+		}
+	}
 
-    @Override
-    protected List<InetSocketAddress> routing(Call call, InetSocketAddress selected) {
-        if (selected == null) {
-            return connectAddresses;
-        }
+	@Override
+	protected List<ServiceInstance> routing(Call call, ServiceInstance selected) {
+		if (selected == null) {
+			return instances;
+		}
 
-        List<InetSocketAddress> addresses = new ArrayList<>();
-        for (InetSocketAddress address : connectAddresses) {
-            if (address.equals(selected)) {
-                continue;
-            }
-            addresses.add(address);
-        }
-        return addresses;
-    }
+		return instances.stream().filter(i -> !i.equals(selected)).collect(Collectors.toList());
+	}
 
 }

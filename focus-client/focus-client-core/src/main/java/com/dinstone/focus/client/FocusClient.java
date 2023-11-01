@@ -23,7 +23,7 @@ import com.dinstone.focus.client.config.ConsumerMethodConfig;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
-import com.dinstone.focus.client.locate.DefaultLocaterFactory;
+import com.dinstone.focus.client.locate.DirectLinkServiceLocater;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
@@ -72,12 +72,18 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
             throw new FocusException("can't find a connector implement");
         }
 
-        // init router and load balancer
-        LocaterFactory locaterFactory = clientOptions.getLocaterFactory();
-        if (locaterFactory == null) {
-            locaterFactory = new DefaultLocaterFactory(clientOptions);
+        // init service locater for service discovery, routing and load balance
+        LocaterOptions locaterOptions = clientOptions.getLocaterOptions();
+        ServiceLoader<LocaterFactory> lfLoader = ServiceLoader.load(LocaterFactory.class);
+        for (LocaterFactory locaterFactory : lfLoader) {
+            if (locaterFactory.appliable(locaterOptions)) {
+                this.serivceLocater = locaterFactory.create(locaterOptions);
+            }
         }
-        this.serivceLocater = locaterFactory.createLocater();
+        // set default service locater
+        if (this.serivceLocater == null) {
+            this.serivceLocater = new DirectLinkServiceLocater(clientOptions.getConnectAddresses());
+        }
 
         LOG.info("focus client created for [{}]", clientOptions.getApplication());
     }

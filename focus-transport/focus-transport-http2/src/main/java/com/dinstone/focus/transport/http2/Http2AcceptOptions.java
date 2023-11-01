@@ -106,4 +106,9 @@ public class Http2AcceptOptions implements AcceptOptions {
         this.executorSelector = executorSelector;
     }
 
+    @Override
+    public String getProtocol() {
+        return "http2";
+    }
+
 }

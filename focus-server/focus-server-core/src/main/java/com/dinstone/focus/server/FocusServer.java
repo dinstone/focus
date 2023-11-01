@@ -17,7 +17,10 @@ package com.dinstone.focus.server;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
@@ -30,7 +33,6 @@ import com.dinstone.focus.server.config.ProviderServiceConfig;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
 import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
 import com.dinstone.focus.server.resolver.DefaultServiceResolver;
-import com.dinstone.focus.server.resolver.ServiceResolver;
 import com.dinstone.focus.transport.AcceptOptions;
 import com.dinstone.focus.transport.Acceptor;
 import com.dinstone.focus.transport.AcceptorFactory;
@@ -40,6 +42,8 @@ import com.dinstone.loghub.LoggerFactory;
 public class FocusServer implements ServiceExporter, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusServer.class);
+
+    private Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
     private AcceptorFactory acceptorFactory;
 
@@ -78,8 +82,18 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             throw new FocusException("can't find a acceptor implement for " + acceptOptions);
         }
 
-        // create handler registry
-        this.serviceResolver = new DefaultServiceResolver(serverOptions.getClutchOptions());
+        // create service resolver
+        ResolverOptions resolverOptions = serverOptions.getResolverOptions();
+        ServiceLoader<ResolverFactory> rfLoader = ServiceLoader.load(ResolverFactory.class);
+        for (ResolverFactory resolverFactory : rfLoader) {
+            if (resolverFactory.appliable(resolverOptions)) {
+                this.serviceResolver = resolverFactory.create(resolverOptions);
+            }
+        }
+        if (this.serviceResolver == null) {
+            LOG.warn("will use the default service resolver");
+            this.serviceResolver = new DefaultServiceResolver();
+        }
 
         LOG.info("focus server created for [{}]", serverOptions.getApplication());
     }
@@ -92,7 +106,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             }
 
             // startup acceptor
-            this.acceptor.bind(listenAddress, serviceName -> serviceResolver.lookup(serviceName));
+            this.acceptor.bind(listenAddress, serviceName -> lookupService(serviceName));
 
             // register application
             this.serviceResolver.publish(serverOptions);
@@ -115,6 +129,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
         }
         if (acceptor != null) {
             acceptor.destroy();
+            acceptor = null;
         }
 
         LOG.info("focus server closed for [{}]", serverOptions.getApplication());
@@ -125,7 +140,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
     }
 
     public List<ServiceConfig> getServices() {
-        return serviceResolver.getServices();
+        return serviceConfigMap.values().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -160,12 +175,25 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             // init service protocol codec
             protocolCodec(serviceConfig, serverOptions, exportOptions);
 
-            serviceResolver.registry(serviceConfig);
+            // registry service handler
+            registryService(serviceConfig);
 
             LOG.info("exporting {}", serviceConfig);
         } catch (Exception e) {
             throw new FocusException("export service error", e);
         }
+    }
+
+    private void registryService(ProviderServiceConfig serviceConfig) {
+        String serviceName = serviceConfig.getService();
+        if (serviceConfigMap.containsKey(serviceName)) {
+            throw new RuntimeException("multiple object registed with the service name : " + serviceName);
+        }
+        serviceConfigMap.putIfAbsent(serviceName, serviceConfig);
+    }
+
+    private ServiceConfig lookupService(String serviceName) {
+        return serviceConfigMap.get(serviceName);
     }
 
     private void protocolCodec(ProviderServiceConfig serviceConfig, ServerOptions serverOptions,

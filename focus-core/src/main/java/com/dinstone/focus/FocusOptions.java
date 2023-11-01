@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.dinstone.focus.clutch.ClutchOptions;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Interceptor;
 
@@ -42,8 +41,6 @@ public class FocusOptions<T extends FocusOptions<T>> {
 
     private int compressThreshold;
 
-    private ClutchOptions clutchOptions;
-
     private Map<String, String> metadata = new HashMap<>();
 
     private List<Interceptor> interceptors = new ArrayList<Interceptor>();
@@ -60,15 +57,6 @@ public class FocusOptions<T extends FocusOptions<T>> {
 
     public String getApplication() {
         return application;
-    }
-
-    public ClutchOptions getClutchOptions() {
-        return clutchOptions;
-    }
-
-    public T setClutchOptions(ClutchOptions clutchOptions) {
-        this.clutchOptions = clutchOptions;
-        return (T) this;
     }
 
     public List<Interceptor> getInterceptors() {

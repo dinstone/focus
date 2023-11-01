@@ -17,10 +17,10 @@ package com.dinstone.focus.server;
 
 import java.io.IOException;
 
-import com.dinstone.focus.clutch.polaris.PolarisClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.example.DemoServiceImpl;
 import com.dinstone.focus.invoke.Interceptor;
+import com.dinstone.focus.server.polaris.PolarisResolverOptions;
 import com.dinstone.focus.server.polaris.RateLimitInterceptor;
 import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
 import com.dinstone.loghub.Logger;
@@ -32,10 +32,11 @@ public class PolarisFocusServerTest {
     public static void main(String[] args) {
         // setting registry config
         final String pa = "119.91.66.223:8091";// "192.168.1.120:8091";
-        PolarisClutchOptions clutchOptions = new PolarisClutchOptions().addAddresses(pa);
         Interceptor rateLimt = new RateLimitInterceptor(pa);
-        ServerOptions serverOptions = new ServerOptions("com.rpc.demo.server").setClutchOptions(clutchOptions)
-                .listen("-", 3333).setAcceptOptions(new PhotonAcceptOptions()).addInterceptor(rateLimt);
+        ServerOptions serverOptions = new ServerOptions("com.rpc.demo.server");
+        serverOptions.setResolverOptions(new PolarisResolverOptions().addAddresses(pa));
+        serverOptions.listen("-", 3333).setAcceptOptions(new PhotonAcceptOptions());
+        serverOptions.addInterceptor(rateLimt);
 
         FocusServer server = new FocusServer(serverOptions);
         server.exporting(DemoService.class, new DemoServiceImpl());

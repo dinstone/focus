@@ -31,4 +31,9 @@ public class PhotonAcceptOptions extends com.dinstone.photon.AcceptOptions imple
         this.executorSelector = executorSelector;
     }
 
+    @Override
+    public String getProtocol() {
+        return "photon";
+    }
+
 }

@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.clutch.consul.ConsulClutchOptions;
 import com.dinstone.focus.example.DemoService;
 import com.dinstone.focus.transport.photon.PhotonConnectOptions;
 import com.dinstone.loghub.Logger;
@@ -30,8 +29,8 @@ public class ConsulFocusClientTest {
         LOG.info("init start");
         PhotonConnectOptions connectOptions = new PhotonConnectOptions();
 
-        ClientOptions option = new ClientOptions("com.rpc.demo.client").setConnectOptions(connectOptions)
-                .setClutchOptions(new ConsulClutchOptions().setAgentHost("192.168.1.120").setAgentPort(8500));
+        ClientOptions option = new ClientOptions("com.rpc.demo.client").setConnectOptions(connectOptions);
+        // .setClutchOptions(new ConsulClutchOptions().setAgentHost("192.168.1.120").setAgentPort(8500));
 
         FocusClient client = new FocusClient(option);
         DemoService ds = client.importing(DemoService.class, "com.rpc.demo.server");

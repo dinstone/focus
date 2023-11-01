@@ -25,7 +25,14 @@ public interface AcceptOptions {
         public ExecutorSelector getExecutorSelector() {
             return null;
         }
+
+        @Override
+        public String getProtocol() {
+            return "photon";
+        }
     };
 
     ExecutorSelector getExecutorSelector();
+
+    String getProtocol();
 }

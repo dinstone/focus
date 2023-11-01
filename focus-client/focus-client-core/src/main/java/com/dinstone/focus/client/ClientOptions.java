@@ -34,15 +34,15 @@ import com.dinstone.focus.utils.NetworkUtil;
  */
 public class ClientOptions extends FocusOptions<ClientOptions> {
 
-    private ProxyFactory proxyFactory = new JdkProxyFactory();
+    private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
 
     private List<InetSocketAddress> connectAddresses = new LinkedList<>();
 
-    private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
+    private ProxyFactory proxyFactory = new JdkProxyFactory();
 
     private InetSocketAddress consumerAddress;
 
-    private LocaterFactory locaterFactory;
+    private LocaterOptions locaterOptions;
 
     public ClientOptions(String application) {
         super(application);
@@ -85,12 +85,12 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
         return connectAddresses;
     }
 
-    public LocaterFactory getLocaterFactory() {
-        return locaterFactory;
+    public LocaterOptions getLocaterOptions() {
+        return locaterOptions;
     }
 
-    public ClientOptions setLocaterFactory(LocaterFactory locaterFactory) {
-        this.locaterFactory = locaterFactory;
+    public ClientOptions setLocaterOptions(LocaterOptions locaterOptions) {
+        this.locaterOptions = locaterOptions;
         return this;
     }
 

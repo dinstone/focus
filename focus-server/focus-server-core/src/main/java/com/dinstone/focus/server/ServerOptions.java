@@ -41,6 +41,8 @@ public class ServerOptions extends FocusOptions<ServerOptions> {
 
     private InetSocketAddress listenAddress;
 
+    private ResolverOptions resolverOptions;
+
     public ServerOptions(String application) {
         super(application);
     }
@@ -126,6 +128,15 @@ public class ServerOptions extends FocusOptions<ServerOptions> {
 
     public ServerOptions setAcceptOptions(AcceptOptions acceptOptions) {
         this.acceptOptions = acceptOptions;
+        return this;
+    }
+
+    public ResolverOptions getResolverOptions() {
+        return resolverOptions;
+    }
+
+    public ServerOptions setResolverOptions(ResolverOptions resolverOptions) {
+        this.resolverOptions = resolverOptions;
         return this;
     }
 

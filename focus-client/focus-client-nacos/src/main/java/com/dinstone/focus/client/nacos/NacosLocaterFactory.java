@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.server;
+package com.dinstone.focus.client.nacos;
 
-public interface ServiceResolver {
+import com.dinstone.focus.client.LocaterFactory;
+import com.dinstone.focus.client.LocaterOptions;
+import com.dinstone.focus.client.ServiceLocater;
 
-    void publish(ServerOptions serverOptions) throws Exception;
+public class NacosLocaterFactory implements LocaterFactory {
 
-    void destroy();
+    public boolean appliable(LocaterOptions locaterOptions) {
+        return locaterOptions instanceof NacosLocaterOptions;
+    }
+
+    @Override
+    public ServiceLocater create(LocaterOptions locaterOptions) {
+        return new NacosServiceLocater((NacosLocaterOptions) locaterOptions);
+    }
 
 }

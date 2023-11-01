@@ -12,5 +12,6 @@
 		<module>focus-client-photon</module>
 		<module>focus-client-http2</module>
 		<module>focus-client-polaris</module>
+		<module>focus-client-nacos</module>
 	</modules>
 </project>

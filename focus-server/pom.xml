@@ -12,5 +12,6 @@
 		<module>focus-server-http2</module>
 		<module>focus-server-photon</module>
 		<module>focus-server-polaris</module>
+		<module>focus-server-nacos</module>
 	</modules>
 </project>

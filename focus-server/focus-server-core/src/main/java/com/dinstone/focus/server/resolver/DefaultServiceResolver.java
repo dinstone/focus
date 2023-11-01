@@ -23,7 +23,7 @@ import com.dinstone.focus.server.ServiceResolver;
 public class DefaultServiceResolver implements ServiceResolver {
 
     @Override
-    public void publish(ServerOptions serverOptions) {
+    public void publish(ServerOptions serverOptions) throws Exception {
     }
 
     @Override

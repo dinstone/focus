@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.server;
+package com.dinstone.focus.server.nacos;
 
-public interface ServiceResolver {
+import com.dinstone.focus.server.ResolverFactory;
+import com.dinstone.focus.server.ResolverOptions;
+import com.dinstone.focus.server.ServiceResolver;
 
-    void publish(ServerOptions serverOptions) throws Exception;
+public class NacosResolverFactory implements ResolverFactory {
 
-    void destroy();
+    @Override
+    public boolean appliable(ResolverOptions options) {
+        return options instanceof NacosResolverOptions;
+    }
+
+    @Override
+    public ServiceResolver create(ResolverOptions options) {
+        return new NacosServiceResolver((NacosResolverOptions) options);
+    }
 
 }

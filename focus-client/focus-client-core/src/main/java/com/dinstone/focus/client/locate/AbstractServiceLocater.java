@@ -25,48 +25,48 @@ import com.dinstone.focus.protocol.Reply;
 
 public abstract class AbstractServiceLocater implements ServiceLocater {
 
-	private final AtomicInteger index = new AtomicInteger();
+    private final AtomicInteger index = new AtomicInteger();
 
-	public AbstractServiceLocater() {
-		super();
-	}
+    public AbstractServiceLocater() {
+        super();
+    }
 
-	@Override
-	public ServiceInstance locate(Call call, ServiceInstance selected) {
-		try {
-			// routing
-			List<ServiceInstance> instances = routing(call, selected);
-			// balance
-			return balance(call, instances);
-		} catch (Exception e) {
-			// ignore
-		}
-		return null;
-	}
+    @Override
+    public ServiceInstance locate(Call call, ServiceInstance selected) {
+        try {
+            // routing
+            List<ServiceInstance> instances = routing(call, selected);
+            // balance
+            return balance(call, instances);
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
 
-	@Override
-	public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay) {
-	}
+    @Override
+    public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay) {
+    }
 
-	@Override
-	public void subscribe(String serviceName) {
-	}
+    @Override
+    public void subscribe(String serviceName) {
+    }
 
-	@Override
-	public void destroy() {
-	}
+    @Override
+    public void destroy() {
+    }
 
-	protected abstract List<ServiceInstance> routing(Call call, ServiceInstance selected);
+    protected abstract List<ServiceInstance> routing(Call call, ServiceInstance selected) throws Exception;
 
-	protected ServiceInstance balance(Call call, List<ServiceInstance> instances) {
-		if (instances.size() == 0) {
-			return null;
-		} else if (instances.size() == 1) {
-			return instances.get(0);
-		} else {
-			int next = Math.abs(index.getAndIncrement());
-			return instances.get(next % instances.size());
-		}
-	}
+    protected ServiceInstance balance(Call call, List<ServiceInstance> instances) {
+        if (instances.size() == 0) {
+            return null;
+        } else if (instances.size() == 1) {
+            return instances.get(0);
+        } else {
+            int next = Math.abs(index.getAndIncrement());
+            return instances.get(next % instances.size());
+        }
+    }
 
 }

@@ -20,7 +20,6 @@ import java.util.Map;
 
 import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.server.ServerOptions;
-import com.dinstone.focus.server.ServiceResolver;
 import com.dinstone.focus.server.resolver.DefaultServiceResolver;
 import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ProviderAPI;
@@ -29,7 +28,7 @@ import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
 
-public class PolarisServiceResolver extends DefaultServiceResolver implements ServiceResolver {
+public class PolarisServiceResolver extends DefaultServiceResolver {
 
     private SDKContext polarisContext;
     private ProviderAPI providerAPI;

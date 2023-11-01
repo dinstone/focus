@@ -13,5 +13,6 @@
 		<module>focus-server-photon</module>
 		<module>focus-server-polaris</module>
 		<module>focus-server-nacos</module>
+		<module>focus-server-consul</module>
 	</modules>
 </project>

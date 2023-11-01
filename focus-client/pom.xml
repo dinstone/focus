@@ -13,5 +13,6 @@
 		<module>focus-client-http2</module>
 		<module>focus-client-polaris</module>
 		<module>focus-client-nacos</module>
+		<module>focus-client-consul</module>
 	</modules>
 </project>

@@ -17,26 +17,27 @@ package com.dinstone.focus.exception;
 
 public enum ErrorCode {
 
-    UNKOWN_ERROR(599), INVOKE_ERROR(500), TIMEOUT_ERROR(506), //
-    CODEC_ERROR(201), SERVICE_ERROR(202), METHOD_ERROR(203), //
-    DECLARED_ERROR(301), UNDECLARED_ERROR(302), RUNTIME_ERROR(303), PARAM_ERROR(304), ACCESS_ERROR(305);
+	UNKOWN_ERROR(599), INVOKE_ERROR(500), TIMEOUT_ERROR(506), //
+	CODEC_ERROR(201), SERVICE_ERROR(202), METHOD_ERROR(203), //
+	DECLARED_ERROR(301), UNDECLARED_ERROR(302), RUNTIME_ERROR(303), //
+	PARAM_ERROR(400), ACCESS_ERROR(401);
 
-    private int code;
+	private int code;
 
-    private ErrorCode(int value) {
-        this.code = value;
-    }
+	private ErrorCode(int value) {
+		this.code = value;
+	}
 
-    public int value() {
-        return code;
-    }
+	public int value() {
+		return code;
+	}
 
-    public static ErrorCode valueOf(int code) {
-        for (ErrorCode errorCode : ErrorCode.values()) {
-            if (errorCode.code == code) {
-                return errorCode;
-            }
-        }
-        return UNKOWN_ERROR;
-    }
+	public static ErrorCode valueOf(int code) {
+		for (ErrorCode errorCode : ErrorCode.values()) {
+			if (errorCode.code == code) {
+				return errorCode;
+			}
+		}
+		return UNKOWN_ERROR;
+	}
 }

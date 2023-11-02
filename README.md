@@ -22,7 +22,7 @@
 * 跨语言支持。同时支持多种串行化协议：Jackson和Protobuff。
 * 模块化API。模块化的客户端和服务端API，可扩展的系统架构核心小于1 MB。
 * 分层架构。合理严谨的分层（包括API层、代理层、调用层、协议层、传输层）使得依赖最小化、可控，适用于更多运行环境。
-* 可插拔的服务发现机制。使用[Clutch](https://github.com/dinstone/focus/tree/master/focus-clutch)支持 Zookeeper，Consul，Nacos等参见注册中心。
+* 可插拔的服务发现机制。支持 Consul，Nacos，Polaris等常见注册中心。
 * 可插拔的调用拦截机制。可实现Logging、Tracing、Metrics、限流、熔断等服务安全、可观测性、服务治理功能。
 * 支持同步调用、异步调用、泛化调用。满足各种场景下的不同诉求。
 * 高效的自定义协议。二进制消息交换协议[Photon](https://github.com/dinstone/photon)和[Focus](https://github.com/dinstone/focus)的RPC协议。

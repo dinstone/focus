@@ -14,7 +14,6 @@
 		<module>focus-starter</module>
 		<module>focus-telemetry</module>
 		<module>focus-transport</module>
-		<module>focus-clutch</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

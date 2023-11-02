@@ -39,7 +39,7 @@ public class ConsulServiceResolver extends DefaultServiceResolver {
 
         @Override
         public Thread newThread(Runnable taskt) {
-            Thread t = new Thread(taskt, "consul-service-registry");
+            Thread t = new Thread(taskt, "consul-service-check");
             t.setDaemon(true);
             return t;
         }

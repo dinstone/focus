@@ -15,7 +15,15 @@
  */
 package com.dinstone.focus.client.locate;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.client.ServiceLocater;
@@ -25,10 +33,60 @@ import com.dinstone.focus.protocol.Reply;
 
 public abstract class AbstractServiceLocater implements ServiceLocater {
 
+    private static final int DEFAULT_INTERVAL = 3;
+
     private final AtomicInteger index = new AtomicInteger();
 
-    public AbstractServiceLocater() {
-        super();
+    protected Map<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<>();
+
+    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable taskt) {
+            Thread t = new Thread(taskt, "Service-Locater-Fresh");
+            t.setDaemon(true);
+            return t;
+        }
+    });
+
+    public class ServiceCache {
+
+        private String serviceName;
+
+        private ScheduledFuture<?> freshFuture;
+
+        private volatile List<ServiceInstance> instances;
+
+        public ServiceCache(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public ScheduledFuture<?> getFreshFuture() {
+            return freshFuture;
+        }
+
+        public void setFreshFuture(ScheduledFuture<?> freshFuture) {
+            this.freshFuture = freshFuture;
+        }
+
+        public List<ServiceInstance> getInstances() {
+            return instances;
+        }
+
+        public void setInstances(List<ServiceInstance> instances) {
+            this.instances = instances;
+        }
+
+        public void destroy() {
+            if (freshFuture != null) {
+                freshFuture.cancel(false);
+            }
+        }
+
     }
 
     @Override
@@ -44,28 +102,85 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
         return null;
     }
 
-    @Override
-    public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay) {
-    }
+    protected List<ServiceInstance> routing(Call call, ServiceInstance selected) throws Exception {
+        ServiceCache serviceCache = serviceCacheMap.get(call.getProvider());
+        if (serviceCache == null) {
+            return null;
+        }
 
-    @Override
-    public void subscribe(String serviceName) {
+        List<ServiceInstance> routings = new LinkedList<>();
+        for (ServiceInstance candidate : serviceCache.getInstances()) {
+            if (selected != null && selected.equals(candidate)) {
+                continue;
+            }
+            routings.add(candidate);
+        }
+        return routings;
     }
-
-    @Override
-    public void destroy() {
-    }
-
-    protected abstract List<ServiceInstance> routing(Call call, ServiceInstance selected) throws Exception;
 
     protected ServiceInstance balance(Call call, List<ServiceInstance> instances) {
-        if (instances.size() == 0) {
+        if (instances == null || instances.isEmpty()) {
             return null;
         } else if (instances.size() == 1) {
             return instances.get(0);
         } else {
             int next = Math.abs(index.getAndIncrement());
             return instances.get(next % instances.size());
+        }
+    }
+
+    @Override
+    public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay) {
+    }
+
+    @Override
+    public void subscribe(String serviceName) {
+        synchronized (serviceCacheMap) {
+            ServiceCache serviceCache = serviceCacheMap.get(serviceName);
+            if (serviceCache == null) {
+                serviceCache = new ServiceCache(serviceName);
+                ServiceCache service = serviceCache;
+                ScheduledFuture<?> freshFuture = executor.scheduleAtFixedRate(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            freshService(service);
+                        } catch (Exception e) {
+                            // ignore
+                        }
+                    }
+                }, freshInterval(), freshInterval(), TimeUnit.SECONDS);
+
+                // init
+                try {
+                    freshService(service);
+                } catch (Exception e) {
+                    // ignore
+                }
+
+                serviceCache.setFreshFuture(freshFuture);
+                // cache the service
+                serviceCacheMap.put(serviceName, serviceCache);
+            }
+        }
+    }
+
+    protected void freshService(ServiceCache serviceCache) throws Exception {
+    }
+
+    protected long freshInterval() {
+        return DEFAULT_INTERVAL;
+    }
+
+    @Override
+    public void destroy() {
+        synchronized (serviceCacheMap) {
+            for (ServiceCache serviceCache : serviceCacheMap.values()) {
+                serviceCache.destroy();
+            }
+            serviceCacheMap.clear();
+            executor.shutdownNow();
         }
     }
 

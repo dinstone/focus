@@ -9,7 +9,6 @@
 		<module>focus-core</module>
 		<module>focus-client</module>
 		<module>focus-server</module>
-		<module>focus-example</module>
 		<module>focus-compress</module>
 		<module>focus-serialize</module>
 		<module>focus-starter</module>

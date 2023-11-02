@@ -106,7 +106,7 @@ public class RemoteInvokeHandler implements Handler {
             } catch (ConnectException e) {
                 // ignore and retry
             } catch (Exception e) {
-                throw e;
+                throw new FocusException(connectRetry + " retry for " + call.getService(), e);
             }
         }
 

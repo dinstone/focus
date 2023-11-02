@@ -21,7 +21,6 @@ import java.util.List;
 import com.dinstone.focus.client.locate.AbstractServiceLocater;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
 import com.ecwid.consul.v1.ConsulClient;
 import com.ecwid.consul.v1.health.HealthServicesRequest;
 import com.ecwid.consul.v1.health.model.HealthService;
@@ -30,26 +29,27 @@ import com.ecwid.consul.v1.health.model.HealthService.Service;
 public class ConsulServiceLocater extends AbstractServiceLocater {
 
     private ConsulClient client;
+    private ConsulLocaterOptions locaterOptions;
 
     public ConsulServiceLocater(ConsulLocaterOptions locaterOptions) {
         this.client = new ConsulClient(locaterOptions.getAgentHost(), locaterOptions.getAgentPort());
+        this.locaterOptions = locaterOptions;
     }
 
     @Override
-    public void destroy() {
+    protected long freshInterval() {
+        return locaterOptions.getInterval();
     }
 
     @Override
-    protected List<ServiceInstance> routing(Call call, ServiceInstance selected) throws Exception {
+    protected void freshService(ServiceCache serviceCache) {
+        final String serviceName = serviceCache.getServiceName();
         HealthServicesRequest hr = HealthServicesRequest.newBuilder().setPassing(true).build();
-        List<HealthService> healthServices = client.getHealthServices(call.getProvider(), hr).getValue();
+        List<HealthService> healthServices = client.getHealthServices(serviceName, hr).getValue();
 
-        List<ServiceInstance> sis = new LinkedList<>();
+        List<ServiceInstance> instances = new LinkedList<>();
         for (HealthService healthService : healthServices) {
             Service service = healthService.getService();
-            if (selected != null && selected.getInstanceCode().equals(service.getId())) {
-                continue;
-            }
 
             DefaultInstance instance = new DefaultInstance();
             instance.setInstanceCode(service.getId());
@@ -57,9 +57,9 @@ public class ConsulServiceLocater extends AbstractServiceLocater {
             instance.setInstanceHost(service.getAddress());
             instance.setInstancePort(service.getPort());
             instance.setMetadata(service.getMeta());
-            sis.add(instance);
+            instances.add(instance);
         }
-        return sis;
+        serviceCache.setInstances(instances);
     }
 
 }

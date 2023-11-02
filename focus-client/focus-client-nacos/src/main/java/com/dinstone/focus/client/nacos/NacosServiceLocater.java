@@ -25,15 +25,16 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.dinstone.focus.client.locate.AbstractServiceLocater;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
 
 public class NacosServiceLocater extends AbstractServiceLocater {
 
     private NamingService namingService;
+    private NacosLocaterOptions locaterOptions;
 
     public NacosServiceLocater(NacosLocaterOptions locaterOptions) {
         try {
             this.namingService = NamingFactory.createNamingService(locaterOptions.getAddresses());
+            this.locaterOptions = locaterOptions;
         } catch (NacosException e) {
             throw new RuntimeException("create nacos service locater error", e);
         }
@@ -41,6 +42,7 @@ public class NacosServiceLocater extends AbstractServiceLocater {
 
     @Override
     public void destroy() {
+        super.destroy();
         try {
             namingService.shutDown();
         } catch (NacosException e) {
@@ -49,33 +51,26 @@ public class NacosServiceLocater extends AbstractServiceLocater {
     }
 
     @Override
-    public void subscribe(String serviceName) {
-        try {
-            namingService.selectInstances(serviceName, true, true);
-        } catch (NacosException e) {
-            // ignore
+    protected void freshService(ServiceCache serviceCache) throws Exception {
+        List<ServiceInstance> instances = new LinkedList<>();
+        final String serviceName = serviceCache.getServiceName();
+        List<Instance> healthys = namingService.selectInstances(serviceName, true);
+        for (Instance healthy : healthys) {
+            DefaultInstance defaultInstance = new DefaultInstance();
+            defaultInstance.setServiceName(healthy.getServiceName());
+            defaultInstance.setInstanceCode(healthy.getInstanceId());
+            defaultInstance.setInstanceHost(healthy.getIp());
+            defaultInstance.setInstancePort(healthy.getPort());
+            defaultInstance.setMetadata(healthy.getMetadata());
+
+            instances.add(defaultInstance);
         }
+        serviceCache.setInstances(instances);
     }
 
     @Override
-    protected List<ServiceInstance> routing(Call call, ServiceInstance selected) throws Exception {
-        List<Instance> instances = namingService.selectInstances(call.getProvider(), true);
-        List<ServiceInstance> sis = new LinkedList<>();
-        for (Instance instance : instances) {
-            if (selected != null && selected.getInstanceCode().equals(instance.getInstanceId())) {
-                continue;
-            }
-
-            DefaultInstance defaultInstance = new DefaultInstance();
-            defaultInstance.setServiceName(instance.getServiceName());
-            defaultInstance.setInstanceCode(instance.getInstanceId());
-            defaultInstance.setInstanceHost(instance.getIp());
-            defaultInstance.setInstancePort(instance.getPort());
-            defaultInstance.setMetadata(instance.getMetadata());
-
-            sis.add(defaultInstance);
-        }
-        return sis;
+    protected long freshInterval() {
+        return locaterOptions.getInterval();
     }
 
 }

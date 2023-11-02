@@ -39,6 +39,10 @@ public class DirectLinkServiceLocater extends AbstractServiceLocater {
     }
 
     @Override
+    public void subscribe(String serviceName) {
+    }
+
+    @Override
     protected List<ServiceInstance> routing(Call call, ServiceInstance selected) {
         if (selected == null) {
             return instances;

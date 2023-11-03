@@ -49,7 +49,7 @@
 
 # Quick Start
 
-The quick start gives a basic example of running client and server on the same machine. For more advanced examples, please refer to the example project : [focus-example](https://github.com/dinstone/focus/tree/master/focus-example). For the detailed information about using and developing Focus, please jump to [Documents](#documents).
+The quick start gives a basic example of running client and server on the same machine. For more advanced examples, please refer to the example project : [focus-examples](https://github.com/dinstone/focus-examples). For the detailed information about using and developing Focus, please jump to [Documents](#documents).
 
 > The minimum requirements to run the quick start are:
 >

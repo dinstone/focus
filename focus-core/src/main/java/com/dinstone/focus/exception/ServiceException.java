@@ -15,16 +15,26 @@
  */
 package com.dinstone.focus.exception;
 
-public class CodecException extends FocusException {
+/**
+ * Exceptions when handling request calls, such as timeout, no available service, etc.
+ * 
+ * @author dinstone
+ *
+ */
+public class ServiceException extends InvokeException {
 
     private static final long serialVersionUID = 1L;
 
-    public CodecException(String message, Throwable cause) {
-        super(message, cause);
+    public ServiceException(ErrorCode code, String message, Throwable cause) {
+        super(code, message, cause);
     }
 
-    public CodecException(String message) {
-        super(message);
+    public ServiceException(ErrorCode code, String message) {
+        super(code, message);
+    }
+
+    public ServiceException(ErrorCode code, Throwable cause) {
+        super(code, cause);
     }
 
 }

@@ -33,7 +33,7 @@ class EnableFocusServerTest {
         SpringApplication.run(EnableFocusServerTest.class, args);
     }
 
-    @Bean(destroyMethod = "stop")
+    @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     FocusServer defaultFocusServer() {
         return new FocusServer(new ServerOptions("demo.server").listen(2222)).start();

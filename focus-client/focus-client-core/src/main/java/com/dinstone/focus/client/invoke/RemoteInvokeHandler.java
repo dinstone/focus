@@ -24,7 +24,8 @@ import com.dinstone.focus.client.ServiceLocater;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.exception.ErrorCode;
+import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.protocol.Call;
@@ -106,11 +107,12 @@ public class RemoteInvokeHandler implements Handler {
             } catch (ConnectException e) {
                 // ignore and retry
             } catch (Exception e) {
-                throw new FocusException(connectRetry + " retry for " + call.getService(), e);
+                throw new ServiceException(ErrorCode.ACCESS_ERROR, connectRetry + " retry for " + call.getService(), e);
             }
         }
 
-        throw new FocusException(connectRetry + " retry can't find a live service instance for " + call.getService());
+        throw new ServiceException(ErrorCode.ACCESS_ERROR,
+                connectRetry + " retry can't find a live service instance for " + call.getService());
     }
 
 }

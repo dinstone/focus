@@ -23,9 +23,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.CodecException;
 import com.dinstone.focus.exception.ErrorCode;
+import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
@@ -82,7 +83,8 @@ public class PhotonConnector implements Connector {
                     try {
                         content = compressor.decode(content);
                     } catch (IOException e) {
-                        throw new CodecException("compress decode error: " + methodConfig.getMethodName(), e);
+                        throw new ServiceException(ErrorCode.CODEC_ERROR,
+                                "compress decode error: " + methodConfig.getMethodName(), e);
                     }
                 }
 
@@ -91,23 +93,20 @@ public class PhotonConnector implements Connector {
                     Class<?> contentType = methodConfig.getReturnType();
                     value = serializer.decode(content, contentType);
                 } catch (IOException e) {
-                    throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
+                    throw new ServiceException(ErrorCode.CODEC_ERROR,
+                            "serialize decode error: " + methodConfig.getMethodName(), e);
                 }
             }
             reply = new Reply(value);
         } else {
-            int code = headers.getInt(InvokeException.CODE_KEY, 0);
-            ErrorCode errorCode = ErrorCode.valueOf(code);
-
-            InvokeException error;
+            String message = null;
             byte[] encoded = response.getContent();
-            if (encoded == null || encoded.length == 0) {
-                error = new InvokeException(errorCode, "invoke exception");
-            } else {
-                String message = new String(encoded, CharsetUtil.UTF_8);
-                error = new InvokeException(errorCode, message);
+            if (encoded != null && encoded.length > 0) {
+                message = new String(encoded, CharsetUtil.UTF_8);
             }
-            reply = new Reply(error);
+
+            int errorCode = headers.getInt(InvokeException.CODE_KEY, 0);
+            reply = new Reply(ExceptionUtil.invokeException(errorCode, message));
         }
         reply.attach().putAll(headers);
         return reply;
@@ -121,7 +120,8 @@ public class PhotonConnector implements Connector {
                 content = serializer.encode(call.getParameter(), methodConfig.getParamType());
                 call.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
             } catch (IOException e) {
-                throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
+                throw new ServiceException(ErrorCode.CODEC_ERROR,
+                        "serialize encode error: " + methodConfig.getMethodName(), e);
             }
 
             Compressor compressor = serviceConfig.getCompressor();
@@ -130,7 +130,8 @@ public class PhotonConnector implements Connector {
                     content = compressor.encode(content);
                     call.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
                 } catch (IOException e) {
-                    throw new CodecException("compress encode error: " + methodConfig.getMethodName(), e);
+                    throw new ServiceException(ErrorCode.CODEC_ERROR,
+                            "compress encode error: " + methodConfig.getMethodName(), e);
                 }
             }
         }

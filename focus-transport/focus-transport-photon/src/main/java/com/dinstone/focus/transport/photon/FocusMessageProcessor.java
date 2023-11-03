@@ -23,9 +23,9 @@ import java.util.function.Function;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.CodecException;
 import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
@@ -84,14 +84,14 @@ public final class FocusMessageProcessor extends MessageProcessor {
             String service = headers.get(Call.SERVICE_KEY);
             ServiceConfig serviceConfig = serviceLookupper.apply(service);
             if (serviceConfig == null) {
-                throw new InvokeException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
+                throw new ServiceException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
             }
 
             // check method
             String methodName = headers.get(Call.METHOD_KEY);
             MethodConfig methodConfig = serviceConfig.lookup(methodName);
             if (methodConfig == null) {
-                throw new InvokeException(ErrorCode.METHOD_ERROR, "unkown method: " + service + "/" + methodName);
+                throw new ServiceException(ErrorCode.METHOD_ERROR, "unkown method: " + service + "/" + methodName);
             }
 
             // decode call from request
@@ -114,8 +114,6 @@ public final class FocusMessageProcessor extends MessageProcessor {
             return;
         } catch (InvokeException e) {
             exception = e;
-        } catch (CodecException e) {
-            exception = new InvokeException(ErrorCode.CODEC_ERROR, e);
         } catch (Throwable e) {
             exception = new InvokeException(ErrorCode.INVOKE_ERROR, e);
         }
@@ -136,7 +134,8 @@ public final class FocusMessageProcessor extends MessageProcessor {
                 ByteStreamUtil.writeString(bao, exception.getMessage());
                 response.setContent(bao.toByteArray());
             } catch (IOException e) {
-                throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
+                throw new ServiceException(ErrorCode.CODEC_ERROR,
+                        "serialize encode error: " + methodConfig.getMethodName(), e);
             }
         } else {
             response.setStatus(Status.SUCCESS);
@@ -147,7 +146,8 @@ public final class FocusMessageProcessor extends MessageProcessor {
                     content = serializer.encode(reply.getData(), methodConfig.getReturnType());
                     reply.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
                 } catch (IOException e) {
-                    throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
+                    throw new ServiceException(ErrorCode.CODEC_ERROR,
+                            "serialize encode error: " + methodConfig.getMethodName(), e);
                 }
 
                 Compressor compressor = serviceConfig.getCompressor();
@@ -156,7 +156,8 @@ public final class FocusMessageProcessor extends MessageProcessor {
                         content = compressor.encode(content);
                         reply.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
                     } catch (IOException e) {
-                        throw new CodecException("compress encode error: " + methodConfig.getMethodName(), e);
+                        throw new ServiceException(ErrorCode.CODEC_ERROR,
+                                "compress encode error: " + methodConfig.getMethodName(), e);
                     }
                 }
             }
@@ -179,7 +180,8 @@ public final class FocusMessageProcessor extends MessageProcessor {
                 try {
                     content = compressor.decode(content);
                 } catch (IOException e) {
-                    throw new CodecException("compress decode error: " + methodConfig.getMethodName(), e);
+                    throw new ServiceException(ErrorCode.CODEC_ERROR,
+                            "compress decode error: " + methodConfig.getMethodName(), e);
                 }
             }
 
@@ -188,7 +190,8 @@ public final class FocusMessageProcessor extends MessageProcessor {
                 Class<?> contentType = methodConfig.getParamType();
                 value = serializer.decode(content, contentType);
             } catch (IOException e) {
-                throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
+                throw new ServiceException(ErrorCode.CODEC_ERROR,
+                        "serialize decode error: " + methodConfig.getMethodName(), e);
             }
         }
 

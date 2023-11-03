@@ -22,7 +22,9 @@ import java.util.concurrent.ExecutionException;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
@@ -72,7 +74,7 @@ class SpecialHandler implements InvocationHandler {
                 if (cause instanceof FocusException) {
                     throw cause;
                 } else {
-                    throw new FocusException("invoke error", cause);
+                    throw new InvokeException(ErrorCode.INVOKE_ERROR, cause);
                 }
             }
         }

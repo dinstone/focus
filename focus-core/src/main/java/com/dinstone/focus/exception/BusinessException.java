@@ -15,28 +15,27 @@
  */
 package com.dinstone.focus.exception;
 
-public enum ErrorCode {
+/**
+ * If an exception is thrown by the business party, such as the user does not exist, the original exception will be
+ * directly thrown.
+ * 
+ * @author dinstone
+ *
+ */
+public class BusinessException extends InvokeException {
 
-    UNKOWN_ERROR(100), INVOKE_ERROR(101), TIMEOUT_ERROR(102), // abstract invoke error
-    CODEC_ERROR(201), SERVICE_ERROR(202), METHOD_ERROR(203), PARAM_ERROR(204), ACCESS_ERROR(205), // service error
-    DECLARED_ERROR(301), UNDECLARED_ERROR(302), RUNTIME_ERROR(303);// business error
+    private static final long serialVersionUID = 1L;
 
-    private int code;
-
-    private ErrorCode(int value) {
-        this.code = value;
+    public BusinessException(ErrorCode code, String message, Throwable cause) {
+        super(code, message, cause);
     }
 
-    public int value() {
-        return code;
+    public BusinessException(ErrorCode code, String message) {
+        super(code, message);
     }
 
-    public static ErrorCode valueOf(int code) {
-        for (ErrorCode errorCode : ErrorCode.values()) {
-            if (errorCode.code == code) {
-                return errorCode;
-            }
-        }
-        return UNKOWN_ERROR;
+    public BusinessException(ErrorCode code, Throwable cause) {
+        super(code, cause);
     }
+
 }

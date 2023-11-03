@@ -21,9 +21,10 @@ import java.util.concurrent.CompletableFuture;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.exception.CodecException;
 import com.dinstone.focus.exception.ErrorCode;
+import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.serialize.Serializer;
@@ -111,7 +112,8 @@ public class Http2Channel {
                 content = serializer.encode(call.getParameter(), methodConfig.getParamType());
                 call.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
             } catch (IOException e) {
-                throw new CodecException("serialize encode error: " + methodConfig.getMethodName(), e);
+                throw new ServiceException(ErrorCode.CODEC_ERROR,
+                        "serialize encode error: " + methodConfig.getMethodName(), e);
             }
 
             Compressor compressor = serviceConfig.getCompressor();
@@ -120,7 +122,8 @@ public class Http2Channel {
                     content = compressor.encode(content);
                     call.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
                 } catch (IOException e) {
-                    throw new CodecException("compress encode error: " + methodConfig.getMethodName(), e);
+                    throw new ServiceException(ErrorCode.CODEC_ERROR,
+                            "compress encode error: " + methodConfig.getMethodName(), e);
                 }
             }
         }
@@ -174,7 +177,8 @@ public class Http2Channel {
                         try {
                             content = compressor.decode(content);
                         } catch (IOException e) {
-                            throw new CodecException("compress decode error: " + methodConfig.getMethodName(), e);
+                            throw new ServiceException(ErrorCode.CODEC_ERROR,
+                                    "compress decode error: " + methodConfig.getMethodName(), e);
                         }
                     }
 
@@ -183,25 +187,24 @@ public class Http2Channel {
                         Class<?> contentType = methodConfig.getReturnType();
                         value = serializer.decode(content, contentType);
                     } catch (IOException e) {
-                        throw new CodecException("serialize decode error: " + methodConfig.getMethodName(), e);
+                        throw new ServiceException(ErrorCode.CODEC_ERROR,
+                                "serialize decode error: " + methodConfig.getMethodName(), e);
                     }
                 }
                 reply = new Reply(value);
             } else {
-                InvokeException error;
-                if (dataFrame == null) {
-                    error = new InvokeException(ErrorCode.UNKOWN_ERROR, "unkown exception");
-                } else {
+                // error handle
+                String message = null;
+                if (dataFrame != null && dataFrame.content().readableBytes() > 0) {
                     ByteBuf buf = dataFrame.content();
                     byte[] content = new byte[buf.readableBytes()];
                     buf.readBytes(content);
-                    String message = new String(content, CharsetUtil.UTF_8);
+                    message = new String(content, CharsetUtil.UTF_8);
 
-                    int code = headers.getInt(InvokeException.CODE_KEY, 0);
-                    ErrorCode errorCode = ErrorCode.valueOf(code);
-                    error = new InvokeException(errorCode, message);
                 }
-                reply = new Reply(error);
+
+                int errorCode = headers.getInt(InvokeException.CODE_KEY, 0);
+                reply = new Reply(ExceptionUtil.invokeException(errorCode, message));
             }
 
             headers.forEach(e -> {

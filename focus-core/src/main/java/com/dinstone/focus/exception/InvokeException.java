@@ -35,7 +35,11 @@ public class InvokeException extends FocusException {
     }
 
     public InvokeException(ErrorCode code, Throwable cause) {
-        super(cause.getMessage(), cause, false, false);
+        this(code, cause.getMessage(), cause);
+    }
+
+    public InvokeException(ErrorCode code, String message, Throwable cause) {
+        super(message, cause, false, false);
         this.code = code;
     }
 
@@ -61,7 +65,7 @@ public class InvokeException extends FocusException {
 
     @Override
     public String toString() {
-        return "(" + code + ") " + getMessage();
+        return getClass().getName() + ": (" + code + ") " + getMessage();
     }
 
 }

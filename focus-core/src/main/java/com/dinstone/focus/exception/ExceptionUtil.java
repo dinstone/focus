@@ -81,4 +81,15 @@ public class ExceptionUtil {
         return sw.getBuffer().toString();
     }
 
+    public static InvokeException invokeException(int codeValue, String message) {
+        ErrorCode errorCode = ErrorCode.valueOf(codeValue);
+        if (codeValue < 200) {
+            return new InvokeException(errorCode, message);
+        } else if (codeValue < 300) {
+            return new ServiceException(errorCode, message);
+        } else {
+            return new BusinessException(errorCode, message);
+        }
+    }
+
 }

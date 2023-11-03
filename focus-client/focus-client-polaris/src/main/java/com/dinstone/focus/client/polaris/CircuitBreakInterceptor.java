@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.client.polaris;
 
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +22,7 @@ import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.tencent.polaris.api.config.ConfigProvider;
+import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.pojo.ServiceKey;
 import com.tencent.polaris.circuitbreak.api.CircuitBreakAPI;
 import com.tencent.polaris.circuitbreak.api.InvokeHandler;
@@ -31,37 +30,26 @@ import com.tencent.polaris.circuitbreak.api.pojo.FunctionalDecoratorRequest;
 import com.tencent.polaris.circuitbreak.api.pojo.InvokeContext;
 import com.tencent.polaris.circuitbreak.api.pojo.InvokeContext.RequestContext;
 import com.tencent.polaris.circuitbreak.factory.CircuitBreakAPIFactory;
+import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
-import com.tencent.polaris.factory.config.ConfigurationImpl;
-import com.tencent.polaris.factory.config.global.GlobalConfigImpl;
-import com.tencent.polaris.factory.config.global.ServerConnectorConfigImpl;
-import com.tencent.polaris.plugins.stat.prometheus.handler.PrometheusHandlerConfig;
 
-public class CircuitBreakInterceptor implements Interceptor {
+public class CircuitBreakInterceptor implements Interceptor, AutoCloseable {
 
     private static final String DEFAULT_NAMESPACE = "default";
 
     private CircuitBreakAPI circuitBreak;
 
-    public CircuitBreakInterceptor(String... addresses) {
-        ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory
-                .defaultConfig(ConfigProvider.DEFAULT_CONFIG);
+    private SDKContext polarisContext;
 
-        final GlobalConfigImpl globalConfig = configuration.getGlobal();
+    public CircuitBreakInterceptor(String... polarisAddress) {
+        if (polarisAddress == null || polarisAddress.length == 0) {
+            polarisContext = SDKContext.initContext();
+        } else {
+            Configuration config = ConfigAPIFactory.createConfigurationByAddress(polarisAddress);
+            polarisContext = SDKContext.initContextByConfig(config);
+        }
 
-        globalConfig.getStatReporter().setEnable(true);
-
-        PrometheusHandlerConfig prometheusHandlerConfig = globalConfig.getStatReporter().getPluginConfig("prometheus",
-                PrometheusHandlerConfig.class);
-        prometheusHandlerConfig.setType("push");
-        prometheusHandlerConfig.setAddress("119.91.66.223:9091");
-        prometheusHandlerConfig.setPushInterval(10 * 1000L);
-        globalConfig.getStatReporter().setPluginConfig("prometheus", prometheusHandlerConfig);
-
-        ServerConnectorConfigImpl serverConnector = globalConfig.getServerConnector();
-        serverConnector.setAddresses(Arrays.asList(addresses));
-
-        circuitBreak = CircuitBreakAPIFactory.createCircuitBreakAPIByConfig(configuration);
+        circuitBreak = CircuitBreakAPIFactory.createCircuitBreakAPIByContext(polarisContext);
     }
 
     @Override
@@ -107,6 +95,11 @@ public class CircuitBreakInterceptor implements Interceptor {
             throw e;
         }
 
+    }
+
+    @Override
+    public void close() {
+        polarisContext.close();
     }
 
 }

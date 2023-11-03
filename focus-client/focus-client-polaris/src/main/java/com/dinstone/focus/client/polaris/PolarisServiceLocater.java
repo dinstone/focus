@@ -23,7 +23,7 @@ import com.dinstone.focus.client.ServiceLocater;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.tencent.polaris.api.config.ConfigProvider;
+import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ConsumerAPI;
 import com.tencent.polaris.api.pojo.DefaultServiceInstances;
 import com.tencent.polaris.api.pojo.Instance;
@@ -37,10 +37,6 @@ import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
 import com.tencent.polaris.factory.api.RouterAPIFactory;
-import com.tencent.polaris.factory.config.ConfigurationImpl;
-import com.tencent.polaris.factory.config.global.GlobalConfigImpl;
-import com.tencent.polaris.factory.config.global.ServerConnectorConfigImpl;
-import com.tencent.polaris.plugins.stat.prometheus.handler.PrometheusHandlerConfig;
 import com.tencent.polaris.router.api.core.RouterAPI;
 import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceRequest;
 
@@ -58,29 +54,13 @@ public class PolarisServiceLocater implements ServiceLocater {
         List<String> polarisAddress = locaterOptions.getAddresses();
         if (polarisAddress == null || polarisAddress.isEmpty()) {
             polarisContext = SDKContext.initContext();
-            routerAPI = RouterAPIFactory.createRouterAPIByContext(polarisContext);
-            consumerAPI = DiscoveryAPIFactory.createConsumerAPIByContext(polarisContext);
         } else {
-            ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory
-                    .defaultConfig(ConfigProvider.DEFAULT_CONFIG);
-
-            final GlobalConfigImpl globalConfig = configuration.getGlobal();
-
-            globalConfig.getStatReporter().setEnable(true);
-
-            PrometheusHandlerConfig prometheusHandlerConfig = globalConfig.getStatReporter()
-                    .getPluginConfig("prometheus", PrometheusHandlerConfig.class);
-            prometheusHandlerConfig.setType("push");
-            prometheusHandlerConfig.setAddress("119.91.66.223:9091");
-            prometheusHandlerConfig.setPushInterval(10 * 1000L);
-            globalConfig.getStatReporter().setPluginConfig("prometheus", prometheusHandlerConfig);
-
-            ServerConnectorConfigImpl serverConnector = globalConfig.getServerConnector();
-            serverConnector.setAddresses(polarisAddress);
-
-            consumerAPI = DiscoveryAPIFactory.createConsumerAPIByConfig(configuration);
-            routerAPI = RouterAPIFactory.createRouterAPIByConfig(configuration);
+            Configuration config = ConfigAPIFactory.createConfigurationByAddress(polarisAddress);
+            polarisContext = SDKContext.initContextByConfig(config);
         }
+
+        consumerAPI = DiscoveryAPIFactory.createConsumerAPIByContext(polarisContext);
+        routerAPI = RouterAPIFactory.createRouterAPIByContext(polarisContext);
     }
 
     @Override
@@ -145,7 +125,8 @@ public class PolarisServiceLocater implements ServiceLocater {
         result.setNamespace(DEFAULT_NAMESPACE);
         // 设置被调服务的服务信息
         result.setService(call.getProvider());
-        // result.setCallerService(new ServiceKey(DEFAULT_NAMESPACE, call.getConsumer()));
+        // result.setCallerService(new ServiceKey(DEFAULT_NAMESPACE,
+        // call.getConsumer()));
 
         // 设置被调实例
         Instance instance = ((PolarisServiceInstance) selected).getInstance();

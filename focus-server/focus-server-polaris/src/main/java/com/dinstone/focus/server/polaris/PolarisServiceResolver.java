@@ -40,9 +40,9 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
             providerAPI = DiscoveryAPIFactory.createProviderAPIByContext(polarisContext);
         } else {
             Configuration config = ConfigAPIFactory.createConfigurationByAddress(polarisAddress);
-            providerAPI = DiscoveryAPIFactory.createProviderAPIByConfig(config);
+            polarisContext = SDKContext.initContextByConfig(config);
+            providerAPI = DiscoveryAPIFactory.createProviderAPIByContext(polarisContext);
         }
-
     }
 
     @Override

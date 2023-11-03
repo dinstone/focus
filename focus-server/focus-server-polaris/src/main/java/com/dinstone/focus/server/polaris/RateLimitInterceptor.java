@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.server.polaris;
 
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.exception.ErrorCode;
@@ -24,43 +23,30 @@ import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
-import com.tencent.polaris.api.config.ConfigProvider;
+import com.tencent.polaris.api.config.Configuration;
+import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
-import com.tencent.polaris.factory.config.ConfigurationImpl;
-import com.tencent.polaris.factory.config.global.GlobalConfigImpl;
-import com.tencent.polaris.factory.config.global.ServerConnectorConfigImpl;
-import com.tencent.polaris.plugins.stat.prometheus.handler.PrometheusHandlerConfig;
 import com.tencent.polaris.ratelimit.api.core.LimitAPI;
 import com.tencent.polaris.ratelimit.api.rpc.QuotaRequest;
 import com.tencent.polaris.ratelimit.api.rpc.QuotaResponse;
 import com.tencent.polaris.ratelimit.api.rpc.QuotaResultCode;
 import com.tencent.polaris.ratelimit.factory.LimitAPIFactory;
 
-public class RateLimitInterceptor implements Interceptor {
+public class RateLimitInterceptor implements Interceptor, AutoCloseable {
 
     private static final String DEFAULT_NAMESPACE = "default";
 
+    private SDKContext polarisContext;
     private LimitAPI limitAPI;
 
-    public RateLimitInterceptor(String... addresses) {
-        ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory
-                .defaultConfig(ConfigProvider.DEFAULT_CONFIG);
-
-        final GlobalConfigImpl globalConfig = configuration.getGlobal();
-
-        globalConfig.getStatReporter().setEnable(true);
-
-        PrometheusHandlerConfig prometheusHandlerConfig = globalConfig.getStatReporter().getPluginConfig("prometheus",
-                PrometheusHandlerConfig.class);
-        prometheusHandlerConfig.setType("push");
-        prometheusHandlerConfig.setAddress("119.91.66.223:9091");
-        prometheusHandlerConfig.setPushInterval(10 * 1000L);
-        globalConfig.getStatReporter().setPluginConfig("prometheus", prometheusHandlerConfig);
-
-        ServerConnectorConfigImpl serverConnector = globalConfig.getServerConnector();
-        serverConnector.setAddresses(Arrays.asList(addresses));
-
-        limitAPI = LimitAPIFactory.createLimitAPIByConfig(configuration);
+    public RateLimitInterceptor(String... polarisAddress) {
+        if (polarisAddress == null || polarisAddress.length == 0) {
+            polarisContext = SDKContext.initContext();
+        } else {
+            Configuration config = ConfigAPIFactory.createConfigurationByAddress(polarisAddress);
+            polarisContext = SDKContext.initContextByConfig(config);
+        }
+        limitAPI = LimitAPIFactory.createLimitAPIByContext(polarisContext);
     }
 
     @Override
@@ -84,6 +70,12 @@ public class RateLimitInterceptor implements Interceptor {
         } else {
             throw new InvokeException(ErrorCode.INVOKE_ERROR, "service is rate-limit");
         }
+    }
+
+    @Override
+    public void close() {
+        limitAPI.close();
+        polarisContext.close();
     }
 
 }

@@ -260,6 +260,92 @@ public class FocusClientGenericCallBootstrap {
 }
 ```
 
+## 安全调用
+
+1.设置服务端参数，在接受选项中启用SSL并设置证书信息。
+
+```java
+package focus.quickstart.ssl;
+
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+
+import com.dinstone.focus.server.FocusServer;
+import com.dinstone.focus.server.ServerOptions;
+import com.dinstone.focus.transport.photon.PhotonAcceptOptions;
+
+import focus.quickstart.api.FooService;
+import focus.quickstart.service.FooServiceImpl;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
+
+public class SslFocusServerBootstrap {
+
+    public static void main(String[] args) throws Exception {
+
+        // setting ssl
+        SelfSignedCertificate cert = new SelfSignedCertificate();
+        PhotonAcceptOptions acceptOptions = new PhotonAcceptOptions();
+        acceptOptions.setEnableSsl(true);
+        acceptOptions.setPrivateKey(cert.key());
+        acceptOptions.setCertChain(new X509Certificate[] { cert.cert() });
+
+        // setting accept options
+        ServerOptions serverOptions = new ServerOptions("focus.quickstart.server").listen("localhost", 3333)
+                .setAcceptOptions(acceptOptions);
+
+        FocusServer server = new FocusServer(serverOptions);
+
+        // exporting service
+        server.exporting(FooService.class, new FooServiceImpl());
+
+        server.start();
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        server.close();
+    }
+}
+```
+
+2.设置客户端参数，在连接选项中启用SSL。
+
+```java
+package focus.quickstart.ssl;
+
+import java.util.concurrent.CompletableFuture;
+
+import com.dinstone.focus.client.ClientOptions;
+import com.dinstone.focus.client.FocusClient;
+import com.dinstone.focus.transport.photon.PhotonConnectOptions;
+
+import focus.quickstart.api.FooService;
+
+public class SslFocusClientBootstrap {
+
+    public static void main(String[] args) throws Exception {
+        PhotonConnectOptions connectOptions = new PhotonConnectOptions();
+        // setting ssl
+        connectOptions.setEnableSsl(true);
+        ClientOptions clientOptions = new ClientOptions("focus.quickstart.client").connect("localhost", 3333)
+                .setConnectOptions(connectOptions);
+        FocusClient client = new FocusClient(clientOptions);
+        try {
+            FooService fooService = client.importing(FooService.class);
+            String reply = fooService.hello("dinstone");
+            System.out.println(reply);
+
+            CompletableFuture<String> rf = fooService.async("dinstone");
+            System.out.println(rf.get());
+        } finally {
+            client.close();
+        }
+    }
+
+}
+```
+
 # Documents
 
 - [Wiki](https://github.com/dinstone/focus/wiki)

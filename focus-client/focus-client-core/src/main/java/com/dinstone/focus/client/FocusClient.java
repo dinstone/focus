@@ -92,7 +92,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     public void close() {
         connector.destroy();
         serivceLocater.destroy();
-        LOG.info("focus client closed for [{}]", clientOptions.getApplication());
+        LOG.info("focus client destroy for [{}]", clientOptions.getApplication());
     }
 
     @Override

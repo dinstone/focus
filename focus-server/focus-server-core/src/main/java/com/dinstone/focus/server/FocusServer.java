@@ -132,7 +132,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             acceptor = null;
         }
 
-        LOG.info("focus server closed for [{}]", serverOptions.getApplication());
+        LOG.info("focus server destroy for [{}]", serverOptions.getApplication());
     }
 
     public InetSocketAddress getListenAddress() {

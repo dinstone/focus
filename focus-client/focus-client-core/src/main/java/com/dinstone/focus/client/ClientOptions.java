@@ -15,16 +15,16 @@
  */
 package com.dinstone.focus.client;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.transport.ConnectOptions;
 import com.dinstone.focus.utils.NetworkUtil;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * global level options
@@ -58,7 +58,7 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
     }
 
     public ClientOptions connect(String addresses) {
-        if (addresses == null || addresses.length() == 0) {
+        if (addresses == null || addresses.isEmpty()) {
             return this;
         }
 

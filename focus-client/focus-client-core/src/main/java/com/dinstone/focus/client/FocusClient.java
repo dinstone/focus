@@ -15,9 +15,6 @@
  */
 package com.dinstone.focus.client;
 
-import java.util.List;
-import java.util.ServiceLoader;
-
 import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.client.config.ConsumerMethodConfig;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
@@ -38,11 +35,14 @@ import com.dinstone.focus.transport.ConnectorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
 
+import java.util.List;
+import java.util.ServiceLoader;
+
 public class FocusClient implements ServiceImporter, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusClient.class);
 
-    private ServiceLocater serivceLocater;
+    private ServiceLocater serviceLocater;
 
     private ClientOptions clientOptions;
 
@@ -77,12 +77,12 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         ServiceLoader<LocaterFactory> lfLoader = ServiceLoader.load(LocaterFactory.class);
         for (LocaterFactory locaterFactory : lfLoader) {
             if (locaterFactory.appliable(locaterOptions)) {
-                this.serivceLocater = locaterFactory.create(locaterOptions);
+                this.serviceLocater = locaterFactory.create(locaterOptions);
             }
         }
         // set default service locater
-        if (this.serivceLocater == null) {
-            this.serivceLocater = new DirectLinkServiceLocater(clientOptions.getConnectAddresses());
+        if (this.serviceLocater == null) {
+            this.serviceLocater = new DirectLinkServiceLocater(clientOptions.getConnectAddresses());
         }
 
         LOG.info("focus client created for [{}]", clientOptions.getApplication());
@@ -91,7 +91,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     @Override
     public void close() {
         connector.destroy();
-        serivceLocater.destroy();
+        serviceLocater.destroy();
         LOG.info("focus client destroy for [{}]", clientOptions.getApplication());
     }
 
@@ -118,7 +118,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
 
         String service = importOptions.getService();
         if (service == null || service.isEmpty()) {
-            throw new IllegalArgumentException("serivce name is null");
+            throw new IllegalArgumentException("service name is null");
         }
 
         ConsumerServiceConfig serviceConfig = new ConsumerServiceConfig();
@@ -156,7 +156,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         serviceConfig.setHandler(createInvokeHandler(serviceConfig));
 
         // subscribe service provider
-        serivceLocater.subscribe(serviceConfig.getProvider());
+        serviceLocater.subscribe(serviceConfig.getProvider());
 
         LOG.info("importing {}", serviceConfig);
 
@@ -188,7 +188,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     }
 
     private Handler createInvokeHandler(ServiceConfig serviceConfig) {
-        Handler remote = new RemoteInvokeHandler(serviceConfig, serivceLocater, connector);
+        Handler remote = new RemoteInvokeHandler(serviceConfig, serviceLocater, connector);
         return new ConsumerInvokeHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
     }
 

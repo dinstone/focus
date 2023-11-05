@@ -27,7 +27,7 @@ public class InvokeException extends FocusException {
 
     public static final String CODE_KEY = "error.code";
 
-    private ErrorCode code;
+    private final ErrorCode code;
 
     public InvokeException(ErrorCode code, String message) {
         super(message);
@@ -48,7 +48,7 @@ public class InvokeException extends FocusException {
      *
      * @return the code
      *
-     * @see FocusException#code
+     * @see InvokeException#code
      */
     public ErrorCode getCode() {
         return code;

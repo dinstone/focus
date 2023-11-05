@@ -15,21 +15,16 @@
  */
 package com.dinstone.focus.client.locate;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.dinstone.focus.client.ServiceLocater;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.protocol.Call;
 import com.dinstone.focus.protocol.Reply;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractServiceLocater implements ServiceLocater {
 
@@ -37,21 +32,21 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
 
     private final AtomicInteger index = new AtomicInteger();
 
-    protected Map<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<>();
+    private final Map<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<>();
 
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
         @Override
-        public Thread newThread(Runnable taskt) {
-            Thread t = new Thread(taskt, "Service-Locater-Fresh");
+        public Thread newThread(Runnable task) {
+            Thread t = new Thread(task, "Service-Locater-Fresh");
             t.setDaemon(true);
             return t;
         }
     });
 
-    public class ServiceCache {
+    public static class ServiceCache {
 
-        private String serviceName;
+        private final String serviceName;
 
         private ScheduledFuture<?> freshFuture;
 

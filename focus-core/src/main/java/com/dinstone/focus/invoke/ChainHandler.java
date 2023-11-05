@@ -15,14 +15,14 @@
  */
 package com.dinstone.focus.invoke;
 
+import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CompletableFuture;
-
-import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 
 public abstract class ChainHandler implements Handler {
 
@@ -57,11 +57,11 @@ public abstract class ChainHandler implements Handler {
         return invokeHandler.handle(call);
     }
 
-    public class InterceptorHandler implements Handler {
+    public static class InterceptorHandler implements Handler {
 
-        private Interceptor interceptor;
+        private final Interceptor interceptor;
 
-        private Handler handler;
+        private final Handler handler;
 
         public InterceptorHandler(Interceptor interceptor, Handler handler) {
             super();

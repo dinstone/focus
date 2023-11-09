@@ -49,15 +49,15 @@ public class Call implements Serializable {
      */
     private String provider;
 
-    private String service;
-
-    private String method;
-
     private int timeout;
 
-    private Object parameter;
+    private final String service;
 
-    private Attach attach = new Attach();
+    private final String method;
+
+    private final Object parameter;
+
+    private final Attach attach = new Attach();
 
     public Call(String service, String method, Object parameter) {
         this.service = service;
@@ -75,6 +75,10 @@ public class Call implements Serializable {
 
     public Object getParameter() {
         return parameter;
+    }
+
+    public String getEndpoint() {
+        return service + "/" + method;
     }
 
     public String getConsumer() {
@@ -110,7 +114,6 @@ public class Call implements Serializable {
     /**
      * the attach to get
      *
-     * @return
      */
     public Attach attach() {
         return attach;
@@ -119,9 +122,6 @@ public class Call implements Serializable {
     /**
      * the attach to set
      *
-     * @param other
-     *
-     * @return
      */
     public Call attach(Attach other) {
         if (other != null) {

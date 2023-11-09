@@ -31,26 +31,27 @@ public class Reply implements Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private Attach attach = new Attach();
+    private final Attach attach = new Attach();
 
     private Object data;
 
     public Reply(Object value) {
-        data(value);
+        setData(value);
     }
 
     public Reply(Throwable error) {
-        data(error);
+        setData(error);
     }
 
     /**
      * the data to set
      *
      * @param data
+     *            throwable or result
      *
      * @see Reply#data
      */
-    private void data(Object data) {
+    private void setData(Object data) {
         if (data instanceof Throwable && !(data instanceof InvokeException)) {
             this.data = new InvokeException(ErrorCode.INVOKE_ERROR, (Throwable) data);
         } else {
@@ -61,7 +62,7 @@ public class Reply implements Serializable {
     /**
      * the attach to get
      *
-     * @return
+     * @return Attach
      */
     public Attach attach() {
         return attach;

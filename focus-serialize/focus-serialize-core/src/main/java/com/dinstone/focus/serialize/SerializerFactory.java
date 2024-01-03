@@ -27,7 +27,7 @@ public abstract class SerializerFactory {
         // init serializer
         ServiceLoader<SerializerFactory> sfLoader = ServiceLoader.load(SerializerFactory.class);
         for (SerializerFactory serializerFactory : sfLoader) {
-            SerializerFactory.regist(serializerFactory.create());
+            SerializerFactory.register(serializerFactory.create());
         }
     }
 
@@ -38,8 +38,8 @@ public abstract class SerializerFactory {
         return null;
     }
 
-    public static void regist(Serializer serializer) {
-        SERIALIZER_MAP.put(serializer.serializerType(), serializer);
+    public static void register(Serializer serializer) {
+        SERIALIZER_MAP.put(serializer.type(), serializer);
     }
 
     public abstract Serializer create();

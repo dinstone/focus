@@ -28,7 +28,7 @@ public class ProtobufSerializer implements Serializer {
     public static final String SERIALIZER_TYPE = "protobuf";
 
     @Override
-    public String serializerType() {
+    public String type() {
         return SERIALIZER_TYPE;
     }
 

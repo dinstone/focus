@@ -24,9 +24,8 @@ public interface Serializer {
     /**
      * The serializer type
      *
-     * @return
      */
-    public String serializerType();
+    public String type();
 
     public byte[] encode(Object content, Class<?> contentType) throws IOException;
 

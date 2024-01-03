@@ -28,7 +28,7 @@ public class GzipCompressor implements Compressor {
     public static final String COMPRESSOR_TYPE = "gzip";
 
     @Override
-    public String compressorType() {
+    public String type() {
         return COMPRESSOR_TYPE;
     }
 

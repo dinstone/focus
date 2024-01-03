@@ -36,7 +36,7 @@ public class SnappyCompressor implements Compressor {
     }
 
     @Override
-    public String compressorType() {
+    public String type() {
         return COMPRESSOR_TYPE;
     }
 

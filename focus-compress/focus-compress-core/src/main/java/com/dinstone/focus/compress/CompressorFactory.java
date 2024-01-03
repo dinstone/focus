@@ -26,7 +26,7 @@ public abstract class CompressorFactory {
     static {
         ServiceLoader<CompressorFactory> cfLoader = ServiceLoader.load(CompressorFactory.class);
         for (CompressorFactory compressorFactory : cfLoader) {
-            CompressorFactory.regist(compressorFactory.create());
+            CompressorFactory.register(compressorFactory.create());
         }
     }
 
@@ -37,8 +37,8 @@ public abstract class CompressorFactory {
         return null;
     }
 
-    public static void regist(Compressor compress) {
-        COMPRESSOR_MAP.put(compress.compressorType(), compress);
+    public static void register(Compressor compress) {
+        COMPRESSOR_MAP.put(compress.type(), compress);
     }
 
     public abstract Compressor create();

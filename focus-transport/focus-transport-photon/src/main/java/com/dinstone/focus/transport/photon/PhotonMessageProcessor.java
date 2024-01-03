@@ -40,11 +40,11 @@ import com.dinstone.photon.utils.ByteStreamUtil;
 
 import io.netty.util.CharsetUtil;
 
-public final class FocusMessageProcessor extends MessageProcessor {
+public final class PhotonMessageProcessor extends MessageProcessor {
     private final Function<String, ServiceConfig> serviceLookupper;
     private final ExecutorSelector executorSelector;
 
-    public FocusMessageProcessor(Function<String, ServiceConfig> serviceLookupper, ExecutorSelector executorSelector) {
+    public PhotonMessageProcessor(Function<String, ServiceConfig> serviceLookupper, ExecutorSelector executorSelector) {
         this.serviceLookupper = serviceLookupper;
         this.executorSelector = executorSelector;
     }
@@ -118,9 +118,7 @@ public final class FocusMessageProcessor extends MessageProcessor {
             exception = new InvokeException(ErrorCode.INVOKE_ERROR, e);
         }
 
-        if (exception != null) {
-            errorHandle(connection, request, exception);
-        }
+        errorHandle(connection, request, exception);
     }
 
     private Response encode(Reply reply, ServiceConfig serviceConfig, MethodConfig methodConfig) {
@@ -144,7 +142,7 @@ public final class FocusMessageProcessor extends MessageProcessor {
                 try {
                     Serializer serializer = serviceConfig.getSerializer();
                     content = serializer.encode(reply.getData(), methodConfig.getReturnType());
-                    reply.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
+                    reply.attach().put(Serializer.TYPE_KEY, serializer.type());
                 } catch (IOException e) {
                     throw new ServiceException(ErrorCode.CODEC_ERROR,
                             "serialize encode error: " + methodConfig.getMethodName(), e);
@@ -154,7 +152,7 @@ public final class FocusMessageProcessor extends MessageProcessor {
                 if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
                     try {
                         content = compressor.encode(content);
-                        reply.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
+                        reply.attach().put(Compressor.TYPE_KEY, compressor.type());
                     } catch (IOException e) {
                         throw new ServiceException(ErrorCode.CODEC_ERROR,
                                 "compress encode error: " + methodConfig.getMethodName(), e);

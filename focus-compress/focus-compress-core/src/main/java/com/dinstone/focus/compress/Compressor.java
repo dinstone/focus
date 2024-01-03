@@ -24,29 +24,18 @@ public interface Compressor {
     /**
      * The compressor type
      *
-     * @return
      */
-    public abstract String compressorType();
+    public abstract String type();
 
     /**
      * The Data compress.
      *
-     * @param data
-     *
-     * @return
-     *
-     * @throws IOException
      */
     public abstract byte[] encode(byte[] data) throws IOException;
 
     /**
-     * The Data uncompress.
+     * The Data decompress.
      *
-     * @param data
-     *
-     * @return
-     *
-     * @throws IOException
      */
     public abstract byte[] decode(byte[] data) throws IOException;
 

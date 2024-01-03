@@ -15,14 +15,14 @@
  */
 package com.dinstone.focus.invoke;
 
-import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CompletableFuture;
+
+import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.protocol.Call;
+import com.dinstone.focus.protocol.Reply;
 
 public abstract class ChainHandler implements Handler {
 
@@ -46,7 +46,7 @@ public abstract class ChainHandler implements Handler {
         if (interceptors != null) {
             for (ListIterator<Interceptor> iterator = interceptors.listIterator(interceptors.size()); iterator
                     .hasPrevious();) {
-                invokeHandler = new InterceptorHandler(iterator.previous(), invokeHandler);
+                invokeHandler = new HandlerAdapter(iterator.previous(), invokeHandler);
             }
         }
         return this;
@@ -57,21 +57,21 @@ public abstract class ChainHandler implements Handler {
         return invokeHandler.handle(call);
     }
 
-    public static class InterceptorHandler implements Handler {
+    static class HandlerAdapter implements Handler {
 
         private final Interceptor interceptor;
 
-        private final Handler handler;
+        private final Handler nextHandler;
 
-        public InterceptorHandler(Interceptor interceptor, Handler handler) {
+        public HandlerAdapter(Interceptor interceptor, Handler nextHandler) {
             super();
             this.interceptor = interceptor;
-            this.handler = handler;
+            this.nextHandler = nextHandler;
         }
 
         @Override
         public CompletableFuture<Reply> handle(Call call) throws Exception {
-            return interceptor.intercept(call, handler);
+            return interceptor.intercept(call, nextHandler);
         }
 
     }

@@ -110,7 +110,7 @@ public class Http2Channel {
             try {
                 Serializer serializer = serviceConfig.getSerializer();
                 content = serializer.encode(call.getParameter(), methodConfig.getParamType());
-                call.attach().put(Serializer.TYPE_KEY, serializer.serializerType());
+                call.attach().put(Serializer.TYPE_KEY, serializer.type());
             } catch (IOException e) {
                 throw new ServiceException(ErrorCode.CODEC_ERROR,
                         "serialize encode error: " + methodConfig.getMethodName(), e);
@@ -120,7 +120,7 @@ public class Http2Channel {
             if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
                 try {
                     content = compressor.encode(content);
-                    call.attach().put(Compressor.TYPE_KEY, compressor.compressorType());
+                    call.attach().put(Compressor.TYPE_KEY, compressor.type());
                 } catch (IOException e) {
                     throw new ServiceException(ErrorCode.CODEC_ERROR,
                             "compress encode error: " + methodConfig.getMethodName(), e);

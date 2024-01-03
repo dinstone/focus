@@ -35,7 +35,7 @@ public class ProtostuffSerializer implements Serializer {
                     | IdStrategy.MORPH_MAP_INTERFACES | IdStrategy.MORPH_NON_FINAL_POJOS);
 
     @Override
-    public String serializerType() {
+    public String type() {
         return SERIALIZER_TYPE;
     }
 

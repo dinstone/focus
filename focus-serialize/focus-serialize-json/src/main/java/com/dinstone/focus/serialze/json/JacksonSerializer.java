@@ -29,7 +29,7 @@ public class JacksonSerializer implements Serializer {
 
     public static final String SERIALIZER_TYPE = "json";
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public JacksonSerializer() {
         objectMapper = new ObjectMapper();
@@ -49,7 +49,7 @@ public class JacksonSerializer implements Serializer {
     }
 
     @Override
-    public String serializerType() {
+    public String type() {
         return SERIALIZER_TYPE;
     }
 
@@ -63,7 +63,7 @@ public class JacksonSerializer implements Serializer {
 
     @Override
     public Object decode(byte[] contentBytes, Class<?> contentType) throws IOException {
-        if (contentBytes == null || contentBytes == null) {
+        if (contentBytes == null || contentType == null) {
             return null;
         }
         return objectMapper.readValue(contentBytes, contentType);

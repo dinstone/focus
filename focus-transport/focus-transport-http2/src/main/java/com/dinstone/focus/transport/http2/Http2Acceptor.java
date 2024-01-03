@@ -59,7 +59,7 @@ public class Http2Acceptor implements Acceptor {
     private NioEventLoopGroup bossGroup;
     private NioEventLoopGroup workGroup;
     private ServerBootstrap bootstrap;
-    private FocusMessageProcessor messageProcessor;
+    private Http2MessageProcessor messageProcessor;
 
     public Http2Acceptor(Http2AcceptOptions acceptOptions) {
         this.acceptOptions = acceptOptions;
@@ -118,7 +118,7 @@ public class Http2Acceptor implements Acceptor {
     @Override
     public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceLookupper)
             throws Exception {
-        messageProcessor = new FocusMessageProcessor(serviceLookupper, acceptOptions.getExecutorSelector());
+        messageProcessor = new Http2MessageProcessor(serviceLookupper, acceptOptions.getExecutorSelector());
         bootstrap.bind(serviceAddress).sync().channel();
     }
 

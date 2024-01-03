@@ -41,7 +41,7 @@ public class Lz4Compressor implements Compressor {
     }
 
     @Override
-    public String compressorType() {
+    public String type() {
         return COMPRESSOR_TYPE;
     }
 

@@ -22,7 +22,7 @@ import com.dinstone.focus.server.ServiceResolver;
 public class NacosResolverFactory implements ResolverFactory {
 
     @Override
-    public boolean appliable(ResolverOptions options) {
+    public boolean applicable(ResolverOptions options) {
         return options instanceof NacosResolverOptions;
     }
 

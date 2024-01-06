@@ -22,7 +22,7 @@ import com.dinstone.focus.client.LocaterOptions;
 
 public class PolarisLocaterOptions implements LocaterOptions {
 
-    private List<String> addresses = new ArrayList<>();
+    private final List<String> addresses = new ArrayList<>();
 
     public List<String> getAddresses() {
         return addresses;

@@ -26,7 +26,7 @@ public class DefaultInstance implements ServiceInstance, Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private Map<String, String> metadata = new LinkedHashMap<>();
+    private final Map<String, String> metadata = new LinkedHashMap<>();
 
     private String namespace = DEFAULT_NAMESPACE;
 
@@ -109,18 +109,6 @@ public class DefaultInstance implements ServiceInstance, Serializable {
         this.instancePort = instancePort;
     }
 
-    public long getRegistTime() {
-        String rt = metadata.get("registTime");
-        if (rt != null) {
-            return Long.parseLong(rt);
-        }
-        return 0;
-    }
-
-    public void setRegistTime(long registTime) {
-        metadata.put("registTime", Long.toString(registTime));
-    }
-
     @Override
     public Map<String, String> getMetadata() {
         return metadata;
@@ -171,7 +159,7 @@ public class DefaultInstance implements ServiceInstance, Serializable {
 
     @Override
     public String toString() {
-        return "DefultInstance [namespace=" + namespace + ", serviceName=" + serviceName + ", instanceCode="
+        return "DefaultInstance [namespace=" + namespace + ", serviceName=" + serviceName + ", instanceCode="
                 + instanceCode + ", protocolType=" + protocolType + ", instanceHost=" + instanceHost + ", instancePort="
                 + instancePort + ", metadata=" + metadata + "]";
     }

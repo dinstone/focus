@@ -44,11 +44,11 @@ public class PolarisServiceLocater implements ServiceLocater {
 
     private static final String DEFAULT_NAMESPACE = "default";
 
-    private SDKContext polarisContext;
+    private final SDKContext polarisContext;
 
-    private ConsumerAPI consumerAPI;
+    private final ConsumerAPI consumerAPI;
 
-    private RouterAPI routerAPI;
+    private final RouterAPI routerAPI;
 
     public PolarisServiceLocater(PolarisLocaterOptions locaterOptions) {
         List<String> polarisAddress = locaterOptions.getAddresses();

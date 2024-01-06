@@ -31,8 +31,8 @@ import com.dinstone.focus.protocol.Reply;
 
 class SpecialHandler implements InvocationHandler {
 
-    private ServiceConfig serviceConfig;
-    private Handler invokeHandler;
+    private final ServiceConfig serviceConfig;
+    private final Handler invokeHandler;
 
     public SpecialHandler(ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
@@ -42,11 +42,12 @@ class SpecialHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName();
-        if (methodName.equals("hashCode")) {
-            return Integer.valueOf(System.identityHashCode(proxy));
-        } else if (methodName.equals("equals")) {
+        switch (methodName) {
+        case "hashCode":
+            return System.identityHashCode(proxy);
+        case "equals":
             return (proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);
-        } else if (methodName.equals("toString")) {
+        case "toString":
             return proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode());
         }
 
@@ -65,7 +66,7 @@ class SpecialHandler implements InvocationHandler {
 
         // reply handle
         if (methodConfig.isAsyncInvoke()) {
-            return future.thenApply(reply -> reply.getResult());
+            return future.thenApply(Reply::getResult);
         } else {
             try {
                 return future.get().getResult();

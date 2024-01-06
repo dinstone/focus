@@ -33,7 +33,7 @@ import com.dinstone.focus.server.config.ProviderServiceConfig;
 
 public class LocalInvokeHandler implements Handler {
 
-    private ProviderServiceConfig serviceConfig;
+    private final ProviderServiceConfig serviceConfig;
 
     public LocalInvokeHandler(ServiceConfig serviceConfig) {
         this.serviceConfig = (ProviderServiceConfig) serviceConfig;

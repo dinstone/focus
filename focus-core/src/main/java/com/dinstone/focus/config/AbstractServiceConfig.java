@@ -115,7 +115,7 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
         return compressThreshold;
     }
 
-    protected <T> T parse(Method method, BiFunction<Method, Class<?>, T> creater) {
+    protected <T> T parse(Method method, BiFunction<Method, Class<?>, T> builder) {
         // public check
         if (!Modifier.isPublic(method.getModifiers())) {
             return null;
@@ -135,7 +135,7 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
         } else if (method.getParameterTypes().length == 1) {
             paramType = method.getParameterTypes()[0];
         }
-        return creater.apply(method, paramType);
+        return builder.apply(method, paramType);
     }
 
 }

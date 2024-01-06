@@ -22,7 +22,7 @@ import com.dinstone.focus.transport.ConnectOptions;
 public class Http2ConnectorFactory implements ConnectorFactory {
 
     @Override
-    public boolean appliable(ConnectOptions connectOptions) {
+    public boolean applicable(ConnectOptions connectOptions) {
         return connectOptions instanceof Http2ConnectOptions;
     }
 

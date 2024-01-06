@@ -27,7 +27,7 @@ import com.dinstone.focus.protocol.Call;
 
 public class DirectLinkServiceLocater extends AbstractServiceLocater {
 
-    private List<ServiceInstance> instances = new LinkedList<ServiceInstance>();
+    private final List<ServiceInstance> instances = new LinkedList<ServiceInstance>();
 
     public DirectLinkServiceLocater(List<InetSocketAddress> connectAddresses) {
         if (connectAddresses == null || connectAddresses.isEmpty()) {

@@ -41,11 +41,11 @@ import com.dinstone.photon.utils.ByteStreamUtil;
 import io.netty.util.CharsetUtil;
 
 public final class PhotonMessageProcessor extends MessageProcessor {
-    private final Function<String, ServiceConfig> serviceLookupper;
+    private final Function<String, ServiceConfig> serviceFinder;
     private final ExecutorSelector executorSelector;
 
-    public PhotonMessageProcessor(Function<String, ServiceConfig> serviceLookupper, ExecutorSelector executorSelector) {
-        this.serviceLookupper = serviceLookupper;
+    public PhotonMessageProcessor(Function<String, ServiceConfig> serviceFinder, ExecutorSelector executorSelector) {
+        this.serviceFinder = serviceFinder;
         this.executorSelector = executorSelector;
     }
 
@@ -82,7 +82,7 @@ public final class PhotonMessageProcessor extends MessageProcessor {
             Headers headers = request.headers();
             // check service
             String service = headers.get(Call.SERVICE_KEY);
-            ServiceConfig serviceConfig = serviceLookupper.apply(service);
+            ServiceConfig serviceConfig = serviceFinder.apply(service);
             if (serviceConfig == null) {
                 throw new ServiceException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
             }

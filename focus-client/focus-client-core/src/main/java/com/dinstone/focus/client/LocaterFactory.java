@@ -17,7 +17,7 @@ package com.dinstone.focus.client;
 
 public interface LocaterFactory {
 
-    public boolean appliable(LocaterOptions options);
+    public boolean applicable(LocaterOptions options);
 
     public ServiceLocater create(LocaterOptions locaterOptions);
 

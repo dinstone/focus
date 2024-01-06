@@ -18,7 +18,7 @@ package com.dinstone.focus.transport;
 public interface ConnectOptions {
 
     /**
-     * defult connect options : photon connect options
+     * default connect options : photon connect options
      */
     public static final ConnectOptions DEFAULT_CONNECT_OPTIONS = new ConnectOptions() {
     };

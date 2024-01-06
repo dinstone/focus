@@ -22,7 +22,7 @@ import com.dinstone.focus.transport.AcceptOptions;
 public class Http2AcceptorFactory implements AcceptorFactory {
 
     @Override
-    public boolean appliable(AcceptOptions acceptOptions) {
+    public boolean applicable(AcceptOptions acceptOptions) {
         return acceptOptions instanceof Http2AcceptOptions;
     }
 

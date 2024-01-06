@@ -15,16 +15,16 @@
  */
 package com.dinstone.focus.client;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.transport.ConnectOptions;
 import com.dinstone.focus.utils.NetworkUtil;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * global level options
@@ -36,7 +36,7 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
 
     private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
 
-    private List<InetSocketAddress> connectAddresses = new LinkedList<>();
+    private final List<InetSocketAddress> connectAddresses = new LinkedList<>();
 
     private ProxyFactory proxyFactory = new JdkProxyFactory();
 
@@ -64,10 +64,10 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
 
         String[] addressArrays = addresses.split(",");
         for (String address : addressArrays) {
-            int pidx = address.lastIndexOf(':');
-            if (pidx > 0 && (pidx < address.length() - 1)) {
-                String host = address.substring(0, pidx);
-                int port = Integer.parseInt(address.substring(pidx + 1));
+            int index = address.lastIndexOf(':');
+            if (index > 0 && (index < address.length() - 1)) {
+                String host = address.substring(0, index);
+                int port = Integer.parseInt(address.substring(index + 1));
 
                 connectAddresses.add(new InetSocketAddress(host, port));
             }

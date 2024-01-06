@@ -28,8 +28,8 @@ import com.ecwid.consul.v1.health.model.HealthService.Service;
 
 public class ConsulServiceLocater extends AbstractServiceLocater {
 
-    private ConsulClient client;
-    private ConsulLocaterOptions locaterOptions;
+    private final ConsulClient client;
+    private final ConsulLocaterOptions locaterOptions;
 
     public ConsulServiceLocater(ConsulLocaterOptions locaterOptions) {
         this.client = new ConsulClient(locaterOptions.getAgentHost(), locaterOptions.getAgentPort());

@@ -23,7 +23,7 @@ package com.dinstone.focus.server;
  */
 public class ExportOptions {
 
-    private String service;
+    private final String service;
 
     private String serializerType;
 

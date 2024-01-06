@@ -22,7 +22,7 @@ import com.dinstone.focus.server.ResolverOptions;
 
 public class PolarisResolverOptions implements ResolverOptions {
 
-    private List<String> addresses = new ArrayList<>();
+    private final List<String> addresses = new ArrayList<>();
 
     public List<String> getAddresses() {
         return addresses;

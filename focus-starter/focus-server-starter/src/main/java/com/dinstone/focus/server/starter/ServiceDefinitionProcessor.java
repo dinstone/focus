@@ -31,22 +31,22 @@ public class ServiceDefinitionProcessor implements BeanPostProcessor, Applicatio
     @Override
     @SuppressWarnings("unchecked")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        ServiceDefinition defination = bean.getClass().getAnnotation(ServiceDefinition.class);
-        if (defination != null) {
+        ServiceDefinition definition = bean.getClass().getAnnotation(ServiceDefinition.class);
+        if (definition != null) {
             Class<Object> clazz = (Class<Object>) bean.getClass();
             Class<Object>[] ifs = (Class<Object>[]) clazz.getInterfaces();
-            if (ifs != null && ifs.length > 0) {
+            if (ifs.length > 0) {
                 clazz = ifs[0];
             }
 
-            String service = defination.service();
+            String service = definition.service();
             if (service.isEmpty()) {
                 service = clazz.getName();
             }
 
             ExportOptions exportOptions = new ExportOptions(service);
-            if (!defination.serializer().isEmpty()) {
-                exportOptions.setSerializerType(defination.serializer());
+            if (!definition.serializer().isEmpty()) {
+                exportOptions.setSerializerType(definition.serializer());
             }
             applicationContext.getBean(FocusServer.class).exporting(clazz, bean, exportOptions);
         }

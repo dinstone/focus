@@ -17,11 +17,11 @@ package com.dinstone.focus.exception;
 
 public enum ErrorCode {
 
-    UNKOWN_ERROR(100), INVOKE_ERROR(101), TIMEOUT_ERROR(102), // abstract invoke error
+    UNKNOWN_ERROR(100), INVOKE_ERROR(101), TIMEOUT_ERROR(102), // abstract invoke error
     CODEC_ERROR(201), SERVICE_ERROR(202), METHOD_ERROR(203), PARAM_ERROR(204), ACCESS_ERROR(205), // service error
     DECLARED_ERROR(301), UNDECLARED_ERROR(302), RUNTIME_ERROR(303);// business error
 
-    private int code;
+    private final int code;
 
     private ErrorCode(int value) {
         this.code = value;
@@ -37,6 +37,6 @@ public enum ErrorCode {
                 return errorCode;
             }
         }
-        return UNKOWN_ERROR;
+        return UNKNOWN_ERROR;
     }
 }

@@ -21,7 +21,7 @@ import com.dinstone.focus.client.ServiceLocater;
 
 public class NacosLocaterFactory implements LocaterFactory {
 
-    public boolean appliable(LocaterOptions locaterOptions) {
+    public boolean applicable(LocaterOptions locaterOptions) {
         return locaterOptions instanceof NacosLocaterOptions;
     }
 

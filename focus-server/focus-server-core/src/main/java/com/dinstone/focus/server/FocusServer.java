@@ -16,11 +16,11 @@
 package com.dinstone.focus.server;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
@@ -43,7 +43,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusServer.class);
 
-    private Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
+    private final Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
     private AcceptorFactory acceptorFactory;
 
@@ -74,7 +74,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
         }
         ServiceLoader<AcceptorFactory> cfLoader = ServiceLoader.load(AcceptorFactory.class);
         for (AcceptorFactory acceptorFactory : cfLoader) {
-            if (acceptorFactory.appliable(acceptOptions)) {
+            if (acceptorFactory.applicable(acceptOptions)) {
                 this.acceptorFactory = acceptorFactory;
             }
         }
@@ -86,7 +86,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
         ResolverOptions resolverOptions = serverOptions.getResolverOptions();
         ServiceLoader<ResolverFactory> rfLoader = ServiceLoader.load(ResolverFactory.class);
         for (ResolverFactory resolverFactory : rfLoader) {
-            if (resolverFactory.appliable(resolverOptions)) {
+            if (resolverFactory.applicable(resolverOptions)) {
                 this.serviceResolver = resolverFactory.create(resolverOptions);
             }
         }
@@ -106,7 +106,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             }
 
             // startup acceptor
-            this.acceptor.bind(listenAddress, serviceName -> lookupService(serviceName));
+            this.acceptor.bind(listenAddress, this::lookupService);
 
             // register application
             this.serviceResolver.publish(serverOptions);
@@ -140,7 +140,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
     }
 
     public List<ServiceConfig> getServices() {
-        return serviceConfigMap.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(serviceConfigMap.values());
     }
 
     @Override
@@ -157,7 +157,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
     public <T> void exporting(Class<T> clazz, T instance, ExportOptions exportOptions) {
         String service = exportOptions.getService();
         if (service == null || service.isEmpty()) {
-            throw new IllegalArgumentException("serivce name is null");
+            throw new IllegalArgumentException("service name is null");
         }
 
         try {
@@ -187,7 +187,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
     private void registryService(ProviderServiceConfig serviceConfig) {
         String serviceName = serviceConfig.getService();
         if (serviceConfigMap.containsKey(serviceName)) {
-            throw new RuntimeException("multiple object registed with the service name : " + serviceName);
+            throw new RuntimeException("multiple object register with the service name : " + serviceName);
         }
         serviceConfigMap.putIfAbsent(serviceName, serviceConfig);
     }

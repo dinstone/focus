@@ -34,13 +34,13 @@ import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements Handler {
 
-    private ConsumerServiceConfig serviceConfig;
+    private final ConsumerServiceConfig serviceConfig;
 
-    private ServiceLocater locater;
+    private final ServiceLocater locater;
 
-    private Connector connector;
+    private final Connector connector;
 
-    private int connectRetry;
+    private final int connectRetry;
 
     public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocater locater, Connector connector) {
         this.serviceConfig = (ConsumerServiceConfig) serviceConfig;
@@ -59,7 +59,7 @@ public class RemoteInvokeHandler implements Handler {
     private CompletableFuture<Reply> timeoutRetry(CompletableFuture<Reply> future, int remain, Call call)
             throws Exception {
 
-        connectRetry(call).thenApply(r -> future.complete(r)).exceptionally(e -> {
+        connectRetry(call).thenApply(future::complete).exceptionally(e -> {
             if (e instanceof CompletionException) {
                 e = e.getCause();
             }
@@ -101,8 +101,8 @@ public class RemoteInvokeHandler implements Handler {
                 long startTime = System.currentTimeMillis();
                 return connector.send(call, serviceConfig, instance.getInstanceAddress())
                         .whenComplete((reply, error) -> {
-                            long finshTime = System.currentTimeMillis();
-                            locater.feedback(instance, call, reply, error, finshTime - startTime);
+                            long finishTime = System.currentTimeMillis();
+                            locater.feedback(instance, call, reply, error, finishTime - startTime);
                         });
             } catch (ConnectException e) {
                 // ignore and retry

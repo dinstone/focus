@@ -24,10 +24,6 @@ public class ExceptionUtil {
 
     /**
      * get target exception
-     *
-     * @param e
-     *
-     * @return
      */
     public static Throwable getTargetException(InvocationTargetException e) {
         Throwable t = e.getTargetException();
@@ -41,11 +37,11 @@ public class ExceptionUtil {
     }
 
     /**
-     * get non empty message
+     * get non-empty message
      *
      * @param cause
+     *            source error
      *
-     * @return
      */
     public static String getMessage(Throwable cause) {
         if (cause == null) {
@@ -62,8 +58,8 @@ public class ExceptionUtil {
      * get exception stack trace string
      *
      * @param e
+     *            source error
      *
-     * @return
      */
     public static String getStackTrace(Throwable e) {
         StringWriter sw = new StringWriter();

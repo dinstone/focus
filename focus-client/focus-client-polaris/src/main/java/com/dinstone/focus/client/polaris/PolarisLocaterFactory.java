@@ -28,7 +28,7 @@ import com.dinstone.focus.client.ServiceLocater;
 public class PolarisLocaterFactory implements LocaterFactory {
 
     @Override
-    public boolean appliable(LocaterOptions options) {
+    public boolean applicable(LocaterOptions options) {
         return options instanceof PolarisLocaterOptions;
     }
 

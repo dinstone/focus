@@ -72,7 +72,7 @@ class GenericHandler implements GenericService {
 
         CompletableFuture<Reply> future = invokeHandler.handle(call);
 
-        return (CompletableFuture<R>) future.thenApply(reply -> reply.getResult());
+        return (CompletableFuture<R>) future.thenApply(Reply::getResult);
     }
 
     private <P, R> MethodConfig getMethodConfig(Class<R> returnType, String methodName, P parameter) {

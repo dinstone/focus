@@ -31,15 +31,15 @@ import com.ecwid.consul.v1.agent.model.NewService;
 
 public class ConsulServiceResolver extends DefaultServiceResolver {
 
-    private ConsulClient client;
-    private ConsulResolverOptions options;
+    private final ConsulClient client;
+    private final ConsulResolverOptions options;
 
-    private Map<String, ScheduledFuture<?>> serviceMap = new ConcurrentHashMap<>();
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+    private final Map<String, ScheduledFuture<?>> serviceMap = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
         @Override
-        public Thread newThread(Runnable taskt) {
-            Thread t = new Thread(taskt, "consul-service-check");
+        public Thread newThread(Runnable task) {
+            Thread t = new Thread(task, "consul-service-check");
             t.setDaemon(true);
             return t;
         }

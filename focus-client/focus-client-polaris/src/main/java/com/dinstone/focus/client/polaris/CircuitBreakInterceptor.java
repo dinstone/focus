@@ -37,9 +37,9 @@ public class CircuitBreakInterceptor implements Interceptor, AutoCloseable {
 
     private static final String DEFAULT_NAMESPACE = "default";
 
-    private CircuitBreakAPI circuitBreak;
+    private final CircuitBreakAPI circuitBreak;
 
-    private SDKContext polarisContext;
+    private final SDKContext polarisContext;
 
     public CircuitBreakInterceptor(String... polarisAddress) {
         if (polarisAddress == null || polarisAddress.length == 0) {

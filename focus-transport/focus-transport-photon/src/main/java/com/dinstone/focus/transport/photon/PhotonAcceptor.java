@@ -24,8 +24,8 @@ import com.dinstone.focus.transport.ExecutorSelector;
 
 public class PhotonAcceptor implements Acceptor {
 
-    private com.dinstone.photon.Acceptor acceptor;
-    private ExecutorSelector executorSelector;
+    private final com.dinstone.photon.Acceptor acceptor;
+    private final ExecutorSelector executorSelector;
 
     public PhotonAcceptor(PhotonAcceptOptions acceptOptions) {
         acceptor = new com.dinstone.photon.Acceptor(acceptOptions);

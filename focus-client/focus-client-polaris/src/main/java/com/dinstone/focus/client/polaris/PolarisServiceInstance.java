@@ -24,9 +24,9 @@ import com.tencent.polaris.api.pojo.Instance;
 
 public class PolarisServiceInstance implements ServiceInstance {
 
-    private Instance instance;
+    private final Instance instance;
 
-    private InetSocketAddress address;
+    private final InetSocketAddress address;
 
     public PolarisServiceInstance(Instance instance) {
         this.instance = instance;

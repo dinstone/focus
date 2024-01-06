@@ -17,7 +17,7 @@ package com.dinstone.focus.server;
 
 public interface ResolverFactory {
 
-    public boolean appliable(ResolverOptions options);
+    public boolean applicable(ResolverOptions options);
 
     public ServiceResolver create(ResolverOptions options);
 }

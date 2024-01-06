@@ -54,7 +54,7 @@ public class Http2Channel {
 
     private static final String PATH = "/focus";
 
-    private Channel channel;
+    private final Channel channel;
 
     public Http2Channel(Channel channel) {
         this.channel = channel;

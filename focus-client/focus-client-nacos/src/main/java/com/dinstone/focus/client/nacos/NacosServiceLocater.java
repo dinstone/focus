@@ -28,8 +28,8 @@ import com.dinstone.focus.naming.ServiceInstance;
 
 public class NacosServiceLocater extends AbstractServiceLocater {
 
-    private NamingService namingService;
-    private NacosLocaterOptions locaterOptions;
+    private final NamingService namingService;
+    private final NacosLocaterOptions locaterOptions;
 
     public NacosServiceLocater(NacosLocaterOptions locaterOptions) {
         try {

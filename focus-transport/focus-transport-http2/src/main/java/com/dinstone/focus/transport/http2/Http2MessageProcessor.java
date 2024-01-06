@@ -44,11 +44,11 @@ import io.netty.util.CharsetUtil;
 
 public final class Http2MessageProcessor {
 
-    private final Function<String, ServiceConfig> serviceLookupper;
+    private final Function<String, ServiceConfig> serviceFinder;
     private final ExecutorSelector executorSelector;
 
-    public Http2MessageProcessor(Function<String, ServiceConfig> serviceLookupper, ExecutorSelector executorSelector) {
-        this.serviceLookupper = serviceLookupper;
+    public Http2MessageProcessor(Function<String, ServiceConfig> serviceFinder, ExecutorSelector executorSelector) {
+        this.serviceFinder = serviceFinder;
         this.executorSelector = executorSelector;
     }
 
@@ -58,7 +58,7 @@ public final class Http2MessageProcessor {
             Http2Headers headers = headersFrame.headers();
             // check service
             String service = headers.get(Call.SERVICE_KEY).toString();
-            ServiceConfig serviceConfig = serviceLookupper.apply(service);
+            ServiceConfig serviceConfig = serviceFinder.apply(service);
             if (serviceConfig == null) {
                 throw new ServiceException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
             }

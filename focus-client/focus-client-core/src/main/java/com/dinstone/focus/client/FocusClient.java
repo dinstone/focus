@@ -15,6 +15,9 @@
  */
 package com.dinstone.focus.client;
 
+import java.util.List;
+import java.util.ServiceLoader;
+
 import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.client.config.ConsumerMethodConfig;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
@@ -34,9 +37,6 @@ import com.dinstone.focus.transport.Connector;
 import com.dinstone.focus.transport.ConnectorFactory;
 import com.dinstone.loghub.Logger;
 import com.dinstone.loghub.LoggerFactory;
-
-import java.util.List;
-import java.util.ServiceLoader;
 
 public class FocusClient implements ServiceImporter, AutoCloseable {
 
@@ -64,7 +64,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         }
         ServiceLoader<ConnectorFactory> cfLoader = ServiceLoader.load(ConnectorFactory.class);
         for (ConnectorFactory connectorFactory : cfLoader) {
-            if (connectorFactory.appliable(connectOptions)) {
+            if (connectorFactory.applicable(connectOptions)) {
                 this.connector = connectorFactory.create(connectOptions);
             }
         }
@@ -76,7 +76,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         LocaterOptions locaterOptions = clientOptions.getLocaterOptions();
         ServiceLoader<LocaterFactory> lfLoader = ServiceLoader.load(LocaterFactory.class);
         for (LocaterFactory locaterFactory : lfLoader) {
-            if (locaterFactory.appliable(locaterOptions)) {
+            if (locaterFactory.applicable(locaterOptions)) {
                 this.serviceLocater = locaterFactory.create(locaterOptions);
             }
         }

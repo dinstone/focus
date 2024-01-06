@@ -30,8 +30,8 @@ import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
 
 public class PolarisServiceResolver extends DefaultServiceResolver {
 
-    private SDKContext polarisContext;
-    private ProviderAPI providerAPI;
+    private final SDKContext polarisContext;
+    private final ProviderAPI providerAPI;
 
     public PolarisServiceResolver(PolarisResolverOptions locaterOptions) {
         List<String> polarisAddress = locaterOptions.getAddresses();
@@ -90,7 +90,7 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
         if (w != null && !w.isEmpty()) {
             try {
                 return Integer.parseInt(w);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return d;

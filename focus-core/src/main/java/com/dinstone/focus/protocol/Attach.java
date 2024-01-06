@@ -24,11 +24,7 @@ import java.util.Set;
 
 public class Attach implements Iterable<Entry<String, String>> {
 
-    public static final String PROVIDER_KEY = "endpoint.provider";
-
-    public static final String CONSUMER_KEY = "endpoint.consumer";
-
-    protected final Map<String, String> store = new HashMap<String, String>();
+    private final Map<String, String> store = new HashMap<String, String>();
 
     public Attach() {
     }

@@ -77,13 +77,8 @@ public class TelemetryInterceptor implements Interceptor {
         if (kind == Kind.SERVER) {
             // Extract the SpanContext and other elements from the request.
             Context ec = telemetry.getPropagators().getTextMapPropagator().extract(Context.current(), call, getter);
-            // span =
-            // tracer.spanBuilder(call.getMethod()).setParent(ec).setSpanKind(SpanKind.SERVER).startSpan();
-
             try (Scope ss = ec.makeCurrent()) {
                 return chain.handle(call);
-            } catch (Throwable error) {
-                throw error;
             }
         } else {
             Span span = tracer.spanBuilder(call.getMethod()).setSpanKind(SpanKind.CLIENT).startSpan();

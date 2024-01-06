@@ -39,7 +39,7 @@ public class PhotonConnectionFactory {
     public Connection create(InetSocketAddress socketAddress) throws Exception {
         ConnectionPool connectionPool = connectionPoolMap.get(socketAddress);
         if (connectionPool == null) {
-            connectionPool = connectionPoolMap.computeIfAbsent(socketAddress, k -> new ConnectionPool(k));
+            connectionPool = connectionPoolMap.computeIfAbsent(socketAddress, ConnectionPool::new);
         }
         return connectionPool.getConnection();
     }
@@ -58,7 +58,7 @@ public class PhotonConnectionFactory {
 
         private final InetSocketAddress socketAddress;
 
-        private Connection[] connections;
+        private final Connection[] connections;
 
         private int count;
 

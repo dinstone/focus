@@ -25,7 +25,7 @@ import com.dinstone.focus.transport.Connector;
 
 public class Http2Connector implements Connector {
 
-    private Http2ChannelFactory factory;
+    private final Http2ChannelFactory factory;
 
     public Http2Connector(Http2ConnectOptions connectOptions) {
         factory = new Http2ChannelFactory(connectOptions);

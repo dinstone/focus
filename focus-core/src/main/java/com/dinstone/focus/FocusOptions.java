@@ -30,20 +30,20 @@ public class FocusOptions<T extends FocusOptions<T>> {
 
     private static final int DEFAULT_COMPRESS_THRESHOLD = 10240;
 
+    private final List<Interceptor> interceptors = new ArrayList<Interceptor>();
+
+    private final Map<String, String> metadata = new HashMap<>();
+
     /**
      * application identity
      */
-    private String application;
+    private final String application;
 
     private String serializerType;
 
     private String compressorType;
 
     private int compressThreshold;
-
-    private Map<String, String> metadata = new HashMap<>();
-
-    private List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
     public FocusOptions(String application) {
         if (application == null || application.isEmpty()) {

@@ -41,7 +41,7 @@ import io.netty.util.CharsetUtil;
 
 public class PhotonConnector implements Connector {
 
-    private static final AtomicInteger IDGENER = new AtomicInteger();
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
     private final PhotonConnectionFactory factory;
 
@@ -137,7 +137,7 @@ public class PhotonConnector implements Connector {
         }
 
         Request request = new Request();
-        request.setMsgId(IDGENER.incrementAndGet());
+        request.setMsgId(ID_GENERATOR.incrementAndGet());
         Headers headers = request.headers();
         headers.add(Call.CONSUMER_KEY, call.getConsumer());
         headers.add(Call.PROVIDER_KEY, call.getProvider());

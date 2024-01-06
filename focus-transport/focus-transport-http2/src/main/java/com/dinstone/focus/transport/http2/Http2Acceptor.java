@@ -55,10 +55,10 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 
 public class Http2Acceptor implements Acceptor {
     private static final AttributeKey<Http2HeadersFrame> HEADER_KEY = AttributeKey.newInstance("header.key");
-    private Http2AcceptOptions acceptOptions;
-    private NioEventLoopGroup bossGroup;
-    private NioEventLoopGroup workGroup;
-    private ServerBootstrap bootstrap;
+    private final Http2AcceptOptions acceptOptions;
+    private final NioEventLoopGroup bossGroup;
+    private final NioEventLoopGroup workGroup;
+    private final ServerBootstrap bootstrap;
     private Http2MessageProcessor messageProcessor;
 
     public Http2Acceptor(Http2AcceptOptions acceptOptions) {
@@ -116,9 +116,8 @@ public class Http2Acceptor implements Acceptor {
     }
 
     @Override
-    public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceLookupper)
-            throws Exception {
-        messageProcessor = new Http2MessageProcessor(serviceLookupper, acceptOptions.getExecutorSelector());
+    public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceFinder) throws Exception {
+        messageProcessor = new Http2MessageProcessor(serviceFinder, acceptOptions.getExecutorSelector());
         bootstrap.bind(serviceAddress).sync().channel();
     }
 

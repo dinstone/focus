@@ -17,7 +17,7 @@ package com.dinstone.focus.transport;
 
 public interface ConnectorFactory {
 
-    public boolean appliable(ConnectOptions connectOptions);
+    public boolean applicable(ConnectOptions connectOptions);
 
     public Connector create(ConnectOptions connectOptions);
 

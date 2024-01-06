@@ -17,7 +17,7 @@ package com.dinstone.focus.transport;
 
 public interface AcceptorFactory {
 
-    public boolean appliable(AcceptOptions acceptOptions);
+    public boolean applicable(AcceptOptions acceptOptions);
 
     public Acceptor create(AcceptOptions acceptOptions);
 

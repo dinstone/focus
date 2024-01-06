@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Import;
 public @interface EnableFocusClient {
 
     /**
-     * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:
+     * Alias for the basePackages attribute. Allows for more concise annotation declarations e.g.:
      * {@code @ComponentScan("org.my.pkg")} instead of {@code @ComponentScan(basePackages="org.my.pkg")}.
      * 
      * @return the array of 'basePackages'.

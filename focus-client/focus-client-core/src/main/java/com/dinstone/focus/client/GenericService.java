@@ -42,6 +42,7 @@ public interface GenericService {
      * generic service sync invoke. only support JSON codec.
      *
      * @param <P>
+     *            parameter class
      * @param methodName
      *            method name
      * @param parameter
@@ -50,6 +51,7 @@ public interface GenericService {
      * @return return Map object
      *
      * @throws Exception
+     *             error
      */
     <P> HashMap<String, Object> sync(String methodName, P parameter) throws Exception;
 
@@ -57,7 +59,9 @@ public interface GenericService {
      * generic service async invoke. only support JSON codec.
      *
      * @param <R>
+     *            return class
      * @param <P>
+     *            parameter class
      * @param returnType
      *            method return type, only support ( Object<->HashMap, String, java basic type)
      * @param methodName
@@ -68,6 +72,7 @@ public interface GenericService {
      * @return return future
      *
      * @throws Exception
+     *             error
      */
     <R, P> CompletableFuture<R> async(Class<R> returnType, String methodName, P parameter) throws Exception;
 
@@ -75,8 +80,7 @@ public interface GenericService {
      * generic service async invoke. only support JSON codec.
      *
      * @param <P>
-     * @param returnType
-     *            method return type, only support ( Object<->HashMap, String, java basic type)
+     *            parameter class
      * @param methodName
      *            method name
      * @param parameter
@@ -85,6 +89,7 @@ public interface GenericService {
      * @return return map future
      *
      * @throws Exception
+     *             error
      */
     @SuppressWarnings("rawtypes")
     <P> CompletableFuture<HashMap> async(String methodName, P parameter) throws Exception;

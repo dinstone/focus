@@ -4,7 +4,7 @@
 	<artifactId>focus-parent</artifactId>
 	<version>1.2.0</version>
 	<packaging>pom</packaging>
-	<inceptionYear>2019~2023</inceptionYear>
+	<inceptionYear>2019~2024</inceptionYear>
 	<modules>
 		<module>focus-core</module>
 		<module>focus-client</module>

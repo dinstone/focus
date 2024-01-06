@@ -65,12 +65,13 @@ public class ServiceReferenceRegistrar implements ImportBeanDefinitionRegistrar,
                 AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
                 AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
                 Assert.isTrue(annotationMetadata.isInterface(),
-                        "@FocusReference can only be specified on an interface");
+                        "@ServiceReference can only be specified on an interface");
 
                 Map<String, Object> attributes = annotationMetadata
                         .getAnnotationAttributes(ServiceReference.class.getCanonicalName());
-
-                registerServiceReference(registry, annotationMetadata, attributes);
+                if (attributes != null) {
+                    registerServiceReference(registry, annotationMetadata, attributes);
+                }
             }
         }
 
@@ -100,10 +101,11 @@ public class ServiceReferenceRegistrar implements ImportBeanDefinitionRegistrar,
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
         GenericBeanDefinition beanDefinition = (GenericBeanDefinition) builder.getBeanDefinition();
-        beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-        beanDefinition.setInstanceSupplier(() -> {
-            return factoryBean.getObject();
-        });
+        String beanClassName = beanDefinition.getBeanClassName();
+        if (beanClassName != null) {
+            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName);
+        }
+        beanDefinition.setInstanceSupplier(factoryBean::getObject);
         beanDefinition.setFactoryBeanName(factoryBean.getClass().getSimpleName());
         beanDefinition.setLazyInit(true);
         beanDefinition.setPrimary(true);
@@ -111,12 +113,13 @@ public class ServiceReferenceRegistrar implements ImportBeanDefinitionRegistrar,
     }
 
     protected Set<String> getBasePackages(AnnotationMetadata metadata) {
-        Map<String, Object> attributes = metadata.getAnnotationAttributes(EnableFocusClient.class.getCanonicalName());
-
         Set<String> basePackages = new HashSet<>();
-        for (String pkg : (String[]) attributes.get("value")) {
-            if (StringUtils.hasText(pkg)) {
-                basePackages.add(pkg);
+        Map<String, Object> attributes = metadata.getAnnotationAttributes(EnableFocusClient.class.getCanonicalName());
+        if (attributes != null) {
+            for (String pkg : (String[]) attributes.get("value")) {
+                if (StringUtils.hasText(pkg)) {
+                    basePackages.add(pkg);
+                }
             }
         }
         if (basePackages.isEmpty()) {

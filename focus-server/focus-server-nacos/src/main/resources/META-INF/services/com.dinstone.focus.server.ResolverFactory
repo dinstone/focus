@@ -1,1 +1,1 @@
-com.dinstone.focus.server.nacos.NacosServiceResolver
+com.dinstone.focus.server.nacos.NacosResolverFactory

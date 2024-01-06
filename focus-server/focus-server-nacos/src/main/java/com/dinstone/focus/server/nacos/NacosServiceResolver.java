@@ -25,7 +25,7 @@ import com.dinstone.focus.server.resolver.DefaultServiceResolver;
 
 public class NacosServiceResolver extends DefaultServiceResolver {
 
-    private NamingService namingService;
+    private final NamingService namingService;
 
     public NacosServiceResolver(NacosResolverOptions options) {
         try {

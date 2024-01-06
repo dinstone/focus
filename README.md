@@ -61,23 +61,25 @@ The quick start gives a basic example of running client and server on the same m
 1. create maven project focus-quickstart and add dependencies to pom.
 
 ```xml
-<dependency>
-    <groupId>com.dinstone.focus</groupId>
-    <artifactId>focus-server-photon</artifactId>
-    <version>1.1.0</version>
-    <type>pom</type>
-</dependency>
-<dependency>
-    <groupId>com.dinstone.focus</groupId>
-    <artifactId>focus-client-photon</artifactId>
-    <version>1.1.0</version>
-    <type>pom</type>
-</dependency>
-<dependency>
-    <groupId>com.dinstone.focus</groupId>
-    <artifactId>focus-serialize-json</artifactId>
-    <version>1.1.0</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.dinstone.focus</groupId>
+        <artifactId>focus-server-photon</artifactId>
+        <version>1.1.0</version>
+        <type>pom</type>
+    </dependency>
+    <dependency>
+        <groupId>com.dinstone.focus</groupId>
+        <artifactId>focus-client-photon</artifactId>
+        <version>1.1.0</version>
+        <type>pom</type>
+    </dependency>
+    <dependency>
+        <groupId>com.dinstone.focus</groupId>
+        <artifactId>focus-serialize-json</artifactId>
+        <version>1.1.0</version>
+    </dependency>
+</dependencies>
 ```
 
 2. create FooService interface.

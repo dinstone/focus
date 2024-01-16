@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.transport.photon;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
@@ -36,7 +35,6 @@ import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
-import com.dinstone.photon.utils.ByteStreamUtil;
 
 import io.netty.util.CharsetUtil;
 
@@ -125,15 +123,10 @@ public final class PhotonMessageProcessor extends MessageProcessor {
         Response response = new Response();
         if (reply.isError()) {
             response.setStatus(Status.FAILURE);
-            try {
-                InvokeException exception = (InvokeException) reply.getData();
-                ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                ByteStreamUtil.writeInt(bao, exception.getCode().value());
-                ByteStreamUtil.writeString(bao, exception.getMessage());
-                response.setContent(bao.toByteArray());
-            } catch (IOException e) {
-                throw new ServiceException(ErrorCode.CODEC_ERROR,
-                        "serialize encode error: " + methodConfig.getMethodName(), e);
+            InvokeException exception = (InvokeException) reply.getData();
+            response.headers().setInt(InvokeException.CODE_KEY, exception.getCode().value());
+            if (exception.getMessage() != null) {
+                response.setContent(exception.getMessage().getBytes(CharsetUtil.UTF_8));
             }
         } else {
             response.setStatus(Status.SUCCESS);

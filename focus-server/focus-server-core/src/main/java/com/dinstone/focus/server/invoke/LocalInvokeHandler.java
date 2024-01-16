@@ -20,11 +20,13 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.BusinessException;
 import com.dinstone.focus.exception.ErrorCode;
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.protocol.Call;
@@ -68,6 +70,8 @@ public class LocalInvokeHandler implements Handler {
             throw new ServiceException(ErrorCode.PARAM_ERROR, e);
         } catch (IllegalAccessException e) {
             throw new ServiceException(ErrorCode.ACCESS_ERROR, e);
+        } catch (TimeoutException e) {
+            throw new InvokeException(ErrorCode.TIMEOUT_ERROR, e);
         }
     }
 

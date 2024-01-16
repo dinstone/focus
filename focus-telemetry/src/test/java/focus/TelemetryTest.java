@@ -15,16 +15,24 @@
  */
 package focus;
 
+import java.io.IOException;
+import java.time.Duration;
+
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.exporter.logging.LoggingMetricExporter;
 import io.opentelemetry.exporter.logging.LoggingSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
@@ -33,10 +41,16 @@ public class TelemetryTest {
 
     private static Tracer tracer;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         OpenTelemetry openTelemetry = getOpenTelemetry();
 
-        tracer = openTelemetry.getTracer("telemetry-test-service", "1.0.0");
+        String serviceName = "telemetry-test-service";
+        Meter meter = openTelemetry.getMeter(serviceName);
+        tracer = openTelemetry.getTracer(serviceName, "1.0.0");
+
+        LongHistogram h = meter.histogramBuilder("main").ofLongs().build();
+
+        h.record(2000);
 
         Span span = tracer.spanBuilder("main").startSpan();
         // Make the span the current span
@@ -48,6 +62,8 @@ public class TelemetryTest {
         } finally {
             span.end();
         }
+
+        System.in.read();
 
         System.out.println("over");
     }
@@ -81,10 +97,13 @@ public class TelemetryTest {
                 .addSpanProcessor(BatchSpanProcessor.builder(LoggingSpanExporter.create()).build())
                 .setResource(resource).build();
 
-        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+        SdkMeterProvider sdkMeterProvider = SdkMeterProvider.builder().registerMetricReader(PeriodicMetricReader
+                .builder(LoggingMetricExporter.create()).setInterval(Duration.ofMillis(3000000)).build())
+                .setResource(resource).build();
+
+        return OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider).setMeterProvider(sdkMeterProvider)
                 .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
                 .buildAndRegisterGlobal();
-        return openTelemetry;
     }
 
 }

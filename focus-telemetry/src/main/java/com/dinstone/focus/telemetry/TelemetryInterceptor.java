@@ -17,6 +17,7 @@ package com.dinstone.focus.telemetry;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.protocol.Call;
@@ -75,15 +76,18 @@ public class TelemetryInterceptor implements Interceptor {
     public CompletableFuture<Reply> intercept(Call call, Handler chain) throws Exception {
         Tracer tracer = telemetry.getTracer(call.getService());
         if (kind == Kind.SERVER) {
-            // Extract the SpanContext and other elements from the request.
-            Context ec = telemetry.getPropagators().getTextMapPropagator().extract(Context.current(), call, getter);
-            try (Scope ss = ec.makeCurrent()) {
-                return chain.handle(call);
+            Span span = getServerSpan(call, tracer);
+            try (Scope ignored = span.makeCurrent()) {
+                return chain.handle(call).whenComplete((reply, error) -> {
+                    finishSpan(reply, error, span);
+                });
+            } catch (Throwable error) {
+                finishSpan(null, error, span);
+                throw error;
             }
         } else {
-            Span span = tracer.spanBuilder(call.getMethod()).setSpanKind(SpanKind.CLIENT).startSpan();
-            try (Scope ss = span.makeCurrent()) {
-                span.setAttribute(RPC_SERVICE, call.getService()).setAttribute(RPC_METHOD, call.getMethod());
+            Span span = getClientSpan(call, tracer);
+            try (Scope ignored = span.makeCurrent()) {
                 // Inject the request with the *current* Context, which contains our current
                 // Span.
                 telemetry.getPropagators().getTextMapPropagator().inject(Context.current(), call, setter);
@@ -98,10 +102,26 @@ public class TelemetryInterceptor implements Interceptor {
 
     }
 
+    private Span getClientSpan(Call call, Tracer tracer) {
+        Span span = tracer.spanBuilder(call.getEndpoint()).setSpanKind(SpanKind.CLIENT).startSpan();
+        return span.setAttribute(RPC_SERVICE, call.getService()).setAttribute(RPC_METHOD, call.getMethod());
+    }
+
+    private Span getServerSpan(Call call, Tracer tracer) {
+        // Extract the SpanContext and other elements from the request.
+        Context pc = telemetry.getPropagators().getTextMapPropagator().extract(Context.current(), call, getter);
+        Span span = tracer.spanBuilder(call.getEndpoint()).setSpanKind(SpanKind.SERVER).setParent(pc).startSpan();
+        return span.setAttribute(RPC_SERVICE, call.getService()).setAttribute(RPC_METHOD, call.getMethod());
+    }
+
     private void finishSpan(Reply reply, Throwable error, Span span) {
         if (error != null) {
             span.setStatus(StatusCode.ERROR, error.getMessage());
             span.recordException(error);
+        } else if (reply != null && reply.isError()) {
+            final InvokeException data = (InvokeException) reply.getData();
+            span.setStatus(StatusCode.ERROR, data.getMessage());
+            span.recordException(data);
         }
         span.end();
     }

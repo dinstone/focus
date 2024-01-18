@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FocusClientConfiguration {
 
-    class Marker {
+    static class Marker {
     }
 
     @Bean

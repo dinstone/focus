@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.invoke;
+package com.dinstone.focus.server.invoke;
 
-import java.util.concurrent.CompletableFuture;
+import com.dinstone.focus.invoke.DefaultInvocation;
 
-public interface Interceptor {
-
-    public enum Kind {
-        CLIENT, SERVER
+public class ProviderInvocation extends DefaultInvocation {
+    public ProviderInvocation(String service, String method, Object parameter) {
+        super(service, method, parameter);
     }
-
-    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) throws Exception;
 }

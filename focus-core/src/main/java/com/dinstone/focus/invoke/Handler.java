@@ -17,11 +17,8 @@ package com.dinstone.focus.invoke;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
-
 public interface Handler {
 
-    public CompletableFuture<Reply> handle(Call call) throws Exception;
+    public CompletableFuture<Object> handle(Invocation invocation) throws Exception;
 
 }

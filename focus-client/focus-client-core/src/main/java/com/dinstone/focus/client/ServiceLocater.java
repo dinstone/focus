@@ -15,15 +15,14 @@
  */
 package com.dinstone.focus.client;
 
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 
 public interface ServiceLocater {
 
-    public ServiceInstance locate(Call call, ServiceInstance selected);
+    public ServiceInstance locate(Invocation invocation, ServiceInstance selected);
 
-    public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay);
+    public void feedback(ServiceInstance instance, Invocation invocation, Object reply, Throwable error, long delay);
 
     public void subscribe(String serviceName);
 

@@ -19,12 +19,11 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 
 public interface Connector {
 
-    CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, InetSocketAddress socketAddress)
+    CompletableFuture<Object> send(Invocation invocation, ServiceConfig serviceConfig, InetSocketAddress socketAddress)
             throws Exception;
 
     void destroy();

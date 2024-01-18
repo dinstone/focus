@@ -25,9 +25,8 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 
 class SpecialHandler implements InvocationHandler {
 
@@ -58,18 +57,19 @@ class SpecialHandler implements InvocationHandler {
 
         MethodConfig methodConfig = serviceConfig.lookup(methodName);
 
-        Call call = new Call(serviceConfig.getService(), methodName, parameter);
-        call.setTimeout(methodConfig.getTimeoutMillis());
+        DefaultInvocation invocation = new DefaultInvocation(serviceConfig.getService(), methodConfig.getMethodName(),
+                parameter);
+        invocation.setTimeout(methodConfig.getTimeoutMillis());
 
         // invoke
-        CompletableFuture<Reply> future = invokeHandler.handle(call);
+        CompletableFuture<Object> future = invokeHandler.handle(invocation);
 
         // reply handle
         if (methodConfig.isAsyncInvoke()) {
-            return future.thenApply(Reply::getResult);
+            return future;
         } else {
             try {
-                return future.get().getResult();
+                return future.get();
             } catch (ExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof FocusException) {

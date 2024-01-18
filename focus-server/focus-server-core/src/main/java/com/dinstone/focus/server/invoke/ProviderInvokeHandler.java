@@ -21,8 +21,7 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.ChainHandler;
 import com.dinstone.focus.invoke.Context;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 
 /**
  * server-side service invoker.
@@ -37,10 +36,10 @@ public class ProviderInvokeHandler extends ChainHandler {
         super(serviceConfig, invokeHandler);
     }
 
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
+    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
         Context.getContext();
         try {
-            return invokeHandler.handle(call);
+            return invokeHandler.handle(invocation);
         } finally {
             Context.clearContext();
         }

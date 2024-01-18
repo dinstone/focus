@@ -25,8 +25,8 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.DefaultInvocation;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.ExecutorSelector;
 import com.dinstone.photon.Connection;
@@ -35,7 +35,6 @@ import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
-
 import io.netty.util.CharsetUtil;
 
 public final class PhotonMessageProcessor extends MessageProcessor {
@@ -52,8 +51,8 @@ public final class PhotonMessageProcessor extends MessageProcessor {
         Executor executor = null;
         if (executorSelector != null) {
             Headers headers = request.headers();
-            String s = headers.get(Call.SERVICE_KEY);
-            String m = headers.get(Call.METHOD_KEY);
+            String s = headers.get(Invocation.SERVICE_KEY);
+            String m = headers.get(Invocation.METHOD_KEY);
             executor = executorSelector.select(s, m);
         }
         if (executor != null) {
@@ -79,24 +78,24 @@ public final class PhotonMessageProcessor extends MessageProcessor {
 
             Headers headers = request.headers();
             // check service
-            String service = headers.get(Call.SERVICE_KEY);
+            String service = headers.get(Invocation.SERVICE_KEY);
             ServiceConfig serviceConfig = serviceFinder.apply(service);
             if (serviceConfig == null) {
-                throw new ServiceException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
+                throw new ServiceException(ErrorCode.SERVICE_ERROR, "unknown service: " + service);
             }
 
             // check method
-            String methodName = headers.get(Call.METHOD_KEY);
+            String methodName = headers.get(Invocation.METHOD_KEY);
             MethodConfig methodConfig = serviceConfig.lookup(methodName);
             if (methodConfig == null) {
-                throw new ServiceException(ErrorCode.METHOD_ERROR, "unkown method: " + service + "/" + methodName);
+                throw new ServiceException(ErrorCode.METHOD_ERROR, "unknown method: " + service + "/" + methodName);
             }
 
-            // decode call from request
-            Call call = decode(request, serviceConfig, methodConfig);
+            // decode invocation from request
+            Invocation invocation = decode(request, serviceConfig, methodConfig);
 
-            // invoke call
-            serviceConfig.getHandler().handle(call).whenComplete((reply, error) -> {
+            // invoke invocation
+            serviceConfig.getHandler().handle(invocation).whenComplete((reply, error) -> {
                 if (error != null) {
                     errorHandle(connection, request, error);
                 } else {
@@ -119,46 +118,37 @@ public final class PhotonMessageProcessor extends MessageProcessor {
         errorHandle(connection, request, exception);
     }
 
-    private Response encode(Reply reply, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+    private Response encode(Object reply, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         Response response = new Response();
-        if (reply.isError()) {
-            response.setStatus(Status.FAILURE);
-            InvokeException exception = (InvokeException) reply.getData();
-            response.headers().setInt(InvokeException.CODE_KEY, exception.getCode().value());
-            if (exception.getMessage() != null) {
-                response.setContent(exception.getMessage().getBytes(CharsetUtil.UTF_8));
+        response.setStatus(Status.SUCCESS);
+        byte[] content = null;
+        if (reply != null) {
+            try {
+                Serializer serializer = serviceConfig.getSerializer();
+                content = serializer.encode(reply, methodConfig.getReturnType());
+                response.headers().add(Serializer.TYPE_KEY, serializer.type());
+            } catch (IOException e) {
+                throw new ServiceException(ErrorCode.CODEC_ERROR,
+                        "serialize encode error: " + methodConfig.getMethodName(), e);
             }
-        } else {
-            response.setStatus(Status.SUCCESS);
-            byte[] content = null;
-            if (reply.getData() != null) {
+
+            Compressor compressor = serviceConfig.getCompressor();
+            if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
                 try {
-                    Serializer serializer = serviceConfig.getSerializer();
-                    content = serializer.encode(reply.getData(), methodConfig.getReturnType());
-                    reply.attach().put(Serializer.TYPE_KEY, serializer.type());
+                    content = compressor.encode(content);
+                    response.headers().add(Compressor.TYPE_KEY, compressor.type());
                 } catch (IOException e) {
                     throw new ServiceException(ErrorCode.CODEC_ERROR,
-                            "serialize encode error: " + methodConfig.getMethodName(), e);
-                }
-
-                Compressor compressor = serviceConfig.getCompressor();
-                if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
-                    try {
-                        content = compressor.encode(content);
-                        reply.attach().put(Compressor.TYPE_KEY, compressor.type());
-                    } catch (IOException e) {
-                        throw new ServiceException(ErrorCode.CODEC_ERROR,
-                                "compress encode error: " + methodConfig.getMethodName(), e);
-                    }
+                            "compress encode error: " + methodConfig.getMethodName(), e);
                 }
             }
-            response.setContent(content);
         }
-        response.headers().setAll(reply.attach());
+        response.setContent(content);
+
         return response;
     }
 
-    private Call decode(Request request, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+    private Invocation decode(Request request, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         Object value;
         Headers headers = request.headers();
         byte[] content = request.getContent();
@@ -186,14 +176,14 @@ public final class PhotonMessageProcessor extends MessageProcessor {
             }
         }
 
-        String service = headers.get(Call.SERVICE_KEY);
-        String method = headers.get(Call.METHOD_KEY);
-        Call call = new Call(service, method, value);
-        call.setConsumer(headers.get(Call.CONSUMER_KEY));
-        call.setProvider(headers.get(Call.PROVIDER_KEY));
-        call.setTimeout(request.getTimeout());
-        call.attach().putAll(headers);
-        return call;
+        String service = headers.get(Invocation.SERVICE_KEY);
+        String method = headers.get(Invocation.METHOD_KEY);
+        DefaultInvocation invocation = new DefaultInvocation(service, method, value);
+        invocation.setConsumer(headers.get(Invocation.CONSUMER_KEY));
+        invocation.setProvider(headers.get(Invocation.PROVIDER_KEY));
+        invocation.setTimeout(request.getTimeout());
+        headers.forEach(e -> invocation.attributes().put(e.getKey(), e.getValue()));
+        return invocation;
     }
 
     private void errorHandle(Connection connection, Request request, Throwable error) {

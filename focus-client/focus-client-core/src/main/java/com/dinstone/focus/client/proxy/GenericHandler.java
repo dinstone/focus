@@ -23,9 +23,8 @@ import com.dinstone.focus.client.config.ConsumerMethodConfig;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 
 class GenericHandler implements GenericService {
 
@@ -48,12 +47,10 @@ class GenericHandler implements GenericService {
     public <R, P> R sync(Class<R> returnType, String methodName, P parameter) throws Exception {
         MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
-        Call call = new Call(serviceConfig.getService(), methodName, parameter);
-        call.setTimeout(methodConfig.getTimeoutMillis());
+        DefaultInvocation invocation = new DefaultInvocation(serviceConfig.getService(), methodName, parameter);
+        invocation.setTimeout(methodConfig.getTimeoutMillis());
 
-        CompletableFuture<Reply> future = invokeHandler.handle(call);
-
-        return (R) future.get().getResult();
+        return (R) invokeHandler.handle(invocation);
     }
 
     @Override
@@ -67,12 +64,12 @@ class GenericHandler implements GenericService {
     public <R, P> CompletableFuture<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
         MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
-        Call call = new Call(serviceConfig.getService(), methodName, parameter);
-        call.setTimeout(methodConfig.getTimeoutMillis());
+        DefaultInvocation invocation = new DefaultInvocation(serviceConfig.getService(), methodName, parameter);
+        invocation.setTimeout(methodConfig.getTimeoutMillis());
 
-        CompletableFuture<Reply> future = invokeHandler.handle(call);
+        CompletableFuture<Object> future = invokeHandler.handle(invocation);
 
-        return (CompletableFuture<R>) future.thenApply(Reply::getResult);
+        return (CompletableFuture<R>) future;
     }
 
     private <P, R> MethodConfig getMethodConfig(Class<R> returnType, String methodName, P parameter) {

@@ -20,9 +20,8 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ConsumerAPI;
 import com.tencent.polaris.api.pojo.DefaultServiceInstances;
@@ -64,10 +63,10 @@ public class PolarisServiceLocater implements ServiceLocater {
     }
 
     @Override
-    public ServiceInstance locate(Call call, ServiceInstance selected) {
+    public ServiceInstance locate(Invocation invocation, ServiceInstance selected) {
         GetHealthyInstancesRequest request = new GetHealthyInstancesRequest();
         request.setNamespace(DEFAULT_NAMESPACE);
-        request.setService(call.getProvider());
+        request.setService(invocation.getProvider());
         request.setTimeoutMs(1000);
         InstancesResponse response = consumerAPI.getHealthyInstances(request);
         ServiceInstances sis = response.getServiceInstances();
@@ -119,12 +118,12 @@ public class PolarisServiceLocater implements ServiceLocater {
     }
 
     @Override
-    public void feedback(ServiceInstance selected, Call call, Reply reply, Throwable error, long delay) {
+    public void feedback(ServiceInstance selected, Invocation invocation, Object reply, Throwable error, long delay) {
         ServiceCallResult result = new ServiceCallResult();
         // 设置被调服务所在命名空间
         result.setNamespace(DEFAULT_NAMESPACE);
         // 设置被调服务的服务信息
-        result.setService(call.getProvider());
+        result.setService(invocation.getProvider());
         // result.setCallerService(new ServiceKey(DEFAULT_NAMESPACE,
         // call.getConsumer()));
 
@@ -142,9 +141,6 @@ public class PolarisServiceLocater implements ServiceLocater {
                 code = 2;
                 status = RetStatus.RetTimeout;
             }
-        } else if (reply.isError()) {
-            code = 1;
-            status = RetStatus.RetFail;
         }
         result.setRetCode(code);
         result.setRetStatus(status);
@@ -153,7 +149,7 @@ public class PolarisServiceLocater implements ServiceLocater {
         result.setDelay(delay);
 
         // 设置本次请求调用的方法
-        result.setMethod(call.getService() + "/" + call.getMethod());
+        result.setMethod(invocation.getEndpoint());
 
         consumerAPI.updateServiceCallResult(result);
     }

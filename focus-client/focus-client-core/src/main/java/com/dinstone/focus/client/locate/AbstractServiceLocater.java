@@ -15,16 +15,20 @@
  */
 package com.dinstone.focus.client.locate;
 
-import com.dinstone.focus.client.ServiceLocater;
-import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.invoke.Invocation;
+import com.dinstone.focus.naming.ServiceInstance;
 
 public abstract class AbstractServiceLocater implements ServiceLocater {
 
@@ -85,20 +89,20 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
     }
 
     @Override
-    public ServiceInstance locate(Call call, ServiceInstance selected) {
+    public ServiceInstance locate(Invocation invocation, ServiceInstance selected) {
         try {
             // routing
-            List<ServiceInstance> instances = routing(call, selected);
+            List<ServiceInstance> instances = routing(invocation, selected);
             // balance
-            return balance(call, instances);
+            return balance(invocation, instances);
         } catch (Exception e) {
             // ignore
         }
         return null;
     }
 
-    protected List<ServiceInstance> routing(Call call, ServiceInstance selected) throws Exception {
-        ServiceCache serviceCache = serviceCacheMap.get(call.getProvider());
+    protected List<ServiceInstance> routing(Invocation invocation, ServiceInstance selected) throws Exception {
+        ServiceCache serviceCache = serviceCacheMap.get(invocation.getProvider());
         if (serviceCache == null) {
             return null;
         }
@@ -113,7 +117,7 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
         return routings;
     }
 
-    protected ServiceInstance balance(Call call, List<ServiceInstance> instances) {
+    protected ServiceInstance balance(Invocation invocation, List<ServiceInstance> instances) {
         if (instances == null || instances.isEmpty()) {
             return null;
         } else if (instances.size() == 1) {
@@ -125,7 +129,7 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
     }
 
     @Override
-    public void feedback(ServiceInstance instance, Call call, Reply reply, Throwable error, long delay) {
+    public void feedback(ServiceInstance instance, Invocation invocation, Object reply, Throwable error, long delay) {
     }
 
     @Override

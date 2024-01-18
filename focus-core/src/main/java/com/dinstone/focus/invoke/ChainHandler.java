@@ -21,8 +21,6 @@ import java.util.ListIterator;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 
 public abstract class ChainHandler implements Handler {
 
@@ -53,8 +51,8 @@ public abstract class ChainHandler implements Handler {
     }
 
     @Override
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
-        return invokeHandler.handle(call);
+    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+        return invokeHandler.handle(invocation);
     }
 
     static class HandlerAdapter implements Handler {
@@ -70,8 +68,8 @@ public abstract class ChainHandler implements Handler {
         }
 
         @Override
-        public CompletableFuture<Reply> handle(Call call) throws Exception {
-            return interceptor.intercept(call, nextHandler);
+        public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+            return interceptor.intercept(invocation, nextHandler);
         }
 
     }

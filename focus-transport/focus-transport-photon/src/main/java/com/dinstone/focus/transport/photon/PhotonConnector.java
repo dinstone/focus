@@ -27,8 +27,7 @@ import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.Connector;
 import com.dinstone.photon.Connection;
@@ -36,7 +35,6 @@ import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
-
 import io.netty.util.CharsetUtil;
 
 public class PhotonConnector implements Connector {
@@ -53,14 +51,14 @@ public class PhotonConnector implements Connector {
     }
 
     @Override
-    public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, InetSocketAddress socketAddress)
-            throws Exception {
+    public CompletableFuture<Object> send(Invocation invocation, ServiceConfig serviceConfig,
+            InetSocketAddress socketAddress) throws Exception {
         // create connection
         Connection connection = factory.create(socketAddress);
 
-        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
+        MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
         // process request
-        Request request = encode(call, serviceConfig, methodConfig);
+        Request request = encode(invocation, serviceConfig, methodConfig);
 
         return connection.sendRequest(request).thenApplyAsync((response) -> {
             // process response
@@ -68,8 +66,7 @@ public class PhotonConnector implements Connector {
         });
     }
 
-    private Reply decode(Response response, ServiceConfig serviceConfig, MethodConfig methodConfig) {
-        Reply reply;
+    private Object decode(Response response, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         Headers headers = response.headers();
         if (response.getStatus() == Status.SUCCESS) {
             Object value;
@@ -97,7 +94,7 @@ public class PhotonConnector implements Connector {
                             "serialize decode error: " + methodConfig.getMethodName(), e);
                 }
             }
-            reply = new Reply(value);
+            return value;
         } else {
             String message = null;
             byte[] encoded = response.getContent();
@@ -106,19 +103,17 @@ public class PhotonConnector implements Connector {
             }
 
             int errorCode = headers.getInt(InvokeException.CODE_KEY, 0);
-            reply = new Reply(ExceptionUtil.invokeException(errorCode, message));
+            throw ExceptionUtil.invokeException(errorCode, message);
         }
-        reply.attach().putAll(headers);
-        return reply;
     }
 
-    private Request encode(Call call, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+    private Request encode(Invocation invocation, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         byte[] content = null;
-        if (call.getParameter() != null) {
+        if (invocation.getParameter() != null) {
             try {
                 Serializer serializer = serviceConfig.getSerializer();
-                content = serializer.encode(call.getParameter(), methodConfig.getParamType());
-                call.attach().put(Serializer.TYPE_KEY, serializer.type());
+                content = serializer.encode(invocation.getParameter(), methodConfig.getParamType());
+                invocation.attributes().put(Serializer.TYPE_KEY, serializer.type());
             } catch (IOException e) {
                 throw new ServiceException(ErrorCode.CODEC_ERROR,
                         "serialize encode error: " + methodConfig.getMethodName(), e);
@@ -128,7 +123,7 @@ public class PhotonConnector implements Connector {
             if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
                 try {
                     content = compressor.encode(content);
-                    call.attach().put(Compressor.TYPE_KEY, compressor.type());
+                    invocation.attributes().put(Compressor.TYPE_KEY, compressor.type());
                 } catch (IOException e) {
                     throw new ServiceException(ErrorCode.CODEC_ERROR,
                             "compress encode error: " + methodConfig.getMethodName(), e);
@@ -139,12 +134,12 @@ public class PhotonConnector implements Connector {
         Request request = new Request();
         request.setMsgId(ID_GENERATOR.incrementAndGet());
         Headers headers = request.headers();
-        headers.add(Call.CONSUMER_KEY, call.getConsumer());
-        headers.add(Call.PROVIDER_KEY, call.getProvider());
-        headers.add(Call.SERVICE_KEY, call.getService());
-        headers.add(Call.METHOD_KEY, call.getMethod());
-        request.setTimeout(call.getTimeout());
-        headers.setAll(call.attach());
+        headers.add(Invocation.CONSUMER_KEY, invocation.getConsumer());
+        headers.add(Invocation.PROVIDER_KEY, invocation.getProvider());
+        headers.add(Invocation.SERVICE_KEY, invocation.getService());
+        headers.add(Invocation.METHOD_KEY, invocation.getMethod());
+        request.setTimeout(invocation.getTimeout());
+        headers.setAll(invocation.attributes().entrySet());
         request.setContent(content);
         return request;
     }

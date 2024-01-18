@@ -19,8 +19,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.ServiceConfig;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.transport.Connector;
 
 public class Http2Connector implements Connector {
@@ -32,11 +31,11 @@ public class Http2Connector implements Connector {
     }
 
     @Override
-    public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig, InetSocketAddress socketAddress)
-            throws Exception {
+    public CompletableFuture<Object> send(Invocation invocation, ServiceConfig serviceConfig,
+            InetSocketAddress socketAddress) throws Exception {
         // create connection
         Http2Channel http2Channel = factory.create(socketAddress);
-        return http2Channel.send(call, serviceConfig);
+        return http2Channel.send(invocation, serviceConfig);
     }
 
     @Override

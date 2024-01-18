@@ -21,8 +21,7 @@ import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
@@ -50,14 +49,14 @@ public class RateLimitInterceptor implements Interceptor, AutoCloseable {
     }
 
     @Override
-    public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
+    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) throws Exception {
         QuotaRequest quotaRequest = new QuotaRequest();
         // 设置需要进行限流的服务信息：设置命名空间信息
         quotaRequest.setNamespace(DEFAULT_NAMESPACE);
         // 设置需要进行限流的服务信息：设置服务名称信息
-        quotaRequest.setService(call.getProvider());
+        quotaRequest.setService(invocation.getProvider());
         // 设置本次被调用的方法信息
-        quotaRequest.setMethod(call.getMethod());
+        quotaRequest.setMethod(invocation.getMethod());
         // 设置本次的请求标签
         // quotaRequest.setArguments();
         // 设置需要申请的请求配额数量
@@ -66,7 +65,7 @@ public class RateLimitInterceptor implements Interceptor, AutoCloseable {
         QuotaResponse response = limitAPI.getQuota(quotaRequest);
 
         if (response.getCode() == QuotaResultCode.QuotaResultOk) {
-            return handler.handle(call);
+            return handler.handle(invocation);
         } else {
             throw new ServiceException(ErrorCode.ACCESS_ERROR, "service is rate-limit");
         }

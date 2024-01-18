@@ -29,8 +29,7 @@ import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.server.config.ProviderServiceConfig;
 
 public class LocalInvokeHandler implements Handler {
@@ -42,18 +41,18 @@ public class LocalInvokeHandler implements Handler {
     }
 
     @Override
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
-        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
+    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+        MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
         try {
-            Object parameter = call.getParameter();
+            Object parameter = invocation.getParameter();
             Object target = serviceConfig.getTarget();
             Object result = methodConfig.getMethod().invoke(target, parameter);
             if (methodConfig.isAsyncInvoke() && result instanceof Future) {
                 Future<?> future = (Future<?>) result;
-                int invokeTimeout = call.getTimeout();
+                int invokeTimeout = invocation.getTimeout();
                 result = future.get(invokeTimeout, TimeUnit.MILLISECONDS);
             }
-            return CompletableFuture.completedFuture(new Reply(result));
+            return CompletableFuture.completedFuture(result);
         } catch (InvocationTargetException e) {
             Throwable te = e.getTargetException();
             if (te instanceof UndeclaredThrowableException) {

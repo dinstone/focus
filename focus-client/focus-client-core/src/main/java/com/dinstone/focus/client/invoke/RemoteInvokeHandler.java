@@ -27,9 +27,8 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.Handler;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
 import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements Handler {
@@ -51,15 +50,15 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     @Override
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
-        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
-        return timeoutRetry(new CompletableFuture<>(), methodConfig.getTimeoutRetry(), call);
+    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+        MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
+        return timeoutRetry(new CompletableFuture<>(), methodConfig.getTimeoutRetry(), invocation);
     }
 
-    private CompletableFuture<Reply> timeoutRetry(CompletableFuture<Reply> future, int remain, Call call)
+    private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, int remain, Invocation invocation)
             throws Exception {
 
-        connectRetry(call).thenApply(future::complete).exceptionally(e -> {
+        connectRetry(invocation).thenApply(future::complete).exceptionally(e -> {
             if (e instanceof CompletionException) {
                 e = e.getCause();
             }
@@ -69,7 +68,7 @@ public class RemoteInvokeHandler implements Handler {
                     future.completeExceptionally(e);
                 } else {
                     try {
-                        timeoutRetry(future, remain - 1, call);
+                        timeoutRetry(future, remain - 1, invocation);
                     } catch (Exception e1) {
                         future.completeExceptionally(e);
                     }
@@ -84,11 +83,11 @@ public class RemoteInvokeHandler implements Handler {
         return future;
     }
 
-    private CompletableFuture<Reply> connectRetry(Call call) throws Exception {
+    private CompletableFuture<Object> connectRetry(Invocation invocation) throws Exception {
         ServiceInstance selected = null;
         // find an address
         for (int i = 0; i < connectRetry; i++) {
-            selected = locater.locate(call, selected);
+            selected = locater.locate(invocation, selected);
 
             // check
             if (selected == null) {
@@ -99,20 +98,21 @@ public class RemoteInvokeHandler implements Handler {
             try {
                 final ServiceInstance instance = selected;
                 long startTime = System.currentTimeMillis();
-                return connector.send(call, serviceConfig, instance.getInstanceAddress())
+                return connector.send(invocation, serviceConfig, instance.getInstanceAddress())
                         .whenComplete((reply, error) -> {
                             long finishTime = System.currentTimeMillis();
-                            locater.feedback(instance, call, reply, error, finishTime - startTime);
+                            locater.feedback(instance, invocation, reply, error, finishTime - startTime);
                         });
             } catch (ConnectException e) {
                 // ignore and retry
             } catch (Exception e) {
-                throw new ServiceException(ErrorCode.ACCESS_ERROR, connectRetry + " retry for " + call.getService(), e);
+                throw new ServiceException(ErrorCode.ACCESS_ERROR,
+                        connectRetry + " retry for " + invocation.getService(), e);
             }
         }
 
         throw new ServiceException(ErrorCode.ACCESS_ERROR,
-                connectRetry + " retry can't find a live service instance for " + call.getService());
+                connectRetry + " retry can't find a live service instance for " + invocation.getService());
     }
 
 }

@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.ChainHandler;
 import com.dinstone.focus.invoke.Context;
+import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 
 /**
  * client-side service invoker.
@@ -37,13 +37,14 @@ public class ConsumerInvokeHandler extends ChainHandler {
         super(serviceConfig, invokeHandler);
     }
 
-    public CompletableFuture<Reply> handle(Call call) throws Exception {
+    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
         Context.pushContext();
         Context.getContext();
         try {
-            call.setConsumer(serviceConfig.getConsumer());
-            call.setProvider(serviceConfig.getProvider());
-            return invokeHandler.handle(call);
+            DefaultInvocation consumerInvocation = (DefaultInvocation) invocation;
+            consumerInvocation.setConsumer(serviceConfig.getConsumer());
+            consumerInvocation.setProvider(serviceConfig.getProvider());
+            return invokeHandler.handle(invocation);
         } finally {
             Context.removeContext();
             Context.popContext();

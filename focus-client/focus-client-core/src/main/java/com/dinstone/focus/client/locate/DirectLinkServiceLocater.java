@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.protocol.Call;
 
 public class DirectLinkServiceLocater extends AbstractServiceLocater {
 
@@ -43,7 +43,7 @@ public class DirectLinkServiceLocater extends AbstractServiceLocater {
     }
 
     @Override
-    protected List<ServiceInstance> routing(Call call, ServiceInstance selected) {
+    protected List<ServiceInstance> routing(Invocation invocation, ServiceInstance selected) {
         if (selected == null) {
             return instances;
         }

@@ -25,8 +25,7 @@ import org.junit.Test;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.client.proxy.JdkProxyFactory;
 import com.dinstone.focus.invoke.Handler;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 
 public class ProxyFactoryTest {
 
@@ -87,11 +86,9 @@ public class ProxyFactoryTest {
         serviceConfig.parseMethod(HelloService.class.getDeclaredMethods());
         serviceConfig.setHandler(new Handler() {
 
-            private Reply reply = new Reply(null);
-
             @Override
-            public CompletableFuture<Reply> handle(Call call) throws Exception {
-                return CompletableFuture.completedFuture(reply);
+            public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+                return CompletableFuture.completedFuture(null);
             }
         });
         return new JdkProxyFactory().create(HelloService.class, serviceConfig);

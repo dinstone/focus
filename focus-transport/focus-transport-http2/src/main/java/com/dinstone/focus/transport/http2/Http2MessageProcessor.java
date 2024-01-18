@@ -26,11 +26,10 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.DefaultInvocation;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.ExecutorSelector;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -57,35 +56,34 @@ public final class Http2MessageProcessor {
         try {
             Http2Headers headers = headersFrame.headers();
             // check service
-            String service = headers.get(Call.SERVICE_KEY).toString();
+            String service = headers.get(Invocation.SERVICE_KEY).toString();
             ServiceConfig serviceConfig = serviceFinder.apply(service);
             if (serviceConfig == null) {
-                throw new ServiceException(ErrorCode.SERVICE_ERROR, "unkown service: " + service);
+                throw new ServiceException(ErrorCode.SERVICE_ERROR, "unknown service: " + service);
             }
 
             // check method
-            String methodName = headers.get(Call.METHOD_KEY).toString();
+            String methodName = headers.get(Invocation.METHOD_KEY).toString();
             MethodConfig methodConfig = serviceConfig.lookup(methodName);
             if (methodConfig == null) {
-                throw new ServiceException(ErrorCode.METHOD_ERROR, "unkown method: " + service + "/" + methodName);
+                throw new ServiceException(ErrorCode.METHOD_ERROR, "unknown method: " + service + "/" + methodName);
             }
 
-            // decode call from request
+            // decode invocation from request
             ByteBuf dataBuf = dataFrame == null ? null : dataFrame.content();
-            Call call = decode(headers, dataBuf, serviceConfig, methodConfig);
+            Invocation invocation = decode(headers, dataBuf, serviceConfig, methodConfig);
 
-            // invoke call
-            CompletableFuture<Reply> replyFuture = serviceConfig.getHandler().handle(call);
+            // invoke invocation
+            CompletableFuture<Object> replyFuture = serviceConfig.getHandler().handle(invocation);
             replyFuture.whenComplete((reply, error) -> {
                 if (error != null) {
                     errorHandle(channel, error);
                 } else {
                     byte[] content = null;
-                    if (reply.getData() != null) {
+                    if (reply != null) {
                         try {
                             Serializer serializer = serviceConfig.getSerializer();
-                            content = serializer.encode(reply.getData(), methodConfig.getReturnType());
-                            reply.attach().put(Serializer.TYPE_KEY, serializer.type());
+                            content = serializer.encode(reply, methodConfig.getReturnType());
                         } catch (IOException e) {
                             throw new ServiceException(ErrorCode.CODEC_ERROR,
                                     "serialize encode error: " + methodConfig.getMethodName(), e);
@@ -95,7 +93,6 @@ public final class Http2MessageProcessor {
                         if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
                             try {
                                 content = compressor.encode(content);
-                                reply.attach().put(Compressor.TYPE_KEY, compressor.type());
                             } catch (IOException e) {
                                 throw new ServiceException(ErrorCode.CODEC_ERROR,
                                         "compress encode error: " + methodConfig.getMethodName(), e);
@@ -149,7 +146,8 @@ public final class Http2MessageProcessor {
 
     }
 
-    private Call decode(Http2Headers headers, ByteBuf bbc, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+    private Invocation decode(Http2Headers headers, ByteBuf bbc, ServiceConfig serviceConfig,
+            MethodConfig methodConfig) {
         Object value;
         if (bbc == null) {
             value = null;
@@ -178,32 +176,26 @@ public final class Http2MessageProcessor {
             }
         }
 
-        String service = headers.get(Call.SERVICE_KEY).toString();
-        String method = headers.get(Call.METHOD_KEY).toString();
-        Call call = new Call(service, method, value);
-        call.setConsumer(headers.get(Call.CONSUMER_KEY, "").toString());
-        call.setProvider(headers.get(Call.PROVIDER_KEY, "").toString());
-        call.setTimeout(headers.getIntAndRemove(Call.TIMEOUT_KEY));
-        headers.forEach(e -> call.attach().put(e.getKey().toString(), e.getValue().toString()));
-        return call;
+        String service = headers.get(Invocation.SERVICE_KEY).toString();
+        String method = headers.get(Invocation.METHOD_KEY).toString();
+        DefaultInvocation invocation = new DefaultInvocation(service, method, value);
+        invocation.setConsumer(headers.get(Invocation.CONSUMER_KEY, "").toString());
+        invocation.setProvider(headers.get(Invocation.PROVIDER_KEY, "").toString());
+        invocation.setTimeout(headers.getIntAndRemove(Invocation.TIMEOUT_KEY));
+        headers.forEach(e -> invocation.attributes().put(e.getKey().toString(), e.getValue().toString()));
+        return invocation;
     }
 
     public void process(Channel channel, Http2HeadersFrame headersFrame, Http2DataFrame dataFrame) {
         Executor executor = null;
         if (executorSelector != null) {
             Http2Headers headers = headersFrame.headers();
-            String s = headers.get(Call.SERVICE_KEY).toString();
-            String m = headers.get(Call.METHOD_KEY).toString();
+            String s = headers.get(Invocation.SERVICE_KEY).toString();
+            String m = headers.get(Invocation.METHOD_KEY).toString();
             executor = executorSelector.select(s, m);
         }
         if (executor != null) {
-            executor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    invoke(channel, headersFrame, dataFrame);
-                }
-            });
+            executor.execute(() -> invoke(channel, headersFrame, dataFrame));
         } else {
             invoke(channel, headersFrame, dataFrame);
         }

@@ -25,10 +25,8 @@ import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
@@ -68,29 +66,29 @@ public class Http2Channel {
         channel.close();
     }
 
-    public CompletableFuture<Reply> send(Call call, ServiceConfig serviceConfig) {
-        CompletableFuture<Reply> future = new CompletableFuture<>();
+    public CompletableFuture<Object> send(Invocation invocation, ServiceConfig serviceConfig) {
+        CompletableFuture<Object> future = new CompletableFuture<>();
 
-        MethodConfig methodConfig = serviceConfig.lookup(call.getMethod());
+        MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
         Http2StreamChannelBootstrap streamChannelBootstrap = new Http2StreamChannelBootstrap(channel);
         Http2StreamChannel streamChannel = streamChannelBootstrap.open().syncUninterruptibly().getNow();
         streamChannel.pipeline().addLast(new StreamChannelHandler(future, serviceConfig, methodConfig));
 
         DefaultHttp2Headers headers = new DefaultHttp2Headers();
-        headers.add(Call.CONSUMER_KEY, call.getConsumer());
-        headers.add(Call.PROVIDER_KEY, call.getProvider());
-        headers.add(Call.SERVICE_KEY, call.getService());
-        headers.add(Call.METHOD_KEY, call.getMethod());
-        headers.addInt(Call.TIMEOUT_KEY, call.getTimeout());
-        call.attach().forEach(e -> {
-            if (e.getKey() != null && e.getValue() != null) {
-                headers.add(e.getKey(), e.getValue());
+        headers.add(Invocation.CONSUMER_KEY, invocation.getConsumer());
+        headers.add(Invocation.PROVIDER_KEY, invocation.getProvider());
+        headers.add(Invocation.SERVICE_KEY, invocation.getService());
+        headers.add(Invocation.METHOD_KEY, invocation.getMethod());
+        headers.addInt(Invocation.TIMEOUT_KEY, invocation.getTimeout());
+        invocation.attributes().forEach((k, v) -> {
+            if (k != null && v != null) {
+                headers.add(k, v);
             }
         });
 
         headers.path(PATH).method(HttpMethod.POST.toString());
 
-        byte[] content = encodeContent(call, serviceConfig, methodConfig);
+        byte[] content = encodeContent(invocation, serviceConfig, methodConfig);
         if (content != null) {
             streamChannel.write(new DefaultHttp2HeadersFrame(headers));
 
@@ -104,13 +102,13 @@ public class Http2Channel {
         return future;
     }
 
-    private byte[] encodeContent(Call call, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+    private byte[] encodeContent(Invocation invocation, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         byte[] content = null;
-        if (call.getParameter() != null) {
+        if (invocation.getParameter() != null) {
             try {
                 Serializer serializer = serviceConfig.getSerializer();
-                content = serializer.encode(call.getParameter(), methodConfig.getParamType());
-                call.attach().put(Serializer.TYPE_KEY, serializer.type());
+                content = serializer.encode(invocation.getParameter(), methodConfig.getParamType());
+                invocation.attributes().put(Serializer.TYPE_KEY, serializer.type());
             } catch (IOException e) {
                 throw new ServiceException(ErrorCode.CODEC_ERROR,
                         "serialize encode error: " + methodConfig.getMethodName(), e);
@@ -120,7 +118,7 @@ public class Http2Channel {
             if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
                 try {
                     content = compressor.encode(content);
-                    call.attach().put(Compressor.TYPE_KEY, compressor.type());
+                    invocation.attributes().put(Compressor.TYPE_KEY, compressor.type());
                 } catch (IOException e) {
                     throw new ServiceException(ErrorCode.CODEC_ERROR,
                             "compress encode error: " + methodConfig.getMethodName(), e);
@@ -130,13 +128,13 @@ public class Http2Channel {
         return content;
     }
 
-    public class StreamChannelHandler extends SimpleChannelInboundHandler<Http2StreamFrame> {
+    public static class StreamChannelHandler extends SimpleChannelInboundHandler<Http2StreamFrame> {
 
-        private CompletableFuture<Reply> future;
+        private CompletableFuture<Object> future;
         private ServiceConfig serviceConfig;
         private MethodConfig methodConfig;
 
-        public StreamChannelHandler(CompletableFuture<Reply> future, ServiceConfig serviceConfig,
+        public StreamChannelHandler(CompletableFuture<Object> future, ServiceConfig serviceConfig,
                 MethodConfig methodConfig) {
             this.future = future;
             this.serviceConfig = serviceConfig;
@@ -162,7 +160,6 @@ public class Http2Channel {
         }
 
         private void handle(Http2HeadersFrame headersFrame, Http2DataFrame dataFrame) {
-            Reply reply;
             Http2Headers headers = headersFrame.headers();
             if (headers.status().equals(HttpResponseStatus.OK.codeAsText())) {
                 Object value = null;
@@ -191,7 +188,7 @@ public class Http2Channel {
                                 "serialize decode error: " + methodConfig.getMethodName(), e);
                     }
                 }
-                reply = new Reply(value);
+                future.complete(value);
             } else {
                 // error handle
                 String message = null;
@@ -200,20 +197,11 @@ public class Http2Channel {
                     byte[] content = new byte[buf.readableBytes()];
                     buf.readBytes(content);
                     message = new String(content, CharsetUtil.UTF_8);
-
                 }
 
                 int errorCode = headers.getInt(InvokeException.CODE_KEY, 0);
-                reply = new Reply(ExceptionUtil.invokeException(errorCode, message));
+                future.complete(ExceptionUtil.invokeException(errorCode, message));
             }
-
-            headers.forEach(e -> {
-                if (e.getKey() != null && e.getValue() != null) {
-                    reply.attach().put(e.getKey().toString(), e.getValue().toString());
-                }
-            });
-
-            future.complete(reply);
         }
 
     }

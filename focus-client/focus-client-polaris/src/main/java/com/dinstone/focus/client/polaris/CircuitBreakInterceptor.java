@@ -20,8 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
-import com.dinstone.focus.protocol.Call;
-import com.dinstone.focus.protocol.Reply;
+import com.dinstone.focus.invoke.Invocation;
 import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.pojo.ServiceKey;
 import com.tencent.polaris.circuitbreak.api.CircuitBreakAPI;
@@ -53,16 +52,16 @@ public class CircuitBreakInterceptor implements Interceptor, AutoCloseable {
     }
 
     @Override
-    public CompletableFuture<Reply> intercept(Call call, Handler handler) throws Exception {
-        ServiceKey skey = new ServiceKey(DEFAULT_NAMESPACE, call.getProvider());
-        RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, call.getMethod());
+    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) throws Exception {
+        ServiceKey skey = new ServiceKey(DEFAULT_NAMESPACE, invocation.getProvider());
+        RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, invocation.getMethod());
         InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
 
         invokeHandler.acquirePermission();
 
         long startTimeMillis = System.currentTimeMillis();
         try {
-            CompletableFuture<Reply> future = handler.handle(call);
+            CompletableFuture<Object> future = handler.handle(invocation);
             return future.whenComplete((reply, error) -> {
 
                 long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
@@ -75,13 +74,8 @@ public class CircuitBreakInterceptor implements Interceptor, AutoCloseable {
                     responseContext.setError(error);
                     invokeHandler.onError(responseContext);
                 } else {
-                    if (reply.isError()) {
-                        responseContext.setError((Exception) reply.getData());
-                        invokeHandler.onError(responseContext);
-                    } else {
-                        responseContext.setResult(reply.getData());
-                        invokeHandler.onSuccess(responseContext);
-                    }
+                    responseContext.setResult(reply);
+                    invokeHandler.onSuccess(responseContext);
                 }
             });
         } catch (Throwable e) {

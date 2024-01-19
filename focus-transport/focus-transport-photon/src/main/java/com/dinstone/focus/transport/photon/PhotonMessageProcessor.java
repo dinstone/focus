@@ -56,20 +56,14 @@ public final class PhotonMessageProcessor extends MessageProcessor {
             executor = executorSelector.select(s, m);
         }
         if (executor != null) {
-            executor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    invoke(connection, request);
-                }
-            });
+            executor.execute(() -> invoke(connection, request));
         } else {
             invoke(connection, request);
         }
     }
 
     private void invoke(Connection connection, Request request) {
-        InvokeException exception = null;
+        InvokeException exception;
         try {
             // check request timeout
             if (request.isTimeout()) {

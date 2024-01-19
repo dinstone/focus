@@ -16,6 +16,7 @@
 package com.dinstone.focus.client.invoke;
 
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
@@ -83,7 +84,7 @@ public class RemoteInvokeHandler implements Handler {
         return future;
     }
 
-    private CompletableFuture<Object> connectRetry(Invocation invocation) throws Exception {
+    private CompletableFuture<Object> connectRetry(Invocation invocation) {
         ServiceInstance selected = null;
         // find an address
         for (int i = 0; i < connectRetry; i++) {
@@ -98,7 +99,8 @@ public class RemoteInvokeHandler implements Handler {
             try {
                 final ServiceInstance instance = selected;
                 long startTime = System.currentTimeMillis();
-                return connector.send(invocation, instance.getInstanceAddress()).whenComplete((reply, error) -> {
+                InetSocketAddress socketAddress = instance.getInstanceAddress();
+                return connector.send(invocation, socketAddress).whenComplete((reply, error) -> {
                     long finishTime = System.currentTimeMillis();
                     locater.feedback(instance, invocation, reply, error, finishTime - startTime);
                 });

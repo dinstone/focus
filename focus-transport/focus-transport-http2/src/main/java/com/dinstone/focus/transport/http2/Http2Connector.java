@@ -30,7 +30,7 @@ public class Http2Connector implements Connector {
     }
 
     @Override
-    public CompletableFuture<Object> send(Invocation invocation, InetSocketAddress socketAddress) throws Exception {
+    public CompletableFuture<Object> send(Invocation invocation, InetSocketAddress socketAddress) {
         // create connection
         Http2Channel http2Channel = factory.create(socketAddress);
         return http2Channel.send(invocation);

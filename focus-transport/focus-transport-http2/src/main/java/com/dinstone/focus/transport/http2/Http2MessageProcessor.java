@@ -52,7 +52,7 @@ public final class Http2MessageProcessor {
     }
 
     private void invoke(Channel channel, Http2HeadersFrame headersFrame, Http2DataFrame dataFrame) {
-        InvokeException exception = null;
+        InvokeException exception;
         try {
             Http2Headers headers = headersFrame.headers();
             // check service

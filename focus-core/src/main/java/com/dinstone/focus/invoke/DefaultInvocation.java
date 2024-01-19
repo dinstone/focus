@@ -26,7 +26,7 @@ import com.dinstone.focus.config.ServiceConfig;
 public class DefaultInvocation implements Invocation, Serializable {
     private static final long serialVersionUID = 1L;
     private static final String EMPTY_VALUE = "";
-    private final Map<String, String> attributes = new HashMap<String, String>();
+    private final Map<String, String> attributes = new HashMap<>();
 
     protected final String service;
 

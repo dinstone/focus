@@ -131,9 +131,9 @@ public class Http2Channel {
 
     public static class StreamChannelHandler extends SimpleChannelInboundHandler<Http2StreamFrame> {
 
-        private CompletableFuture<Object> future;
-        private ServiceConfig serviceConfig;
-        private MethodConfig methodConfig;
+        private final CompletableFuture<Object> future;
+        private final ServiceConfig serviceConfig;
+        private final MethodConfig methodConfig;
 
         public StreamChannelHandler(CompletableFuture<Object> future, ServiceConfig serviceConfig,
                 MethodConfig methodConfig) {
@@ -143,7 +143,7 @@ public class Http2Channel {
         }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, Http2StreamFrame msg) throws Exception {
+        protected void channelRead0(ChannelHandlerContext ctx, Http2StreamFrame msg) {
             if (msg instanceof Http2HeadersFrame) {
                 Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
                 if (headersFrame.isEndStream()) {

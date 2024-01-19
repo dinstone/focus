@@ -92,7 +92,9 @@ public final class PhotonMessageProcessor extends MessageProcessor {
             }
 
             // decode invocation from request
-            Invocation invocation = decode(request, serviceConfig, methodConfig);
+            DefaultInvocation invocation = decode(request, serviceConfig, methodConfig);
+            invocation.setRemoteAddress(connection.getRemoteAddress());
+            invocation.setLocalAddress(connection.getLocalAddress());
 
             // invoke invocation
             serviceConfig.getHandler().handle(invocation).whenComplete((reply, error) -> {
@@ -148,7 +150,7 @@ public final class PhotonMessageProcessor extends MessageProcessor {
         return response;
     }
 
-    private Invocation decode(Request request, ServiceConfig serviceConfig, MethodConfig methodConfig) {
+    private DefaultInvocation decode(Request request, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         Object value;
         Headers headers = request.headers();
         byte[] content = request.getContent();
@@ -182,6 +184,8 @@ public final class PhotonMessageProcessor extends MessageProcessor {
         invocation.setConsumer(headers.get(Invocation.CONSUMER_KEY));
         invocation.setProvider(headers.get(Invocation.PROVIDER_KEY));
         invocation.setTimeout(request.getTimeout());
+        invocation.setServiceConfig(serviceConfig);
+        invocation.setMethodConfig(methodConfig);
         headers.forEach(e -> invocation.attributes().put(e.getKey(), e.getValue()));
         return invocation;
     }

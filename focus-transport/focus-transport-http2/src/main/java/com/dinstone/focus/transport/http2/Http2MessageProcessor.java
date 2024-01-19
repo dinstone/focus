@@ -182,6 +182,8 @@ public final class Http2MessageProcessor {
         invocation.setConsumer(headers.get(Invocation.CONSUMER_KEY, "").toString());
         invocation.setProvider(headers.get(Invocation.PROVIDER_KEY, "").toString());
         invocation.setTimeout(headers.getIntAndRemove(Invocation.TIMEOUT_KEY));
+        invocation.setServiceConfig(serviceConfig);
+        invocation.setMethodConfig(methodConfig);
         headers.forEach(e -> invocation.attributes().put(e.getKey().toString(), e.getValue().toString()));
         return invocation;
     }

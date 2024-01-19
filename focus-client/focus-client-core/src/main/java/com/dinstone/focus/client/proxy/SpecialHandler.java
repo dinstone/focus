@@ -60,6 +60,10 @@ class SpecialHandler implements InvocationHandler {
         DefaultInvocation invocation = new DefaultInvocation(serviceConfig.getService(), methodConfig.getMethodName(),
                 parameter);
         invocation.setTimeout(methodConfig.getTimeoutMillis());
+        invocation.setProvider(serviceConfig.getProvider());
+        invocation.setConsumer(serviceConfig.getConsumer());
+        invocation.setServiceConfig(serviceConfig);
+        invocation.setMethodConfig(methodConfig);
 
         // invoke
         CompletableFuture<Object> future = invokeHandler.handle(invocation);

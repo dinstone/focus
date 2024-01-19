@@ -49,6 +49,10 @@ class GenericHandler implements GenericService {
 
         DefaultInvocation invocation = new DefaultInvocation(serviceConfig.getService(), methodName, parameter);
         invocation.setTimeout(methodConfig.getTimeoutMillis());
+        invocation.setProvider(serviceConfig.getProvider());
+        invocation.setConsumer(serviceConfig.getConsumer());
+        invocation.setServiceConfig(serviceConfig);
+        invocation.setMethodConfig(methodConfig);
 
         return (R) invokeHandler.handle(invocation);
     }
@@ -66,6 +70,10 @@ class GenericHandler implements GenericService {
 
         DefaultInvocation invocation = new DefaultInvocation(serviceConfig.getService(), methodName, parameter);
         invocation.setTimeout(methodConfig.getTimeoutMillis());
+        invocation.setProvider(serviceConfig.getProvider());
+        invocation.setConsumer(serviceConfig.getConsumer());
+        invocation.setServiceConfig(serviceConfig);
+        invocation.setMethodConfig(methodConfig);
 
         CompletableFuture<Object> future = invokeHandler.handle(invocation);
 

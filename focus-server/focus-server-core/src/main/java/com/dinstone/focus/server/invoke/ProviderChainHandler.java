@@ -19,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.ChainHandler;
-import com.dinstone.focus.invoke.Context;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Invocation;
 
@@ -30,19 +29,20 @@ import com.dinstone.focus.invoke.Invocation;
  *
  * @version 1.0.0
  */
-public class ProviderInvokeHandler extends ChainHandler {
+public class ProviderChainHandler extends ChainHandler {
 
-    public ProviderInvokeHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
+    public ProviderChainHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
         super(serviceConfig, invokeHandler);
     }
 
     public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
-        Context.getContext();
-        try {
-            return invokeHandler.handle(invocation);
-        } finally {
-            Context.clearContext();
-        }
+        // Context.getContext();
+        // try {
+        // return invokeHandler.handle(invocation);
+        // } finally {
+        // Context.clearContext();
+        // }
+        return invokeHandler.handle(invocation);
     }
 
 }

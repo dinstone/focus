@@ -18,6 +18,9 @@ package com.dinstone.focus.invoke;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+import com.dinstone.focus.config.MethodConfig;
+import com.dinstone.focus.config.ServiceConfig;
+
 public interface Invocation {
     String CONSUMER_KEY = "call.consumer";
     String PROVIDER_KEY = "call.provider";
@@ -44,4 +47,8 @@ public interface Invocation {
     InetSocketAddress getLocalAddress();
 
     Map<String, String> attributes();
+
+    ServiceConfig getServiceConfig();
+
+    MethodConfig getMethodConfig();
 }

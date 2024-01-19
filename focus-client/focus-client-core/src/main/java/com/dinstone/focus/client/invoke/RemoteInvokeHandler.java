@@ -98,11 +98,10 @@ public class RemoteInvokeHandler implements Handler {
             try {
                 final ServiceInstance instance = selected;
                 long startTime = System.currentTimeMillis();
-                return connector.send(invocation, serviceConfig, instance.getInstanceAddress())
-                        .whenComplete((reply, error) -> {
-                            long finishTime = System.currentTimeMillis();
-                            locater.feedback(instance, invocation, reply, error, finishTime - startTime);
-                        });
+                return connector.send(invocation, instance.getInstanceAddress()).whenComplete((reply, error) -> {
+                    long finishTime = System.currentTimeMillis();
+                    locater.feedback(instance, invocation, reply, error, finishTime - startTime);
+                });
             } catch (ConnectException e) {
                 // ignore and retry
             } catch (Exception e) {

@@ -99,16 +99,16 @@ public class TelemetryInterceptor implements Interceptor {
 
     }
 
-    private Span getClientSpan(Invocation call, Tracer tracer) {
-        Span span = tracer.spanBuilder(call.getEndpoint()).setSpanKind(SpanKind.CLIENT).startSpan();
-        return span.setAttribute(RPC_SERVICE, call.getService()).setAttribute(RPC_METHOD, call.getMethod());
+    private Span getClientSpan(Invocation invocation, Tracer tracer) {
+        Span span = tracer.spanBuilder(invocation.getEndpoint()).setSpanKind(SpanKind.CLIENT).startSpan();
+        return span.setAttribute(RPC_SERVICE, invocation.getService()).setAttribute(RPC_METHOD, invocation.getMethod());
     }
 
-    private Span getServerSpan(Invocation call, Tracer tracer) {
+    private Span getServerSpan(Invocation invocation, Tracer tracer) {
         // Extract the SpanContext and other elements from the request.
-        Context pc = telemetry.getPropagators().getTextMapPropagator().extract(Context.current(), call, getter);
-        Span span = tracer.spanBuilder(call.getEndpoint()).setSpanKind(SpanKind.SERVER).setParent(pc).startSpan();
-        return span.setAttribute(RPC_SERVICE, call.getService()).setAttribute(RPC_METHOD, call.getMethod());
+        Context pc = telemetry.getPropagators().getTextMapPropagator().extract(Context.current(), invocation, getter);
+        Span span = tracer.spanBuilder(invocation.getEndpoint()).setSpanKind(SpanKind.SERVER).setParent(pc).startSpan();
+        return span.setAttribute(RPC_SERVICE, invocation.getService()).setAttribute(RPC_METHOD, invocation.getMethod());
     }
 
     private void finishSpan(Object reply, Throwable error, Span span) {

@@ -20,6 +20,9 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dinstone.focus.config.MethodConfig;
+import com.dinstone.focus.config.ServiceConfig;
+
 public class DefaultInvocation implements Invocation, Serializable {
     private static final long serialVersionUID = 1L;
     private static final String EMPTY_VALUE = "";
@@ -42,9 +45,17 @@ public class DefaultInvocation implements Invocation, Serializable {
 
     protected int timeout;
 
+    // ===================================
+    // content filed
+    // ===================================
+
     private InetSocketAddress remoteAddress;
 
     private InetSocketAddress localAddress;
+
+    private ServiceConfig serviceConfig;
+
+    private MethodConfig methodConfig;
 
     public DefaultInvocation(String service, String method, Object parameter) {
         this.service = service;
@@ -123,20 +134,26 @@ public class DefaultInvocation implements Invocation, Serializable {
         this.localAddress = localAddress;
     }
 
-    public void addAttribute(String key, String value) {
-        this.attributes.put(key, value);
-    }
-
-    public void attributes(Iterable<Map.Entry<String, String>> as) {
-        if (as != null) {
-            as.forEach(e -> {
-                this.attributes.put(e.getKey(), e.getValue());
-            });
-        }
-    }
-
     @Override
     public Map<String, String> attributes() {
         return attributes;
+    }
+
+    @Override
+    public ServiceConfig getServiceConfig() {
+        return serviceConfig;
+    }
+
+    public void setServiceConfig(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
+    }
+
+    @Override
+    public MethodConfig getMethodConfig() {
+        return methodConfig;
+    }
+
+    public void setMethodConfig(MethodConfig methodConfig) {
+        this.methodConfig = methodConfig;
     }
 }

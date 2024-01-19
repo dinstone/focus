@@ -31,7 +31,7 @@ import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.server.config.ProviderServiceConfig;
 import com.dinstone.focus.server.invoke.LocalInvokeHandler;
-import com.dinstone.focus.server.invoke.ProviderInvokeHandler;
+import com.dinstone.focus.server.invoke.ProviderChainHandler;
 import com.dinstone.focus.server.resolver.DefaultServiceResolver;
 import com.dinstone.focus.transport.AcceptOptions;
 import com.dinstone.focus.transport.Acceptor;
@@ -221,7 +221,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
 
     private Handler createInvokeHandler(ServiceConfig serviceConfig) {
         LocalInvokeHandler localHandler = new LocalInvokeHandler(serviceConfig);
-        return new ProviderInvokeHandler(serviceConfig, localHandler).addInterceptor(serverOptions.getInterceptors());
+        return new ProviderChainHandler(serviceConfig, localHandler).addInterceptor(serverOptions.getInterceptors());
     }
 
 }

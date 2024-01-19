@@ -21,7 +21,7 @@ import java.util.ServiceLoader;
 import com.dinstone.focus.FocusOptions;
 import com.dinstone.focus.client.config.ConsumerMethodConfig;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
-import com.dinstone.focus.client.invoke.ConsumerInvokeHandler;
+import com.dinstone.focus.client.invoke.ConsumerChainHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.locate.DirectLinkServiceLocater;
 import com.dinstone.focus.client.proxy.ProxyFactory;
@@ -189,7 +189,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
 
     private Handler createInvokeHandler(ServiceConfig serviceConfig) {
         Handler remote = new RemoteInvokeHandler(serviceConfig, serviceLocater, connector);
-        return new ConsumerInvokeHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
+        return new ConsumerChainHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
     }
 
 }

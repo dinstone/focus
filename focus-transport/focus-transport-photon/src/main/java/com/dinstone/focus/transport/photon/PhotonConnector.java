@@ -27,6 +27,7 @@ import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
+import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.Connector;
@@ -51,15 +52,21 @@ public class PhotonConnector implements Connector {
     }
 
     @Override
-    public CompletableFuture<Object> send(Invocation invocation, ServiceConfig serviceConfig,
-            InetSocketAddress socketAddress) throws Exception {
+    public CompletableFuture<Object> send(Invocation invocation, InetSocketAddress socketAddress) throws Exception {
         // create connection
         Connection connection = factory.create(socketAddress);
 
-        MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
-        // process request
+        DefaultInvocation iv = (DefaultInvocation) invocation;
+        iv.setRemoteAddress(connection.getRemoteAddress());
+        iv.setLocalAddress(connection.getLocalAddress());
+
+        ServiceConfig serviceConfig = invocation.getServiceConfig();
+        MethodConfig methodConfig = invocation.getMethodConfig();
+
+        // codec invocation to request
         Request request = encode(invocation, serviceConfig, methodConfig);
 
+        // process request
         return connection.sendRequest(request).thenApplyAsync((response) -> {
             // process response
             return decode(response, serviceConfig, methodConfig);

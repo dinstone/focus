@@ -97,7 +97,7 @@ public final class PhotonMessageProcessor extends MessageProcessor {
                 } else {
                     // encode reply to response
                     Response response = encode(reply, serviceConfig, methodConfig);
-                    response.setMsgId(request.getMsgId());
+                    response.setSequence(request.getSequence());
 
                     // send response with reply
                     connection.sendMessage(response);
@@ -193,8 +193,8 @@ public final class PhotonMessageProcessor extends MessageProcessor {
         }
         // send response with exception
         Response response = new Response();
-        response.setMsgId(request.getMsgId());
         response.setStatus(Status.FAILURE);
+        response.setSequence(request.getSequence());
 
         response.headers().setInt(InvokeException.CODE_KEY, exception.getCode().value());
         if (exception.getMessage() != null) {

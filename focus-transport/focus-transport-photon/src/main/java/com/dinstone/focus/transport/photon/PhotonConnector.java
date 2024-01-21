@@ -40,7 +40,7 @@ import io.netty.util.CharsetUtil;
 
 public class PhotonConnector implements Connector {
 
-    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
+    private static final AtomicInteger SEQUENCER = new AtomicInteger();
 
     private final PhotonConnectionFactory factory;
 
@@ -76,10 +76,9 @@ public class PhotonConnector implements Connector {
     private Object decode(Response response, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         Headers headers = response.headers();
         if (response.getStatus() == Status.SUCCESS) {
-            Object value;
             byte[] content = response.getContent();
             if (content == null || content.length == 0) {
-                value = null;
+                return null;
             } else {
                 String compressorType = headers.get(Compressor.TYPE_KEY);
                 Compressor compressor = serviceConfig.getCompressor();
@@ -95,13 +94,12 @@ public class PhotonConnector implements Connector {
                 try {
                     Serializer serializer = serviceConfig.getSerializer();
                     Class<?> contentType = methodConfig.getReturnType();
-                    value = serializer.decode(content, contentType);
+                    return serializer.decode(content, contentType);
                 } catch (IOException e) {
                     throw new ServiceException(ErrorCode.CODEC_ERROR,
                             "serialize decode error: " + methodConfig.getMethodName(), e);
                 }
             }
-            return value;
         } else {
             String message = null;
             byte[] encoded = response.getContent();
@@ -109,7 +107,9 @@ public class PhotonConnector implements Connector {
                 message = new String(encoded, CharsetUtil.UTF_8);
             }
 
-            int errorCode = headers.getInt(InvokeException.CODE_KEY, 0);
+            String codeKey = InvokeException.CODE_KEY;
+            int value = ErrorCode.UNKNOWN_ERROR.value();
+            int errorCode = headers.getInt(codeKey, value);
             throw ExceptionUtil.invokeException(errorCode, message);
         }
     }
@@ -139,14 +139,14 @@ public class PhotonConnector implements Connector {
         }
 
         Request request = new Request();
-        request.setMsgId(ID_GENERATOR.incrementAndGet());
         Headers headers = request.headers();
         headers.add(Invocation.CONSUMER_KEY, invocation.getConsumer());
         headers.add(Invocation.PROVIDER_KEY, invocation.getProvider());
         headers.add(Invocation.SERVICE_KEY, invocation.getService());
         headers.add(Invocation.METHOD_KEY, invocation.getMethod());
-        request.setTimeout(invocation.getTimeout());
         headers.setAll(invocation.attributes().entrySet());
+        request.setSequence(SEQUENCER.incrementAndGet());
+        request.setTimeout(invocation.getTimeout());
         request.setContent(content);
         return request;
     }

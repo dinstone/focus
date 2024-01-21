@@ -52,43 +52,30 @@ public class CircuitBreakInterceptor implements Interceptor, AutoCloseable {
     }
 
     @Override
-    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) throws Exception {
+    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) {
         ServiceKey skey = new ServiceKey(DEFAULT_NAMESPACE, invocation.getProvider());
-        RequestContext makeDecoratorRequest = new FunctionalDecoratorRequest(skey, invocation.getMethod());
-        InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(makeDecoratorRequest);
+        RequestContext requestContext = new FunctionalDecoratorRequest(skey, invocation.getMethod());
+        InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(requestContext);
 
         invokeHandler.acquirePermission();
 
         long startTimeMillis = System.currentTimeMillis();
-        try {
-            CompletableFuture<Object> future = handler.handle(invocation);
-            return future.whenComplete((reply, error) -> {
+        return handler.handle(invocation).whenComplete((reply, error) -> {
 
-                long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
-
-                InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
-                responseContext.setDuration(delayTimeMillis);
-                responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
-
-                if (error != null) {
-                    responseContext.setError(error);
-                    invokeHandler.onError(responseContext);
-                } else {
-                    responseContext.setResult(reply);
-                    invokeHandler.onSuccess(responseContext);
-                }
-            });
-        } catch (Throwable e) {
             long delayTimeMillis = System.currentTimeMillis() - startTimeMillis;
+
             InvokeContext.ResponseContext responseContext = new InvokeContext.ResponseContext();
             responseContext.setDuration(delayTimeMillis);
             responseContext.setDurationUnit(TimeUnit.MILLISECONDS);
-            responseContext.setError(e);
-            invokeHandler.onError(responseContext);
 
-            throw e;
-        }
-
+            if (error != null) {
+                responseContext.setError(error);
+                invokeHandler.onError(responseContext);
+            } else {
+                responseContext.setResult(reply);
+                invokeHandler.onSuccess(responseContext);
+            }
+        });
     }
 
     @Override

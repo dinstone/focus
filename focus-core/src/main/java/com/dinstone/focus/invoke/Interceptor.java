@@ -23,5 +23,5 @@ public interface Interceptor {
         CLIENT, SERVER
     }
 
-    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) throws Exception;
+    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler);
 }

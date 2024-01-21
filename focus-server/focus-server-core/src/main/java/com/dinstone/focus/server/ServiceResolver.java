@@ -15,6 +15,9 @@
  */
 package com.dinstone.focus.server;
 
+/**
+ * Service resolver is used to publish application to the service registry.
+ */
 public interface ServiceResolver {
 
     void publish(ServerOptions serverOptions) throws Exception;

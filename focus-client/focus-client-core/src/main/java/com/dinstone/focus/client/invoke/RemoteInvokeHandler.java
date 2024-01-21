@@ -51,13 +51,13 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     @Override
-    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+    public CompletableFuture<Object> handle(Invocation invocation) {
         MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
         return timeoutRetry(new CompletableFuture<>(), methodConfig.getTimeoutRetry(), invocation);
     }
 
-    private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, int remain, Invocation invocation)
-            throws Exception {
+    private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, int remain,
+            Invocation invocation) {
 
         connectRetry(invocation).thenApply(future::complete).exceptionally(e -> {
             if (e instanceof CompletionException) {

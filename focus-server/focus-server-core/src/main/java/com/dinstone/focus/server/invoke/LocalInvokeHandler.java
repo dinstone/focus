@@ -18,6 +18,7 @@ package com.dinstone.focus.server.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -41,11 +42,12 @@ public class LocalInvokeHandler implements Handler {
     }
 
     @Override
-    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
-        MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
+    public CompletableFuture<Object> handle(Invocation invocation) {
+        Throwable error;
         try {
             Object parameter = invocation.getParameter();
             Object target = serviceConfig.getTarget();
+            MethodConfig methodConfig = invocation.getMethodConfig();
             Object result = methodConfig.getMethod().invoke(target, parameter);
             if (methodConfig.isAsyncInvoke() && result instanceof Future) {
                 Future<?> future = (Future<?>) result;
@@ -57,21 +59,29 @@ public class LocalInvokeHandler implements Handler {
             Throwable te = e.getTargetException();
             if (te instanceof UndeclaredThrowableException) {
                 // undeclared checked exception
-                throw new BusinessException(ErrorCode.UNDECLARED_ERROR, te.getCause());
+                error = new BusinessException(ErrorCode.UNDECLARED_ERROR, te.getCause());
             } else if (te instanceof RuntimeException) {
                 // runtime exception
-                throw new BusinessException(ErrorCode.RUNTIME_ERROR, te);
+                error = new BusinessException(ErrorCode.RUNTIME_ERROR, te);
             } else {
                 // declared checked exception
-                throw new BusinessException(ErrorCode.DECLARED_ERROR, te);
+                error = new BusinessException(ErrorCode.DECLARED_ERROR, te);
             }
         } catch (IllegalArgumentException e) {
-            throw new ServiceException(ErrorCode.PARAM_ERROR, e);
+            error = new ServiceException(ErrorCode.PARAM_ERROR, e);
         } catch (IllegalAccessException e) {
-            throw new ServiceException(ErrorCode.ACCESS_ERROR, e);
+            error = new ServiceException(ErrorCode.ACCESS_ERROR, e);
         } catch (TimeoutException e) {
-            throw new InvokeException(ErrorCode.TIMEOUT_ERROR, e);
+            error = new InvokeException(ErrorCode.TIMEOUT_ERROR, e);
+        } catch (InterruptedException e) {
+            error = new InvokeException(ErrorCode.INVOKE_ERROR, e);
+        } catch (ExecutionException e) {
+            error = new BusinessException(ErrorCode.RUNTIME_ERROR, e.getCause());
         }
+
+        CompletableFuture<Object> cf = new CompletableFuture<Object>();
+        cf.completeExceptionally(error);
+        return cf;
     }
 
 }

@@ -35,7 +35,7 @@ public class ProviderChainHandler extends ChainHandler {
         super(serviceConfig, invokeHandler);
     }
 
-    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+    public CompletableFuture<Object> handle(Invocation invocation) {
         // Context.getContext();
         // try {
         // return invokeHandler.handle(invocation);

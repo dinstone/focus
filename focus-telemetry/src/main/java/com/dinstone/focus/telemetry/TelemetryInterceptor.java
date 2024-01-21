@@ -70,7 +70,7 @@ public class TelemetryInterceptor implements Interceptor {
     }
 
     @Override
-    public CompletableFuture<Object> intercept(Invocation invocation, Handler chain) throws Exception {
+    public CompletableFuture<Object> intercept(Invocation invocation, Handler chain) {
         Tracer tracer = telemetry.getTracer(invocation.getService());
         if (kind == Kind.SERVER) {
             Span span = getServerSpan(invocation, tracer);
@@ -78,9 +78,6 @@ public class TelemetryInterceptor implements Interceptor {
                 return chain.handle(invocation).whenComplete((reply, error) -> {
                     finishSpan(reply, error, span);
                 });
-            } catch (Throwable error) {
-                finishSpan(null, error, span);
-                throw error;
             }
         } else {
             Span span = getClientSpan(invocation, tracer);
@@ -91,12 +88,8 @@ public class TelemetryInterceptor implements Interceptor {
                 return chain.handle(invocation).whenComplete((reply, error) -> {
                     finishSpan(reply, error, span);
                 });
-            } catch (Throwable error) {
-                finishSpan(null, error, span);
-                throw error;
             }
         }
-
     }
 
     private Span getClientSpan(Invocation invocation, Tracer tracer) {

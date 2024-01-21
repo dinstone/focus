@@ -49,7 +49,7 @@ public class RateLimitInterceptor implements Interceptor, AutoCloseable {
     }
 
     @Override
-    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) throws Exception {
+    public CompletableFuture<Object> intercept(Invocation invocation, Handler handler) {
         QuotaRequest quotaRequest = new QuotaRequest();
         // 设置需要进行限流的服务信息：设置命名空间信息
         quotaRequest.setNamespace(DEFAULT_NAMESPACE);
@@ -64,11 +64,12 @@ public class RateLimitInterceptor implements Interceptor, AutoCloseable {
 
         QuotaResponse response = limitAPI.getQuota(quotaRequest);
 
-        if (response.getCode() == QuotaResultCode.QuotaResultOk) {
-            return handler.handle(invocation);
-        } else {
-            throw new ServiceException(ErrorCode.ACCESS_ERROR, "service is rate-limit");
+        if (response.getCode() == QuotaResultCode.QuotaResultLimited) {
+            CompletableFuture<Object> cf = new CompletableFuture<Object>();
+            cf.completeExceptionally(new ServiceException(ErrorCode.ACCESS_ERROR, "service is rate-limit"));
+            return cf;
         }
+        return handler.handle(invocation);
     }
 
     @Override

@@ -35,7 +35,7 @@ public class ConsumerChainHandler extends ChainHandler {
         super(serviceConfig, invokeHandler);
     }
 
-    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+    public CompletableFuture<Object> handle(Invocation invocation) {
         // Context.pushContext();
         // Context.getContext();
         // try {

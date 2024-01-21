@@ -87,7 +87,7 @@ public class ProxyFactoryTest {
         serviceConfig.setHandler(new Handler() {
 
             @Override
-            public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+            public CompletableFuture<Object> handle(Invocation invocation) {
                 return CompletableFuture.completedFuture(null);
             }
         });
@@ -112,7 +112,7 @@ public class ProxyFactoryTest {
                 });
     }
 
-    public static interface HelloService {
+    public interface HelloService {
         String hi(String name);
 
         String say();
@@ -129,14 +129,11 @@ public class ProxyFactoryTest {
 
         @Override
         public String say() {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public void vfn() {
-            // TODO Auto-generated method stub
-
         }
     }
 

@@ -19,6 +19,6 @@ import java.util.concurrent.CompletableFuture;
 
 public interface Handler {
 
-    public CompletableFuture<Object> handle(Invocation invocation) throws Exception;
+    public CompletableFuture<Object> handle(Invocation invocation);
 
 }

@@ -107,14 +107,14 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
             return null;
         }
 
-        List<ServiceInstance> routings = new LinkedList<>();
+        List<ServiceInstance> candidates = new LinkedList<>();
         for (ServiceInstance candidate : serviceCache.getInstances()) {
             if (selected != null && selected.equals(candidate)) {
                 continue;
             }
-            routings.add(candidate);
+            candidates.add(candidate);
         }
-        return routings;
+        return candidates;
     }
 
     protected ServiceInstance balance(Invocation invocation, List<ServiceInstance> instances) {

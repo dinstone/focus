@@ -19,10 +19,11 @@ package com.dinstone.focus.exception;
  * invoke exception
  *
  * @author dinstone
- *
  */
 public class InvokeException extends FocusException {
-    /**  */
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     public static final String CODE_KEY = "error.code";
@@ -35,7 +36,7 @@ public class InvokeException extends FocusException {
     }
 
     public InvokeException(ErrorCode code, Throwable cause) {
-        this(code, cause.getMessage(), cause);
+        this(code, cause != null ? cause.getMessage() : "", cause);
     }
 
     public InvokeException(ErrorCode code, String message, Throwable cause) {
@@ -47,7 +48,7 @@ public class InvokeException extends FocusException {
      * the code to get
      *
      * @return the code
-     *
+     * 
      * @see InvokeException#code
      */
     public ErrorCode getCode() {

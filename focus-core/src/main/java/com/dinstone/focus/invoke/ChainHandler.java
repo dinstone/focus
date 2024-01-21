@@ -51,7 +51,7 @@ public abstract class ChainHandler implements Handler {
     }
 
     @Override
-    public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+    public CompletableFuture<Object> handle(Invocation invocation) {
         return invokeHandler.handle(invocation);
     }
 
@@ -68,7 +68,7 @@ public abstract class ChainHandler implements Handler {
         }
 
         @Override
-        public CompletableFuture<Object> handle(Invocation invocation) throws Exception {
+        public CompletableFuture<Object> handle(Invocation invocation) {
             return interceptor.intercept(invocation, nextHandler);
         }
 

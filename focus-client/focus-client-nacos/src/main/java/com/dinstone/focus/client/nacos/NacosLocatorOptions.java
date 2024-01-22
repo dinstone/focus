@@ -15,9 +15,9 @@
  */
 package com.dinstone.focus.client.nacos;
 
-import com.dinstone.focus.client.LocaterOptions;
+import com.dinstone.focus.client.LocatorOptions;
 
-public class NacosLocaterOptions implements LocaterOptions {
+public class NacosLocatorOptions implements LocatorOptions {
 
     private String addresses = "localhost:8848";
     private int interval = 3;

@@ -17,11 +17,13 @@ package com.dinstone.focus.client.invoke;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 
-import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.client.ServiceLocator;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
@@ -36,13 +38,13 @@ public class RemoteInvokeHandler implements Handler {
 
     private final ConsumerServiceConfig serviceConfig;
 
-    private final ServiceLocater locater;
+    private final ServiceLocator locater;
 
     private final Connector connector;
 
     private final int connectRetry;
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocater locater, Connector connector) {
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocator locater, Connector connector) {
         this.serviceConfig = (ConsumerServiceConfig) serviceConfig;
         this.connector = connector;
         this.locater = locater;
@@ -57,7 +59,7 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, int remain,
-            Invocation invocation) {
+                                                   Invocation invocation) {
 
         connectRetry(invocation).thenApply(future::complete).exceptionally(e -> {
             if (e instanceof CompletionException) {
@@ -85,10 +87,10 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     private CompletableFuture<Object> connectRetry(Invocation invocation) {
-        ServiceInstance selected = null;
-        // find an address
+        List<ServiceInstance> exclusions = new LinkedList<>();
+        // find a service instance
         for (int i = 0; i < connectRetry; i++) {
-            selected = locater.locate(invocation, selected);
+            ServiceInstance selected = locater.locate(invocation, exclusions);
 
             // check
             if (selected == null) {
@@ -106,6 +108,7 @@ public class RemoteInvokeHandler implements Handler {
                 });
             } catch (ConnectException e) {
                 // ignore and retry
+                exclusions.add(selected);
             } catch (Exception e) {
                 throw new ServiceException(ErrorCode.ACCESS_ERROR,
                         connectRetry + " retry for " + invocation.getService(), e);

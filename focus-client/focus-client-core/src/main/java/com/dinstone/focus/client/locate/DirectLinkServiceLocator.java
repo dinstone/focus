@@ -25,11 +25,11 @@ import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
 
-public class DirectLinkServiceLocater extends AbstractServiceLocater {
+public class DirectLinkServiceLocator extends AbstractServiceLocator {
 
-    private final List<ServiceInstance> instances = new LinkedList<ServiceInstance>();
+    private final List<ServiceInstance> instances = new LinkedList<>();
 
-    public DirectLinkServiceLocater(List<InetSocketAddress> connectAddresses) {
+    public DirectLinkServiceLocator(List<InetSocketAddress> connectAddresses) {
         if (connectAddresses == null || connectAddresses.isEmpty()) {
             throw new FocusException("connectAddresses is empty, please set connectAddresses");
         }
@@ -43,12 +43,12 @@ public class DirectLinkServiceLocater extends AbstractServiceLocater {
     }
 
     @Override
-    protected List<ServiceInstance> routing(Invocation invocation, ServiceInstance selected) {
-        if (selected == null) {
+    protected List<ServiceInstance> routing(Invocation invocation, List<ServiceInstance> exclusions) {
+        if (exclusions == null) {
             return instances;
         }
 
-        return instances.stream().filter(i -> !i.equals(selected)).collect(Collectors.toList());
+        return instances.stream().filter(i -> !i.equals(exclusions)).collect(Collectors.toList());
     }
 
 }

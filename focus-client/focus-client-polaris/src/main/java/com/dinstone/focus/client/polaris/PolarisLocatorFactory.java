@@ -15,9 +15,9 @@
  */
 package com.dinstone.focus.client.polaris;
 
-import com.dinstone.focus.client.LocaterFactory;
-import com.dinstone.focus.client.LocaterOptions;
-import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.client.LocatorFactory;
+import com.dinstone.focus.client.LocatorOptions;
+import com.dinstone.focus.client.ServiceLocator;
 
 /**
  * integrate polaris's service locater for discovery, router and load balance.
@@ -25,16 +25,16 @@ import com.dinstone.focus.client.ServiceLocater;
  * @author dinstone
  *
  */
-public class PolarisLocaterFactory implements LocaterFactory {
+public class PolarisLocatorFactory implements LocatorFactory {
 
     @Override
-    public boolean applicable(LocaterOptions options) {
-        return options instanceof PolarisLocaterOptions;
+    public boolean applicable(LocatorOptions options) {
+        return options instanceof PolarisLocatorOptions;
     }
 
     @Override
-    public ServiceLocater create(LocaterOptions locaterOptions) {
-        return new PolarisServiceLocater((PolarisLocaterOptions) locaterOptions);
+    public ServiceLocator create(LocatorOptions locatorOptions) {
+        return new PolarisServiceLocator((PolarisLocatorOptions) locatorOptions);
     }
 
 }

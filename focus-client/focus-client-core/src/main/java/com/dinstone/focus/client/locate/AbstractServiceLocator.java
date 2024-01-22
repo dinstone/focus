@@ -22,15 +22,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.client.ServiceLocator;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
 
-public abstract class AbstractServiceLocater implements ServiceLocater {
+public abstract class AbstractServiceLocator implements ServiceLocator {
 
     private static final int DEFAULT_INTERVAL = 3;
 
@@ -38,14 +37,10 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
 
     private final Map<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<>();
 
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-
-        @Override
-        public Thread newThread(Runnable task) {
-            Thread t = new Thread(task, "Service-Locater-Fresh");
-            t.setDaemon(true);
-            return t;
-        }
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(task -> {
+        Thread t = new Thread(task, "Service-Locator-Fresh");
+        t.setDaemon(true);
+        return t;
     });
 
     public static class ServiceCache {
@@ -89,10 +84,10 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
     }
 
     @Override
-    public ServiceInstance locate(Invocation invocation, ServiceInstance selected) {
+    public ServiceInstance locate(Invocation invocation, List<ServiceInstance> exclusions) {
         try {
             // routing
-            List<ServiceInstance> instances = routing(invocation, selected);
+            List<ServiceInstance> instances = routing(invocation, exclusions);
             // balance
             return balance(invocation, instances);
         } catch (Exception e) {
@@ -101,7 +96,7 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
         return null;
     }
 
-    protected List<ServiceInstance> routing(Invocation invocation, ServiceInstance selected) throws Exception {
+    protected List<ServiceInstance> routing(Invocation invocation, List<ServiceInstance> exclusions) throws Exception {
         ServiceCache serviceCache = serviceCacheMap.get(invocation.getProvider());
         if (serviceCache == null) {
             return null;
@@ -109,7 +104,7 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
 
         List<ServiceInstance> candidates = new LinkedList<>();
         for (ServiceInstance candidate : serviceCache.getInstances()) {
-            if (selected != null && selected.equals(candidate)) {
+            if (exclusions.contains(candidate)) {
                 continue;
             }
             candidates.add(candidate);
@@ -139,15 +134,11 @@ public abstract class AbstractServiceLocater implements ServiceLocater {
             if (serviceCache == null) {
                 serviceCache = new ServiceCache(serviceName);
                 ServiceCache service = serviceCache;
-                ScheduledFuture<?> freshFuture = executor.scheduleAtFixedRate(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            freshService(service);
-                        } catch (Exception e) {
-                            // ignore
-                        }
+                ScheduledFuture<?> freshFuture = executor.scheduleAtFixedRate(() -> {
+                    try {
+                        freshService(service);
+                    } catch (Exception e) {
+                        // ignore
                     }
                 }, freshInterval(), freshInterval(), TimeUnit.SECONDS);
 

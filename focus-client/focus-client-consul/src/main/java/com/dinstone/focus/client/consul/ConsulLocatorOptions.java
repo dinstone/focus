@@ -15,9 +15,9 @@
  */
 package com.dinstone.focus.client.consul;
 
-import com.dinstone.focus.client.LocaterOptions;
+import com.dinstone.focus.client.LocatorOptions;
 
-public class ConsulLocaterOptions implements LocaterOptions {
+public class ConsulLocatorOptions implements LocatorOptions {
 
     private String agentHost = "localhost";
     private int agentPort = 8500;
@@ -28,7 +28,7 @@ public class ConsulLocaterOptions implements LocaterOptions {
         return agentHost;
     }
 
-    public ConsulLocaterOptions setAgentHost(String agentHost) {
+    public ConsulLocatorOptions setAgentHost(String agentHost) {
         this.agentHost = agentHost;
         return this;
     }
@@ -37,7 +37,7 @@ public class ConsulLocaterOptions implements LocaterOptions {
         return agentPort;
     }
 
-    public ConsulLocaterOptions setAgentPort(int agentPort) {
+    public ConsulLocatorOptions setAgentPort(int agentPort) {
         this.agentPort = agentPort;
         return this;
     }
@@ -46,7 +46,7 @@ public class ConsulLocaterOptions implements LocaterOptions {
         return interval;
     }
 
-    public ConsulLocaterOptions setInterval(int interval) {
+    public ConsulLocatorOptions setInterval(int interval) {
         this.interval = interval;
         return this;
     }
@@ -55,7 +55,7 @@ public class ConsulLocaterOptions implements LocaterOptions {
         return checkTtl;
     }
 
-    public ConsulLocaterOptions setCheckTtl(int checkTtl) {
+    public ConsulLocatorOptions setCheckTtl(int checkTtl) {
         this.checkTtl = checkTtl;
         return this;
     }

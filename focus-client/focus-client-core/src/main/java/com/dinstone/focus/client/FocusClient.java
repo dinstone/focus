@@ -23,7 +23,7 @@ import com.dinstone.focus.client.config.ConsumerMethodConfig;
 import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.client.invoke.ConsumerChainHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
-import com.dinstone.focus.client.locate.DirectLinkServiceLocater;
+import com.dinstone.focus.client.locate.DirectLinkServiceLocator;
 import com.dinstone.focus.client.proxy.ProxyFactory;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
@@ -42,7 +42,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FocusClient.class);
 
-    private ServiceLocater serviceLocater;
+    private ServiceLocator serviceLocator;
 
     private ClientOptions clientOptions;
 
@@ -73,16 +73,16 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         }
 
         // init service locater for service discovery, routing and load balance
-        LocaterOptions locaterOptions = clientOptions.getLocaterOptions();
-        ServiceLoader<LocaterFactory> lfLoader = ServiceLoader.load(LocaterFactory.class);
-        for (LocaterFactory locaterFactory : lfLoader) {
-            if (locaterFactory.applicable(locaterOptions)) {
-                this.serviceLocater = locaterFactory.create(locaterOptions);
+        LocatorOptions locatorOptions = clientOptions.getLocatorOptions();
+        ServiceLoader<LocatorFactory> lfLoader = ServiceLoader.load(LocatorFactory.class);
+        for (LocatorFactory locatorFactory : lfLoader) {
+            if (locatorFactory.applicable(locatorOptions)) {
+                this.serviceLocator = locatorFactory.create(locatorOptions);
             }
         }
         // set default service locater
-        if (this.serviceLocater == null) {
-            this.serviceLocater = new DirectLinkServiceLocater(clientOptions.getConnectAddresses());
+        if (this.serviceLocator == null) {
+            this.serviceLocator = new DirectLinkServiceLocator(clientOptions.getConnectAddresses());
         }
 
         LOG.info("focus client created for [{}]", clientOptions.getApplication());
@@ -91,7 +91,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     @Override
     public void close() {
         connector.destroy();
-        serviceLocater.destroy();
+        serviceLocator.destroy();
         LOG.info("focus client destroy for [{}]", clientOptions.getApplication());
     }
 
@@ -156,7 +156,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         serviceConfig.setHandler(createInvokeHandler(serviceConfig));
 
         // subscribe service provider
-        serviceLocater.subscribe(serviceConfig.getProvider());
+        serviceLocator.subscribe(serviceConfig.getProvider());
 
         LOG.info("importing {}", serviceConfig);
 
@@ -188,7 +188,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     }
 
     private Handler createInvokeHandler(ServiceConfig serviceConfig) {
-        Handler remote = new RemoteInvokeHandler(serviceConfig, serviceLocater, connector);
+        Handler remote = new RemoteInvokeHandler(serviceConfig, serviceLocator, connector);
         return new ConsumerChainHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
     }
 

@@ -15,20 +15,6 @@
  */
 package com.dinstone.focus.client;
 
-import com.dinstone.focus.invoke.Invocation;
-import com.dinstone.focus.naming.ServiceInstance;
-
-/**
- * Service locator is used for service discovery, request routing and load balancing.
- */
-public interface ServiceLocater {
-
-    public ServiceInstance locate(Invocation invocation, ServiceInstance selected);
-
-    public void feedback(ServiceInstance instance, Invocation invocation, Object reply, Throwable error, long delay);
-
-    public void subscribe(String serviceName);
-
-    public void destroy();
+public interface LocatorOptions {
 
 }

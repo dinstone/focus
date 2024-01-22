@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.client.ServiceLocator;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.tencent.polaris.api.config.Configuration;
@@ -39,7 +39,7 @@ import com.tencent.polaris.factory.api.RouterAPIFactory;
 import com.tencent.polaris.router.api.core.RouterAPI;
 import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceRequest;
 
-public class PolarisServiceLocater implements ServiceLocater {
+public class PolarisServiceLocator implements ServiceLocator {
 
     private static final String DEFAULT_NAMESPACE = "default";
 
@@ -49,8 +49,8 @@ public class PolarisServiceLocater implements ServiceLocater {
 
     private final RouterAPI routerAPI;
 
-    public PolarisServiceLocater(PolarisLocaterOptions locaterOptions) {
-        List<String> polarisAddress = locaterOptions.getAddresses();
+    public PolarisServiceLocator(PolarisLocatorOptions locatorOptions) {
+        List<String> polarisAddress = locatorOptions.getAddresses();
         if (polarisAddress == null || polarisAddress.isEmpty()) {
             polarisContext = SDKContext.initContext();
         } else {
@@ -63,7 +63,7 @@ public class PolarisServiceLocater implements ServiceLocater {
     }
 
     @Override
-    public ServiceInstance locate(Invocation invocation, ServiceInstance selected) {
+    public ServiceInstance locate(Invocation invocation, List<ServiceInstance> exclusions) {
         GetHealthyInstancesRequest request = new GetHealthyInstancesRequest();
         request.setNamespace(DEFAULT_NAMESPACE);
         request.setService(invocation.getProvider());
@@ -76,7 +76,7 @@ public class PolarisServiceLocater implements ServiceLocater {
 
         List<Instance> instances = new LinkedList<>();
         for (Instance instance : response.getInstances()) {
-            if (selected != null && instance.getId().equals(selected.getInstanceCode())) {
+            if (exclusions.contains(new PolarisServiceInstance(instance))) {
                 continue;
             }
             instances.add(instance);

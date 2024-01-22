@@ -13,8 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client;
+package com.dinstone.focus.client.consul;
 
-public interface LocaterOptions {
+import com.dinstone.focus.client.LocatorFactory;
+import com.dinstone.focus.client.LocatorOptions;
+import com.dinstone.focus.client.ServiceLocator;
+
+public class ConsulLocatorFactory implements LocatorFactory {
+
+    public boolean applicable(LocatorOptions locatorOptions) {
+        return locatorOptions instanceof ConsulLocatorOptions;
+    }
+
+    @Override
+    public ServiceLocator create(LocatorOptions locatorOptions) {
+        return new ConsulServiceLocator((ConsulLocatorOptions) locatorOptions);
+    }
 
 }

@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.nacos;
+package com.dinstone.focus.client.polaris;
 
-import com.dinstone.focus.client.LocaterFactory;
-import com.dinstone.focus.client.LocaterOptions;
-import com.dinstone.focus.client.ServiceLocater;
+import java.util.ArrayList;
+import java.util.List;
 
-public class NacosLocaterFactory implements LocaterFactory {
+import com.dinstone.focus.client.LocatorOptions;
 
-    public boolean applicable(LocaterOptions locaterOptions) {
-        return locaterOptions instanceof NacosLocaterOptions;
+public class PolarisLocatorOptions implements LocatorOptions {
+
+    private final List<String> addresses = new ArrayList<>();
+
+    public List<String> getAddresses() {
+        return addresses;
     }
 
-    @Override
-    public ServiceLocater create(LocaterOptions locaterOptions) {
-        return new NacosServiceLocater((NacosLocaterOptions) locaterOptions);
+    public PolarisLocatorOptions addAddresses(String... addresses) {
+        for (String address : addresses) {
+            if (address != null) {
+                this.addresses.add(address);
+            }
+        }
+        return this;
     }
-
 }

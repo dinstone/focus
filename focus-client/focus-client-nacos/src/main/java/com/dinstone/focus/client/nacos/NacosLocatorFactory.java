@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.consul;
+package com.dinstone.focus.client.nacos;
 
-import com.dinstone.focus.client.LocaterFactory;
-import com.dinstone.focus.client.LocaterOptions;
-import com.dinstone.focus.client.ServiceLocater;
+import com.dinstone.focus.client.LocatorFactory;
+import com.dinstone.focus.client.LocatorOptions;
+import com.dinstone.focus.client.ServiceLocator;
 
-public class ConsulLocaterFactory implements LocaterFactory {
+public class NacosLocatorFactory implements LocatorFactory {
 
-    public boolean applicable(LocaterOptions locaterOptions) {
-        return locaterOptions instanceof ConsulLocaterOptions;
+    public boolean applicable(LocatorOptions locatorOptions) {
+        return locatorOptions instanceof NacosLocatorOptions;
     }
 
     @Override
-    public ServiceLocater create(LocaterOptions locaterOptions) {
-        return new ConsulServiceLocater((ConsulLocaterOptions) locaterOptions);
+    public ServiceLocator create(LocatorOptions locatorOptions) {
+        return new NacosServiceLocator((NacosLocatorOptions) locatorOptions);
     }
 
 }

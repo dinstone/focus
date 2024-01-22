@@ -18,7 +18,7 @@ package com.dinstone.focus.client.consul;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.dinstone.focus.client.locate.AbstractServiceLocater;
+import com.dinstone.focus.client.locate.AbstractServiceLocator;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.ecwid.consul.v1.ConsulClient;
@@ -26,19 +26,19 @@ import com.ecwid.consul.v1.health.HealthServicesRequest;
 import com.ecwid.consul.v1.health.model.HealthService;
 import com.ecwid.consul.v1.health.model.HealthService.Service;
 
-public class ConsulServiceLocater extends AbstractServiceLocater {
+public class ConsulServiceLocator extends AbstractServiceLocator {
 
     private final ConsulClient client;
-    private final ConsulLocaterOptions locaterOptions;
+    private final ConsulLocatorOptions locatorOptions;
 
-    public ConsulServiceLocater(ConsulLocaterOptions locaterOptions) {
-        this.client = new ConsulClient(locaterOptions.getAgentHost(), locaterOptions.getAgentPort());
-        this.locaterOptions = locaterOptions;
+    public ConsulServiceLocator(ConsulLocatorOptions locatorOptions) {
+        this.client = new ConsulClient(locatorOptions.getAgentHost(), locatorOptions.getAgentPort());
+        this.locatorOptions = locatorOptions;
     }
 
     @Override
     protected long freshInterval() {
-        return locaterOptions.getInterval();
+        return locatorOptions.getInterval();
     }
 
     @Override

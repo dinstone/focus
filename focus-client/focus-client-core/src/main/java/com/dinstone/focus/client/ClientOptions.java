@@ -42,7 +42,7 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
 
     private InetSocketAddress consumerAddress;
 
-    private LocaterOptions locaterOptions;
+    private LocatorOptions locatorOptions;
 
     public ClientOptions(String application) {
         super(application);
@@ -85,12 +85,12 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
         return connectAddresses;
     }
 
-    public LocaterOptions getLocaterOptions() {
-        return locaterOptions;
+    public LocatorOptions getLocatorOptions() {
+        return locatorOptions;
     }
 
-    public ClientOptions setLocaterOptions(LocaterOptions locaterOptions) {
-        this.locaterOptions = locaterOptions;
+    public ClientOptions setLocatorOptions(LocatorOptions locatorOptions) {
+        this.locatorOptions = locatorOptions;
         return this;
     }
 

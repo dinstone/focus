@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.client.polaris;
+package com.dinstone.focus.client;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.focus.client.LocaterOptions;
+import com.dinstone.focus.invoke.Invocation;
+import com.dinstone.focus.naming.ServiceInstance;
 
-public class PolarisLocaterOptions implements LocaterOptions {
+/**
+ * Service locator is used for service discovery, request routing and load balancing.
+ */
+public interface ServiceLocator {
 
-    private final List<String> addresses = new ArrayList<>();
+    public ServiceInstance locate(Invocation invocation, List<ServiceInstance> exclusions);
 
-    public List<String> getAddresses() {
-        return addresses;
-    }
+    public void feedback(ServiceInstance instance, Invocation invocation, Object reply, Throwable error, long delay);
 
-    public PolarisLocaterOptions addAddresses(String... addresses) {
-        for (String address : addresses) {
-            if (address != null) {
-                this.addresses.add(address);
-            }
-        }
-        return this;
-    }
+    public void subscribe(String serviceName);
+
+    public void destroy();
+
 }

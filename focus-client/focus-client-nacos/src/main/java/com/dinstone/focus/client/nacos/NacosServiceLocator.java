@@ -22,21 +22,21 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.dinstone.focus.client.locate.AbstractServiceLocater;
+import com.dinstone.focus.client.locate.AbstractServiceLocator;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
 
-public class NacosServiceLocater extends AbstractServiceLocater {
+public class NacosServiceLocator extends AbstractServiceLocator {
 
     private final NamingService namingService;
-    private final NacosLocaterOptions locaterOptions;
+    private final NacosLocatorOptions locatorOptions;
 
-    public NacosServiceLocater(NacosLocaterOptions locaterOptions) {
+    public NacosServiceLocator(NacosLocatorOptions locatorOptions) {
         try {
-            this.namingService = NamingFactory.createNamingService(locaterOptions.getAddresses());
-            this.locaterOptions = locaterOptions;
+            this.namingService = NamingFactory.createNamingService(locatorOptions.getAddresses());
+            this.locatorOptions = locatorOptions;
         } catch (NacosException e) {
-            throw new RuntimeException("create nacos service locater error", e);
+            throw new RuntimeException("create nacos service locator error", e);
         }
     }
 
@@ -70,7 +70,7 @@ public class NacosServiceLocater extends AbstractServiceLocater {
 
     @Override
     protected long freshInterval() {
-        return locaterOptions.getInterval();
+        return locatorOptions.getInterval();
     }
 
 }

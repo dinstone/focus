@@ -45,8 +45,8 @@ public class LocalInvokeHandler implements Handler {
     public CompletableFuture<Object> handle(Invocation invocation) {
         Throwable error;
         try {
-            Object parameter = invocation.getParameter();
             Object target = serviceConfig.getTarget();
+            Object parameter = invocation.getParameter();
             MethodConfig methodConfig = invocation.getMethodConfig();
             Object result = methodConfig.getMethod().invoke(target, parameter);
             if (methodConfig.isAsyncInvoke() && result instanceof Future) {

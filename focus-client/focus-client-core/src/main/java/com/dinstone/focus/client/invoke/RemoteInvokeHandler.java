@@ -52,7 +52,7 @@ public class RemoteInvokeHandler implements Handler {
 
     @Override
     public CompletableFuture<Object> handle(Invocation invocation) {
-        MethodConfig methodConfig = serviceConfig.lookup(invocation.getMethod());
+        MethodConfig methodConfig = invocation.getMethodConfig();
         return timeoutRetry(new CompletableFuture<>(), methodConfig.getTimeoutRetry(), invocation);
     }
 

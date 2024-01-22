@@ -72,7 +72,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
             throw new FocusException("can't find a connector implement");
         }
 
-        // init service locater for service discovery, routing and load balance
+        // init service locator for service discovery, routing and load balance
         LocatorOptions locatorOptions = clientOptions.getLocatorOptions();
         ServiceLoader<LocatorFactory> lfLoader = ServiceLoader.load(LocatorFactory.class);
         for (LocatorFactory locatorFactory : lfLoader) {
@@ -80,7 +80,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
                 this.serviceLocator = locatorFactory.create(locatorOptions);
             }
         }
-        // set default service locater
+        // set default service locator
         if (this.serviceLocator == null) {
             this.serviceLocator = new DirectLinkServiceLocator(clientOptions.getConnectAddresses());
         }

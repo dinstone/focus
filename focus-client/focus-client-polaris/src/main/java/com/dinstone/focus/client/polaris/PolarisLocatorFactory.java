@@ -20,7 +20,7 @@ import com.dinstone.focus.client.LocatorOptions;
 import com.dinstone.focus.client.ServiceLocator;
 
 /**
- * integrate polaris's service locater for discovery, router and load balance.
+ * integrate polaris's service locator for discovery, router and load balance.
  * 
  * @author dinstone
  *

@@ -31,7 +31,7 @@ public class NacosServiceResolver extends DefaultServiceResolver {
         try {
             this.namingService = NamingFactory.createNamingService(options.getAddresses());
         } catch (NacosException e) {
-            throw new RuntimeException("create nacos service locater error", e);
+            throw new RuntimeException("create nacos service locator error", e);
         }
     }
 

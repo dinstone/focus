@@ -36,20 +36,17 @@ import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements Handler {
 
-    private final ConsumerServiceConfig serviceConfig;
-
-    private final ServiceLocator locater;
+    private final ServiceLocator locator;
 
     private final Connector connector;
 
     private final int connectRetry;
 
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocator locater, Connector connector) {
-        this.serviceConfig = (ConsumerServiceConfig) serviceConfig;
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocator locator, Connector connector) {
         this.connector = connector;
-        this.locater = locater;
+        this.locator = locator;
 
-        this.connectRetry = this.serviceConfig.getConnectRetry();
+        this.connectRetry = ((ConsumerServiceConfig) serviceConfig).getConnectRetry();
     }
 
     @Override
@@ -59,7 +56,7 @@ public class RemoteInvokeHandler implements Handler {
     }
 
     private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, int remain,
-                                                   Invocation invocation) {
+            Invocation invocation) {
 
         connectRetry(invocation).thenApply(future::complete).exceptionally(e -> {
             if (e instanceof CompletionException) {
@@ -90,7 +87,7 @@ public class RemoteInvokeHandler implements Handler {
         List<ServiceInstance> exclusions = new LinkedList<>();
         // find a service instance
         for (int i = 0; i < connectRetry; i++) {
-            ServiceInstance selected = locater.locate(invocation, exclusions);
+            ServiceInstance selected = locator.locate(invocation, exclusions);
 
             // check
             if (selected == null) {
@@ -104,7 +101,7 @@ public class RemoteInvokeHandler implements Handler {
                 InetSocketAddress socketAddress = instance.getInstanceAddress();
                 return connector.send(invocation, socketAddress).whenComplete((reply, error) -> {
                     long finishTime = System.currentTimeMillis();
-                    locater.feedback(instance, invocation, reply, error, finishTime - startTime);
+                    locator.feedback(instance, invocation, reply, error, finishTime - startTime);
                 });
             } catch (ConnectException e) {
                 // ignore and retry

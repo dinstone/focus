@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.focus.server.resolver.DefaultServiceResolver;
 import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ProviderAPI;
+import com.tencent.polaris.api.rpc.InstanceDeregisterRequest;
 import com.tencent.polaris.api.rpc.InstanceRegisterRequest;
 import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
@@ -32,6 +32,7 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
 
     private final SDKContext polarisContext;
     private final ProviderAPI providerAPI;
+    private ServiceInstance serviceInstance;
 
     public PolarisServiceResolver(PolarisResolverOptions locatorOptions) {
         List<String> polarisAddress = locatorOptions.getAddresses();
@@ -46,8 +47,8 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
     }
 
     @Override
-    public void publish(ServerOptions serverOptions) {
-        ServiceInstance serviceInstance = createInstance(serverOptions);
+    public void publish(ServiceInstance serviceInstance) {
+        this.serviceInstance = serviceInstance;
 
         InstanceRegisterRequest request = new InstanceRegisterRequest();
         request.setInstanceId(serviceInstance.getInstanceCode());
@@ -98,6 +99,12 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
 
     @Override
     public void destroy() {
+        if (serviceInstance != null) {
+            InstanceDeregisterRequest request = new InstanceDeregisterRequest();
+            request.setInstanceID(serviceInstance.getInstanceCode());
+            request.setService(serviceInstance.getServiceName());
+            providerAPI.deRegister(request);
+        }
         providerAPI.close();
         if (polarisContext != null) {
             polarisContext.close();

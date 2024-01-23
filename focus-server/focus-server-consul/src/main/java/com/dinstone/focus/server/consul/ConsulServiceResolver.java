@@ -20,11 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.focus.server.resolver.DefaultServiceResolver;
 import com.ecwid.consul.v1.ConsulClient;
 import com.ecwid.consul.v1.agent.model.NewService;
@@ -35,14 +33,10 @@ public class ConsulServiceResolver extends DefaultServiceResolver {
     private final ConsulResolverOptions options;
 
     private final Map<String, ScheduledFuture<?>> serviceMap = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-
-        @Override
-        public Thread newThread(Runnable task) {
-            Thread t = new Thread(task, "consul-service-check");
-            t.setDaemon(true);
-            return t;
-        }
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(task -> {
+        Thread t = new Thread(task, "consul-service-check");
+        t.setDaemon(true);
+        return t;
     });
 
     public ConsulServiceResolver(ConsulResolverOptions options) {
@@ -53,19 +47,24 @@ public class ConsulServiceResolver extends DefaultServiceResolver {
     @Override
     public void destroy() {
         serviceMap.values().forEach(f -> f.cancel(true));
+
+        if (serviceInstance != null) {
+            client.agentServiceDeregister(serviceInstance.getInstanceCode());
+        }
+
         executor.shutdownNow();
     }
 
     @Override
-    public void publish(ServerOptions serverOptions) throws Exception {
-        ServiceInstance service = createInstance(serverOptions);
+    public void publish(ServiceInstance serviceInstance) throws Exception {
+        this.serviceInstance = serviceInstance;
 
         NewService newService = new NewService();
-        newService.setId(service.getInstanceCode());
-        newService.setName(service.getServiceName());
-        newService.setAddress(service.getInstanceHost());
-        newService.setPort(service.getInstancePort());
-        newService.setMeta(service.getMetadata());
+        newService.setId(serviceInstance.getInstanceCode());
+        newService.setName(serviceInstance.getServiceName());
+        newService.setAddress(serviceInstance.getInstanceHost());
+        newService.setPort(serviceInstance.getInstancePort());
+        newService.setMeta(serviceInstance.getMetadata());
 
         NewService.Check check = new NewService.Check();
         check.setTtl(options.getCheckTtl() + "s");
@@ -73,18 +72,14 @@ public class ConsulServiceResolver extends DefaultServiceResolver {
 
         client.agentServiceRegister(newService);
 
-        ScheduledFuture<?> future = executor.scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    client.agentCheckPass("service:" + service.getInstanceCode());
-                } catch (Exception e) {
-                    // ignore
-                }
+        ScheduledFuture<?> future = executor.scheduleAtFixedRate(() -> {
+            try {
+                client.agentCheckPass("service:" + serviceInstance.getInstanceCode());
+            } catch (Exception e) {
+                // ignore
             }
         }, 0, options.getInterval(), TimeUnit.SECONDS);
-        serviceMap.put(service.getInstanceCode(), future);
+        serviceMap.put(serviceInstance.getInstanceCode(), future);
     }
 
 }

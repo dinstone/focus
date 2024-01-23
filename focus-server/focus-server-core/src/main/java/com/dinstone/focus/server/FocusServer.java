@@ -27,6 +27,8 @@ import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Handler;
+import com.dinstone.focus.naming.DefaultInstance;
+import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
 import com.dinstone.focus.server.config.ProviderServiceConfig;
@@ -109,7 +111,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             this.acceptor.bind(listenAddress, this::lookupService);
 
             // register application
-            this.serviceResolver.publish(serverOptions);
+            this.serviceResolver.publish(createServiceInstance(serverOptions));
 
             LOG.info("focus server starting on {}", listenAddress);
         } catch (Exception e) {
@@ -182,6 +184,23 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
         } catch (Exception e) {
             throw new FocusException("export service error", e);
         }
+    }
+
+    private ServiceInstance createServiceInstance(ServerOptions serverOptions) {
+        String app = serverOptions.getApplication();
+        String host = serverOptions.getListenAddress().getHostString();
+        int port = serverOptions.getListenAddress().getPort();
+
+        DefaultInstance instance = new DefaultInstance();
+        String code = host + ":" + port;
+        instance.setInstanceCode(code);
+        instance.setInstanceHost(host);
+        instance.setInstancePort(port);
+        instance.setServiceName(app);
+
+        instance.setProtocolType(serverOptions.getAcceptOptions().getProtocol());
+        instance.setMetadata(serverOptions.getMetadata());
+        return instance;
     }
 
     private void registryService(ProviderServiceConfig serviceConfig) {

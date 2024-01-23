@@ -20,7 +20,6 @@ import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.dinstone.focus.naming.ServiceInstance;
-import com.dinstone.focus.server.ServerOptions;
 import com.dinstone.focus.server.resolver.DefaultServiceResolver;
 
 public class NacosServiceResolver extends DefaultServiceResolver {
@@ -38,6 +37,12 @@ public class NacosServiceResolver extends DefaultServiceResolver {
     @Override
     public void destroy() {
         try {
+            if (serviceInstance != null) {
+                Instance instance = new Instance();
+                instance.setInstanceId(serviceInstance.getInstanceCode());
+                instance.setServiceName(serviceInstance.getServiceName());
+                namingService.deregisterInstance(serviceInstance.getServiceName(), instance);
+            }
             namingService.shutDown();
         } catch (NacosException e) {
             // ignore
@@ -45,17 +50,18 @@ public class NacosServiceResolver extends DefaultServiceResolver {
     }
 
     @Override
-    public void publish(ServerOptions serverOptions) throws Exception {
-        ServiceInstance service = createInstance(serverOptions);
+    public void publish(ServiceInstance serviceInstance) throws Exception {
+        this.serviceInstance = serviceInstance;
+
         Instance instance = new Instance();
-        instance.setInstanceId(service.getInstanceCode());
-        instance.setServiceName(service.getServiceName());
-        instance.setIp(service.getInstanceHost());
-        instance.setPort(service.getInstancePort());
-        instance.setMetadata(service.getMetadata());
+        instance.setInstanceId(serviceInstance.getInstanceCode());
+        instance.setServiceName(serviceInstance.getServiceName());
+        instance.setIp(serviceInstance.getInstanceHost());
+        instance.setPort(serviceInstance.getInstancePort());
+        instance.setMetadata(serviceInstance.getMetadata());
         instance.setHealthy(true);
 
-        namingService.registerInstance(service.getServiceName(), instance);
+        namingService.registerInstance(serviceInstance.getServiceName(), instance);
     }
 
 }

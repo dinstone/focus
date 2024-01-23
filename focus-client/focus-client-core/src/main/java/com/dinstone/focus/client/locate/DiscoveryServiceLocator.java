@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.client.locate;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,10 +53,6 @@ public abstract class DiscoveryServiceLocator extends AbstractServiceLocator {
 
         public String getServiceName() {
             return serviceName;
-        }
-
-        public ScheduledFuture<?> getFreshFuture() {
-            return freshFuture;
         }
 
         public void setFreshFuture(ScheduledFuture<?> freshFuture) {

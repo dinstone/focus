@@ -18,7 +18,7 @@ package com.dinstone.focus.client.consul;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.dinstone.focus.client.locate.AbstractServiceLocator;
+import com.dinstone.focus.client.locate.DiscoveryServiceLocator;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.ecwid.consul.v1.ConsulClient;
@@ -26,13 +26,13 @@ import com.ecwid.consul.v1.health.HealthServicesRequest;
 import com.ecwid.consul.v1.health.model.HealthService;
 import com.ecwid.consul.v1.health.model.HealthService.Service;
 
-public class ConsulServiceLocator extends AbstractServiceLocator {
+public class ConsulServiceLocator extends DiscoveryServiceLocator {
 
-    private final ConsulClient client;
+    private final ConsulClient consulClient;
     private final ConsulLocatorOptions locatorOptions;
 
     public ConsulServiceLocator(ConsulLocatorOptions locatorOptions) {
-        this.client = new ConsulClient(locatorOptions.getAgentHost(), locatorOptions.getAgentPort());
+        this.consulClient = new ConsulClient(locatorOptions.getAgentHost(), locatorOptions.getAgentPort());
         this.locatorOptions = locatorOptions;
     }
 
@@ -45,7 +45,7 @@ public class ConsulServiceLocator extends AbstractServiceLocator {
     protected void freshService(ServiceCache serviceCache) {
         final String serviceName = serviceCache.getServiceName();
         HealthServicesRequest hr = HealthServicesRequest.newBuilder().setPassing(true).build();
-        List<HealthService> healthServices = client.getHealthServices(serviceName, hr).getValue();
+        List<HealthService> healthServices = consulClient.getHealthServices(serviceName, hr).getValue();
 
         List<ServiceInstance> instances = new LinkedList<>();
         for (HealthService healthService : healthServices) {

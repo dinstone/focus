@@ -39,16 +39,12 @@ public class DirectLinkServiceLocator extends AbstractServiceLocator {
     }
 
     @Override
-    public void subscribe(String serviceName) {
-    }
-
-    @Override
     protected List<ServiceInstance> routing(Invocation invocation, List<ServiceInstance> exclusions) {
-        if (exclusions == null) {
+        if (exclusions == null || exclusions.isEmpty()) {
             return instances;
         }
 
-        return instances.stream().filter(i -> !i.equals(exclusions)).collect(Collectors.toList());
+        return instances.stream().filter(i -> !exclusions.contains(i)).collect(Collectors.toList());
     }
 
 }

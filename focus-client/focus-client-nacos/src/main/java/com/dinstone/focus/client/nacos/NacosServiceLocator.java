@@ -22,11 +22,11 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.dinstone.focus.client.locate.AbstractServiceLocator;
+import com.dinstone.focus.client.locate.DiscoveryServiceLocator;
 import com.dinstone.focus.naming.DefaultInstance;
 import com.dinstone.focus.naming.ServiceInstance;
 
-public class NacosServiceLocator extends AbstractServiceLocator {
+public class NacosServiceLocator extends DiscoveryServiceLocator {
 
     private final NamingService namingService;
     private final NacosLocatorOptions locatorOptions;

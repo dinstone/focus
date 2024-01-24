@@ -16,7 +16,6 @@
 package com.dinstone.focus.transport.photon;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +28,7 @@ import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Invocation;
+import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.Connector;
 import com.dinstone.photon.Connection;
@@ -42,19 +42,19 @@ public class PhotonConnector implements Connector {
 
     private static final AtomicInteger SEQUENCER = new AtomicInteger();
 
-    private final PhotonConnectionFactory factory;
+    private final PhotonConnectionFactory connectionFactory;
 
     public PhotonConnector(PhotonConnectOptions connectOptions) {
         if (connectOptions == null) {
             throw new IllegalArgumentException("connectOptions is null");
         }
-        this.factory = new PhotonConnectionFactory(connectOptions);
+        this.connectionFactory = new PhotonConnectionFactory(connectOptions);
     }
 
     @Override
-    public CompletableFuture<Object> send(Invocation invocation, InetSocketAddress socketAddress) throws Exception {
+    public CompletableFuture<Object> send(Invocation invocation, ServiceInstance instance) throws Exception {
         // create connection
-        Connection connection = factory.create(socketAddress);
+        Connection connection = connectionFactory.create(instance.getInstanceAddress());
 
         DefaultInvocation iv = (DefaultInvocation) invocation;
         iv.setRemoteAddress(connection.getRemoteAddress());
@@ -153,7 +153,7 @@ public class PhotonConnector implements Connector {
 
     @Override
     public void destroy() {
-        factory.destroy();
+        connectionFactory.destroy();
     }
 
 }

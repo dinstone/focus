@@ -22,7 +22,7 @@ import com.dinstone.focus.config.ServiceConfig;
 
 public interface Acceptor {
 
-    void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceLookupper) throws Exception;
+    void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceFinder) throws Exception;
 
     void destroy();
 

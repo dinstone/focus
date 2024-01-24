@@ -15,30 +15,30 @@
  */
 package com.dinstone.focus.transport.http2;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.invoke.Invocation;
+import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.transport.Connector;
 
 public class Http2Connector implements Connector {
 
-    private final Http2ChannelFactory factory;
+    private final Http2ChannelFactory channelFactory;
 
     public Http2Connector(Http2ConnectOptions connectOptions) {
-        factory = new Http2ChannelFactory(connectOptions);
+        channelFactory = new Http2ChannelFactory(connectOptions);
     }
 
     @Override
-    public CompletableFuture<Object> send(Invocation invocation, InetSocketAddress socketAddress) {
+    public CompletableFuture<Object> send(Invocation invocation, ServiceInstance instance) {
         // create connection
-        Http2Channel http2Channel = factory.create(socketAddress);
+        Http2Channel http2Channel = channelFactory.create(instance.getInstanceAddress());
         return http2Channel.send(invocation);
     }
 
     @Override
     public void destroy() {
-        factory.destroy();
+        channelFactory.destroy();
     }
 
 }

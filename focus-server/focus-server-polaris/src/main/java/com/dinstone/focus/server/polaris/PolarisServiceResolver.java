@@ -64,6 +64,7 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
 
         Map<String, String> metadata = serviceInstance.getMetadata();
         request.setMetadata(metadata);
+        request.getMetadata().put("enableSsl", Boolean.toString(serviceInstance.isEnableSsl()));
         // 可选，资源访问Token，即用户/用户组访问凭据，仅当服务端开启客户端鉴权时才需配置
         request.setToken(metadata.get("token"));
         // 设置实例版本

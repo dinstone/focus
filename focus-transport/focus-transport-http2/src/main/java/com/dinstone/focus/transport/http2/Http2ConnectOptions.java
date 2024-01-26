@@ -29,8 +29,12 @@ public class Http2ConnectOptions implements ConnectOptions {
     private int idleTimeout;
 
     public Http2ConnectOptions() {
-        super();
         idleTimeout = DEFAULT_IDLE_TIMEOUT;
+    }
+
+    public Http2ConnectOptions(Http2ConnectOptions other) {
+        idleTimeout = other.idleTimeout;
+        enableSsl = other.enableSsl;
     }
 
     public boolean isEnableSsl() {

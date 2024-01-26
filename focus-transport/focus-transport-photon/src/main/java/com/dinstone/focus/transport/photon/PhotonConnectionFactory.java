@@ -24,7 +24,7 @@ import com.dinstone.photon.Connector;
 
 public class PhotonConnectionFactory {
 
-    private final Connector connector;
+    private final Connector photonConnector;
 
     private final PhotonConnectOptions connectOptions;
 
@@ -32,7 +32,7 @@ public class PhotonConnectionFactory {
 
     public PhotonConnectionFactory(PhotonConnectOptions connectOptions) {
         this.connectOptions = connectOptions;
-        this.connector = new Connector(connectOptions);
+        this.photonConnector = new Connector(connectOptions);
         this.connectionPoolMap = new ConcurrentHashMap<>();
     }
 
@@ -51,7 +51,7 @@ public class PhotonConnectionFactory {
             }
         }
         connectionPoolMap.clear();
-        connector.destroy();
+        photonConnector.destroy();
     }
 
     class ConnectionPool {
@@ -79,7 +79,7 @@ public class PhotonConnectionFactory {
                     connection.destroy();
                 }
 
-                connection = connector.connect(socketAddress);
+                connection = photonConnector.connect(socketAddress);
                 connections[index] = connection;
             }
             return connection;

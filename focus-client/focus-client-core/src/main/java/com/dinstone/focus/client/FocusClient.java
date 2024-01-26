@@ -82,7 +82,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         }
         // set default service locator
         if (this.serviceLocator == null) {
-            this.serviceLocator = new DirectLinkServiceLocator(clientOptions.getConnectAddresses());
+            this.serviceLocator = new DirectLinkServiceLocator(clientOptions);
         }
 
         LOG.info("focus client created for [{}]", clientOptions.getApplication());

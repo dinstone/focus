@@ -30,9 +30,16 @@ public interface AcceptOptions {
         public String getProtocol() {
             return "photon";
         }
+
+        @Override
+        public boolean isEnableSsl() {
+            return false;
+        }
     };
 
     ExecutorSelector getExecutorSelector();
 
     String getProtocol();
+
+    public boolean isEnableSsl();
 }

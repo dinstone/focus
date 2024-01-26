@@ -65,6 +65,7 @@ public class ConsulServiceResolver extends DefaultServiceResolver {
         newService.setAddress(serviceInstance.getInstanceHost());
         newService.setPort(serviceInstance.getInstancePort());
         newService.setMeta(serviceInstance.getMetadata());
+        newService.getMeta().put("enableSsl", Boolean.toString(serviceInstance.isEnableSsl()));
 
         NewService.Check check = new NewService.Check();
         check.setTtl(options.getCheckTtl() + "s");

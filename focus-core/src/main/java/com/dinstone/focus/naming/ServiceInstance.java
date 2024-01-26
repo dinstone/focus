@@ -34,8 +34,9 @@ public interface ServiceInstance {
 
     int getInstancePort();
 
+    boolean isEnableSsl();
+
     Map<String, String> getMetadata();
 
     InetSocketAddress getInstanceAddress();
-
 }

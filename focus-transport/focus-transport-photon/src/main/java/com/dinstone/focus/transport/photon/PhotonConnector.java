@@ -42,19 +42,33 @@ public class PhotonConnector implements Connector {
 
     private static final AtomicInteger SEQUENCER = new AtomicInteger();
 
-    private final PhotonConnectionFactory connectionFactory;
+    private final PhotonConnectionFactory commonConnectionFactory;
+
+    private final PhotonConnectionFactory secureConnectionFactory;
 
     public PhotonConnector(PhotonConnectOptions connectOptions) {
         if (connectOptions == null) {
             throw new IllegalArgumentException("connectOptions is null");
         }
-        this.connectionFactory = new PhotonConnectionFactory(connectOptions);
+
+        PhotonConnectOptions commonConnectOptions = new PhotonConnectOptions(connectOptions);
+        commonConnectOptions.setEnableSsl(false);
+        commonConnectionFactory = new PhotonConnectionFactory(commonConnectOptions);
+
+        PhotonConnectOptions secureConnectOptions = new PhotonConnectOptions(connectOptions);
+        secureConnectOptions.setEnableSsl(true);
+        secureConnectionFactory = new PhotonConnectionFactory(secureConnectOptions);
     }
 
     @Override
     public CompletableFuture<Object> send(Invocation invocation, ServiceInstance instance) throws Exception {
         // create connection
-        Connection connection = connectionFactory.create(instance.getInstanceAddress());
+        Connection connection;
+        if (instance.isEnableSsl()) {
+            connection = secureConnectionFactory.create(instance.getInstanceAddress());
+        } else {
+            connection = commonConnectionFactory.create(instance.getInstanceAddress());
+        }
 
         DefaultInvocation iv = (DefaultInvocation) invocation;
         iv.setRemoteAddress(connection.getRemoteAddress());
@@ -153,7 +167,7 @@ public class PhotonConnector implements Connector {
 
     @Override
     public void destroy() {
-        connectionFactory.destroy();
+        commonConnectionFactory.destroy();
     }
 
 }

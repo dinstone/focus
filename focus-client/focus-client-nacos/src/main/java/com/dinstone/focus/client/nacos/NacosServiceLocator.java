@@ -17,6 +17,7 @@ package com.dinstone.focus.client.nacos;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
@@ -54,18 +55,25 @@ public class NacosServiceLocator extends DiscoveryServiceLocator {
     protected void freshService(ServiceCache serviceCache) throws Exception {
         List<ServiceInstance> instances = new LinkedList<>();
         final String serviceName = serviceCache.getServiceName();
-        List<Instance> healthys = namingService.selectInstances(serviceName, true);
-        for (Instance healthy : healthys) {
-            DefaultInstance defaultInstance = new DefaultInstance();
-            defaultInstance.setServiceName(healthy.getServiceName());
-            defaultInstance.setInstanceCode(healthy.getInstanceId());
-            defaultInstance.setInstanceHost(healthy.getIp());
-            defaultInstance.setInstancePort(healthy.getPort());
-            defaultInstance.setMetadata(healthy.getMetadata());
-
-            instances.add(defaultInstance);
+        List<Instance> healths = namingService.selectInstances(serviceName, true);
+        for (Instance healthy : healths) {
+            instances.add(convert(healthy));
         }
         serviceCache.setInstances(instances);
+    }
+
+    private static ServiceInstance convert(Instance healthy) {
+        DefaultInstance defaultInstance = new DefaultInstance();
+        defaultInstance.setServiceName(healthy.getServiceName());
+        defaultInstance.setInstanceCode(healthy.getInstanceId());
+        defaultInstance.setInstanceHost(healthy.getIp());
+        defaultInstance.setInstancePort(healthy.getPort());
+        Map<String, String> metadata = healthy.getMetadata();
+        if (metadata != null && metadata.get("enableSsl") != null) {
+            defaultInstance.setEnableSsl(Boolean.parseBoolean(metadata.get("enableSsl")));
+        }
+        defaultInstance.setMetadata(metadata);
+        return defaultInstance;
     }
 
     @Override

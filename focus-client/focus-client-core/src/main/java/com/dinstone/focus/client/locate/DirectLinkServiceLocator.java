@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.dinstone.focus.client.ClientOptions;
 import com.dinstone.focus.exception.FocusException;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.DefaultInstance;
@@ -29,12 +30,14 @@ public class DirectLinkServiceLocator extends AbstractServiceLocator {
 
     private final List<ServiceInstance> instances = new LinkedList<>();
 
-    public DirectLinkServiceLocator(List<InetSocketAddress> connectAddresses) {
+    public DirectLinkServiceLocator(ClientOptions clientOptions) {
+        List<InetSocketAddress> connectAddresses = clientOptions.getConnectAddresses();
         if (connectAddresses == null || connectAddresses.isEmpty()) {
             throw new FocusException("connectAddresses is empty, please set connectAddresses");
         }
+        boolean enableSsl = clientOptions.getConnectOptions().isEnableSsl();
         for (InetSocketAddress inetSocketAddress : connectAddresses) {
-            this.instances.add(new DefaultInstance(inetSocketAddress));
+            this.instances.add(new DefaultInstance(inetSocketAddress, enableSsl));
         }
     }
 

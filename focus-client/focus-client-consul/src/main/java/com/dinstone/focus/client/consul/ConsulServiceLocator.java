@@ -17,6 +17,7 @@ package com.dinstone.focus.client.consul;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.dinstone.focus.client.locate.DiscoveryServiceLocator;
 import com.dinstone.focus.naming.DefaultInstance;
@@ -49,17 +50,26 @@ public class ConsulServiceLocator extends DiscoveryServiceLocator {
 
         List<ServiceInstance> instances = new LinkedList<>();
         for (HealthService healthService : healthServices) {
-            Service service = healthService.getService();
-
-            DefaultInstance instance = new DefaultInstance();
-            instance.setInstanceCode(service.getId());
-            instance.setServiceName(service.getService());
-            instance.setInstanceHost(service.getAddress());
-            instance.setInstancePort(service.getPort());
-            instance.setMetadata(service.getMeta());
-            instances.add(instance);
+            instances.add(convert(healthService));
         }
         serviceCache.setInstances(instances);
+    }
+
+    private static ServiceInstance convert(HealthService healthService) {
+        Service service = healthService.getService();
+
+        DefaultInstance instance = new DefaultInstance();
+        instance.setInstanceCode(service.getId());
+        instance.setServiceName(service.getService());
+        instance.setInstanceHost(service.getAddress());
+        instance.setInstancePort(service.getPort());
+        Map<String, String> meta = service.getMeta();
+        if (meta != null && meta.get("enableSsl") != null) {
+            instance.setEnableSsl(Boolean.parseBoolean(meta.get("enableSsl")));
+        }
+        instance.setMetadata(meta);
+
+        return instance;
     }
 
 }

@@ -23,7 +23,9 @@ import java.util.Objects;
 
 public class DefaultInstance implements ServiceInstance, Serializable {
 
-    /**  */
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     private final Map<String, String> metadata = new LinkedHashMap<>();
@@ -40,14 +42,17 @@ public class DefaultInstance implements ServiceInstance, Serializable {
 
     private int instancePort;
 
-    private volatile InetSocketAddress address;
+    private boolean enableSsl;
+
+    private volatile InetSocketAddress socketAddress;
 
     public DefaultInstance() {
         super();
     }
 
-    public DefaultInstance(InetSocketAddress socketAddress) {
-        this.address = socketAddress;
+    public DefaultInstance(InetSocketAddress socketAddress, boolean enableSsl) {
+        this.enableSsl = enableSsl;
+        this.socketAddress = socketAddress;
 
         this.instanceHost = socketAddress.getHostString();
         this.instancePort = socketAddress.getPort();
@@ -134,10 +139,19 @@ public class DefaultInstance implements ServiceInstance, Serializable {
 
     @Override
     public InetSocketAddress getInstanceAddress() {
-        if (address == null) {
-            address = new InetSocketAddress(instanceHost, instancePort);
+        if (socketAddress == null) {
+            socketAddress = new InetSocketAddress(instanceHost, instancePort);
         }
-        return address;
+        return socketAddress;
+    }
+
+    @Override
+    public boolean isEnableSsl() {
+        return enableSsl;
+    }
+
+    public void setEnableSsl(boolean enableSsl) {
+        this.enableSsl = enableSsl;
     }
 
     @Override

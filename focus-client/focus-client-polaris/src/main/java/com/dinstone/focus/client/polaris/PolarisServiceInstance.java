@@ -64,6 +64,15 @@ public class PolarisServiceInstance implements ServiceInstance {
     }
 
     @Override
+    public boolean isEnableSsl() {
+        Map<String, String> metadata = instance.getMetadata();
+        if (metadata != null) {
+            return Boolean.parseBoolean(metadata.get("enableSsl"));
+        }
+        return false;
+    }
+
+    @Override
     public Map<String, String> getMetadata() {
         return instance.getMetadata();
     }

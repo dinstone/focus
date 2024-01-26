@@ -21,5 +21,11 @@ public interface ConnectOptions {
      * default connect options : photon connect options
      */
     public static final ConnectOptions DEFAULT_CONNECT_OPTIONS = new ConnectOptions() {
+        @Override
+        public boolean isEnableSsl() {
+            return false;
+        }
     };
+
+    public boolean isEnableSsl();
 }

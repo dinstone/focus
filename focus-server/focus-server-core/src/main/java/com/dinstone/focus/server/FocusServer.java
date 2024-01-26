@@ -198,7 +198,9 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
         instance.setInstancePort(port);
         instance.setServiceName(app);
 
-        instance.setProtocolType(serverOptions.getAcceptOptions().getProtocol());
+        AcceptOptions acceptOptions = serverOptions.getAcceptOptions();
+        instance.setProtocolType(acceptOptions.getProtocol());
+        instance.setEnableSsl(acceptOptions.isEnableSsl());
         instance.setMetadata(serverOptions.getMetadata());
         return instance;
     }

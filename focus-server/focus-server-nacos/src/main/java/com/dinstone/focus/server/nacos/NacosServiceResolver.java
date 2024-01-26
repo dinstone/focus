@@ -60,6 +60,7 @@ public class NacosServiceResolver extends DefaultServiceResolver {
         instance.setPort(serviceInstance.getInstancePort());
         instance.setMetadata(serviceInstance.getMetadata());
         instance.setHealthy(true);
+        instance.getMetadata().put("enableSsl", Boolean.toString(serviceInstance.isEnableSsl()));
 
         namingService.registerInstance(serviceInstance.getServiceName(), instance);
     }

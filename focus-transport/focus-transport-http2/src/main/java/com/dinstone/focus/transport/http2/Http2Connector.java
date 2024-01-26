@@ -23,22 +23,35 @@ import com.dinstone.focus.transport.Connector;
 
 public class Http2Connector implements Connector {
 
-    private final Http2ChannelFactory channelFactory;
+    private final Http2ChannelFactory commonChannelFactory;
+    private final Http2ChannelFactory secureChannelFactory;
 
     public Http2Connector(Http2ConnectOptions connectOptions) {
-        channelFactory = new Http2ChannelFactory(connectOptions);
+        Http2ConnectOptions commonOptions = new Http2ConnectOptions(connectOptions);
+        commonOptions.setEnableSsl(false);
+        commonChannelFactory = new Http2ChannelFactory(commonOptions);
+
+        Http2ConnectOptions secureOptions = new Http2ConnectOptions(connectOptions);
+        secureOptions.setEnableSsl(true);
+        secureChannelFactory = new Http2ChannelFactory(secureOptions);
     }
 
     @Override
     public CompletableFuture<Object> send(Invocation invocation, ServiceInstance instance) {
         // create connection
-        Http2Channel http2Channel = channelFactory.create(instance.getInstanceAddress());
-        return http2Channel.send(invocation);
+        if (instance.isEnableSsl()) {
+            Http2Channel http2Channel = secureChannelFactory.create(instance.getInstanceAddress());
+            return http2Channel.send(invocation);
+        } else {
+            Http2Channel http2Channel = commonChannelFactory.create(instance.getInstanceAddress());
+            return http2Channel.send(invocation);
+        }
     }
 
     @Override
     public void destroy() {
-        channelFactory.destroy();
+        commonChannelFactory.destroy();
+        secureChannelFactory.destroy();
     }
 
 }

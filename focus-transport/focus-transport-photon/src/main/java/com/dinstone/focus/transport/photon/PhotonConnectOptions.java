@@ -23,6 +23,14 @@ public class PhotonConnectOptions extends com.dinstone.photon.ConnectOptions imp
 
     private int connectPoolSize = DEFAULT_POOL_SIZE;
 
+    public PhotonConnectOptions() {
+    }
+
+    public PhotonConnectOptions(PhotonConnectOptions other) {
+        super(other);
+        connectPoolSize = other.connectPoolSize;
+    }
+
     public int getConnectPoolSize() {
         return connectPoolSize;
     }

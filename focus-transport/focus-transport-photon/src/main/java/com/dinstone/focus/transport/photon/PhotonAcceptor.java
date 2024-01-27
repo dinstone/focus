@@ -24,26 +24,26 @@ import com.dinstone.focus.transport.ExecutorSelector;
 
 public class PhotonAcceptor implements Acceptor {
 
-    private final com.dinstone.photon.Acceptor acceptor;
-    private final ExecutorSelector executorSelector;
+	private final com.dinstone.photon.Acceptor photonAcceptor;
+	private final ExecutorSelector executorSelector;
 
-    public PhotonAcceptor(PhotonAcceptOptions acceptOptions) {
-        acceptor = new com.dinstone.photon.Acceptor(acceptOptions);
-        executorSelector = acceptOptions.getExecutorSelector();
-    }
+	public PhotonAcceptor(PhotonAcceptOptions acceptOptions) {
+		photonAcceptor = new com.dinstone.photon.Acceptor(acceptOptions);
+		executorSelector = acceptOptions.getExecutorSelector();
+	}
 
-    @Override
-    public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceFinder) throws Exception {
-        acceptor.setMessageProcessor(new PhotonMessageProcessor(serviceFinder, executorSelector));
-        acceptor.bind(serviceAddress);
-    }
+	@Override
+	public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceFinder) throws Exception {
+		photonAcceptor.setMessageProcessor(new PhotonMessageProcessor(serviceFinder, executorSelector));
+		photonAcceptor.bind(serviceAddress);
+	}
 
-    @Override
-    public void destroy() {
-        acceptor.destroy();
-        if (executorSelector != null) {
-            executorSelector.destroy();
-        }
-    }
+	@Override
+	public void destroy() {
+		photonAcceptor.destroy().awaitUninterruptibly();
+		if (executorSelector != null) {
+			executorSelector.destroy();
+		}
+	}
 
 }

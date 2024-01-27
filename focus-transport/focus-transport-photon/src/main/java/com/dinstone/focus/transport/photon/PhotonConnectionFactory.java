@@ -51,7 +51,7 @@ public class PhotonConnectionFactory {
             }
         }
         connectionPoolMap.clear();
-        photonConnector.destroy();
+        photonConnector.destroy().awaitUninterruptibly();
     }
 
     class ConnectionPool {

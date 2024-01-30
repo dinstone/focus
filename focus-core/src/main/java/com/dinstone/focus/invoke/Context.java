@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.invoke;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +29,10 @@ public class Context {
     private static final ThreadLocal<Context> CONTEXT_LOCAL = new ThreadLocal<Context>();
 
     private final ConcurrentHashMap<String, Object> contentMap = new ConcurrentHashMap<>();
+
+    private InetSocketAddress remoteAddress;
+
+    private InetSocketAddress localAddress;
 
     /**
      * put k-v if absent
@@ -76,6 +81,22 @@ public class Context {
      */
     public void clear() {
         this.contentMap.clear();
+    }
+
+    public InetSocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public void setRemoteAddress(InetSocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
+
+    public InetSocketAddress getLocalAddress() {
+        return localAddress;
+    }
+
+    public void setLocalAddress(InetSocketAddress localAddress) {
+        this.localAddress = localAddress;
     }
 
     public static Context getContext() {

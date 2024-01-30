@@ -87,8 +87,8 @@ public final class PhotonMessageProcessor extends MessageProcessor {
 
             // decode invocation from request
             DefaultInvocation invocation = decode(request, serviceConfig, methodConfig);
-            invocation.setRemoteAddress(connection.getRemoteAddress());
-            invocation.setLocalAddress(connection.getLocalAddress());
+            invocation.context().setRemoteAddress(connection.getRemoteAddress());
+            invocation.context().setLocalAddress(connection.getLocalAddress());
 
             // invoke invocation
             serviceConfig.getHandler().handle(invocation).whenComplete((reply, error) -> {

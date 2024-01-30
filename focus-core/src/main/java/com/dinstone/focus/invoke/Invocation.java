@@ -15,7 +15,6 @@
  */
 package com.dinstone.focus.invoke;
 
-import java.net.InetSocketAddress;
 import java.util.Map;
 
 import com.dinstone.focus.config.MethodConfig;
@@ -42,9 +41,7 @@ public interface Invocation {
 
     int getTimeout();
 
-    InetSocketAddress getRemoteAddress();
-
-    InetSocketAddress getLocalAddress();
+    Context context();
 
     Map<String, String> attributes();
 

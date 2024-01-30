@@ -16,7 +16,6 @@
 package com.dinstone.focus.invoke;
 
 import java.io.Serializable;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,12 +45,9 @@ public class DefaultInvocation implements Invocation, Serializable {
     protected int timeout;
 
     // ===================================
-    // content filed
+    // context filed
     // ===================================
-
-    private InetSocketAddress remoteAddress;
-
-    private InetSocketAddress localAddress;
+    private final Context context = new Context();
 
     private ServiceConfig serviceConfig;
 
@@ -117,26 +113,13 @@ public class DefaultInvocation implements Invocation, Serializable {
     }
 
     @Override
-    public InetSocketAddress getRemoteAddress() {
-        return remoteAddress;
-    }
-
-    public void setRemoteAddress(InetSocketAddress remoteAddress) {
-        this.remoteAddress = remoteAddress;
-    }
-
-    @Override
-    public InetSocketAddress getLocalAddress() {
-        return localAddress;
-    }
-
-    public void setLocalAddress(InetSocketAddress localAddress) {
-        this.localAddress = localAddress;
-    }
-
-    @Override
     public Map<String, String> attributes() {
         return attributes;
+    }
+
+    @Override
+    public Context context() {
+        return context;
     }
 
     @Override

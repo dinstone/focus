@@ -26,7 +26,6 @@ import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.ExceptionUtil;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
-import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.serialize.Serializer;
@@ -70,9 +69,8 @@ public class PhotonConnector implements Connector {
             connection = commonConnectionFactory.create(instance.getInstanceAddress());
         }
 
-        DefaultInvocation iv = (DefaultInvocation) invocation;
-        iv.setRemoteAddress(connection.getRemoteAddress());
-        iv.setLocalAddress(connection.getLocalAddress());
+        invocation.context().setRemoteAddress(connection.getRemoteAddress());
+        invocation.context().setLocalAddress(connection.getLocalAddress());
 
         ServiceConfig serviceConfig = invocation.getServiceConfig();
         MethodConfig methodConfig = invocation.getMethodConfig();

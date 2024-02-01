@@ -16,6 +16,7 @@
 package com.dinstone.focus.transport.http2;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.compress.Compressor;
@@ -127,6 +128,14 @@ public class Http2Channel {
             }
         }
         return content;
+    }
+
+    public InetSocketAddress getRemoteAddress() {
+        return (InetSocketAddress) channel.remoteAddress();
+    }
+
+    public InetSocketAddress getLocalAddress() {
+        return (InetSocketAddress) channel.localAddress();
     }
 
     public static class StreamChannelHandler extends SimpleChannelInboundHandler<Http2StreamFrame> {

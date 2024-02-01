@@ -41,9 +41,13 @@ public class Http2Connector implements Connector {
         // create connection
         if (instance.isEnableSsl()) {
             Http2Channel http2Channel = secureChannelFactory.create(instance.getInstanceAddress());
+            invocation.context().setRemoteAddress(http2Channel.getRemoteAddress());
+            invocation.context().setLocalAddress(http2Channel.getLocalAddress());
             return http2Channel.send(invocation);
         } else {
             Http2Channel http2Channel = commonChannelFactory.create(instance.getInstanceAddress());
+            invocation.context().setRemoteAddress(http2Channel.getRemoteAddress());
+            invocation.context().setLocalAddress(http2Channel.getLocalAddress());
             return http2Channel.send(invocation);
         }
     }

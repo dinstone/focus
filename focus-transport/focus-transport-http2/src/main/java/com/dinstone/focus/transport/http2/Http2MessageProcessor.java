@@ -16,6 +16,7 @@
 package com.dinstone.focus.transport.http2;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
@@ -72,6 +73,9 @@ public final class Http2MessageProcessor {
             // decode invocation from request
             ByteBuf dataBuf = dataFrame == null ? null : dataFrame.content();
             Invocation invocation = decode(headers, dataBuf, serviceConfig, methodConfig);
+
+            invocation.context().setRemoteAddress((InetSocketAddress) channel.remoteAddress());
+            invocation.context().setLocalAddress((InetSocketAddress) channel.localAddress());
 
             // invoke invocation
             CompletableFuture<Object> replyFuture = serviceConfig.getHandler().handle(invocation);

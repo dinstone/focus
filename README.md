@@ -15,7 +15,9 @@
 
 * 性能优越，可演进：“高性能”永远是一个绕不开的关注点，框架的实现也是编码能力的体现，保持 API 不变，但实现可持续迭代改进。
 
-[Focus](https://github.com/dinstone/focus) 框架在高效能方面做了很多的努力，坚持最小侵入性，坚持面向对象的SOLID原则，追求极简协议和代码简洁。希望使用和学习RPC框架的的同学有所收获！
+[Focus](https://github.com/dinstone/focus) 框架在高效能方面做了很多的努力，贯彻最小侵入性设计理念，坚持面向对象的SOLID原则，追求极简协议和代码简洁，能够让开发者和企业更轻松地集成和使用RPC框架。
+
+对于希望使用和学习RPC框架的同学来说，选择一个高效、易用、灵活和可扩展的框架非常重要。Focus框架可以为他们提供更多的参考和选择，帮助他们更好地了解和掌握RPC框架的使用技巧和最佳实践。
 
 # Features
 
@@ -65,19 +67,19 @@ The quick start gives a basic example of running client and server on the same m
     <dependency>
         <groupId>com.dinstone.focus</groupId>
         <artifactId>focus-server-photon</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
         <type>pom</type>
     </dependency>
     <dependency>
         <groupId>com.dinstone.focus</groupId>
         <artifactId>focus-client-photon</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
         <type>pom</type>
     </dependency>
     <dependency>
         <groupId>com.dinstone.focus</groupId>
         <artifactId>focus-serialize-json</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
     </dependency>
 </dependencies>
 ```
@@ -262,9 +264,9 @@ public class FocusClientGenericCallBootstrap {
 }
 ```
 
-## 安全调用
+## Secure Call
 
-1.设置服务端参数，在接受选项中启用SSL并设置证书信息。
+1.Set server parameters, enable SSL in the accept options, and set certificate information.
 
 ```java
 package focus.quickstart.ssl;
@@ -311,7 +313,7 @@ public class SslFocusServerBootstrap {
 }
 ```
 
-2.设置客户端参数，在连接选项中启用SSL。
+2.Set client parameters and enable SSL in the connection options.
 
 ```java
 package focus.quickstart.ssl;

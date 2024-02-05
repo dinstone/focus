@@ -17,7 +17,6 @@ package com.dinstone.focus.transport.photon;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
@@ -38,8 +37,6 @@ import com.dinstone.photon.message.Response.Status;
 import io.netty.util.CharsetUtil;
 
 public class PhotonConnector implements Connector {
-
-    private static final AtomicInteger SEQUENCER = new AtomicInteger();
 
     private final PhotonConnectionFactory commonConnectionFactory;
 
@@ -157,7 +154,6 @@ public class PhotonConnector implements Connector {
         headers.add(Invocation.SERVICE_KEY, invocation.getService());
         headers.add(Invocation.METHOD_KEY, invocation.getMethod());
         headers.setAll(invocation.attributes().entrySet());
-        request.setSequence(SEQUENCER.incrementAndGet());
         request.setTimeout(invocation.getTimeout());
         request.setContent(content);
         return request;

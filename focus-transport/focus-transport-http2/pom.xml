@@ -3,11 +3,11 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-transport</artifactId>
-		<version>1.2.0</version>
+		<version>1.2.1</version>
 	</parent>
 	<artifactId>focus-transport-http2</artifactId>
 	<properties>
-		<netty.version>4.1.100.Final</netty.version>
+		<netty.version>4.1.106.Final</netty.version>
 	</properties>
 	<dependencies>
 		<dependency>

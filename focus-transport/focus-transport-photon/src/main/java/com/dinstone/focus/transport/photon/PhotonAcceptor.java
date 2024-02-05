@@ -34,7 +34,7 @@ public class PhotonAcceptor implements Acceptor {
 
     @Override
     public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceFinder) throws Exception {
-        photonAcceptor.setMessageProcessor(new PhotonMessageProcessor(serviceFinder, executorSelector));
+        photonAcceptor.setProcessor(new PhotonMessageProcessor(serviceFinder, executorSelector));
         photonAcceptor.bind(serviceAddress);
     }
 

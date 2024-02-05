@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-transport</artifactId>
-		<version>1.2.0</version>
+		<version>1.2.1</version>
 	</parent>
 	<artifactId>focus-transport-photon</artifactId>
 	<dependencies>
@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>com.dinstone.photon</groupId>
 			<artifactId>photon</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.2</version>
 		</dependency>
 	</dependencies>
 	<build>

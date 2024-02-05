@@ -30,14 +30,14 @@ import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.ExecutorSelector;
 import com.dinstone.photon.Connection;
-import com.dinstone.photon.MessageProcessor;
+import com.dinstone.photon.Processor;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
 import com.dinstone.photon.message.Response.Status;
 import io.netty.util.CharsetUtil;
 
-public final class PhotonMessageProcessor extends MessageProcessor {
+public final class PhotonMessageProcessor extends Processor {
     private final Function<String, ServiceConfig> serviceFinder;
     private final ExecutorSelector executorSelector;
 
@@ -100,7 +100,7 @@ public final class PhotonMessageProcessor extends MessageProcessor {
                     response.setSequence(request.getSequence());
 
                     // send response with reply
-                    connection.sendMessage(response);
+                    connection.sendResponse(response);
                 }
             });
 
@@ -200,6 +200,6 @@ public final class PhotonMessageProcessor extends MessageProcessor {
         if (exception.getMessage() != null) {
             response.setContent(exception.getMessage().getBytes(CharsetUtil.UTF_8));
         }
-        connection.sendMessage(response);
+        connection.sendResponse(response);
     }
 }

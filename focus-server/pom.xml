@@ -10,7 +10,6 @@
 	<modules>
 		<module>focus-server-core</module>
 		<module>focus-server-http2</module>
-		<module>focus-server-photon</module>
 		<module>focus-server-polaris</module>
 		<module>focus-server-nacos</module>
 		<module>focus-server-consul</module>

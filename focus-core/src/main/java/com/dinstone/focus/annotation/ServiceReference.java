@@ -30,6 +30,8 @@ public @interface ServiceReference {
 
     String service() default "";
 
+    String serializer() default "";
+
     int timeoutMillis() default 1000;
 
     int timeoutRetry() default 0;

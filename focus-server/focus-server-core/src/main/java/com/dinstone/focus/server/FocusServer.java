@@ -182,7 +182,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
 
             LOG.info("exporting {}", serviceConfig);
         } catch (Exception e) {
-            throw new FocusException("export service error", e);
+            throw new FocusException("export service error:" + e.getMessage(), e);
         }
     }
 

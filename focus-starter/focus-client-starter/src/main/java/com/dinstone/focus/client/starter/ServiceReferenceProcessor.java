@@ -41,8 +41,8 @@ public class ServiceReferenceProcessor implements BeanPostProcessor, Application
                 }
 
                 ImportOptions importOptions = new ImportOptions(reference.application(), service)
-                        .setTimeoutMillis(reference.timeoutMillis()).setTimeoutRetry(reference.timeoutRetry())
-                        .setConnectRetry(reference.connectRetry());
+                        .setSerializerType(reference.serializer()).setTimeoutMillis(reference.timeoutMillis())
+                        .setTimeoutRetry(reference.timeoutRetry()).setConnectRetry(reference.connectRetry());
 
                 ReflectionUtils.makeAccessible(field);
                 FocusClient client = applicationContext.getBean(FocusClient.class);

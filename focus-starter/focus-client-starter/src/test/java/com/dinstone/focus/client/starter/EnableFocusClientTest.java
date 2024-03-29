@@ -42,6 +42,6 @@ class EnableFocusClientTest {
     @Bean
     @ConditionalOnMissingBean
     ClientOptions clientOptions() {
-        return new ClientOptions("demo.client").connect("127.0.0.1", 2222);
+        return new ClientOptions("focus.springboot.client").connect("127.0.0.1", 2222);
     }
 }

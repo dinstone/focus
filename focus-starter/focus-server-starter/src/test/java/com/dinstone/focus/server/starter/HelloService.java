@@ -15,11 +15,11 @@
  */
 package com.dinstone.focus.server.starter;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.dinstone.focus.annotation.ServiceDefinition;
 
-@Service
+@Component
 @ServiceDefinition(service = "HelloService")
 public class HelloService {
 

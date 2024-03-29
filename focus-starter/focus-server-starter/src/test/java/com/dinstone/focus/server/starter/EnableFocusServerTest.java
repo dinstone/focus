@@ -21,7 +21,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
-import com.dinstone.focus.server.FocusServer;
 import com.dinstone.focus.server.ServerOptions;
 
 @Configurable
@@ -33,10 +32,10 @@ class EnableFocusServerTest {
         SpringApplication.run(EnableFocusServerTest.class, args);
     }
 
-    @Bean(destroyMethod = "close")
+    @Bean
     @ConditionalOnMissingBean
-    FocusServer defaultFocusServer() {
-        return new FocusServer(new ServerOptions("demo.server").listen(2222)).start();
+    public ServerOptions focusServerOptions() {
+        return new ServerOptions("focus.springboot.server").listen(2222);
     }
 
 }

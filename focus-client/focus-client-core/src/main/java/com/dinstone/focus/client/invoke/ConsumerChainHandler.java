@@ -15,36 +15,111 @@
  */
 package com.dinstone.focus.client.invoke;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeoutException;
 
+import com.dinstone.focus.client.ServiceLocator;
+import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.config.ServiceConfig;
+import com.dinstone.focus.exception.ErrorCode;
+import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.ChainHandler;
+import com.dinstone.focus.invoke.Context;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Invocation;
+import com.dinstone.focus.naming.ServiceInstance;
 
 /**
  * client-side service invoker.
  *
  * @author dinstone
- *
+ * 
  * @version 1.0.0
  */
 public class ConsumerChainHandler extends ChainHandler {
 
-    public ConsumerChainHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
+    private final ServiceLocator serviceLocator;
+
+    private final int connectRetry;
+
+    public ConsumerChainHandler(ServiceConfig serviceConfig, Handler invokeHandler, ServiceLocator serviceLocator) {
         super(serviceConfig, invokeHandler);
+        this.serviceLocator = serviceLocator;
+        this.connectRetry = ((ConsumerServiceConfig) serviceConfig).getConnectRetry();
     }
 
     public CompletableFuture<Object> handle(Invocation invocation) {
-        // Context.pushContext();
-        // Context.getContext();
-        // try {
-        // return invokeHandler.handle(invocation);
-        // } finally {
-        // Context.removeContext();
-        // Context.popContext();
-        // }
-        return invokeHandler.handle(invocation);
+        int timeoutRetry = invocation.getMethodConfig().getTimeoutRetry();
+        return timeoutRetry(new CompletableFuture<>(), invocation, timeoutRetry);
+    }
+
+    private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, Invocation invocation,
+            int remain) {
+
+        connectRetry(invocation).thenApply(future::complete).exceptionally(e -> {
+            if (e instanceof CompletionException) {
+                e = e.getCause();
+            }
+            // check timeout exception to retry
+            if (e instanceof TimeoutException) {
+                if (remain <= 1) {
+                    future.completeExceptionally(e);
+                } else {
+                    try {
+                        timeoutRetry(future, invocation, remain - 1);
+                    } catch (Exception e1) {
+                        future.completeExceptionally(e);
+                    }
+                }
+            } else {
+                future.completeExceptionally(e);
+            }
+
+            return true;
+        });
+
+        return future;
+    }
+
+    private CompletableFuture<Object> connectRetry(Invocation invocation) {
+        List<ServiceInstance> exclusions = new LinkedList<>();
+        // find a service instance
+        for (int i = 0; i < connectRetry; i++) {
+            ServiceInstance selected = serviceLocator.locate(invocation, exclusions);
+
+            // check
+            if (selected == null) {
+                break;
+            }
+
+            // invoke
+            try {
+                final ServiceInstance instance = selected;
+                long startTime = System.currentTimeMillis();
+                invocation.context().put(Context.SERVICE_INSTANCE_KEY, selected);
+                return invokeHandler.handle(invocation).whenComplete((reply, error) -> {
+                    long finishTime = System.currentTimeMillis();
+                    serviceLocator.feedback(instance, invocation, reply, error, finishTime - startTime);
+                });
+            } catch (InvokeException e) {
+                // connection exception can retry
+                if (e.getCode() == ErrorCode.CONNECT_ERROR) {
+                    exclusions.add(selected);
+                } else {
+                    throw e;
+                }
+            } catch (RuntimeException e) {
+                throw new ServiceException(ErrorCode.ACCESS_ERROR,
+                        connectRetry + " retry for " + invocation.getService(), e);
+            }
+        }
+
+        throw new ServiceException(ErrorCode.ACCESS_ERROR,
+                connectRetry + " retry can't find a live service instance for " + invocation.getService());
     }
 
 }

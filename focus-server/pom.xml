@@ -3,13 +3,12 @@
 	<parent>
 		<groupId>com.dinstone.focus</groupId>
 		<artifactId>focus-parent</artifactId>
-		<version>1.3.0</version>
+		<version>1.3.1</version>
 	</parent>
 	<artifactId>focus-server</artifactId>
 	<packaging>pom</packaging>
 	<modules>
 		<module>focus-server-core</module>
-		<module>focus-server-http2</module>
 		<module>focus-server-polaris</module>
 		<module>focus-server-nacos</module>
 		<module>focus-server-consul</module>

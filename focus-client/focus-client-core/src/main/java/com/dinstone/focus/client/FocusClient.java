@@ -188,8 +188,9 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     }
 
     private Handler createInvokeHandler(ServiceConfig serviceConfig) {
-        Handler remote = new RemoteInvokeHandler(serviceConfig, serviceLocator, connector);
-        return new ConsumerChainHandler(serviceConfig, remote).addInterceptor(clientOptions.getInterceptors());
+        Handler invokeHandler = new RemoteInvokeHandler(serviceConfig, connector);
+        return new ConsumerChainHandler(serviceConfig, invokeHandler, serviceLocator)
+                .addInterceptor(clientOptions.getInterceptors());
     }
 
 }

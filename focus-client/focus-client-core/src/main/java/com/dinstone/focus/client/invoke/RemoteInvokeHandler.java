@@ -16,19 +16,12 @@
 package com.dinstone.focus.client.invoke;
 
 import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeoutException;
 
-import com.dinstone.focus.client.ServiceLocator;
-import com.dinstone.focus.client.config.ConsumerServiceConfig;
-import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ErrorCode;
-import com.dinstone.focus.exception.ServiceException;
+import com.dinstone.focus.exception.InvokeException;
+import com.dinstone.focus.invoke.Context;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
@@ -36,83 +29,28 @@ import com.dinstone.focus.transport.Connector;
 
 public class RemoteInvokeHandler implements Handler {
 
-    private final ServiceLocator locator;
-
     private final Connector connector;
 
-    private final int connectRetry;
-
-    public RemoteInvokeHandler(ServiceConfig serviceConfig, ServiceLocator locator, Connector connector) {
+    public RemoteInvokeHandler(ServiceConfig serviceConfig, Connector connector) {
         this.connector = connector;
-        this.locator = locator;
-
-        this.connectRetry = ((ConsumerServiceConfig) serviceConfig).getConnectRetry();
     }
 
     @Override
     public CompletableFuture<Object> handle(Invocation invocation) {
-        MethodConfig methodConfig = invocation.getMethodConfig();
-        return timeoutRetry(new CompletableFuture<>(), methodConfig.getTimeoutRetry(), invocation);
-    }
-
-    private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, int remain,
-            Invocation invocation) {
-
-        connectRetry(invocation).thenApply(future::complete).exceptionally(e -> {
-            if (e instanceof CompletionException) {
-                e = e.getCause();
-            }
-            // check timeout exception to retry
-            if (e instanceof TimeoutException) {
-                if (remain <= 1) {
-                    future.completeExceptionally(e);
-                } else {
-                    try {
-                        timeoutRetry(future, remain - 1, invocation);
-                    } catch (Exception e1) {
-                        future.completeExceptionally(e);
-                    }
-                }
-            } else {
-                future.completeExceptionally(e);
-            }
-
-            return true;
-        });
-
-        return future;
-    }
-
-    private CompletableFuture<Object> connectRetry(Invocation invocation) {
-        List<ServiceInstance> exclusions = new LinkedList<>();
-        // find a service instance
-        for (int i = 0; i < connectRetry; i++) {
-            ServiceInstance selected = locator.locate(invocation, exclusions);
-
-            // check
-            if (selected == null) {
-                break;
-            }
-
-            // invoke
-            try {
-                final ServiceInstance instance = selected;
-                long startTime = System.currentTimeMillis();
-                return connector.send(invocation, instance).whenComplete((reply, error) -> {
-                    long finishTime = System.currentTimeMillis();
-                    locator.feedback(instance, invocation, reply, error, finishTime - startTime);
-                });
-            } catch (ConnectException e) {
-                // ignore and retry
-                exclusions.add(selected);
-            } catch (Exception e) {
-                throw new ServiceException(ErrorCode.ACCESS_ERROR,
-                        connectRetry + " retry for " + invocation.getService(), e);
-            }
+        ServiceInstance instance = invocation.context().get(Context.SERVICE_INSTANCE_KEY);
+        if (instance == null) {
+            throw new InvokeException(ErrorCode.CONNECT_ERROR, invocation.getService() + " connect to null");
         }
 
-        throw new ServiceException(ErrorCode.ACCESS_ERROR,
-                connectRetry + " retry can't find a live service instance for " + invocation.getService());
+        try {
+            return connector.send(invocation, instance);
+        } catch (ConnectException e) {
+            throw new InvokeException(ErrorCode.CONNECT_ERROR,
+                    invocation.getService() + " connect to " + instance.getInstanceAddress(), e);
+        } catch (Exception e) {
+            throw new InvokeException(ErrorCode.INVOKE_ERROR,
+                    invocation.getService() + " connect to " + instance.getInstanceAddress(), e);
+        }
     }
 
 }

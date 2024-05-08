@@ -38,12 +38,11 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
         List<String> polarisAddress = locatorOptions.getAddresses();
         if (polarisAddress == null || polarisAddress.isEmpty()) {
             polarisContext = SDKContext.initContext();
-            providerAPI = DiscoveryAPIFactory.createProviderAPIByContext(polarisContext);
         } else {
             Configuration config = ConfigAPIFactory.createConfigurationByAddress(polarisAddress);
             polarisContext = SDKContext.initContextByConfig(config);
-            providerAPI = DiscoveryAPIFactory.createProviderAPIByContext(polarisContext);
         }
+        providerAPI = DiscoveryAPIFactory.createProviderAPIByContext(polarisContext);
     }
 
     @Override

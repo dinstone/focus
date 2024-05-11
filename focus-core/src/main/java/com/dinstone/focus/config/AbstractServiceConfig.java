@@ -43,6 +43,8 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
 
     protected int compressThreshold;
 
+    private Map<String, String> metadata;
+
     public void setProvider(String provider) {
         this.provider = provider;
     }
@@ -113,6 +115,15 @@ public abstract class AbstractServiceConfig implements ServiceConfig {
     @Override
     public int getCompressThreshold() {
         return compressThreshold;
+    }
+
+    @Override
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
     }
 
     protected <T> T parse(Method method, BiFunction<Method, Class<?>, T> builder) {

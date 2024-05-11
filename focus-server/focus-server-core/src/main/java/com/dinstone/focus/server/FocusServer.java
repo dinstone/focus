@@ -166,6 +166,9 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             ProviderServiceConfig serviceConfig = new ProviderServiceConfig();
             serviceConfig.setService(service);
             serviceConfig.setTarget(instance);
+
+            // provider info
+            serviceConfig.setMetadata(serverOptions.getMetadata());
             serviceConfig.setProvider(serverOptions.getApplication());
 
             // create and set method configure

@@ -15,6 +15,8 @@
  */
 package com.dinstone.focus.config;
 
+import java.util.Map;
+
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
@@ -23,7 +25,6 @@ import com.dinstone.focus.serialize.Serializer;
  * service level config
  *
  * @author dinstone
- *
  */
 public interface ServiceConfig {
 
@@ -42,5 +43,7 @@ public interface ServiceConfig {
     String getProvider();
 
     String getService();
+
+    Map<String, String> getMetadata();
 
 }

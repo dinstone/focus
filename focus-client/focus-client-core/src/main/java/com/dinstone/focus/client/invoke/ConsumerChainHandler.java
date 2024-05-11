@@ -17,6 +17,7 @@ package com.dinstone.focus.client.invoke;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
@@ -54,7 +55,7 @@ public class ConsumerChainHandler extends ChainHandler {
 
     public CompletableFuture<Object> handle(Invocation invocation) {
         int timeoutRetry = invocation.getMethodConfig().getTimeoutRetry();
-        return timeoutRetry(new CompletableFuture<>(), invocation, timeoutRetry);
+        return timeoutRetry(new CompletableFuture<>(), invocation, timeoutRetry - 1);
     }
 
     private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, Invocation invocation,
@@ -65,8 +66,8 @@ public class ConsumerChainHandler extends ChainHandler {
                 e = e.getCause();
             }
             // check timeout exception to retry
-            if (e instanceof TimeoutException) {
-                if (remain <= 1) {
+            if (e instanceof TimeoutException || e instanceof CancellationException) {
+                if (remain < 1) {
                     future.completeExceptionally(e);
                 } else {
                     try {
@@ -88,38 +89,39 @@ public class ConsumerChainHandler extends ChainHandler {
     private CompletableFuture<Object> connectRetry(Invocation invocation) {
         List<ServiceInstance> exclusions = new LinkedList<>();
         // find a service instance
-        for (int i = 0; i < connectRetry; i++) {
+        for (int i = 1; i <= connectRetry; i++) {
             ServiceInstance selected = serviceLocator.locate(invocation, exclusions);
 
             // check
             if (selected == null) {
-                break;
+                throw new ServiceException(ErrorCode.ACCESS_ERROR,
+                        "locate " + i + "times, can't find a live service instance for " + invocation.getProvider()
+                                + "/" + invocation.getService());
             }
 
             // invoke
+            final ServiceInstance instance = selected;
+            long startTime = System.currentTimeMillis();
             try {
-                final ServiceInstance instance = selected;
-                long startTime = System.currentTimeMillis();
                 invocation.context().put(Context.SERVICE_INSTANCE_KEY, selected);
                 return invokeHandler.handle(invocation).whenComplete((reply, error) -> {
                     long finishTime = System.currentTimeMillis();
                     serviceLocator.feedback(instance, invocation, reply, error, finishTime - startTime);
                 });
             } catch (InvokeException e) {
+                long finishTime = System.currentTimeMillis();
+                serviceLocator.feedback(instance, invocation, null, e, finishTime - startTime);
                 // connection exception can retry
                 if (e.getCode() == ErrorCode.CONNECT_ERROR) {
                     exclusions.add(selected);
                 } else {
                     throw e;
                 }
-            } catch (RuntimeException e) {
-                throw new ServiceException(ErrorCode.ACCESS_ERROR,
-                        connectRetry + " retry for " + invocation.getService(), e);
             }
         }
 
         throw new ServiceException(ErrorCode.ACCESS_ERROR,
-                connectRetry + " retry can't find a live service instance for " + invocation.getService());
+                connectRetry + " times connect error for " + invocation.getProvider() + "/" + invocation.getService());
     }
 
 }

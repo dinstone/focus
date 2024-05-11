@@ -117,9 +117,9 @@ public class PhotonConnector implements Connector {
             }
 
             String codeKey = InvokeException.CODE_KEY;
-            int value = ErrorCode.UNKNOWN_ERROR.value();
-            int errorCode = headers.getInt(codeKey, value);
-            throw ExceptionUtil.invokeException(errorCode, message);
+            int unknownValue = ErrorCode.UNKNOWN_ERROR.value();
+            int codeValue = headers.getInt(codeKey, unknownValue);
+            throw ExceptionUtil.invokeException(codeValue, message);
         }
     }
 

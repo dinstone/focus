@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
@@ -29,6 +30,10 @@ import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Handler;
 
 class SpecialHandler implements InvocationHandler {
+
+    public static final String HASH_CODE = "hashCode";
+    public static final String TO_STRING = "toString";
+    public static final String EQUALS = "equals";
 
     private final ServiceConfig serviceConfig;
     private final Handler invokeHandler;
@@ -42,11 +47,11 @@ class SpecialHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName();
         switch (methodName) {
-        case "hashCode":
+        case HASH_CODE:
             return System.identityHashCode(proxy);
-        case "equals":
+        case EQUALS:
             return (proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);
-        case "toString":
+        case TO_STRING:
             return proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode());
         }
 
@@ -79,11 +84,14 @@ class SpecialHandler implements InvocationHandler {
                 if (cause instanceof FocusException) {
                     throw cause;
                 } else {
-                    throw new InvokeException(ErrorCode.INVOKE_ERROR, cause);
+                    if (cause instanceof TimeoutException) {
+                        throw new InvokeException(ErrorCode.TIMEOUT_ERROR, cause);
+                    } else {
+                        throw new InvokeException(ErrorCode.INVOKE_ERROR, cause);
+                    }
                 }
             }
         }
-
     }
 
 }

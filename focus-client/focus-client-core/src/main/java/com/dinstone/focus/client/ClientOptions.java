@@ -28,11 +28,16 @@ import com.dinstone.focus.utils.NetworkUtil;
 
 /**
  * global level options
- * 
- * @author dinstone
  *
+ * @author dinstone
  */
 public class ClientOptions extends FocusOptions<ClientOptions> {
+
+    public static final int DEFAULT_TIMEOUT_MILLIS = 2000;
+
+    private static final int DEFAULT_CONNECT_RETRY = 1;
+
+    private static final int DEFAULT_TIMEOUT_RETRY = 1;
 
     private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
 
@@ -43,6 +48,12 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
     private InetSocketAddress consumerAddress;
 
     private LocatorOptions locatorOptions;
+
+    private int timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
+
+    private int timeoutRetry = DEFAULT_TIMEOUT_RETRY;
+
+    private int connectRetry = DEFAULT_CONNECT_RETRY;
 
     public ClientOptions(String application) {
         super(application);
@@ -115,8 +126,35 @@ public class ClientOptions extends FocusOptions<ClientOptions> {
         return proxyFactory;
     }
 
-    public void setProxyFactory(ProxyFactory proxyFactory) {
+    public ClientOptions setProxyFactory(ProxyFactory proxyFactory) {
         this.proxyFactory = proxyFactory;
+        return this;
     }
 
+    public int getTimeoutMillis() {
+        return timeoutMillis;
+    }
+
+    public ClientOptions setTimeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+        return this;
+    }
+
+    public int getTimeoutRetry() {
+        return timeoutRetry;
+    }
+
+    public ClientOptions setTimeoutRetry(int timeoutRetry) {
+        this.timeoutRetry = timeoutRetry;
+        return this;
+    }
+
+    public int getConnectRetry() {
+        return connectRetry;
+    }
+
+    public ClientOptions setConnectRetry(int connectRetry) {
+        this.connectRetry = connectRetry;
+        return this;
+    }
 }

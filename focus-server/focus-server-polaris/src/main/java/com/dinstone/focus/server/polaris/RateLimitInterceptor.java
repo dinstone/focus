@@ -56,20 +56,20 @@ public class RateLimitInterceptor implements Interceptor, AutoCloseable {
         // 设置需要进行限流的服务信息：设置服务名称信息
         quotaRequest.setService(invocation.getProvider());
         // 设置本次被调用的方法信息
-        quotaRequest.setMethod(invocation.getMethod());
+        quotaRequest.setMethod(invocation.getEndpoint());
         // 设置本次的请求标签
         // quotaRequest.setArguments();
         // 设置需要申请的请求配额数量
         quotaRequest.setCount(1);
 
         QuotaResponse response = limitAPI.getQuota(quotaRequest);
-
-        if (response.getCode() == QuotaResultCode.QuotaResultLimited) {
-            CompletableFuture<Object> cf = new CompletableFuture<Object>();
-            cf.completeExceptionally(new ServiceException(ErrorCode.ACCESS_ERROR, "service is rate-limit"));
-            return cf;
+        if (response.getCode() == QuotaResultCode.QuotaResultOk) {
+            return handler.handle(invocation);
         }
-        return handler.handle(invocation);
+
+        CompletableFuture<Object> cf = new CompletableFuture<Object>();
+        cf.completeExceptionally(new ServiceException(ErrorCode.LIMIT_ERROR, "service is rate-limit"));
+        return cf;
     }
 
     @Override

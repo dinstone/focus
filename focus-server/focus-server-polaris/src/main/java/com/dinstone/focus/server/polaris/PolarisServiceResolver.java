@@ -82,7 +82,7 @@ public class PolarisServiceResolver extends DefaultServiceResolver {
         // 设置心跳健康检查ttl，单位为s，不填默认为5s，TTL的取值范围为 (0s, 60s]
         // 开启了心跳健康检查，客户端必须以TTL间隔上报心跳
         // 健康检查服务器3个TTL未受到心跳则将实例置为不健康
-        // request.setTtl(3);
+        // request.setTtl(10);
 
         providerAPI.registerInstance(request);
     }

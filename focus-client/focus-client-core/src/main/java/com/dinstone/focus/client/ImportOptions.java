@@ -25,15 +25,9 @@ import java.util.List;
  */
 public class ImportOptions {
 
-    public static final int DEFAULT_TIMEOUT_MILLIS = 3000;
+    private final String application;
 
-    private static final int DEFAULT_CONNECT_RETRY = 1;
-
-    private static final int DEFAULT_TIMEOUT_RETRY = 0;
-
-    private String application;
-
-    private String service;
+    private final String service;
 
     private int connectRetry;
 
@@ -56,10 +50,6 @@ public class ImportOptions {
     public ImportOptions(String application, String service) {
         this.application = application;
         this.service = service;
-
-        this.timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
-        this.timeoutRetry = DEFAULT_TIMEOUT_RETRY;
-        this.connectRetry = DEFAULT_CONNECT_RETRY;
     }
 
     public String getService() {

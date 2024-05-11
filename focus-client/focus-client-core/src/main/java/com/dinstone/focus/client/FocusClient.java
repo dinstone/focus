@@ -122,12 +122,28 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         }
 
         ConsumerServiceConfig serviceConfig = new ConsumerServiceConfig();
+        serviceConfig.setMetadata(clientOptions.getMetadata());
         serviceConfig.setConsumer(clientOptions.getApplication());
         serviceConfig.setProvider(importOptions.getApplication());
         serviceConfig.setService(importOptions.getService());
-        serviceConfig.setConnectRetry(importOptions.getConnectRetry());
-        serviceConfig.setTimeoutRetry(importOptions.getTimeoutRetry());
-        serviceConfig.setTimeoutMillis(importOptions.getTimeoutMillis());
+        // connect retry
+        if (importOptions.getConnectRetry() > 0) {
+            serviceConfig.setConnectRetry(importOptions.getConnectRetry());
+        } else {
+            serviceConfig.setConnectRetry(clientOptions.getConnectRetry());
+        }
+        // timeout retry
+        if (importOptions.getTimeoutRetry() > 0) {
+            serviceConfig.setTimeoutRetry(importOptions.getTimeoutRetry());
+        } else {
+            serviceConfig.setTimeoutRetry(clientOptions.getTimeoutRetry());
+        }
+        // timeout ms
+        if (importOptions.getTimeoutMillis() > 0) {
+            serviceConfig.setTimeoutMillis(importOptions.getTimeoutMillis());
+        } else {
+            serviceConfig.setTimeoutMillis(clientOptions.getTimeoutMillis());
+        }
 
         // handle
         if (serviceClass.equals(GenericService.class)) {

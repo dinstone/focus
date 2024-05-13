@@ -68,7 +68,7 @@ public class RateLimitInterceptor implements Interceptor, AutoCloseable {
         }
 
         CompletableFuture<Object> cf = new CompletableFuture<Object>();
-        cf.completeExceptionally(new ServiceException(ErrorCode.LIMIT_ERROR, "service is rate-limit"));
+        cf.completeExceptionally(new ServiceException(ErrorCode.RATE_LIMIT_ERROR, "service is rate-limit"));
         return cf;
     }
 

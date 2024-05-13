@@ -18,6 +18,8 @@ package com.dinstone.focus.client.polaris;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.dinstone.focus.exception.ErrorCode;
+import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Interceptor;
 import com.dinstone.focus.invoke.Invocation;
@@ -28,6 +30,7 @@ import com.tencent.polaris.circuitbreak.api.InvokeHandler;
 import com.tencent.polaris.circuitbreak.api.pojo.FunctionalDecoratorRequest;
 import com.tencent.polaris.circuitbreak.api.pojo.InvokeContext;
 import com.tencent.polaris.circuitbreak.api.pojo.InvokeContext.RequestContext;
+import com.tencent.polaris.circuitbreak.client.exception.CallAbortedException;
 import com.tencent.polaris.circuitbreak.factory.CircuitBreakAPIFactory;
 import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
@@ -57,7 +60,14 @@ public class CircuitBreakInterceptor implements Interceptor, AutoCloseable {
         RequestContext requestContext = new FunctionalDecoratorRequest(skey, invocation.getMethod());
         InvokeHandler invokeHandler = circuitBreak.makeInvokeHandler(requestContext);
 
-        invokeHandler.acquirePermission();
+        try {
+            invokeHandler.acquirePermission();
+        } catch (CallAbortedException e) {
+            CompletableFuture<Object> future = new CompletableFuture<>();
+            future.completeExceptionally(new ServiceException(ErrorCode.CIRCUIT_BREAK_ERROR,
+                    invocation.getEndpoint() + " circuit break", e));
+            return future;
+        }
 
         long startTimeMillis = System.currentTimeMillis();
         return handler.handle(invocation).whenComplete((reply, error) -> {

@@ -27,6 +27,8 @@ import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ConsumerAPI;
+import com.tencent.polaris.api.plugin.circuitbreaker.ResourceStat;
+import com.tencent.polaris.api.plugin.circuitbreaker.entity.InstanceResource;
 import com.tencent.polaris.api.pojo.DefaultServiceInstances;
 import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.pojo.RetStatus;
@@ -38,6 +40,8 @@ import com.tencent.polaris.api.rpc.GetInstancesRequest;
 import com.tencent.polaris.api.rpc.GetOneInstanceRequest;
 import com.tencent.polaris.api.rpc.InstancesResponse;
 import com.tencent.polaris.api.rpc.ServiceCallResult;
+import com.tencent.polaris.circuitbreak.api.CircuitBreakAPI;
+import com.tencent.polaris.circuitbreak.factory.CircuitBreakAPIFactory;
 import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
@@ -56,6 +60,8 @@ public class PolarisServiceLocator implements ServiceLocator {
 
     private final RouterAPI routerAPI;
 
+    private final CircuitBreakAPI circuitBreakAPI;
+
     public PolarisServiceLocator(PolarisLocatorOptions locatorOptions) {
         List<String> polarisAddress = locatorOptions.getAddresses();
         if (polarisAddress == null || polarisAddress.isEmpty()) {
@@ -65,6 +71,7 @@ public class PolarisServiceLocator implements ServiceLocator {
             polarisContext = SDKContext.initContextByConfig(config);
         }
 
+        circuitBreakAPI = CircuitBreakAPIFactory.createCircuitBreakAPIByContext(polarisContext);
         consumerAPI = DiscoveryAPIFactory.createConsumerAPIByContext(polarisContext);
         routerAPI = RouterAPIFactory.createRouterAPIByContext(polarisContext);
     }
@@ -197,15 +204,19 @@ public class PolarisServiceLocator implements ServiceLocator {
 
     @Override
     public void feedback(ServiceInstance selected, Invocation invocation, Object reply, Throwable error, long delay) {
+        ServiceKey calleeService = new ServiceKey(DEFAULT_NAMESPACE, invocation.getProvider());
+        ServiceKey callerService = new ServiceKey(DEFAULT_NAMESPACE, invocation.getConsumer());
+
         ServiceCallResult result = new ServiceCallResult();
         // 设置被调服务所在命名空间
-        result.setNamespace(DEFAULT_NAMESPACE);
+        result.setNamespace(calleeService.getNamespace());
         // 设置被调服务的服务信息
-        result.setService(invocation.getProvider());
+        result.setService(calleeService.getService());
+        // 设置调用服务的服务信息
+        result.setCallerService(callerService);
+
         // 设置本次请求调用的方法
         result.setMethod(invocation.getEndpoint());
-
-        result.setCallerService(new ServiceKey(DEFAULT_NAMESPACE, invocation.getConsumer()));
 
         // 设置被调实例
         Instance instance = ((PolarisServiceInstance) selected).getInstance();
@@ -228,7 +239,13 @@ public class PolarisServiceLocator implements ServiceLocator {
         // 设置本次请求的耗时
         result.setDelay(delay);
 
+        // 调用结果上报
         consumerAPI.updateServiceCallResult(result);
+
+        // 实例熔断信息上报
+        InstanceResource instanceResource = new InstanceResource(calleeService, instance.getHost(), instance.getPort(),
+                callerService);
+        circuitBreakAPI.report(new ResourceStat(instanceResource, code, delay, status));
     }
 
 }

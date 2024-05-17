@@ -23,8 +23,11 @@ import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
 
 public class DefaultInvocation implements Invocation, Serializable {
+
     private static final long serialVersionUID = 1L;
+
     private static final String EMPTY_VALUE = "";
+
     private final Map<String, String> attributes = new HashMap<>();
 
     protected final String service;
@@ -47,7 +50,7 @@ public class DefaultInvocation implements Invocation, Serializable {
     // ===================================
     // context filed
     // ===================================
-    private final Context context = new Context();
+    private Context context;
 
     private ServiceConfig serviceConfig;
 
@@ -120,6 +123,10 @@ public class DefaultInvocation implements Invocation, Serializable {
     @Override
     public Context context() {
         return context;
+    }
+
+    public void context(Context context) {
+        this.context = context;
     }
 
     @Override

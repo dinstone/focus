@@ -30,9 +30,12 @@ import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
 import com.dinstone.focus.invoke.ChainHandler;
 import com.dinstone.focus.invoke.Context;
+import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
+import com.dinstone.focus.propagate.Baggage;
+import com.dinstone.focus.propagate.Propagator;
 
 /**
  * client-side service invoker.
@@ -45,17 +48,30 @@ public class ConsumerChainHandler extends ChainHandler {
 
     private final ServiceLocator serviceLocator;
 
+    private final Propagator propagator;
+
     private final int connectRetry;
 
     public ConsumerChainHandler(ServiceConfig serviceConfig, Handler invokeHandler, ServiceLocator serviceLocator) {
         super(serviceConfig, invokeHandler);
         this.serviceLocator = serviceLocator;
+        this.propagator = new Propagator();
         this.connectRetry = ((ConsumerServiceConfig) serviceConfig).getConnectRetry();
     }
 
     public CompletableFuture<Object> handle(Invocation invocation) {
-        int timeoutRetry = invocation.getMethodConfig().getTimeoutRetry();
-        return timeoutRetry(new CompletableFuture<>(), invocation, timeoutRetry - 1);
+        try (Context context = Context.create()) {
+            ((DefaultInvocation) invocation).context(context);
+
+            // inject propagate baggage to invocation
+            Baggage baggage = context.get(Baggage.ContextKey);
+            if (baggage != null) {
+                propagator.inject(invocation, baggage);
+            }
+
+            int timeoutRetry = invocation.getMethodConfig().getTimeoutRetry();
+            return timeoutRetry(new CompletableFuture<>(), invocation, timeoutRetry - 1);
+        }
     }
 
     private CompletableFuture<Object> timeoutRetry(CompletableFuture<Object> future, Invocation invocation,

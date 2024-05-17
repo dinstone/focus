@@ -19,30 +19,42 @@ import java.util.concurrent.CompletableFuture;
 
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.ChainHandler;
+import com.dinstone.focus.invoke.Context;
+import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.invoke.Invocation;
+import com.dinstone.focus.propagate.Baggage;
+import com.dinstone.focus.propagate.Propagator;
 
 /**
  * server-side service invoker.
  *
  * @author dinstone
- *
+ * 
  * @version 1.0.0
  */
 public class ProviderChainHandler extends ChainHandler {
 
+    private final Propagator propagator;
+
     public ProviderChainHandler(ServiceConfig serviceConfig, Handler invokeHandler) {
         super(serviceConfig, invokeHandler);
+        this.propagator = new Propagator();
     }
 
     public CompletableFuture<Object> handle(Invocation invocation) {
-        // Context.getContext();
-        // try {
-        // return invokeHandler.handle(invocation);
-        // } finally {
-        // Context.clearContext();
-        // }
-        return invokeHandler.handle(invocation);
+        try (Context context = Context.create()) {
+            ((DefaultInvocation) invocation).context(context);
+
+            // extract propagate baggage from invocation
+            if (invocation.attributes().containsKey(Baggage.PropagateKey)) {
+                Baggage baggage = new Baggage();
+                propagator.extract(invocation, baggage);
+                context.put(Baggage.ContextKey, baggage);
+            }
+
+            return invokeHandler.handle(invocation);
+        }
     }
 
 }

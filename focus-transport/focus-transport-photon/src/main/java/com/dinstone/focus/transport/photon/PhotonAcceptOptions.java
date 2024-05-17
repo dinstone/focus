@@ -20,6 +20,13 @@ import com.dinstone.focus.transport.ExecutorSelector;
 
 public class PhotonAcceptOptions extends com.dinstone.photon.AcceptOptions implements AcceptOptions {
 
+    /**
+     * The default business thread size = (2 * Runtime.availableProcessors).
+     */
+    public static final int DEFAULT_BUSINESS_SIZE = 2 * Runtime.getRuntime().availableProcessors();
+
+    private int businessSize = DEFAULT_BUSINESS_SIZE;
+
     private ExecutorSelector executorSelector;
 
     @Override
@@ -36,4 +43,11 @@ public class PhotonAcceptOptions extends com.dinstone.photon.AcceptOptions imple
         return "photon";
     }
 
+    public int getBusinessSize() {
+        return businessSize;
+    }
+
+    public void setBusinessSize(int businessSize) {
+        this.businessSize = businessSize;
+    }
 }

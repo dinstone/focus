@@ -17,6 +17,7 @@ package com.dinstone.focus.transport.photon;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import com.dinstone.focus.compress.Compressor;
@@ -40,26 +41,33 @@ import io.netty.util.CharsetUtil;
 public final class PhotonMessageProcessor extends Processor {
     private final Function<String, ServiceConfig> serviceFinder;
     private final ExecutorSelector executorSelector;
+    private final ExecutorService sharedExecutor;
 
-    public PhotonMessageProcessor(Function<String, ServiceConfig> serviceFinder, ExecutorSelector executorSelector) {
+    public PhotonMessageProcessor(Function<String, ServiceConfig> serviceFinder, ExecutorService sharedExecutor,
+            ExecutorSelector executorSelector) {
         this.serviceFinder = serviceFinder;
+        this.sharedExecutor = sharedExecutor;
         this.executorSelector = executorSelector;
     }
 
     @Override
     public void process(Connection connection, Request request) {
-        Executor executor = null;
+        Executor methodExecutor = methodExecutor(request);
+        if (methodExecutor != null) {
+            methodExecutor.execute(() -> invoke(connection, request));
+        } else {
+            sharedExecutor.execute(() -> invoke(connection, request));
+        }
+    }
+
+    private Executor methodExecutor(Request request) {
         if (executorSelector != null) {
             Headers headers = request.headers();
             String s = headers.get(Invocation.SERVICE_KEY);
             String m = headers.get(Invocation.METHOD_KEY);
-            executor = executorSelector.select(s, m);
+            return executorSelector.select(s, m);
         }
-        if (executor != null) {
-            executor.execute(() -> invoke(connection, request));
-        } else {
-            invoke(connection, request);
-        }
+        return null;
     }
 
     private void invoke(Connection connection, Request request) {
@@ -87,8 +95,8 @@ public final class PhotonMessageProcessor extends Processor {
 
             // decode invocation from request
             DefaultInvocation invocation = decode(request, serviceConfig, methodConfig);
-            invocation.context().setRemoteAddress(connection.getRemoteAddress());
-            invocation.context().setLocalAddress(connection.getLocalAddress());
+            // invocation.context().setRemoteAddress(connection.getRemoteAddress());
+            // invocation.context().setLocalAddress(connection.getLocalAddress());
 
             // invoke invocation
             serviceConfig.getHandler().handle(invocation).whenComplete((reply, error) -> {

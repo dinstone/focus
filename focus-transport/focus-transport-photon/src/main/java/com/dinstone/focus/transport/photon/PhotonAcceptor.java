@@ -16,6 +16,8 @@
 package com.dinstone.focus.transport.photon;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 import com.dinstone.focus.config.ServiceConfig;
@@ -24,25 +26,35 @@ import com.dinstone.focus.transport.ExecutorSelector;
 
 public class PhotonAcceptor implements Acceptor {
 
-    private final com.dinstone.photon.Acceptor photonAcceptor;
+    private final com.dinstone.photon.Acceptor delegateAcceptor;
     private final ExecutorSelector executorSelector;
+    private final ExecutorService sharedExecutor;
 
     public PhotonAcceptor(PhotonAcceptOptions acceptOptions) {
-        photonAcceptor = new com.dinstone.photon.Acceptor(acceptOptions);
+        delegateAcceptor = new com.dinstone.photon.Acceptor(acceptOptions);
         executorSelector = acceptOptions.getExecutorSelector();
+
+        int businessSize = acceptOptions.getBusinessSize();
+        if (businessSize < 1) {
+            businessSize = PhotonAcceptOptions.DEFAULT_BUSINESS_SIZE;
+        }
+        sharedExecutor = Executors.newFixedThreadPool(businessSize);
     }
 
     @Override
     public void bind(InetSocketAddress serviceAddress, Function<String, ServiceConfig> serviceFinder) throws Exception {
-        photonAcceptor.setProcessor(new PhotonMessageProcessor(serviceFinder, executorSelector));
-        photonAcceptor.bind(serviceAddress);
+        delegateAcceptor.setProcessor(new PhotonMessageProcessor(serviceFinder, sharedExecutor, executorSelector));
+        delegateAcceptor.bind(serviceAddress);
     }
 
     @Override
     public void destroy() {
-        photonAcceptor.destroy().awaitUninterruptibly();
+        delegateAcceptor.destroy().awaitUninterruptibly();
         if (executorSelector != null) {
             executorSelector.destroy();
+        }
+        if (sharedExecutor != null) {
+            sharedExecutor.shutdown();
         }
     }
 

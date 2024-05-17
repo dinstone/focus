@@ -20,7 +20,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Context {
+public class Context implements AutoCloseable {
 
     public static final String SERVICE_INSTANCE_KEY = "service.instance";
 
@@ -30,9 +30,19 @@ public class Context {
 
     private final ConcurrentHashMap<String, Object> contentMap = new ConcurrentHashMap<>();
 
+    private final Context parent;
+
     private InetSocketAddress remoteAddress;
 
     private InetSocketAddress localAddress;
+
+    private Context() {
+        this.parent = null;
+    }
+
+    private Context(Context parent) {
+        this.parent = parent;
+    }
 
     /**
      * put k-v if absent
@@ -60,27 +70,22 @@ public class Context {
 
     /**
      * get
-     *
      */
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
-        return (T) this.contentMap.get(key);
+        Object value = this.contentMap.get(key);
+        if (value == null && parent != null) {
+            value = parent.get(key);
+        }
+        return (T) value;
     }
 
     /**
      * get and use default if not found
-     *
      */
-    @SuppressWarnings("unchecked")
     public <T> T get(String key, T defaultIfNotFound) {
-        return this.contentMap.get(key) != null ? (T) this.contentMap.get(key) : defaultIfNotFound;
-    }
-
-    /**
-     * clear all mappings.
-     */
-    public void clear() {
-        this.contentMap.clear();
+        T value = get(key);
+        return value == null ? defaultIfNotFound : value;
     }
 
     public InetSocketAddress getRemoteAddress() {
@@ -99,21 +104,31 @@ public class Context {
         this.localAddress = localAddress;
     }
 
-    public static Context getContext() {
-        Context context = CONTEXT_LOCAL.get();
-        if (context == null) {
+    public static Context create() {
+        Context context;
+        Context parent = CONTEXT_LOCAL.get();
+        if (parent != null) {
+            context = new Context(parent);
+        } else {
             context = new Context();
-            CONTEXT_LOCAL.set(context);
         }
+        CONTEXT_LOCAL.set(context);
         return context;
     }
 
-    public static Context peekContext() {
+    public static Context current() {
         return CONTEXT_LOCAL.get();
     }
 
-    public static void removeContext() {
-        CONTEXT_LOCAL.remove();
+    static void remove() {
+        Context current = CONTEXT_LOCAL.get();
+        if (current != null) {
+            if (current.parent != null) {
+                CONTEXT_LOCAL.set(current.parent);
+            } else {
+                CONTEXT_LOCAL.remove();
+            }
+        }
     }
 
     public static void pushContext() {
@@ -125,11 +140,11 @@ public class Context {
                 DEQUE_LOCAL.set(deque);
             }
             deque.push(context);
-            CONTEXT_LOCAL.set(null);
+            CONTEXT_LOCAL.remove();
         }
     }
 
-    public static void popContext() {
+    public static void pullContext() {
         Deque<Context> deque = DEQUE_LOCAL.get();
         if (deque != null) {
             Context context = deque.peek();
@@ -142,5 +157,19 @@ public class Context {
     public static void clearContext() {
         CONTEXT_LOCAL.remove();
         DEQUE_LOCAL.remove();
+    }
+
+    @Override
+    public void close() {
+        this.contentMap.clear();
+
+        Context current = CONTEXT_LOCAL.get();
+        if (this == current) {
+            if (current.parent != null) {
+                CONTEXT_LOCAL.set(current.parent);
+            } else {
+                CONTEXT_LOCAL.remove();
+            }
+        }
     }
 }

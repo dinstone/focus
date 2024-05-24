@@ -24,9 +24,9 @@ public class Baggage {
     public static final String COMMA = ",";
     public static final String EQUAL = "=";
 
-    public static String ContextKey = "context.baggage";
+    public static final String CONTEXT_KEY = "context.baggage";
 
-    public static String PropagateKey = "propagate.baggage";
+    public static final String PROPAGATE_KEY = "propagate.baggage";
 
     private final Map<String, String> stores = new HashMap<>();
 

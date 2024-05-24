@@ -85,7 +85,7 @@ public abstract class DiscoveryServiceLocator extends AbstractServiceLocator {
         }
 
         String swimlaneValue = null;
-        Baggage baggage = invocation.context().get(Baggage.ContextKey);
+        Baggage baggage = invocation.context().get(Baggage.CONTEXT_KEY);
         if (baggage != null) {
             swimlaneValue = baggage.get(ConstantUtil.SWIMLANE_LABEL);
         }
@@ -97,8 +97,8 @@ public abstract class DiscoveryServiceLocator extends AbstractServiceLocator {
             List<ServiceInstance> targetList = new LinkedList<>();
             for (ServiceInstance server : serviceCache.getInstances()) {
                 Map<String, String> metadata = server.getMetadata();
-                String data = metadata.get(ConstantUtil.STABLE_VALUE);
-                if (data == null || data.isEmpty() || ConstantUtil.STABLE_VALUE.equals(data)) {
+                String data = metadata.get(ConstantUtil.SWIMLANE_LABEL);
+                if (data == null || data.isEmpty() || ConstantUtil.SWIMLANE_STABLE.equals(data)) {
                     stableList.add(server);
                 } else if (swimlaneValue.equalsIgnoreCase(data)) {
                     targetList.add(server);

@@ -17,7 +17,6 @@ package com.dinstone.focus.client.invoke;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.dinstone.focus.client.ServiceLocator;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.invoke.ChainHandler;
 import com.dinstone.focus.invoke.Context;
@@ -48,7 +47,7 @@ public class ConsumerChainHandler extends ChainHandler {
             ((DefaultInvocation) invocation).context(context);
 
             // inject propagate baggage to invocation
-            Baggage baggage = context.get(Baggage.ContextKey);
+            Baggage baggage = context.get(Baggage.CONTEXT_KEY);
             if (baggage != null) {
                 propagator.inject(invocation, baggage);
             }

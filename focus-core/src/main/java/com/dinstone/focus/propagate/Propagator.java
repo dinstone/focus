@@ -29,7 +29,7 @@ public class Propagator {
 
         String c = baggage.pack();
         if (!c.isEmpty()) {
-            invocation.attributes().put(Baggage.PropagateKey, c);
+            invocation.attributes().put(Baggage.PROPAGATE_KEY, c);
         }
     }
 
@@ -41,6 +41,6 @@ public class Propagator {
             return;
         }
 
-        baggage.parse(invocation.attributes().get(Baggage.PropagateKey));
+        baggage.parse(invocation.attributes().get(Baggage.PROPAGATE_KEY));
     }
 }

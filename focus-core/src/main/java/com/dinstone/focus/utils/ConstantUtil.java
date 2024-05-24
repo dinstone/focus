@@ -25,6 +25,6 @@ public class ConstantUtil {
 
     public static final String SWIMLANE_LABEL = "swimlane";
 
-    public static final String STABLE_VALUE = "stable";
+    public static final String SWIMLANE_STABLE = "stable";
 
 }

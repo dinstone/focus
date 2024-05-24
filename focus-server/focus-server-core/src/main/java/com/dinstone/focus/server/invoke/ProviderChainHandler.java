@@ -47,10 +47,10 @@ public class ProviderChainHandler extends ChainHandler {
             ((DefaultInvocation) invocation).context(context);
 
             // extract propagate baggage from invocation
-            if (invocation.attributes().containsKey(Baggage.PropagateKey)) {
+            if (invocation.attributes().containsKey(Baggage.PROPAGATE_KEY)) {
                 Baggage baggage = new Baggage();
                 propagator.extract(invocation, baggage);
-                context.put(Baggage.ContextKey, baggage);
+                context.put(Baggage.CONTEXT_KEY, baggage);
             }
 
             return invokeHandler.handle(invocation);

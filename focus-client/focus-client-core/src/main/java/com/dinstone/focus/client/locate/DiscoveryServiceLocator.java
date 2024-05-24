@@ -15,6 +15,7 @@
  */
 package com.dinstone.focus.client.locate;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
+import com.dinstone.focus.propagate.Baggage;
+import com.dinstone.focus.utils.ConstantUtil;
 
 public abstract class DiscoveryServiceLocator extends AbstractServiceLocator {
 
@@ -81,7 +84,28 @@ public abstract class DiscoveryServiceLocator extends AbstractServiceLocator {
             return null;
         }
 
-        return serviceCache.getInstances().stream().filter(i -> !exclusions.contains(i)).collect(Collectors.toList());
+        String swimlaneValue = null;
+        Baggage baggage = invocation.context().get(Baggage.ContextKey);
+        if (baggage != null) {
+            swimlaneValue = baggage.get(ConstantUtil.SWIMLANE_LABEL);
+        }
+        if (swimlaneValue == null || swimlaneValue.isEmpty()) {
+            return serviceCache.getInstances().stream().filter(i -> !exclusions.contains(i))
+                    .collect(Collectors.toList());
+        } else {
+            List<ServiceInstance> stableList = new LinkedList<>();
+            List<ServiceInstance> targetList = new LinkedList<>();
+            for (ServiceInstance server : serviceCache.getInstances()) {
+                Map<String, String> metadata = server.getMetadata();
+                String data = metadata.get(ConstantUtil.STABLE_VALUE);
+                if (data == null || data.isEmpty() || ConstantUtil.STABLE_VALUE.equals(data)) {
+                    stableList.add(server);
+                } else if (swimlaneValue.equalsIgnoreCase(data)) {
+                    targetList.add(server);
+                }
+            }
+            return targetList.isEmpty() ? stableList : targetList;
+        }
     }
 
     @Override

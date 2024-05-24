@@ -15,14 +15,11 @@
  */
 package com.dinstone.focus.invoke;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Context implements AutoCloseable {
-
-    public static final String SERVICE_INSTANCE_KEY = "service.instance";
 
     private static final ThreadLocal<Deque<Context>> DEQUE_LOCAL = new ThreadLocal<Deque<Context>>();
 
@@ -31,10 +28,6 @@ public class Context implements AutoCloseable {
     private final ConcurrentHashMap<String, Object> contentMap = new ConcurrentHashMap<>();
 
     private final Context parent;
-
-    private InetSocketAddress remoteAddress;
-
-    private InetSocketAddress localAddress;
 
     private Context() {
         this.parent = null;
@@ -86,22 +79,6 @@ public class Context implements AutoCloseable {
     public <T> T get(String key, T defaultIfNotFound) {
         T value = get(key);
         return value == null ? defaultIfNotFound : value;
-    }
-
-    public InetSocketAddress getRemoteAddress() {
-        return remoteAddress;
-    }
-
-    public void setRemoteAddress(InetSocketAddress remoteAddress) {
-        this.remoteAddress = remoteAddress;
-    }
-
-    public InetSocketAddress getLocalAddress() {
-        return localAddress;
-    }
-
-    public void setLocalAddress(InetSocketAddress localAddress) {
-        this.localAddress = localAddress;
     }
 
     public static Context create() {
@@ -161,7 +138,7 @@ public class Context implements AutoCloseable {
 
     @Override
     public void close() {
-        this.contentMap.clear();
+        // this.contentMap.clear();
 
         Context current = CONTEXT_LOCAL.get();
         if (this == current) {

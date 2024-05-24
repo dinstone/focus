@@ -20,6 +20,8 @@ import java.util.concurrent.CompletableFuture;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.transport.Connector;
+import com.dinstone.focus.utils.ConstantUtil;
+import com.dinstone.focus.utils.NetworkUtil;
 
 public class Http2Connector implements Connector {
 
@@ -41,13 +43,13 @@ public class Http2Connector implements Connector {
         // create connection
         if (instance.isEnableSsl()) {
             Http2Channel http2Channel = secureChannelFactory.create(instance.getInstanceAddress());
-            invocation.context().setRemoteAddress(http2Channel.getRemoteAddress());
-            invocation.context().setLocalAddress(http2Channel.getLocalAddress());
+            String link = NetworkUtil.link(http2Channel.getLocalAddress(), http2Channel.getRemoteAddress());
+            invocation.context().put(ConstantUtil.RPC_LINK, link);
             return http2Channel.send(invocation);
         } else {
             Http2Channel http2Channel = commonChannelFactory.create(instance.getInstanceAddress());
-            invocation.context().setRemoteAddress(http2Channel.getRemoteAddress());
-            invocation.context().setLocalAddress(http2Channel.getLocalAddress());
+            String link = NetworkUtil.link(http2Channel.getLocalAddress(), http2Channel.getRemoteAddress());
+            invocation.context().put(ConstantUtil.RPC_LINK, link);
             return http2Channel.send(invocation);
         }
     }

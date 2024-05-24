@@ -29,6 +29,8 @@ import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.naming.ServiceInstance;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.Connector;
+import com.dinstone.focus.utils.ConstantUtil;
+import com.dinstone.focus.utils.NetworkUtil;
 import com.dinstone.photon.Connection;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
@@ -66,8 +68,8 @@ public class PhotonConnector implements Connector {
             connection = commonConnectionFactory.create(instance.getInstanceAddress());
         }
 
-        invocation.context().setRemoteAddress(connection.getRemoteAddress());
-        invocation.context().setLocalAddress(connection.getLocalAddress());
+        String link = NetworkUtil.link(connection.getLocalAddress(), connection.getRemoteAddress());
+        invocation.context().put(ConstantUtil.RPC_LINK, link);
 
         ServiceConfig serviceConfig = invocation.getServiceConfig();
         MethodConfig methodConfig = invocation.getMethodConfig();

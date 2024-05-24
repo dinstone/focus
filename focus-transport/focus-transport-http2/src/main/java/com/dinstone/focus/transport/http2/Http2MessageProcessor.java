@@ -16,8 +16,6 @@
 package com.dinstone.focus.transport.http2;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 
@@ -27,10 +25,13 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
+import com.dinstone.focus.invoke.Context;
 import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.ExecutorSelector;
+import com.dinstone.focus.utils.ConstantUtil;
+import com.dinstone.focus.utils.NetworkUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -74,47 +75,49 @@ public final class Http2MessageProcessor {
             ByteBuf dataBuf = dataFrame == null ? null : dataFrame.content();
             Invocation invocation = decode(headers, dataBuf, serviceConfig, methodConfig);
 
-            invocation.context().setRemoteAddress((InetSocketAddress) channel.remoteAddress());
-            invocation.context().setLocalAddress((InetSocketAddress) channel.localAddress());
+            try (Context context = Context.create()) {
+                // set link
+                String link = NetworkUtil.link(channel.remoteAddress(), channel.localAddress());
+                context.put(ConstantUtil.RPC_LINK, link);
 
-            // invoke invocation
-            CompletableFuture<Object> replyFuture = serviceConfig.getHandler().handle(invocation);
-            replyFuture.whenComplete((reply, error) -> {
-                if (error != null) {
-                    errorHandle(channel, error);
-                } else {
-                    byte[] content = null;
-                    if (reply != null) {
-                        try {
-                            Serializer serializer = serviceConfig.getSerializer();
-                            content = serializer.encode(reply, methodConfig.getReturnType());
-                        } catch (IOException e) {
-                            throw new ServiceException(ErrorCode.CODEC_ERROR,
-                                    "serialize encode error: " + methodConfig.getMethodName(), e);
-                        }
-
-                        Compressor compressor = serviceConfig.getCompressor();
-                        if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
+                // invoke invocation
+                serviceConfig.getHandler().handle(invocation).whenComplete((reply, error) -> {
+                    if (error != null) {
+                        errorHandle(channel, error);
+                    } else {
+                        byte[] content = null;
+                        if (reply != null) {
                             try {
-                                content = compressor.encode(content);
+                                Serializer serializer = serviceConfig.getSerializer();
+                                content = serializer.encode(reply, methodConfig.getReturnType());
                             } catch (IOException e) {
                                 throw new ServiceException(ErrorCode.CODEC_ERROR,
-                                        "compress encode error: " + methodConfig.getMethodName(), e);
+                                        "serialize encode error: " + methodConfig.getMethodName(), e);
+                            }
+
+                            Compressor compressor = serviceConfig.getCompressor();
+                            if (compressor != null && content.length > serviceConfig.getCompressThreshold()) {
+                                try {
+                                    content = compressor.encode(content);
+                                } catch (IOException e) {
+                                    throw new ServiceException(ErrorCode.CODEC_ERROR,
+                                            "compress encode error: " + methodConfig.getMethodName(), e);
+                                }
                             }
                         }
-                    }
 
-                    DefaultHttp2Headers h = new DefaultHttp2Headers();
-                    h.status(HttpResponseStatus.OK.codeAsText());
-                    if (content == null) {
-                        channel.writeAndFlush(new DefaultHttp2HeadersFrame(h, true));
-                    } else {
-                        channel.write(new DefaultHttp2HeadersFrame(h, false));
-                        ByteBuf bb = channel.alloc().ioBuffer(content.length).writeBytes(content);
-                        channel.writeAndFlush(new DefaultHttp2DataFrame(bb, true));
+                        DefaultHttp2Headers h = new DefaultHttp2Headers();
+                        h.status(HttpResponseStatus.OK.codeAsText());
+                        if (content == null) {
+                            channel.writeAndFlush(new DefaultHttp2HeadersFrame(h, true));
+                        } else {
+                            channel.write(new DefaultHttp2HeadersFrame(h, false));
+                            ByteBuf bb = channel.alloc().ioBuffer(content.length).writeBytes(content);
+                            channel.writeAndFlush(new DefaultHttp2DataFrame(bb, true));
+                        }
                     }
-                }
-            });
+                });
+            }
 
             return;
         } catch (InvokeException e) {

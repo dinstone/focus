@@ -29,6 +29,7 @@ import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.FocusException;
+import com.dinstone.focus.invoke.ChainHandler;
 import com.dinstone.focus.invoke.Handler;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;
@@ -204,9 +205,9 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     }
 
     private Handler createInvokeHandler(ServiceConfig serviceConfig) {
-        Handler invokeHandler = new RemoteInvokeHandler(serviceConfig, connector);
-        return new ConsumerChainHandler(serviceConfig, invokeHandler, serviceLocator)
-                .addInterceptor(clientOptions.getInterceptors());
+        Handler invokeHandler = new RemoteInvokeHandler(serviceConfig, serviceLocator, connector);
+        ChainHandler chainHandler = new ConsumerChainHandler(serviceConfig, invokeHandler);
+        return chainHandler.addInterceptor(clientOptions.getInterceptors());
     }
 
 }

@@ -26,10 +26,13 @@ import com.dinstone.focus.config.ServiceConfig;
 import com.dinstone.focus.exception.ErrorCode;
 import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.exception.ServiceException;
+import com.dinstone.focus.invoke.Context;
 import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Invocation;
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.transport.ExecutorSelector;
+import com.dinstone.focus.utils.ConstantUtil;
+import com.dinstone.focus.utils.NetworkUtil;
 import com.dinstone.photon.Connection;
 import com.dinstone.photon.Processor;
 import com.dinstone.photon.message.Headers;
@@ -95,22 +98,26 @@ public final class PhotonMessageProcessor extends Processor {
 
             // decode invocation from request
             DefaultInvocation invocation = decode(request, serviceConfig, methodConfig);
-            // invocation.context().setRemoteAddress(connection.getRemoteAddress());
-            // invocation.context().setLocalAddress(connection.getLocalAddress());
 
-            // invoke invocation
-            serviceConfig.getHandler().handle(invocation).whenComplete((reply, error) -> {
-                if (error != null) {
-                    errorHandle(connection, request, error);
-                } else {
-                    // encode reply to response
-                    Response response = encode(reply, serviceConfig, methodConfig);
-                    response.setSequence(request.getSequence());
+            try (Context context = Context.create()) {
+                // set link
+                String link = NetworkUtil.link(connection.getRemoteAddress(), connection.getLocalAddress());
+                context.put(ConstantUtil.RPC_LINK, link);
 
-                    // send response with reply
-                    connection.sendResponse(response);
-                }
-            });
+                // invoke invocation
+                serviceConfig.getHandler().handle(invocation).whenComplete((reply, error) -> {
+                    if (error != null) {
+                        errorHandle(connection, request, error);
+                    } else {
+                        // encode reply to response
+                        Response response = encode(reply, serviceConfig, methodConfig);
+                        response.setSequence(request.getSequence());
+
+                        // send response with reply
+                        connection.sendResponse(response);
+                    }
+                });
+            }
 
             return;
         } catch (InvokeException e) {

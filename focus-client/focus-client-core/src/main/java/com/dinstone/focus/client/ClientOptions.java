@@ -33,11 +33,17 @@ import com.dinstone.focus.utils.NetworkUtil;
  */
 public class ClientOptions extends FocusOptions<ClientOptions> {
 
-    public static final int DEFAULT_TIMEOUT_MILLIS = 2000;
+    public static final int DEFAULT_TIMEOUT_MILLIS = 1000;
 
-    private static final int DEFAULT_CONNECT_RETRY = 1;
+    /**
+     * 0: not retry
+     */
+    private static final int DEFAULT_CONNECT_RETRY = 0;
 
-    private static final int DEFAULT_TIMEOUT_RETRY = 1;
+    /**
+     * 0: not retry
+     */
+    private static final int DEFAULT_TIMEOUT_RETRY = 0;
 
     private ConnectOptions connectOptions = ConnectOptions.DEFAULT_CONNECT_OPTIONS;
 

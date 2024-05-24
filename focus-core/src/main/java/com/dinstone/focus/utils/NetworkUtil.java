@@ -68,24 +68,23 @@ public class NetworkUtil {
         return inetAddresses;
     }
 
-    public static String addressLabel(SocketAddress localAddress, SocketAddress remoteAddress) {
+    public static String link(SocketAddress localAddress, SocketAddress remoteAddress) {
         InetSocketAddress local = (InetSocketAddress) localAddress;
         InetSocketAddress remote = (InetSocketAddress) remoteAddress;
 
-        String key = "";
-        if (local == null || local.getAddress() == null) {
-            key += "local-";
+        StringBuilder labelBuilder = new StringBuilder();
+        if (local == null) {
+            labelBuilder.append("local");
         } else {
-            key += local.getAddress().getHostAddress() + ":" + local.getPort() + "-";
+            labelBuilder.append(local);
         }
-
-        if (remote == null || remote.getAddress() == null) {
-            key += "remote";
+        labelBuilder.append("->");
+        if (remote == null) {
+            labelBuilder.append("remote");
         } else {
-            key += remote.getAddress().getHostAddress() + ":" + remote.getPort();
+            labelBuilder.append(remote);
         }
-
-        return key;
+        return labelBuilder.toString();
     }
 
 }

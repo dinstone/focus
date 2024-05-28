@@ -15,20 +15,22 @@
  */
 package com.dinstone.focus.client.proxy;
 
-import java.lang.reflect.Proxy;
-
+import com.dinstone.focus.client.GenericService;
 import com.dinstone.focus.config.ServiceConfig;
 
-public class JdkProxyFactory implements ProxyFactory {
+public class StubFactory {
 
-    @Override
-    public <T> T create(Class<T> sic, ServiceConfig serviceConfig) {
-        if (!sic.isInterface()) {
-            throw new IllegalArgumentException(sic.getName() + " is not interface");
-        }
+    private final ProxyFactory proxyFactory;
 
-        ProxyHandler handler = new ProxyHandler(serviceConfig);
-        return sic.cast(Proxy.newProxyInstance(sic.getClassLoader(), new Class[] { sic }, handler));
+    public StubFactory(ProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T create(Class<T> sic, ServiceConfig serviceConfig) {
+        if (sic.equals(GenericService.class)) {
+            return (T) new GenericHandler(serviceConfig);
+        }
+        return proxyFactory.create(sic, serviceConfig);
+    }
 }

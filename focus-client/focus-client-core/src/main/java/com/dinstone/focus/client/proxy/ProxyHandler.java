@@ -29,7 +29,7 @@ import com.dinstone.focus.exception.InvokeException;
 import com.dinstone.focus.invoke.DefaultInvocation;
 import com.dinstone.focus.invoke.Handler;
 
-class SpecialHandler implements InvocationHandler {
+class ProxyHandler implements InvocationHandler {
 
     public static final String HASH_CODE = "hashCode";
     public static final String TO_STRING = "toString";
@@ -38,7 +38,7 @@ class SpecialHandler implements InvocationHandler {
     private final ServiceConfig serviceConfig;
     private final Handler invokeHandler;
 
-    public SpecialHandler(ServiceConfig serviceConfig) {
+    public ProxyHandler(ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
         this.invokeHandler = serviceConfig.getHandler();
     }

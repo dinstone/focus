@@ -24,7 +24,7 @@ import com.dinstone.focus.client.config.ConsumerServiceConfig;
 import com.dinstone.focus.client.invoke.ConsumerChainHandler;
 import com.dinstone.focus.client.invoke.RemoteInvokeHandler;
 import com.dinstone.focus.client.locate.DirectLinkServiceLocator;
-import com.dinstone.focus.client.proxy.ProxyFactory;
+import com.dinstone.focus.client.proxy.StubFactory;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.compress.CompressorFactory;
 import com.dinstone.focus.config.ServiceConfig;
@@ -46,6 +46,8 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
     private ServiceLocator serviceLocator;
 
     private ClientOptions clientOptions;
+
+    private StubFactory stubFactory;
 
     private Connector connector;
 
@@ -85,6 +87,8 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
         if (this.serviceLocator == null) {
             this.serviceLocator = new DirectLinkServiceLocator(clientOptions);
         }
+
+        this.stubFactory = new StubFactory(clientOptions.getProxyFactory());
 
         LOG.info("focus client created for [{}]", clientOptions.getApplication());
     }
@@ -177,8 +181,7 @@ public class FocusClient implements ServiceImporter, AutoCloseable {
 
         LOG.info("importing {}", serviceConfig);
 
-        ProxyFactory proxyFactory = clientOptions.getProxyFactory();
-        return proxyFactory.create(serviceClass, serviceConfig);
+        return stubFactory.create(serviceClass, serviceConfig);
     }
 
     private void protocolCodec(ConsumerServiceConfig serviceConfig, ClientOptions clientOptions,

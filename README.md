@@ -5,7 +5,7 @@
 
 **Focus** is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.
 
-[Focus](https://github.com/dinstone/focus) 是下一代跨语言、轻量级RPC框架。旨在帮助程序员快速的开发微服务应用程序，简化多运行环境下的RPC编程，可以很轻松的实现云端编程和移动端编程。
+[Focus](https://github.com/dinstone/focus) 是下一代跨平台、跨语言的轻量级RPC框架。旨在帮助开发者可以更加高效地构建和维护微服务应用程序。他们可以利用统一的接口和协议，在不同的平台和语言之间进行通信和协作，从而提高开发效率和系统可靠性，简化多平台下的RPC编程，可以很轻松地实现云端编程和移动端编程。
 
 通常，评价一个 RPC 框架是否优秀、高效能，有 3 个基本标准：
 

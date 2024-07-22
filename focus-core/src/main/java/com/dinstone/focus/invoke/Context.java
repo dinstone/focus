@@ -15,13 +15,9 @@
  */
 package com.dinstone.focus.invoke;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Context implements AutoCloseable {
-
-    private static final ThreadLocal<Deque<Context>> DEQUE_LOCAL = new ThreadLocal<Deque<Context>>();
 
     private static final ThreadLocal<Context> CONTEXT_LOCAL = new ThreadLocal<Context>();
 
@@ -30,7 +26,7 @@ public class Context implements AutoCloseable {
     private final Context parent;
 
     private Context() {
-        this.parent = null;
+        this(null);
     }
 
     private Context(Context parent) {
@@ -81,6 +77,25 @@ public class Context implements AutoCloseable {
         return value == null ? defaultIfNotFound : value;
     }
 
+    /**
+     * remove the key
+     */
+    public void remove(String key) {
+        this.contentMap.remove(key);
+    }
+
+    @Override
+    public void close() {
+        Context current = CONTEXT_LOCAL.get();
+        if (this == current) {
+            if (current.parent != null) {
+                CONTEXT_LOCAL.set(current.parent);
+            } else {
+                CONTEXT_LOCAL.remove();
+            }
+        }
+    }
+
     public static Context create() {
         Context context;
         Context parent = CONTEXT_LOCAL.get();
@@ -97,56 +112,4 @@ public class Context implements AutoCloseable {
         return CONTEXT_LOCAL.get();
     }
 
-    static void remove() {
-        Context current = CONTEXT_LOCAL.get();
-        if (current != null) {
-            if (current.parent != null) {
-                CONTEXT_LOCAL.set(current.parent);
-            } else {
-                CONTEXT_LOCAL.remove();
-            }
-        }
-    }
-
-    public static void pushContext() {
-        Context context = CONTEXT_LOCAL.get();
-        if (context != null) {
-            Deque<Context> deque = DEQUE_LOCAL.get();
-            if (deque == null) {
-                deque = new ArrayDeque<Context>();
-                DEQUE_LOCAL.set(deque);
-            }
-            deque.push(context);
-            CONTEXT_LOCAL.remove();
-        }
-    }
-
-    public static void pullContext() {
-        Deque<Context> deque = DEQUE_LOCAL.get();
-        if (deque != null) {
-            Context context = deque.peek();
-            if (context != null) {
-                CONTEXT_LOCAL.set(deque.pop());
-            }
-        }
-    }
-
-    public static void clearContext() {
-        CONTEXT_LOCAL.remove();
-        DEQUE_LOCAL.remove();
-    }
-
-    @Override
-    public void close() {
-        // this.contentMap.clear();
-
-        Context current = CONTEXT_LOCAL.get();
-        if (this == current) {
-            if (current.parent != null) {
-                CONTEXT_LOCAL.set(current.parent);
-            } else {
-                CONTEXT_LOCAL.remove();
-            }
-        }
-    }
 }

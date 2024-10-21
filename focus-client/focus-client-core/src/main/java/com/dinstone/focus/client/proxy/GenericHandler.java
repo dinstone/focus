@@ -54,7 +54,7 @@ class GenericHandler implements GenericService {
         invocation.setServiceConfig(serviceConfig);
         invocation.setMethodConfig(methodConfig);
 
-        return (R) invokeHandler.handle(invocation);
+        return (R) invokeHandler.handle(invocation).get();
     }
 
     @Override
@@ -63,8 +63,8 @@ class GenericHandler implements GenericService {
         return async(HashMap.class, methodName, parameter);
     }
 
-    @SuppressWarnings({ "unchecked" })
     @Override
+    @SuppressWarnings("unchecked")
     public <R, P> CompletableFuture<R> async(Class<R> returnType, String methodName, P parameter) throws Exception {
         MethodConfig methodConfig = getMethodConfig(returnType, methodName, parameter);
 
@@ -75,9 +75,7 @@ class GenericHandler implements GenericService {
         invocation.setServiceConfig(serviceConfig);
         invocation.setMethodConfig(methodConfig);
 
-        CompletableFuture<Object> future = invokeHandler.handle(invocation);
-
-        return (CompletableFuture<R>) future;
+        return (CompletableFuture<R>) invokeHandler.handle(invocation);
     }
 
     private <P, R> MethodConfig getMethodConfig(Class<R> returnType, String methodName, P parameter) {

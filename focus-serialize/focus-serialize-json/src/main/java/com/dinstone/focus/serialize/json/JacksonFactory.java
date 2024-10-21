@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.serialze.json;
+package com.dinstone.focus.serialize.json;
 
 import com.dinstone.focus.serialize.Serializer;
 import com.dinstone.focus.serialize.SerializerFactory;

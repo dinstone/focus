@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.serialze.protobuf;
+package com.dinstone.focus.serialize.protobuf;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

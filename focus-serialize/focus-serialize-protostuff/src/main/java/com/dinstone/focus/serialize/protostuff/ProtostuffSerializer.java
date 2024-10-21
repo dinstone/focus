@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.focus.serialze.protostuff;
+package com.dinstone.focus.serialize.protostuff;
 
 import java.io.IOException;
 

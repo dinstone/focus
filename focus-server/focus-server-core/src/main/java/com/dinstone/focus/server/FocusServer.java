@@ -100,7 +100,7 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
         LOG.info("focus server created for [{}]", serverOptions.getApplication());
     }
 
-    public synchronized FocusServer start() {
+    public synchronized void start() {
         InetSocketAddress listenAddress = serverOptions.getListenAddress();
         try {
             if (this.acceptor == null) {
@@ -119,7 +119,6 @@ public class FocusServer implements ServiceExporter, AutoCloseable {
             throw new FocusException("start focus server error", e);
         }
 
-        return this;
     }
 
     @Override

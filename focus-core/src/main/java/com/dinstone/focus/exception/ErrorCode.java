@@ -15,14 +15,16 @@
  */
 package com.dinstone.focus.exception;
 
-public enum ErrorCode {
+import com.dinstone.focus.StatusCode;
+
+public enum ErrorCode implements StatusCode {
 
     // invoke error
     UNKNOWN_ERROR(100), INVOKE_ERROR(101), TIMEOUT_ERROR(102), CONNECT_ERROR(103),
 
     // service error
     CODEC_ERROR(201), SERVICE_ERROR(202), METHOD_ERROR(203), PARAM_ERROR(204), ACCESS_ERROR(205), RATE_LIMIT_ERROR(206),
-    CIRCUIT_BREAK_ERROR(206),
+    CIRCUIT_BREAK_ERROR(207),
 
     // business error
     DECLARED_ERROR(301), UNDECLARED_ERROR(302), RUNTIME_ERROR(303);

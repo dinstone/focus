@@ -18,6 +18,7 @@ package com.dinstone.focus.transport.photon;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import com.dinstone.focus.StatusCode;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
@@ -35,7 +36,6 @@ import com.dinstone.photon.Connection;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
-import com.dinstone.photon.message.Response.Status;
 import io.netty.util.CharsetUtil;
 
 public class PhotonConnector implements Connector {
@@ -86,7 +86,7 @@ public class PhotonConnector implements Connector {
 
     private Object decode(Response response, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         Headers headers = response.headers();
-        if (response.getStatus() == Status.SUCCESS) {
+        if (response.getStatus() == StatusCode.SUCCESS) {
             byte[] content = response.getContent();
             if (content == null || content.length == 0) {
                 return null;
@@ -118,9 +118,7 @@ public class PhotonConnector implements Connector {
                 message = new String(encoded, CharsetUtil.UTF_8);
             }
 
-            String codeKey = InvokeException.CODE_KEY;
-            int unknownValue = ErrorCode.UNKNOWN_ERROR.value();
-            int codeValue = headers.getInt(codeKey, unknownValue);
+            int codeValue = response.getStatus();
             throw ExceptionUtil.invokeException(codeValue, message);
         }
     }

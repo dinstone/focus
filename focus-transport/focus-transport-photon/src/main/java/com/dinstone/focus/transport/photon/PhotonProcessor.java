@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
+import com.dinstone.focus.StatusCode;
 import com.dinstone.focus.compress.Compressor;
 import com.dinstone.focus.config.MethodConfig;
 import com.dinstone.focus.config.ServiceConfig;
@@ -38,15 +39,14 @@ import com.dinstone.photon.Processor;
 import com.dinstone.photon.message.Headers;
 import com.dinstone.photon.message.Request;
 import com.dinstone.photon.message.Response;
-import com.dinstone.photon.message.Response.Status;
 import io.netty.util.CharsetUtil;
 
-public final class PhotonMessageProcessor extends Processor {
+public final class PhotonProcessor extends Processor {
     private final Function<String, ServiceConfig> serviceFinder;
     private final ExecutorSelector executorSelector;
     private final ExecutorService sharedExecutor;
 
-    public PhotonMessageProcessor(Function<String, ServiceConfig> serviceFinder, ExecutorService sharedExecutor,
+    public PhotonProcessor(Function<String, ServiceConfig> serviceFinder, ExecutorService sharedExecutor,
             ExecutorSelector executorSelector) {
         this.serviceFinder = serviceFinder;
         this.sharedExecutor = sharedExecutor;
@@ -131,7 +131,7 @@ public final class PhotonMessageProcessor extends Processor {
 
     private Response encode(Object reply, ServiceConfig serviceConfig, MethodConfig methodConfig) {
         Response response = new Response();
-        response.setStatus(Status.SUCCESS);
+        response.setStatus(StatusCode.SUCCESS);
         byte[] content = null;
         if (reply != null) {
             try {
@@ -208,8 +208,8 @@ public final class PhotonMessageProcessor extends Processor {
         }
         // send response with exception
         Response response = new Response();
-        response.setStatus(Status.FAILURE);
         response.setSequence(request.getSequence());
+        response.setStatus(exception.getCode().value());
 
         response.headers().setInt(InvokeException.CODE_KEY, exception.getCode().value());
         if (exception.getMessage() != null) {

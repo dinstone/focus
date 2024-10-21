@@ -43,12 +43,12 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.util.CharsetUtil;
 
-public final class Http2MessageProcessor {
+public final class Http2Processor {
 
     private final Function<String, ServiceConfig> serviceFinder;
     private final ExecutorSelector executorSelector;
 
-    public Http2MessageProcessor(Function<String, ServiceConfig> serviceFinder, ExecutorSelector executorSelector) {
+    public Http2Processor(Function<String, ServiceConfig> serviceFinder, ExecutorSelector executorSelector) {
         this.serviceFinder = serviceFinder;
         this.executorSelector = executorSelector;
     }

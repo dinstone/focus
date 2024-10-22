@@ -67,19 +67,19 @@ The quick start gives a basic example of running client and server on the same m
     <dependency>
         <groupId>com.dinstone.focus</groupId>
         <artifactId>focus-server-photon</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.1</version>
         <type>pom</type>
     </dependency>
     <dependency>
         <groupId>com.dinstone.focus</groupId>
         <artifactId>focus-client-photon</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.1</version>
         <type>pom</type>
     </dependency>
     <dependency>
         <groupId>com.dinstone.focus</groupId>
         <artifactId>focus-serialize-json</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.1</version>
     </dependency>
 </dependencies>
 ```

@@ -3,9 +3,16 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/dinstone/focus/blob/master/LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/com.dinstone.focus/focus-parent.svg?label=Maven%20Central)](https://search.maven.org/search?q=com.dinstone.focus)
 
-**Focus** is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.
+**Focus RPC** is the next generation cross language lightweight RPC framework. It can quickly and easily develop microservice applications, which greatly simplifies RPC programming.
 
-[Focus](https://github.com/dinstone/focus) 是下一代跨平台、跨语言的轻量级RPC框架。旨在帮助开发者可以更加高效地构建和维护微服务应用程序。他们可以利用统一的接口和协议，在不同的平台和语言之间进行通信和协作，从而提高开发效率和系统可靠性，简化多平台下的RPC编程，可以很轻松地实现云端编程和移动端编程。
+**Focus RPC** 是下一代跨平台、跨语言的轻量级RPC框架。旨在帮助开发者可以更加高效地构建和维护微服务应用程序。他们可以利用统一的接口和协议，在不同的平台和语言之间进行通信和协作，从而提高开发效率和系统可靠性，简化多平台下的RPC编程，可以很轻松地实现云端编程和移动端编程。
+
+- [focus-go](https://github.com/focus-rpc/focus-go) is the go language implementation of the Focus.
+- [focus-java](https://github.com/focus-rpc/focus-java) is the java language implementation of the Focus.
+
+---
+
+# Focus Java Implementation
 
 通常，评价一个 RPC 框架是否优秀、高效能，有 3 个基本标准：
 
@@ -15,11 +22,11 @@
 
 * 性能优越，可演进：“高性能”永远是一个绕不开的关注点，框架的实现也是编码能力的体现，保持 API 不变，但实现可持续迭代改进。
 
-[Focus](https://github.com/dinstone/focus) 框架在高效能方面做了很多的努力，贯彻最小侵入性设计理念，坚持面向对象的SOLID原则，追求极简协议和代码简洁，能够让开发者和企业更轻松地集成和使用RPC框架。
+[focus-java](https://github.com/focus-rpc/focus-java) 框架在高效能方面做了很多的努力，贯彻最小侵入性设计理念，坚持面向对象的SOLID原则，追求极简协议和代码简洁，能够让开发者和企业更轻松地集成和使用RPC框架。
 
 对于希望使用和学习RPC框架的同学来说，选择一个高效、易用、灵活和可扩展的框架非常重要。Focus框架可以为他们提供更多的参考和选择，帮助他们更好地了解和掌握RPC框架的使用技巧和最佳实践。
 
-# Features
+## Features
 
 * 跨语言支持。同时支持多种串行化协议：Jackson和Protobuff。
 * 模块化API。模块化的客户端和服务端API，可扩展的系统架构核心小于1 MB。
@@ -31,25 +38,25 @@
 * 不同级别的服务控制。全局级别、服务级别的序列化、压缩、超时、重试设置，方法级别的超时、重试设置。
 * Spring boot 集成支持友好。简化Spring应用的集成、开发难度。
 
-## Design Idea
+### Design Idea
 
 * Modular client and server APIs, scalable system architecture, and framework core less than 1 MB in size.
 * Support a variety of serialization protocol at the same time - Jackson、Protobuff、Protostuff
 * Layered architecture, including API layer, Proxy layer, Invoke layer, Protocol layer, Transport layer
 * Pluggable invoke interception mechanism, that facilitates extensions such as service security, observability, and service governance.
 
-## Ease of use
+### Ease of use
 
 * Out of the box client-side and server-side API
 * Spring boot starter integration friendly
 * Support synchronous, asynchronous and generalized calls
 
-## Performance
+### Performance
 
 * Efficient custom protocol ([Photon](https://github.com/dinstone/photon) message exchange protocol and Focus RPC protocol)
 * High-performance NIO socket framework support - Netty4
 
-# Quick Start
+## Quick Start
 
 The quick start gives a basic example of running client and server on the same machine. For more advanced examples, please refer to the example project : [focus-examples](https://github.com/dinstone/focus-examples). For the detailed information about using and developing Focus, please jump to [Documents](#documents).
 
@@ -58,7 +65,7 @@ The quick start gives a basic example of running client and server on the same m
 > - JDK 1.8 or above
 > - A java-based project management software like [Maven](maven) or [Gradle](gradle)
 
-## Synchronous calls
+### Synchronous calls
 
 1. create maven project focus-quickstart and add dependencies to pom.
 
@@ -184,7 +191,7 @@ public class FocusClientBootstrap {
 }
 ```
 
-## Asynchronous calls
+### Asynchronous calls
 
 1. another way to call RPC asynchronously is to create an asynchronous interface class in client side.
 
@@ -227,7 +234,7 @@ public class FocusClientAsyncCallBootstrap {
 }
 ```
 
-## Generic calls
+### Generic calls
 
 1. the generalized call does not need to build the client interface class
 
@@ -264,7 +271,7 @@ public class FocusClientGenericCallBootstrap {
 }
 ```
 
-## Secure Call
+### Secure Call
 
 1.Set server parameters, enable SSL in the accept options, and set certificate information.
 
@@ -350,11 +357,11 @@ public class SslFocusClientBootstrap {
 }
 ```
 
-# Documents
+## Documents
 
 - [Wiki](https://github.com/dinstone/focus/wiki)
 - [Wiki(中文)](https://github.com/dinstone/focus/wiki/home_zh)
 
 # License
 
-Focus is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Focus RPC is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
